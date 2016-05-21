@@ -1,0 +1,35 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>cdo</groupId>
+		<artifactId>cdo-parent</artifactId>
+		<version>1.2.5</version>
+	</parent>
+  <artifactId>cdoweb</artifactId>
+  <version>1.2.5</version>
+  <packaging>jar</packaging>
+  <name>cdoweb</name>
+  <url>http://maven.apache.org</url>
+   <properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>cdo</groupId>
+			<artifactId>cdoUtil</artifactId>
+			<version>${project.cdo.version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>commons-fileupload</groupId>
+		    <artifactId>commons-fileupload</artifactId>
+		    <version>1.3.1</version>
+		</dependency>				
+		<dependency>
+			<groupId>tomcat</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>5.5.23</version>
+			<scope>compile</scope>
+		</dependency>			
+	</dependencies>	
+</project>

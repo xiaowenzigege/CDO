@@ -1,0 +1,52 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>cdo</groupId>
+		<artifactId>cdo-parent</artifactId>
+		<version>1.2.5</version>
+	</parent>
+
+  <artifactId>cdoUtil</artifactId>
+  <version>1.2.5</version>
+  <packaging>jar</packaging>
+
+  <name>cdoUtil</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+  		<dependency>
+			<groupId>cdo</groupId>
+			<artifactId>cdolib</artifactId>
+			<version>${project.cdo.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>cdo</groupId>
+			<artifactId>cdoframework</artifactId>
+			<version>${project.cdo.version}</version>
+		</dependency> 		
+		<!-- 支持第三RSA加解密  可指定长度   性能优于 sun rsa  因原生sun rsa 至少要512 -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk16</artifactId>
+			<version>1.46</version>
+		</dependency>
+		<!-- sftp over ssh -->
+		<dependency>
+			<groupId>com.jcraft</groupId>
+			<artifactId>jsch</artifactId>
+			<version>0.1.53</version>
+		</dependency>
+		<!-- ftp -->
+		<dependency>
+			<groupId>commons-net</groupId>
+			<artifactId>commons-net</artifactId>
+			<version>3.4</version>
+		</dependency>
+			
+	</dependencies>
+</project>

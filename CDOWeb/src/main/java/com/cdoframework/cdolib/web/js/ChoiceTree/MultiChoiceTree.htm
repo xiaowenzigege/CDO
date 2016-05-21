@@ -1,0 +1,52 @@
+<html>
+<meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+<head>
+	<title>CRM的js接口测试工具</title>
+</head>
+
+
+
+<body>
+<script src="MultiChoiceTree.js"></script> 
+
+<script>
+var strSource="[{\"name\":\"保证金1\",\"id\":1,\"children\":[]},{\"name\":\"保证金2\",\"id\":2,\"children\":[{\"name\":\"保证金3\",\"id\":3,\"children\":[]},{\"name\":\"保证金4\",\"id\":4,\"children\":[]}]},{\"name\":\"保证金5\",\"id\":5,\"children\":[]},{\"name\":\"保证金6\",\"id\":6,\"children\":[]},{\"name\":\"保证金7\",\"id\":7,\"children\":[]},{\"name\":\"保证金8\",\"id\":8,\"children\":[]},{\"name\":\"保证金9\",\"id\":9,\"children\":[]},{\"name\":\"保证金10\",\"id\":10,\"children\":[]},{\"name\":\"保证金11\",\"id\":11,\"children\":[]},{\"name\":\"保证金12\",\"id\":12,\"children\":[]},{\"name\":\"保证金13\",\"id\":13,\"children\":[]},{\"name\":\"保证金14\",\"id\":14,\"children\":[{\"name\":\"保证金15\",\"id\":15,\"children\":[]},{\"name\":\"保证金16\",\"id\":16,\"children\":[]},{\"name\":\"保证金17\",\"id\":17,\"children\":[]}]},{\"name\":\"保证金18\",\"id\":18,\"children\":[{\"name\":\"保证金19\",\"id\":19,\"children\":[]},{\"name\":\"保证金20\",\"id\":20,\"children\":[]},{\"name\":\"保证金21\",\"id\":21,\"children\":[{\"name\":\"保证金22\",\"id\":22,\"children\":[]},{\"name\":\"保证金23\",\"id\":23,\"children\":[]},{\"name\":\"保证金24\",\"id\":24,\"children\":[]},{\"name\":\"保证金25\",\"id\":25,\"children\":[]},{\"name\":\"保证金26\",\"id\":26,\"children\":[]}]}]},{\"name\":\"保证金27\",\"id\":27,\"children\":[]},{\"name\":\"保证金28\",\"id\":28,\"children\":[]}]";
+var jsonTreeNode=eval("(" + strSource + ")");
+
+var tree1=new MultiChoiceTree(jsonTreeNode);
+var arrIds=new Array();
+arrIds[0]="1";
+arrIds[1]="2";
+tree1.setSelectedNodeIds(arrIds);
+tree1.onSelected=function(selectedNodeIds,selectedNodeTitles)
+{
+	var strPath="";
+	for(var i=0;i<selectedNodeTitles.length;i++)
+	{
+		strPath+=selectedNodePaths[i]+"; ";
+	}
+	document.getElementById("Id1").value=strPath;
+}
+
+var tree2=new MultiChoiceTree(jsonTreeNode);
+tree2.onSelected=function(selectedNodeIds,selectedNodeTitles,selectedNodePaths)
+{
+	var strPath="";
+	for(var i=0;i<selectedNodeTitles.length;i++)
+	{
+		strPath+=selectedNodePaths[i]+"; ";
+	}
+	document.getElementById("Id2").value=strPath;
+}
+
+tree1.getNodeTitle("1");
+</script>
+
+标题<input id="id1" type="text" size="20" onclick="tree1.show(false,200,200)" choice="1234"/><br/>
+<br/>
+
+标题<input id="id2" type="text" size="20" onclick="tree2.show(true)" choice="1234"/><br/>
+
+</body>
+
+</html>

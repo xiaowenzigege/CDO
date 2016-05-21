@@ -1,0 +1,59 @@
+onTransFinished(strTransName,cdoRequest,cdoResponse,ret);
+onTransStarted(strTransName,cdoRequest);
+
+
+		//初始化事件处理器
+		logger.info("starting to init Event handler....................");
+		eventHandler	=new EventHandler(this);
+		
+		EventProcessor eventProcessor = serviceBus.getEventProcessor();
+		if(eventProcessor != null)
+		{
+			String strDataGroupId = eventProcessor.getLogDataGroupId();
+			CycleList<IDataEngine> clDataEngine=hmDataGroup.get(strDataGroupId);
+			if(clDataEngine==null)
+			{
+				logger.error("Faild to init Event handler, can not find DataGroupId:"+strDataGroupId+"....................");
+				return Return.valueOf(-1,"Invalid DataGroupId: "+strDataGroupId);
+			}
+			eventHandler.setCacheManager(cacheManager);
+			BusinessLogger businessLogger = new BusinessLogger();
+			businessLogger.setDataGroup(clDataEngine);
+			eventHandler.setBusinessLogger(businessLogger);
+			eventHandler.setMaxFreeThreadCount(eventProcessor.getMaxIdelTreadCount());
+			eventHandler.setMaxThreadCount(eventProcessor.getMaxThreadCount());
+			eventHandler.setMinThreadCount(eventProcessor.getMaxIdelTreadCount());
+			eventHandler.setMaxWaitEventCount(eventProcessor.getMaxWaitEventCount());
+			eventHandler.setValid(true);			
+		}
+
+		
+		servicePlugin.setEventHandler(eventHandler);
+		
+		public Return handleSQLTrans
+		
+		
+			public void onTransStarted(String strTransName,CDO cdoRequest)
+	{
+		try
+		{
+			this.eventHandler.onTransStarted(strTransName,cdoRequest);
+			logger.debug((DateTime.Now().toString()+":strTransName="+strTransName+";Trans started:\r\n"+cdoRequest.toXML()));
+		}
+		catch(Exception e)
+		{
+			
+		}
+	}
+	public void onTransFinished(String strTransName,CDO cdoRequest,CDO cdoResponse,Return retResult)
+	{
+		try
+		{
+			this.eventHandler.onTransFinished(strTransName,cdoRequest,cdoResponse,retResult);
+			logger.debug(DateTime.Now().toString()+":Trans finished:"+retResult.toString()+"\r\n"+cdoResponse.toXML());
+		}
+		catch(Exception e)
+		{
+			
+		}
+	}

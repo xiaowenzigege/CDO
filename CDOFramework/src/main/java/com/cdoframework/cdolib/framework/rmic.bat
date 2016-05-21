@@ -1,0 +1,1 @@
+rmic.exe -keep -classpath D:\MyProject\CDOForum\CDOLib\bin -nowrite -verbose -v1.2 -d ../../../../ com.cdoforum.cdolib.framework.EZRMIService
