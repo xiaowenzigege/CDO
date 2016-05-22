@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
@@ -350,7 +352,8 @@ public class NoSQLUtil
 			{
 				return Return.OK;
 			}
-			ObjectExt objectExt = cdos[0].getObjectAt(0);
+//			ObjectExt objectExt = cdos[0].getObjectAt(0);
+			ObjectExt objectExt = cdos[0].iterator().next().getValue();
 			JsonUtil4NoSQL.setCDOValue(cdoRequest, objectExt.getType(), key, objectExt.getValue());
 		} 
 		else
@@ -1843,14 +1846,22 @@ public class NoSQLUtil
 		String fieldName = null;
 		int cdoFieldType = DataType.NONE_TYPE;
 
-		String[] strFieldIds = cdo.getFieldIds();
-		ObjectExt[] objs = cdo.getFieldValues();
-		for (int i = 0; i < strFieldIds.length; i++)
+//		String[] strFieldIds = cdo.getFieldIds();
+//		ObjectExt[] objs = cdo.getFieldValues();
+//		for (int i = 0; i < strFieldIds.length; i++)
+//		{
+//			fieldName = strFieldIds[i];
+//			cdoFieldType = objs[i].getType();
+//			setVarDBObject(basicDBObject, fieldName, cdoFieldType, cdo, fieldName);
+//		}
+		
+		for (Iterator<Map.Entry<String, ObjectExt>> it=cdo.iterator();it.hasNext();)
 		{
-			fieldName = strFieldIds[i];
-			cdoFieldType = objs[i].getType();
+			Entry<String, ObjectExt> entry=it.next();
+			fieldName = entry.getKey();
+			cdoFieldType = entry.getValue().getType();
 			setVarDBObject(basicDBObject, fieldName, cdoFieldType, cdo, fieldName);
-		}
+		}		
 	}
 
 	/**

@@ -2625,7 +2625,10 @@ public class BigTableEngine// extends ParallelTaskProcessor
 					//执行数据库操作
 					CDO cdoResponse = new CDO();
 					dataAccess.dataEngine.executeQueryRecord(dataAccess.conn, strSQL, cdoRequest, cdoResponse);
-					nCount+=cdoResponse.getValueAt(0).getInteger();
+//					nCount+=cdoResponse.getValueAt(0).getInteger();
+					if(cdoResponse.iterator().hasNext()){
+						nCount+=cdoResponse.iterator().next().getValue().getInteger();
+					}					
 				}
 				finally
 				{

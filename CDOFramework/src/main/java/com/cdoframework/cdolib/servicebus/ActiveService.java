@@ -4,7 +4,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -44,31 +46,53 @@ public abstract class ActiveService extends ThreadExt implements IActiveService
 	
 	protected Map<String ,Collection<Validator.FieldBean>> validateMap = new HashMap<String ,Collection<Validator.FieldBean>>();
 
-	private Return  validateArray(CDO cdoRequest,String str){
-		 ObjectExt[] fs  = cdoRequest.getFieldValues();
-		 String[] strsFieldIds=cdoRequest.getFieldIds();
-		  
-		 	for(int i=0;i<fs.length;i++){
-		 		ObjectExt f=fs[i];
-			 	String name =	strsFieldIds[i].toLowerCase();
-		 	   String key = (str!=null?(str.toLowerCase()+"."):"")+name;
-		 	   Object value = f.getValue();
-		 	   if(value instanceof CDO){
-		 		  Return ret =	validate((CDO)value,validateMap.get(key));
-		 	    	if( ret.getCode() == -1){
-		 	    		return ret;
-		 	    	} 
-		 		  
-		 	   }else if(value instanceof CDO[]  ){
-		 	     for(CDO d :(CDO[])value){ 
-		 	    	Return ret =	validate(d,validateMap.get(key));
-		 	    	if( ret.getCode() == -1){
-		 	    		return ret; 
-		 	    	}  
-		 	      }
-		 	   } 
-		 	}  
-		 return Return.OK;
+	private Return  validateArray(CDO cdoRequest,String strTransName){
+//		 ObjectExt[] fs  = cdoRequest.getFieldValues();
+//		 String[] strsFieldIds=cdoRequest.getFieldIds();
+//		  
+//		 	for(int i=0;i<fs.length;i++){
+//		 		ObjectExt f=fs[i];
+//			 	String name =	strsFieldIds[i].toLowerCase();
+//		 	   String key = (str!=null?(str.toLowerCase()+"."):"")+name;
+//		 	   Object value = f.getValue();
+//		 	   if(value instanceof CDO){
+//		 		  Return ret =	validate((CDO)value,validateMap.get(key));
+//		 	    	if( ret.getCode() == -1){
+//		 	    		return ret;
+//		 	    	} 
+//		 		  
+//		 	   }else if(value instanceof CDO[]  ){
+//		 	     for(CDO d :(CDO[])value){ 
+//		 	    	Return ret =	validate(d,validateMap.get(key));
+//		 	    	if( ret.getCode() == -1){
+//		 	    		return ret; 
+//		 	    	}  
+//		 	      }
+//		 	   } 
+//		 	}  
+//		 return Return.OK;
+	 	for(Iterator<Map.Entry<String, ObjectExt>> it=cdoRequest.iterator();it.hasNext();){
+	 		Entry<String,ObjectExt> entry=it.next();
+	 		ObjectExt f=entry.getValue();
+	 	    String name =entry.getKey().toLowerCase();
+	 	    String key = (strTransName!=null?(strTransName.toLowerCase()+"."):"")+name;
+	 	    Object value = f.getValue();
+	 	    if(value instanceof CDO){
+	 		  Return ret =	validate((CDO)value,validateMap.get(key));
+	 	    	if( ret.getCode() == -1){
+	 	    		return ret; 
+	 	    	} 
+	 		  
+	 	    }else if(value instanceof CDO[]  ){
+	 	     for(CDO d :(CDO[])value){ 
+	 	    	Return ret =	validate(d,validateMap.get(key));
+	 	    	if( ret.getCode() == -1){
+	 	    		return ret;  
+	 	    	}  
+	 	      }
+	 	   } 
+	 	} 
+	 	return Return.OK;		 	
 	}
 	
 	protected Return validate(CDO cdoRequest ,Collection<Validator.FieldBean> validatorCollection )
