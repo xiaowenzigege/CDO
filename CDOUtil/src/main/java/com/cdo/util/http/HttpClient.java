@@ -322,7 +322,7 @@ public class HttpClient {
 	    		 Iterator<String> it=linkMap.keySet().iterator();
 	    		 String strFieldName=it.next();
 	    		 FileInfo fileInfo=linkMap.get(strFieldName);
-	    		 cdoHttpResponse.setResponseBytes(outCDOXML(inStream,(int)fileInfo.getLength()));
+	    		 cdoHttpResponse.setResponseBytes(outCDO(inStream,(int)fileInfo.getLength()));
 	    		 linkMap.remove(strFieldName);	    		 
 	   			 if(this.outStream==null){
 	   			     //下载文件输出到临时目录 ，返回文件句柄给 cdoHttpResponse
@@ -347,7 +347,7 @@ public class HttpClient {
 			 }
 		}
 		//-----------------响应流中 CDO 内容---------------------//
-		private byte[] outCDOXML(InputStream instream,int xmlLen) throws IOException{
+		private byte[] outCDO(InputStream instream,int xmlLen) throws IOException{
             final ByteArrayBuffer buffer = new ByteArrayBuffer(xmlLen);           
             byte[] tmp =null;
 			int len=xmlLen;		

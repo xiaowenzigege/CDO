@@ -156,4 +156,15 @@ public class StringField extends ValueFieldImpl
 		return str_JSON.toString();
 	}
 	
+	public String toString()
+	{
+		String value=this.strValue;
+		if(value.length()>100){
+			value=value.substring(0, 100)+"......";
+		}
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":\\\"").append(Function.FormatTextForJson(value)).append(
+						"\\\",");
+		return str_JSON.toString();
+	}
 }

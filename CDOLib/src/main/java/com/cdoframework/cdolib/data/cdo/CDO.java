@@ -1,45 +1,9 @@
 /**
  * www.cdoforum.com 2007版权所有
+ ** empty log message ***
  *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/CDO.java,v 1.6 2008/03/27 09:42:40 Frank Exp $
- *
- * $Log: CDO.java,v $
- * Revision 1.6  2008/03/27 09:42:40  Frank
- * *** empty log message ***
- *
- * Revision 1.7  2008/03/22 13:32:10  Frank
- * *** empty log message ***
- *
- * Revision 1.4  2008/03/12 10:30:56  Frank
- * *** empty log message ***
- *
- * Revision 1.6  2008/03/11 15:13:33  Frank
- * *** empty log message ***
- *
- * Revision 1.5  2008/03/11 13:41:31  Frank
- * *** empty log message ***
- *
- * Revision 1.4  2008/03/10 14:54:17  Frank
- * *** empty log message ***
- *
- * Revision 1.3  2008/03/08 12:10:54  Frank
- * *** empty log message ***
- *
- * Revision 1.2  2008/03/08 06:16:23  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2008/03/07 11:20:20  Frank
- * *** empty log message ***
- *
- * Revision 1.3  2007/11/15 12:02:32  Frank
- * *** empty log message ***
- *
- * Revision 1.2  2007/11/03 02:25:41  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2007/10/11 01:10:56  Frank
- * *** empty log message ***
- *
+ *CDO 维护一个通用数据类型
+ *key 点符号[即 .]，表示cdo的层级关系 
  *
  */
 
@@ -47,15 +11,18 @@ package com.cdoframework.cdolib.data.cdo;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import nanoxml.XMLElement;
 
 import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
@@ -74,7 +41,7 @@ public class CDO implements Serializable
 	
 	private static final Logger logger = Logger.getLogger(CDO.class);
 
-	private  int fileCount;//CDO里是否设置了文件，若设置了文件 则在网络传输需要特别处理 
+	private  int fileCount;//CDO里是否设置了文件，若设置了文件 则在网络传输需要特别处理 ,仅对最外层cdo有文件类型的进行处理
 	//内部类,所有内部类在此声明----------------------------------------------------------------------------------
 	final class FieldId
 	{
@@ -93,29 +60,14 @@ public class CDO implements Serializable
 
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
 	private HashMap<String,ObjectExt> hmItem;
-	private ArrayList<ObjectExt> vecItem;
-	private ArrayList<String> vecFieldId;
-//	private String strXML;
-
+	
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 
 	//内部方法---------------------------------------------------------------------------------------------------
-	protected void putItem(String strKey,ObjectExt objExt)
-	{
-		ObjectExt fdOldItem=(ObjectExt)hmItem.put(strKey,objExt);
-		if(fdOldItem==null)
-		{
-			vecItem.add(objExt);
-			vecFieldId.add(strKey);
-		}
-		else
-		{
-			int nIndex=vecItem.indexOf(fdOldItem);
-			vecItem.set(nIndex,objExt);
-			vecFieldId.set(nIndex,strKey);
-		}
+	protected void putItem(String strKey,ObjectExt objExt){
+		hmItem.put(strKey,objExt);
 	}
 	
 	//0-简单类型，1-多级，2-数组元素
@@ -626,14 +578,9 @@ public class CDO implements Serializable
 	public String toXML()
 	{
 		StringBuilder strbXML=new StringBuilder(500);
-		strbXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");		
-		int nSize=vecItem.size();
+		strbXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");				
 		strbXML.append("<CDO>");
-		for(int i=0;i<nSize;i++)
-		{
-			Field fieldItem=this.getFieldAt(i);
-			fieldItem.toXML(strbXML);
-		}
+		appendFieldXML(strbXML);
 		strbXML.append("</CDO>");
 		String strXML=strbXML.toString();
 		
@@ -642,71 +589,63 @@ public class CDO implements Serializable
 
 
 	protected String toXML(StringBuilder strbXML)
-	{
-		
-		int nSize=vecItem.size();
+	{				
 		strbXML.append("<CDO>");
-		for(int i=0;i<nSize;i++)
-		{
-			Field fieldItem=this.getFieldAt(i);
-			fieldItem.toXML(strbXML);
-		}
+		appendFieldXML(strbXML);
 		strbXML.append("</CDO>");
 		
 		return strbXML.toString();
+	}
+	
+	private void appendFieldXML(StringBuilder strbXML){
+		Entry<String, ObjectExt> entry=null;
+		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
+			entry=it.next();
+			Field fieldItem=this.createField(entry.getKey(),entry.getValue());			
+			fieldItem.toXML(strbXML);
+		}
 	}
 	
 	public String toXMLLog()
 	{
 		StringBuilder strbXML=new StringBuilder(500);
-		strbXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");		
-		int nSize=vecItem.size();
+		strbXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");				
 		strbXML.append("<CDO>");
-		for(int i=0;i<nSize;i++)
-		{
-			Field fieldItem=this.getFieldAt(i);
+		Entry<String, ObjectExt> entry=null;
+		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
+			entry=it.next();
+			Field fieldItem=this.createField(entry.getKey(),entry.getValue());
 			fieldItem.toXMLLog(strbXML);
-		}
+		}				
 		strbXML.append("</CDO>");
 		String strXML=strbXML.toString();
 		
 		return strXML;
 	}
-	public String toXMLWithIndent()
-	{
+	
+	public String toXMLWithIndent(){
 		StringBuilder strbXML=new StringBuilder(500);
 		strbXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
-		
-		int nSize=vecItem.size();
 		strbXML.append("<CDO>\r\n");
-		for(int i=0;i<nSize;i++)
-		{
-			Field fieldItem=this.getFieldAt(i);
+		Entry<String, ObjectExt> entry=null;
+		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
+			entry=it.next();
+			Field fieldItem=this.createField(entry.getKey(),entry.getValue());
 			fieldItem.toXMLWithIndent(1,strbXML);
-		}
+		}			
 		strbXML.append("</CDO>\r\n");	
 		
 		return strbXML.toString();
 	}
 	
-	protected void toXMLWithIndent(String strIndent,StringBuilder strbXML)
-	{
-		if(strIndent!=null)
-		{
-			strbXML.append(strIndent).append("<CDO>\r\n");
-		}
-		else
-		{
-			strbXML.append("<CDO>");
-		}
-
-		int nSize=vecItem.size();
-		strbXML.append("<CDO>\r\n");
-		for(int i=0;i<nSize;i++)
-		{
-			Field fieldItem=this.getFieldAt(i);
+	protected void toXMLWithIndent(String strIndent,StringBuilder strbXML){
+		strbXML.append(strIndent).append("<CDO>\r\n");		
+		Entry<String, ObjectExt> entry=null;
+		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
+			entry=it.next();
+			Field fieldItem=this.createField(entry.getKey(),entry.getValue());
 			fieldItem.toXMLWithIndent(1+strIndent.length(),strbXML);
-		}
+		}			
 		strbXML.append(strIndent).append("</CDO>\r\n");
 	}
 
@@ -714,8 +653,7 @@ public class CDO implements Serializable
 	//操作方法---------------------------------------------------------------------------------------------------
 	protected void setField(String strName,ObjectExt field)
 	{
-		putItem(strName,field);
-		//strXML=null;
+		putItem(strName,field);		
 	}
 
     //根据带路径的FieldId获取对应的Value
@@ -836,15 +774,6 @@ public class CDO implements Serializable
     	return objExt;
 	}
     
-    public ObjectExt getObjectAt(int nIndex)
-    {
-    	return this.vecItem.get(nIndex);
-    }
-    
-    public String getFieldIdAt(int nIndex)
-    {
-    	return this.vecFieldId.get(nIndex);
-    }
 
     public Object getObjectValue(String strFieldId)
     {
@@ -1190,11 +1119,13 @@ public class CDO implements Serializable
     	
 		this.setObjectValue(fieldId,ObjectExt.STRING_TYPE,strValue,this);
     }
-
+    /**
+     * 
+     * @param strFieldId
+     * @param file
+     */
     public void setFileValue(String strFieldId,File file)
     {
-    	//this.strXML=null;
-
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
     	{
@@ -1581,30 +1512,7 @@ public class CDO implements Serializable
 		}
     }
 
-    public ObjectExt[] getFieldValues()
-    {
-    	ObjectExt[] objs=new ObjectExt[this.vecItem.size()];
-
-    	return this.vecItem.toArray(objs);
-    }
-
-    public String[] getFieldIds()
-    {
-    	String[] strs=new String[this.vecItem.size()];
-
-    	return this.vecFieldId.toArray(strs);
-    }
-
-    public int getFieldCount()
-    {
-    	return vecItem.size();
-    }
     
-    public ObjectExt getValueAt(int nIndex)
-    {
-    	return vecItem.get(nIndex);
-    }
-
     private ValueField createField(String strFieldId,ObjectExt objExt)
     {
     	ValueField vf=null;
@@ -1690,14 +1598,7 @@ public class CDO implements Serializable
 		return vf;
     }
     
-    public ValueField getFieldAt(int nIndex)
-    {
-    	String strFieldId=this.vecFieldId.get(nIndex);
-    	ObjectExt objExt=this.vecItem.get(nIndex);
-    	
-    	return this.createField(strFieldId, objExt);
-    }
-    
+  
     public ValueField getField(String strFieldId)
     {
     	ObjectExt objExt=this.getObject(strFieldId);
@@ -1843,13 +1744,8 @@ public class CDO implements Serializable
 	
 	public void remove(String key)
 	{
-		//strXML=null;
-
 		ObjectExt objExt=hmItem.remove(key);
-		int nIndex=vecItem.indexOf(objExt);
-		vecItem.remove(nIndex);
-		vecFieldId.remove(nIndex);
-		if(objExt.getType()==ObjectExt.FILE_TYPE){
+		if(objExt.getType()==ObjectExt.FILE_TYPE && !key.contains(".")){
 			fileCount--;
 		}
 	}
@@ -1867,9 +1763,12 @@ public class CDO implements Serializable
 	}
 	
 	public Set<Map.Entry<String,ObjectExt>> entrySet(){
-		return hmItem.entrySet();
+		return this.hmItem.entrySet();
 	}
     
+    public Iterator<Map.Entry<String,ObjectExt>> iterator(){
+    	return this.hmItem.entrySet().iterator();
+    }	
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
 	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------
@@ -1878,15 +1777,9 @@ public class CDO implements Serializable
 
 	//构造函数,所有构造函数在此定义------------------------------------------------------------------------------
 
-	public CDO()
-	{
-
+	public CDO(){
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
-		hmItem	=new HashMap<String,ObjectExt>();
-		//strXML	=null;
-		vecItem	=new ArrayList<ObjectExt>();
-		vecFieldId=new ArrayList<String>();
-		
+		hmItem	=new LinkedHashMap<String,ObjectExt>();		
 	}
 	
 	/**
@@ -1899,14 +1792,14 @@ public class CDO implements Serializable
 	public String toJSON()
 	{
 		StringBuffer str_JSON=new StringBuffer("{");
-
-		int nSize=vecItem.size();
-		for(int i=0;i<nSize;i++)
-		{
-			Field fieldItem=this.getFieldAt(i);
+		
+		Entry<String, ObjectExt> entry=null;
+		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
+			entry=it.next();
+			Field fieldItem=this.createField(entry.getKey(),entry.getValue());
 			str_JSON.append(fieldItem.toJSON());
 		}
-
+		
 		// ugly 方法去掉最后一个","
 		int _lastComma=str_JSON.lastIndexOf(",");
 		int _length=str_JSON.length();
@@ -1922,14 +1815,13 @@ public class CDO implements Serializable
 	public String toJSONString()
 	{
 		StringBuffer str_JSON=new StringBuffer("{");
-
-		int nSize=vecItem.size();
-		for(int i=0;i<nSize;i++)
-		{
-			Field fieldItem=(Field)this.getFieldAt(i);
+		
+		Entry<String, ObjectExt> entry=null;
+		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
+			entry=it.next();
+			Field fieldItem=this.createField(entry.getKey(),entry.getValue());
 			str_JSON.append(fieldItem.toJSONString());
 		}
-
 		// ugly 方法去掉最后一个","
 		int _lastComma=str_JSON.lastIndexOf(",");
 		int _length=str_JSON.length();
@@ -1944,52 +1836,73 @@ public class CDO implements Serializable
 	
 	public String toString()
 	{
-		return this.toJSONString();
+		StringBuffer str_String=new StringBuffer("{");
+		
+		Entry<String, ObjectExt> entry=null;
+		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
+			entry=it.next();
+			Field fieldItem=this.createField(entry.getKey(),entry.getValue());
+			str_String.append(fieldItem.toString());
+		}		
+		int _lastComma=str_String.lastIndexOf(",");
+		int _length=str_String.length();
+		if(_lastComma==_length-1)
+		{
+			str_String.replace(_lastComma,_lastComma+1,"");
+		}
+		str_String.append("}");
+		return str_String.toString();
 	}
 	
 	public static void main(String[] args)
 	{
 		CDO cdo = new CDO();
-		System.out.print(cdo.clone().toXML());
-		cdo.setStringValue("strName","张三");
-		cdo.setIntegerValue("nAge",0);
-		cdo.setDateValue("dBirthday","2000-01-01");
+		cdo.setStringValue("strName1","张三");
+		cdo.setIntegerValue("nAge1",0);
+		cdo.setDateValue("dBirthday1","2000-01-01");
 		int[] nsValue=new int[3];
 		for(int i=0;i<nsValue.length;i++)
 		{
 			nsValue[i]=i;
 		}
-		cdo.setIntegerArrayValue("nsValue",nsValue);
+		cdo.setIntegerArrayValue("nsValue1",nsValue);
 		String[] strsValue=new String[3];
 		for(int i=0;i<strsValue.length;i++)
 		{
 			strsValue[i]="Value"+i;
 		}
-		cdo.setStringArrayValue("strsValue",strsValue);
+		cdo.setStringArrayValue("strsValue1",strsValue);
 		CDO[] cdosList=new CDO[5];
 		for(int i=0;i<cdosList.length;i++)
 		{			
 			cdosList[i]=new CDO();
-			cdosList[i].setStringValue("strName","张三"+i);
-			cdosList[i].setIntegerValue("nAge",0);
-			cdosList[i].setDateValue("dBirthday","2000-01-01");
+			cdosList[i].setStringValue("strName2","张三"+i);
+			cdosList[i].setIntegerValue("nAge2",0);
+			cdosList[i].setDateValue("dBirthday2","2000-01-01");
 		}
-		cdo.setCDOArrayValue("cdosList",cdosList);
+		cdo.setCDOArrayValue("cdosList1",cdosList);
 		CDO cdoChild=new CDO();
-		cdoChild.setStringValue("strName","张三");
-		cdoChild.setIntegerValue("nAge",0);
-		cdoChild.setDateValue("dBirthday","2000-01-01");
-		cdoChild.setCDOArrayValue("cdosList",cdosList);
-		cdoChild.setIntegerArrayValue("nsValue",nsValue);
+		cdoChild.setStringValue("strName2","张三");
+		cdoChild.setIntegerValue("nAge2",0);
+		cdoChild.setDateValue("dBirthday2","2000-01-01");
+		cdoChild.setCDOArrayValue("cdosList2",cdosList);
+		cdoChild.setIntegerArrayValue("nsValue2",nsValue);
 		cdo.setCDOValue("cdoChild",cdoChild);
 		cdo.setByteArrayValue("bytes", new byte[]{1,2,3});
 //		String strXML=cdo.toXMLWithIndent();
 		cdo=CDO.fromXML(cdo.toXML());
 //		strXML=cdo.toXMLWithIndent();
 		System.out.println(cdo.toXMLWithIndent());
-		System.out.println(cdo.getCDOValue("cdoChild").toXML());
-		System.out.println(cdo.toXML());
-		System.out.println(cdo.toXMLLog());
-		System.out.println(cdo.clone().toXML());
+		System.out.println(cdo.getCDOValue("cdoChild").toXMLWithIndent());
+		try {
+			JSONObject s=new JSONObject(cdo.toJSON());
+			System.out.println("json="+s.toString());
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//		System.out.println(cdo.toXML());
+//		System.out.println(cdo.toXMLLog());
+//		System.out.println(cdo.clone().toXML());
 	}
 }

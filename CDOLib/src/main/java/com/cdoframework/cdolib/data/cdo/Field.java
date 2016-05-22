@@ -59,6 +59,7 @@ public interface Field extends DataType
 	
 	public  String toJSON();
 	public  String toJSONString();
+	public  String toString();
 	
 	public void toXML(StringBuilder strbXML);
 	public void toXMLLog(StringBuilder strbXML);

@@ -12,7 +12,6 @@ import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
 
 import com.cdo.util.bean.CDOHTTPResponse;
-import com.cdo.util.bean.Response;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.http.HttpClient;
 import com.cdoframework.cdolib.base.ObjectExt;

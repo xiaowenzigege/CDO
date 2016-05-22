@@ -79,7 +79,6 @@ public interface DataType extends Serializable
 	int CDO_ARRAY_TYPE			=112;
 	int RECORD_SET_TYPE			=113;
 	
-	int FILE_ARRAY_TYPE			=150;
 	
 	String	DATETIME_FORMAT_STRING		="yyyy-MM-dd HH:mm:ss";
 	String	DATE_FORMAT_STRING			="yyyy-MM-dd";

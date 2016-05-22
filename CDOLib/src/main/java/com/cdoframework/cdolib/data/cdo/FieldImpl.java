@@ -120,7 +120,10 @@ public class FieldImpl implements Field
 	}
 	@Override
 	public void toXMLLog(StringBuilder strbXML) {
-		toXML(strbXML);
-		
+		toXML(strbXML);		
+	}
+	@Override
+	public String toString() {
+		return toJSONString();		
 	}
 }

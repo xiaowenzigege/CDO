@@ -200,15 +200,6 @@ public class ByteArrayField extends ArrayFieldImpl
 		strbXML.append(this.bysValue);		
 		strbXML.append("\"/>");		
 	}
-	
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append("[");
-		str_JSON.append("").append(this.bysValue);
-		str_JSON.append("],");
-		return str_JSON.toString();
-	}
 
 	public String toJSON()
 	{
@@ -223,5 +214,15 @@ public class ByteArrayField extends ArrayFieldImpl
 		str_JSON.append("],");
 		return str_JSON.toString();
 	}	
+	
+	
+	public String toJSONString()
+	{
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append("[");
+		str_JSON.append("").append(this.bysValue);
+		str_JSON.append("],");
+		return str_JSON.toString();
+	}
 	
 }
