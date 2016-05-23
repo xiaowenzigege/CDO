@@ -29,7 +29,8 @@ import com.cdoframework.cdolib.base.Utility;
 
 /**
  * @author Frank
- * modify by @author KenelLiu 
+ * modify by @author KenelLiu
+ * delete list 
  */
 public class CDO implements Serializable
 {
