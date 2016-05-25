@@ -11,10 +11,10 @@ import org.apache.log4j.Logger;
 
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.service.framework.schema.Parameter;
-import com.cdoframework.cdolib.service.framework.schema.URLCacheServer;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.CacheURL;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.RemoveURLCache;
+import com.cdoframework.cdolib.service.framework.xsd.Parameter;
+import com.cdoframework.cdolib.service.framework.xsd.URLCacheServer;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.CacheURL;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.RemoveURLCache;
 
 public class SquidSocketClient implements IURLCacheServerClient
 {
@@ -62,8 +62,8 @@ public class SquidSocketClient implements IURLCacheServerClient
 		for(CacheURL cacheURL: cacheURLs)
 		{
 			try
-			{
-				String strURL = FrameworkUtil.getString(cacheURL.getType().getType(),cacheURL.getContent(),cdoRequest,cdoResponse);
+			{				  
+				String strURL = FrameworkUtil.getString(getURLType(cacheURL),cacheURL.getContent(),cdoRequest,cdoResponse);
 				String strHost = cacheURL.getHost();
 				if(strHost==null)
 				{
@@ -92,7 +92,7 @@ public class SquidSocketClient implements IURLCacheServerClient
 		{
 			try
 			{
-				String strURL = FrameworkUtil.getString(fromIndex,strIndexId,cacheURL.getType().getType(),cacheURL.getContent(),cdoRequest,cdoResponse);
+				String strURL = FrameworkUtil.getString(fromIndex,strIndexId,getURLType(cacheURL),cacheURL.getContent(),cdoRequest,cdoResponse);
 				String strHost = cacheURL.getHost();
 				if(strHost==null)
 				{
@@ -184,38 +184,22 @@ public class SquidSocketClient implements IURLCacheServerClient
 		return true;
 	}
 	
-	public static void main(String[] args)
-	{
-		String strDomain = "mall.business.my";
-		int nPort = 80;
-		CDO cdo = new CDO();
-		cdo.setStringValue("strServiceName","SellerGoodsService");
-		cdo.setStringValue("strTransName","getSellerSubGoods");
-		cdo.setLongValue("lSellerGoodsId",100000L);
-		cdo.setLongValue("lSubGoodsId",1000L);
-		cdo.setLongValue("lSellerId",2);
-		StringBuilder sb = new StringBuilder();
-		sb.append("http:/mall.business.my/handleTrans.cdo?strTransName=").append("getSellerSubGoods&&$$CDOREQUEST=$$");
-
-		String strRequest = null;;
-		try
-		{
-			strRequest=java.net.URLEncoder.encode(cdo.toXML(),"UTF-8");
-			sb.append(strRequest);
-			String url = sb.toString();
-			if(logger.isInfoEnabled()){
-				logger.info("to remove url="+url);
+	private int getURLType(CacheURL cacheURL){
+		
+		  int nType=0;
+		  switch (cacheURL.getType()) {
+			case COMMON:
+				nType=0;
+				break;
+			case JSON:
+				nType=1;
+			case XML:
+				nType=2;					
+			default:
+				 nType=0;
 			}
-			String urlHost = "business.mall.my";
-			SquidSocketClient.purge(strDomain,nPort,url,urlHost);
-		}
-		catch(Exception e)
-		{
-			logger.error("main:"+e.getMessage(),e);
-		}
-		if(logger.isInfoEnabled()){
-			logger.info("complete");
-		}
+		  return nType;
 	}
+	
 
 }

@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.BusinessLog;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.BusinessLog;
 import com.cdoframework.cdolib.servicebus.ITransService;
 
 /**

@@ -16,33 +16,33 @@ import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.database.dataservice.Add;
-import com.cdoframework.cdolib.database.dataservice.AddField;
-import com.cdoframework.cdolib.database.dataservice.CollectionNameType;
-import com.cdoframework.cdolib.database.dataservice.Creteria;
-import com.cdoframework.cdolib.database.dataservice.Creterias;
-import com.cdoframework.cdolib.database.dataservice.CriteriaType;
-import com.cdoframework.cdolib.database.dataservice.Modify;
-import com.cdoframework.cdolib.database.dataservice.ModifyField;
-import com.cdoframework.cdolib.database.dataservice.NoSQLTrans;
-import com.cdoframework.cdolib.database.dataservice.NoSQLTransTypeChoice;
-import com.cdoframework.cdolib.database.dataservice.NoSQLTransTypeChoiceItem;
-import com.cdoframework.cdolib.database.dataservice.OnError;
-import com.cdoframework.cdolib.database.dataservice.OnException;
-import com.cdoframework.cdolib.database.dataservice.Order;
-import com.cdoframework.cdolib.database.dataservice.QField;
-import com.cdoframework.cdolib.database.dataservice.QueryCount;
-import com.cdoframework.cdolib.database.dataservice.QueryField;
-import com.cdoframework.cdolib.database.dataservice.QueryRecord;
-import com.cdoframework.cdolib.database.dataservice.QueryRecordSet;
-import com.cdoframework.cdolib.database.dataservice.Remove;
-import com.cdoframework.cdolib.database.dataservice.Replace;
-import com.cdoframework.cdolib.database.dataservice.ReplaceField;
-import com.cdoframework.cdolib.database.dataservice.Scope;
-import com.cdoframework.cdolib.database.dataservice.types.CriteriaTypeOperatorType;
-import com.cdoframework.cdolib.database.dataservice.types.CriteriaTypeTypeType;
-import com.cdoframework.cdolib.database.dataservice.types.FieldTypeTypeType;
-import com.cdoframework.cdolib.database.dataservice.types.ModifyFieldMethodType;
+import com.cdoframework.cdolib.database.xsd.Add;
+import com.cdoframework.cdolib.database.xsd.AddField;
+import com.cdoframework.cdolib.database.xsd.CollectionNameType;
+import com.cdoframework.cdolib.database.xsd.Creteria;
+import com.cdoframework.cdolib.database.xsd.Creterias;
+import com.cdoframework.cdolib.database.xsd.CriteriaType;
+import com.cdoframework.cdolib.database.xsd.Modify;
+import com.cdoframework.cdolib.database.xsd.ModifyField;
+import com.cdoframework.cdolib.database.xsd.NoSQLTrans;
+import com.cdoframework.cdolib.database.xsd.NoSQLTransTypeChoice;
+import com.cdoframework.cdolib.database.xsd.NoSQLTransTypeChoiceItem;
+import com.cdoframework.cdolib.database.xsd.OnError;
+import com.cdoframework.cdolib.database.xsd.OnException;
+import com.cdoframework.cdolib.database.xsd.Order;
+import com.cdoframework.cdolib.database.xsd.QField;
+import com.cdoframework.cdolib.database.xsd.QueryCount;
+import com.cdoframework.cdolib.database.xsd.QueryField;
+import com.cdoframework.cdolib.database.xsd.QueryRecord;
+import com.cdoframework.cdolib.database.xsd.QueryRecordSet;
+import com.cdoframework.cdolib.database.xsd.Remove;
+import com.cdoframework.cdolib.database.xsd.Replace;
+import com.cdoframework.cdolib.database.xsd.ReplaceField;
+import com.cdoframework.cdolib.database.xsd.Scope;
+import com.cdoframework.cdolib.database.xsd.types.CriteriaTypeOperatorType;
+import com.cdoframework.cdolib.database.xsd.types.CriteriaTypeTypeType;
+import com.cdoframework.cdolib.database.xsd.types.FieldTypeTypeType;
+import com.cdoframework.cdolib.database.xsd.types.ModifyFieldMethodType;
 import com.cdoframework.cdolib.util.Function;
 import com.cdoframework.cdolib.util.JsonUtil4NoSQL;
 import com.mongodb.BasicDBObject;
@@ -55,7 +55,7 @@ import com.mongodb.QueryOperators;
 import com.mongodb.WriteResult;
 
 /**
- * @author Administrator
+ * @author KenelLiu
  */
 public class NoSQLUtil
 {
@@ -73,7 +73,7 @@ public class NoSQLUtil
 
 	// 内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
-	protected static void handleReturn(com.cdoframework.cdolib.base.Return ret, com.cdoframework.cdolib.database.dataservice.Return returnObject, CDO cdoRequest, CDO cdoResponse) throws Exception
+	protected static void handleReturn(com.cdoframework.cdolib.base.Return ret, com.cdoframework.cdolib.database.xsd.Return returnObject, CDO cdoRequest, CDO cdoResponse) throws Exception
 	{
 		int nReturnItemCount = returnObject.getReturnItemCount();
 		for (int j = 0; j < nReturnItemCount; j++)
@@ -110,7 +110,7 @@ public class NoSQLUtil
 	 * (non-Javadoc)
 	 * 
 	 * @seecom.cdoframework.cdolib.database.INoSQLDataEngine#executeTrans(com.
-	 * cdoframework.cdolib.database.dataservice.NoSQLTrans,
+	 * cdoframework.cdolib.database.xsd.NoSQLTrans,
 	 * com.cdoframework.cdolib.data.cdo.CDO,
 	 * com.cdoframework.cdolib.data.cdo.CDO)
 	 */
@@ -122,7 +122,7 @@ public class NoSQLUtil
 		String strTransName = noSqlTrans.getTransName();
 		try
 		{
-			NoSQLTransTypeChoice noSQLTransTypeChoices = noSqlTrans.getNoSQLTransTypeChoice()[0];
+			NoSQLTransTypeChoice noSQLTransTypeChoices = noSqlTrans.getNoSQLTransTypeChoice();
 			NoSQLTransTypeChoiceItem noSqlTransTypeChoiceItem = null;
 			for (int i = 0; i < noSQLTransTypeChoices.getNoSQLTransTypeChoiceItemCount(); i++)
 			{
@@ -781,9 +781,9 @@ public class NoSQLUtil
 		// 值对象
 		ObjectExt valueObject = null;
 		// 根据操作符来判断生成查询条件,有的条件不需要关心value和type
-		switch (operatType.getType())
+		switch (operatType)
 		{
-		case CriteriaTypeOperatorType.VALUE_0_TYPE:// =
+		case VALUE_0:// =
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -791,7 +791,7 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(fieldName, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue()));
 			break;
-		case CriteriaTypeOperatorType.VALUE_1_TYPE:// !=
+		case VALUE_1:// !=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -799,7 +799,7 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.NE, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue())));
 			break;
-		case CriteriaTypeOperatorType.VALUE_2_TYPE:// >
+		case VALUE_2:// >
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType,fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -807,7 +807,7 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.GT, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue())));
 			break;
-		case CriteriaTypeOperatorType.VALUE_3_TYPE:// >=
+		case VALUE_3:// >=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType,fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -815,7 +815,7 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.GTE, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue())));
 			break;
-		case CriteriaTypeOperatorType.VALUE_4_TYPE:// <
+		case VALUE_4:// <
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -823,7 +823,7 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.LT, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue())));
 			break;
-		case CriteriaTypeOperatorType.VALUE_5_TYPE:// <=
+		case VALUE_5:// <=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -831,10 +831,10 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.LTE,Utility.parseObjectValue(valueObject.getType(), valueObject.getValue())));
 			break;
-		case CriteriaTypeOperatorType.VALUE_6_TYPE:// ISNULL
+		case VALUE_6:// ISNULL
 			basicDBObject.put(fieldName, new BasicDBObject(INoSQLDataEngine.FIND_TYPE, INoSQLDataEngine.TYPE_NULL));
 			break;
-		case CriteriaTypeOperatorType.VALUE_7_TYPE:// ISNOTNULL
+		case VALUE_7:// ISNOTNULL
 			int nDataType = parseCreteriaTypeValueType(cdoRequest, creteriaType, fieldName, isValueRequired);
 			int nBasicObjectType = TypeMapping.mappingToMonGoType(nDataType);
 			if (nBasicObjectType == -1)
@@ -843,7 +843,7 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(fieldName, new BasicDBObject(INoSQLDataEngine.FIND_TYPE, nBasicObjectType));
 			break;
-		case CriteriaTypeOperatorType.VALUE_8_TYPE:// MATCH
+		case VALUE_8:// MATCH
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -855,10 +855,10 @@ public class NoSQLUtil
 				basicDBObject.put(fieldName, pattern);
 			}
 			break;
-		case CriteriaTypeOperatorType.VALUE_9_TYPE:// NOTMATCH
+		case VALUE_9:// NOTMATCH
 			// TODO 暂不支持
 			throw new RuntimeException(" Creteria Operator Type NOTMATCH is not unSupported!");
-		case CriteriaTypeOperatorType.VALUE_10_TYPE:// IN
+		case VALUE_10:// IN
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -866,7 +866,7 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.IN, (Object[]) valueObject.getObjectValue()));
 			break;
-		case CriteriaTypeOperatorType.VALUE_11_TYPE:// NOTIN
+		case VALUE_11:// NOTIN
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -874,13 +874,13 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.NIN,(Object[]) valueObject.getObjectValue()));
 			break;
-		case CriteriaTypeOperatorType.VALUE_12_TYPE:// Exists
+		case VALUE_12:// Exists
 			basicDBObject.put(fieldName, new BasicDBObject(INoSQLDataEngine.FIND_EXISTS, true));
 			break;
-		case CriteriaTypeOperatorType.VALUE_13_TYPE:// NotExists
+		case VALUE_13:// NotExists
 			basicDBObject.put(fieldName, new BasicDBObject(INoSQLDataEngine.FIND_EXISTS, false));
 			break;
-		case CriteriaTypeOperatorType.VALUE_14_TYPE:// MATCHALL
+		case VALUE_14:// MATCHALL
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -892,7 +892,7 @@ public class NoSQLUtil
 				basicDBObject.put(fieldName, pattern);
 			}
 			break;
-		case CriteriaTypeOperatorType.VALUE_15_TYPE:// MATCHRIGHT
+		case VALUE_15:// MATCHRIGHT
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -925,11 +925,11 @@ public class NoSQLUtil
 		// 值对象
 		ObjectExt valueObject = null;
 		// 根据操作符来判断生成查询条件,有的条件不需要关心value和type
-		switch (operatType.getType())
+		switch (operatType)
 		{
-		case CriteriaTypeOperatorType.VALUE_0_TYPE:// =
+		case VALUE_0:// =
 			throw new RuntimeException(" Creteria Operator Type = is not unSupported for multi-criteria");
-		case CriteriaTypeOperatorType.VALUE_1_TYPE:// !=
+		case VALUE_1:// !=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -937,7 +937,7 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(QueryOperators.NE, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue()));
 			break;
-		case CriteriaTypeOperatorType.VALUE_2_TYPE:// >
+		case VALUE_2:// >
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -945,7 +945,7 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(QueryOperators.GT, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue()));
 			break;
-		case CriteriaTypeOperatorType.VALUE_3_TYPE:// >=
+		case VALUE_3:// >=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -953,7 +953,7 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(QueryOperators.GTE, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue()));
 			break;
-		case CriteriaTypeOperatorType.VALUE_4_TYPE:// <
+		case VALUE_4:// <
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -961,7 +961,7 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(QueryOperators.LT, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue()));
 			break;
-		case CriteriaTypeOperatorType.VALUE_5_TYPE:// <=
+		case VALUE_5:// <=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -969,11 +969,11 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(QueryOperators.LTE, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue()));
 			break;
-		case CriteriaTypeOperatorType.VALUE_6_TYPE:// ISNULL
+		case VALUE_6:// ISNULL
 			throw new RuntimeException(" Creteria Operator Type ISNULL is not unSupported for multi-criteria");
-		case CriteriaTypeOperatorType.VALUE_7_TYPE:// ISNOTNULL
+		case VALUE_7:// ISNOTNULL
 			throw new RuntimeException(" Creteria Operator Type ISNOTNULL is not unSupported for multi-criteria");
-		case CriteriaTypeOperatorType.VALUE_8_TYPE:// MATCH
+		case VALUE_8:// MATCH
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject != null)
 			{
@@ -981,10 +981,10 @@ public class NoSQLUtil
 				basicDBObject.put(INoSQLDataEngine.FIND_REGEX, pattern);
 			}
 			break;
-		case CriteriaTypeOperatorType.VALUE_9_TYPE:// NOTMATCH
+		case VALUE_9:// NOTMATCH
 			// TODO 暂不支持
 			throw new RuntimeException(" Creteria Operator Type is not unSupported!");
-		case CriteriaTypeOperatorType.VALUE_10_TYPE:// IN
+		case VALUE_10:// IN
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -992,7 +992,7 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(QueryOperators.IN, (Object[]) valueObject.getObjectValue());
 			break;
-		case CriteriaTypeOperatorType.VALUE_11_TYPE:// NOTIN
+		case VALUE_11:// NOTIN
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject == null)
 			{
@@ -1000,15 +1000,15 @@ public class NoSQLUtil
 			}
 			basicDBObject.put(QueryOperators.NIN, (Object[]) valueObject.getObjectValue());
 			break;
-		case CriteriaTypeOperatorType.VALUE_12_TYPE:// Exists
+		case VALUE_12:// Exists
 			throw new RuntimeException(" Creteria Operator Type EXISTS is not unSupported for multi-criteria");
-		case CriteriaTypeOperatorType.VALUE_13_TYPE:// NotExists
+		case VALUE_13:// NotExists
 			throw new RuntimeException(" Creteria Operator Type NOTEXISTS is not unSupported for multi-criteria");
 		default:
 			throw new RuntimeException(" Creteria Operator Type is not unSupported!");
 		}
 
-	}
+	}	
 
 	private static int parseCreteriaTypeValueType(CDO cdoRequest, CriteriaType creteriaType, String fieldName, boolean isValueRequired)
 	{
@@ -1287,281 +1287,7 @@ public class NoSQLUtil
 	 * @return
 	 * @throws Exception
 	 */
-	private static Return modify(String strTransName, Modify modify, CDO cdoRequest) throws Exception
-	{
-		if (modify == null)
-		{
-			return null;
-		}
 
-		// init
-		// field----------------------------------------------------------------------------------------
-		BasicDBObject basicDBObject = new BasicDBObject();
-		ModifyField[] fields = modify.getModifyField();
-		if (fields == null)
-		{
-			throw new Exception("Field define is expected under modify tag");
-		}
-
-		BasicDBObject bdoINC = null;
-		BasicDBObject bdoSET = null;
-		BasicDBObject bdoUNSET = null;
-		BasicDBObject bdoPUSH = null;
-		BasicDBObject bdoPUSHALL = null;
-		BasicDBObject bdoAddToSET = null;
-		BasicDBObject bdoPOP = null;
-		BasicDBObject bdoPULL = null;
-		BasicDBObject bdoPULLALL = null;
-
-		for (ModifyField field : fields)
-		{
-			// 字段类型
-			int nType = DataType.NONE_TYPE;
-			if (field.getType() != null)
-			{
-				nType = TypeMapping.mappingToDataType(field.getType());
-			}
-			// 字段名
-			String strFieldName = field.getName();
-
-			// 确定更新操作类型和容器
-			BasicDBObject subObject = null;
-			ModifyFieldMethodType mmt = field.getMethod();
-			boolean bPut = false;
-			if (mmt != null)
-			{
-				switch (mmt.getType())
-				{
-				case ModifyFieldMethodType.INC_TYPE:
-				{
-					if (bdoINC == null)
-					{
-						bdoINC = new BasicDBObject();
-					}
-					subObject = bdoINC;
-					break;
-				}
-				case ModifyFieldMethodType.SET_TYPE:
-				{
-					if (bdoSET == null)
-					{
-						bdoSET = new BasicDBObject();
-					}
-					subObject = bdoSET;
-					break;
-				}
-				case ModifyFieldMethodType.POP_TYPE:
-				{
-					if (bdoPOP == null)
-					{
-						bdoPOP = new BasicDBObject();
-					}
-					subObject = bdoPOP;
-					break;
-				}
-				case ModifyFieldMethodType.PULL_TYPE:
-				{
-					if (bdoPULL == null)
-					{
-						bdoPULL = new BasicDBObject();
-					}
-					subObject = bdoPULL;
-					break;
-				}
-				case ModifyFieldMethodType.PULLALL_TYPE:
-				{
-					if (bdoPULLALL == null)
-					{
-						bdoPULLALL = new BasicDBObject();
-					}
-					subObject = bdoPULLALL;
-					break;
-				}
-				case ModifyFieldMethodType.PUSH_TYPE:
-				{
-					if (bdoPUSH == null)
-					{
-						bdoPUSH = new BasicDBObject();
-					}
-					subObject = bdoPUSH;
-					break;
-				}
-				case ModifyFieldMethodType.PUSHALL_TYPE:
-				{
-					if (bdoPUSHALL == null)
-					{
-						bdoPUSHALL = new BasicDBObject();
-					}
-					subObject = bdoPUSHALL;
-					break;
-				}
-				case ModifyFieldMethodType.UNSET_TYPE:
-				{
-					if (bdoUNSET == null)
-					{
-						bdoUNSET = new BasicDBObject();
-					}
-					subObject = bdoUNSET;
-					;
-					break;
-				}
-				case ModifyFieldMethodType.ADDTOSET_TYPE:
-				{
-					if (bdoAddToSET == null)
-					{
-						bdoAddToSET = new BasicDBObject();
-					}
-					subObject = bdoAddToSET;
-					break;
-				}
-				case ModifyFieldMethodType.SETNULL_TYPE:
-				{
-					if (bdoSET == null)
-					{
-						bdoSET = new BasicDBObject();
-					}
-					subObject = bdoSET;
-					bdoSET.put(strFieldName, null);
-					bPut = true;
-					break;
-				}
-				default:
-				{// TODO 其它方法也需要支持
-					throw new Exception(" This version can not support:"
-							+ mmt.toString());
-				}
-				}
-			}
-			else
-			{
-				if (bdoSET == null)
-				{
-					bdoSET = new BasicDBObject();
-				}
-				subObject = bdoSET;
-			}
-			if (bPut)
-			{
-				continue;
-			}
-
-			// 字段值
-			String strValue = field.getValue();
-
-			boolean bValueRequired = field.getValueRequired();
-
-			if (strValue == null)
-			{
-				if (bValueRequired)
-				{
-					throw new Exception("Field value define is expected under modify tag. FieldName is " + strFieldName);
-				}
-				else
-				{
-					continue;
-				}
-			}
-			if (strValue.startsWith("{") && strValue.endsWith("}"))
-			{
-				strValue = getStringKey(strValue);
-				if (!cdoRequest.exists(strValue))
-				{
-					if (bValueRequired)
-					{
-						throw new Exception("Field value does not exist under modify tag. FieldName is " + strFieldName);
-					}
-					else
-					{
-						continue;
-					}
-				}
-				ObjectExt objExt = cdoRequest.getObject(strValue);
-				if (nType == DataType.NONE_TYPE)
-				{
-					nType = objExt.getType();
-				}
-				setVarDBObject(subObject, strFieldName, nType, objExt);
-			}
-			else
-			{
-				if (nType == DataType.NONE_TYPE)
-				{
-					throw new Exception("Field type define is expected under modify tag. FieldName is " + strFieldName);
-				}
-				setConstantsDBObject(subObject, strFieldName, nType, strValue);
-			}
-		}
-
-		// 生成更新对象
-		if (bdoSET != null)
-		{
-			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_SET, bdoSET);
-		}
-		if (bdoINC != null)
-		{
-			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_INC, bdoINC);
-		}
-		if (bdoUNSET != null)
-		{
-			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_UNSET, bdoUNSET);
-		}
-		if (bdoPUSH != null)
-		{
-			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_PUSH, bdoPUSH);
-		}
-		if (bdoPUSHALL != null)
-		{
-			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_PUTALL, bdoPUSHALL);
-		}
-		if (bdoAddToSET != null)
-		{
-			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_ADDTOSET, bdoAddToSET);
-		}
-		if (bdoPOP != null)
-		{
-			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_POP, bdoPOP);
-		}
-		if (bdoPULL != null)
-		{
-			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_PULL, bdoPULL);
-		}
-		if (bdoPULLALL != null)
-		{
-			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_PULLALL, bdoPULLALL);
-		}
-
-		// 生成查询条件--------------------------------------------------------------------------------------
-		BasicDBObject query = new BasicDBObject();
-		creterias(query, modify.getCreterias(), cdoRequest);
-
-		// 数据库操作----------------------------------------------------------------------------------------
-		DBCollection collection = getCollection(modify);
-		WriteResult wr = null;
-		// start request
-
-		try
-		{
-			collection.getDB().requestStart();
-
-			// 执行操作
-			onBeforeModify(strTransName, query, basicDBObject);
-			wr = collection.update(query, basicDBObject, modify.getInsert(), modify.getMultiLine());
-
-			String strRecordCountId = modify.getRecordCountId();
-			recordEffectCount(cdoRequest, wr, strRecordCountId);
-
-		}
-		catch (Exception e)
-		{
-			logger.error("modify:" + e.getMessage(), e);
-			return Return.valueOf(-1, e.getLocalizedMessage());
-		}
-		finally
-		{
-			closeCollection(collection);
-		}
-		return Return.OK;
-	}
 
 	protected static void onBeforeModify(String strTransName, BasicDBObject query, BasicDBObject basicDBObject)
 	{
@@ -1833,7 +1559,281 @@ public class NoSQLUtil
 			throw new Exception(" fieldName [" + fieldName + "]  unsupport type!");
 		}
 	}
+	private static Return modify(String strTransName, Modify modify, CDO cdoRequest) throws Exception
+	{
+		if (modify == null)
+		{
+			return null;
+		}
 
+		// init
+		// field----------------------------------------------------------------------------------------
+		BasicDBObject basicDBObject = new BasicDBObject();
+		ModifyField[] fields = modify.getModifyField();
+		if (fields == null)
+		{
+			throw new Exception("Field define is expected under modify tag");
+		}
+
+		BasicDBObject bdoINC = null;
+		BasicDBObject bdoSET = null;
+		BasicDBObject bdoUNSET = null;
+		BasicDBObject bdoPUSH = null;
+		BasicDBObject bdoPUSHALL = null;
+		BasicDBObject bdoAddToSET = null;
+		BasicDBObject bdoPOP = null;
+		BasicDBObject bdoPULL = null;
+		BasicDBObject bdoPULLALL = null;
+
+		for (ModifyField field : fields)
+		{
+			// 字段类型
+			int nType = DataType.NONE_TYPE;
+			if (field.getType() != null)
+			{
+				nType = TypeMapping.mappingToDataType(field.getType());
+			}
+			// 字段名
+			String strFieldName = field.getName();
+
+			// 确定更新操作类型和容器
+			BasicDBObject subObject = null;
+			ModifyFieldMethodType mmt = field.getMethod();
+			boolean bPut = false;
+			if (mmt != null)
+			{
+				switch (mmt)
+				{
+				case INC:
+				{
+					if (bdoINC == null)
+					{
+						bdoINC = new BasicDBObject();
+					}
+					subObject = bdoINC;
+					break;
+				}
+				case SET:
+				{
+					if (bdoSET == null)
+					{
+						bdoSET = new BasicDBObject();
+					}
+					subObject = bdoSET;
+					break;
+				}
+				case POP:
+				{
+					if (bdoPOP == null)
+					{
+						bdoPOP = new BasicDBObject();
+					}
+					subObject = bdoPOP;
+					break;
+				}
+				case PULL:
+				{
+					if (bdoPULL == null)
+					{
+						bdoPULL = new BasicDBObject();
+					}
+					subObject = bdoPULL;
+					break;
+				}
+				case PULLALL:
+				{
+					if (bdoPULLALL == null)
+					{
+						bdoPULLALL = new BasicDBObject();
+					}
+					subObject = bdoPULLALL;
+					break;
+				}
+				case PUSH:
+				{
+					if (bdoPUSH == null)
+					{
+						bdoPUSH = new BasicDBObject();
+					}
+					subObject = bdoPUSH;
+					break;
+				}
+				case PUSHALL:
+				{
+					if (bdoPUSHALL == null)
+					{
+						bdoPUSHALL = new BasicDBObject();
+					}
+					subObject = bdoPUSHALL;
+					break;
+				}
+				case UNSET:
+				{
+					if (bdoUNSET == null)
+					{
+						bdoUNSET = new BasicDBObject();
+					}
+					subObject = bdoUNSET;
+					;
+					break;
+				}
+				case ADDTOSET:
+				{
+					if (bdoAddToSET == null)
+					{
+						bdoAddToSET = new BasicDBObject();
+					}
+					subObject = bdoAddToSET;
+					break;
+				}
+				case SETNULL:
+				{
+					if (bdoSET == null)
+					{
+						bdoSET = new BasicDBObject();
+					}
+					subObject = bdoSET;
+					bdoSET.put(strFieldName, null);
+					bPut = true;
+					break;
+				}
+				default:
+				{// TODO 其它方法也需要支持
+					throw new Exception(" This version can not support:"
+							+ mmt.toString());
+				}
+				}
+			}
+			else
+			{
+				if (bdoSET == null)
+				{
+					bdoSET = new BasicDBObject();
+				}
+				subObject = bdoSET;
+			}
+			if (bPut)
+			{
+				continue;
+			}
+
+			// 字段值
+			String strValue = field.getValue();
+
+			boolean bValueRequired = field.getValueRequired();
+
+			if (strValue == null)
+			{
+				if (bValueRequired)
+				{
+					throw new Exception("Field value define is expected under modify tag. FieldName is " + strFieldName);
+				}
+				else
+				{
+					continue;
+				}
+			}
+			if (strValue.startsWith("{") && strValue.endsWith("}"))
+			{
+				strValue = getStringKey(strValue);
+				if (!cdoRequest.exists(strValue))
+				{
+					if (bValueRequired)
+					{
+						throw new Exception("Field value does not exist under modify tag. FieldName is " + strFieldName);
+					}
+					else
+					{
+						continue;
+					}
+				}
+				ObjectExt objExt = cdoRequest.getObject(strValue);
+				if (nType == DataType.NONE_TYPE)
+				{
+					nType = objExt.getType();
+				}
+				setVarDBObject(subObject, strFieldName, nType, objExt);
+			}
+			else
+			{
+				if (nType == DataType.NONE_TYPE)
+				{
+					throw new Exception("Field type define is expected under modify tag. FieldName is " + strFieldName);
+				}
+				setConstantsDBObject(subObject, strFieldName, nType, strValue);
+			}
+		}
+
+		// 生成更新对象
+		if (bdoSET != null)
+		{
+			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_SET, bdoSET);
+		}
+		if (bdoINC != null)
+		{
+			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_INC, bdoINC);
+		}
+		if (bdoUNSET != null)
+		{
+			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_UNSET, bdoUNSET);
+		}
+		if (bdoPUSH != null)
+		{
+			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_PUSH, bdoPUSH);
+		}
+		if (bdoPUSHALL != null)
+		{
+			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_PUTALL, bdoPUSHALL);
+		}
+		if (bdoAddToSET != null)
+		{
+			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_ADDTOSET, bdoAddToSET);
+		}
+		if (bdoPOP != null)
+		{
+			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_POP, bdoPOP);
+		}
+		if (bdoPULL != null)
+		{
+			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_PULL, bdoPULL);
+		}
+		if (bdoPULLALL != null)
+		{
+			basicDBObject.put(INoSQLDataEngine.UPDATE_METHOD_PULLALL, bdoPULLALL);
+		}
+
+		// 生成查询条件--------------------------------------------------------------------------------------
+		BasicDBObject query = new BasicDBObject();
+		creterias(query, modify.getCreterias(), cdoRequest);
+
+		// 数据库操作----------------------------------------------------------------------------------------
+		DBCollection collection = getCollection(modify);
+		WriteResult wr = null;
+		// start request
+
+		try
+		{
+			collection.getDB().requestStart();
+
+			// 执行操作
+			onBeforeModify(strTransName, query, basicDBObject);
+			wr = collection.update(query, basicDBObject, modify.getInsert(), modify.getMultiLine());
+
+			String strRecordCountId = modify.getRecordCountId();
+			recordEffectCount(cdoRequest, wr, strRecordCountId);
+
+		}
+		catch (Exception e)
+		{
+			logger.error("modify:" + e.getMessage(), e);
+			return Return.valueOf(-1, e.getLocalizedMessage());
+		}
+		finally
+		{
+			closeCollection(collection);
+		}
+		return Return.OK;
+	}
 	/**
 	 * 处理子对象CDO
 	 * 
@@ -1965,6 +1965,7 @@ public class NoSQLUtil
 
 	public static DBCollection getCollection(CollectionNameType collectionNameType)
 	{
+		
 		return collectionNameType.getNosqlDataEngine().getCollection(collectionNameType.getDBName(),collectionNameType.getCollectionName());
 	}
 

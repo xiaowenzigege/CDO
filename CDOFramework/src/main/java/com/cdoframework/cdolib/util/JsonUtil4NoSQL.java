@@ -16,8 +16,8 @@ import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.database.TypeMapping;
-import com.cdoframework.cdolib.database.dataservice.QField;
-import com.cdoframework.cdolib.database.dataservice.types.FieldTypeTypeType;
+import com.cdoframework.cdolib.database.xsd.QField;
+import com.cdoframework.cdolib.database.xsd.types.FieldTypeTypeType;
 
 public class JsonUtil4NoSQL {
 	private static final String DATE_TIME_FORMAT="yyyy-MM-dd HH:mm:ss";

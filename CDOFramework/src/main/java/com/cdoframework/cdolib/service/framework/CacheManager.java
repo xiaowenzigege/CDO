@@ -11,9 +11,9 @@ import org.apache.log4j.Logger;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.framework.ICacher;
-import com.cdoframework.cdolib.service.framework.schema.MemCacheServerGroup;
-import com.cdoframework.cdolib.service.framework.schema.URLCacheServer;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.RemoveURLCache;
+import com.cdoframework.cdolib.service.framework.xsd.MemCacheServerGroup;
+import com.cdoframework.cdolib.service.framework.xsd.URLCacheServer;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.RemoveURLCache;
 
 /**
  * @author Aaron

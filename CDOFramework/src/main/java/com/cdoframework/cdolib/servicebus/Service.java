@@ -14,8 +14,8 @@ import com.cdoframework.cdolib.database.BigTableEngine;
 import com.cdoframework.cdolib.database.IDataEngine;
 import com.cdoframework.cdolib.database.NoSQLUtil;
 import com.cdoframework.cdolib.database.TransDefine;
-import com.cdoframework.cdolib.database.dataservice.NoSQLTrans;
-import com.cdoframework.cdolib.database.dataservice.SQLTrans;
+import com.cdoframework.cdolib.database.xsd.NoSQLTrans;
+import com.cdoframework.cdolib.database.xsd.SQLTrans;
 import com.cdoframework.cdolib.framework.FilterHandler;
 
 /**

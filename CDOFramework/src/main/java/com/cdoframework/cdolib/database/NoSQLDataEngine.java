@@ -6,10 +6,10 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.database.dataservice.NoSQLTrans;
-import com.cdoframework.cdolib.servicebus.schema.NoSQLDB;
-import com.cdoframework.cdolib.servicebus.schema.PoolConfig;
-import com.cdoframework.cdolib.servicebus.schema.ServerAddr;
+import com.cdoframework.cdolib.database.xsd.NoSQLTrans;
+import com.cdoframework.cdolib.servicebus.xsd.NoSQLDB;
+import com.cdoframework.cdolib.servicebus.xsd.PoolConfig;
+import com.cdoframework.cdolib.servicebus.xsd.ServerAddr;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
@@ -106,7 +106,7 @@ public class NoSQLDataEngine implements INoSQLDataEngine
 		this.setServerAddressList(list);
 		
 		//db names		
-		com.cdoframework.cdolib.servicebus.schema.DBConfig[] dbConfig = define.getDBConfig();
+		com.cdoframework.cdolib.servicebus.xsd.DBConfig[] dbConfig = define.getDBConfig();
 		if(dbConfig==null)
 		{
 			logger.error("dbConfig must be defined in serviceBus.xml ");

@@ -9,9 +9,9 @@ import com.cdoframework.cdolib.framework.CacheHandler;
 import com.cdoframework.cdolib.framework.FilterHandler;
 import com.cdoframework.cdolib.service.framework.CacheManager;
 import com.cdoframework.cdolib.service.framework.FilterManager;
-import com.cdoframework.cdolib.service.framework.schema.FilterConfig;
-import com.cdoframework.cdolib.service.framework.schema.Framework;
-import com.cdoframework.cdolib.service.framework.schema.MemCacheServerGroup;
+import com.cdoframework.cdolib.service.framework.xsd.FilterConfig;
+import com.cdoframework.cdolib.service.framework.xsd.Framework;
+import com.cdoframework.cdolib.service.framework.xsd.MemCacheServerGroup;
 
 
 

@@ -42,7 +42,7 @@ import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.CDOArrayField;
-import com.cdoframework.cdolib.database.dataservice.SQLTrans;
+import com.cdoframework.cdolib.database.xsd.SQLTrans;
 
 public interface IDataEngine
 {

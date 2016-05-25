@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.Properties;
 
 
+
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.log4j.Logger;
 
@@ -27,31 +29,33 @@ import com.cdoframework.cdolib.base.Time;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.CDOArrayField;
-import com.cdoframework.cdolib.database.dataservice.BlockType;
-import com.cdoframework.cdolib.database.dataservice.BlockTypeItem;
-import com.cdoframework.cdolib.database.dataservice.Delete;
-import com.cdoframework.cdolib.database.dataservice.Else;
-import com.cdoframework.cdolib.database.dataservice.For;
-import com.cdoframework.cdolib.database.dataservice.If;
-import com.cdoframework.cdolib.database.dataservice.Insert;
-import com.cdoframework.cdolib.database.dataservice.OnError;
-import com.cdoframework.cdolib.database.dataservice.OnException;
-import com.cdoframework.cdolib.database.dataservice.SQLBlockType;
-import com.cdoframework.cdolib.database.dataservice.SQLBlockTypeItem;
-import com.cdoframework.cdolib.database.dataservice.SQLElse;
-import com.cdoframework.cdolib.database.dataservice.SQLFor;
-import com.cdoframework.cdolib.database.dataservice.SQLIf;
-import com.cdoframework.cdolib.database.dataservice.SQLThen;
-import com.cdoframework.cdolib.database.dataservice.SQLTrans;
-import com.cdoframework.cdolib.database.dataservice.SQLTransChoiceItem;
-import com.cdoframework.cdolib.database.dataservice.SelectField;
-import com.cdoframework.cdolib.database.dataservice.SelectRecord;
-import com.cdoframework.cdolib.database.dataservice.SelectRecordSet;
-import com.cdoframework.cdolib.database.dataservice.SetVar;
-import com.cdoframework.cdolib.database.dataservice.Then;
-import com.cdoframework.cdolib.database.dataservice.Update;
-import com.cdoframework.cdolib.database.dataservice.types.SQLIfTypeType;
-import com.cdoframework.cdolib.database.dataservice.types.SetVarTypeType;
+import com.cdoframework.cdolib.database.xsd.BlockType;
+import com.cdoframework.cdolib.database.xsd.BlockTypeItem;
+import com.cdoframework.cdolib.database.xsd.Delete;
+import com.cdoframework.cdolib.database.xsd.Else;
+import com.cdoframework.cdolib.database.xsd.For;
+import com.cdoframework.cdolib.database.xsd.If;
+import com.cdoframework.cdolib.database.xsd.Insert;
+import com.cdoframework.cdolib.database.xsd.OnError;
+import com.cdoframework.cdolib.database.xsd.OnException;
+import com.cdoframework.cdolib.database.xsd.SQLBlockType;
+import com.cdoframework.cdolib.database.xsd.SQLBlockTypeItem;
+import com.cdoframework.cdolib.database.xsd.SQLElse;
+import com.cdoframework.cdolib.database.xsd.SQLFor;
+import com.cdoframework.cdolib.database.xsd.SQLIf;
+import com.cdoframework.cdolib.database.xsd.SQLThen;
+import com.cdoframework.cdolib.database.xsd.SQLTrans;
+import com.cdoframework.cdolib.database.xsd.SQLTransChoiceItem;
+import com.cdoframework.cdolib.database.xsd.SelectField;
+import com.cdoframework.cdolib.database.xsd.SelectRecord;
+import com.cdoframework.cdolib.database.xsd.SelectRecordSet;
+import com.cdoframework.cdolib.database.xsd.SetVar;
+import com.cdoframework.cdolib.database.xsd.Then;
+import com.cdoframework.cdolib.database.xsd.Update;
+import com.cdoframework.cdolib.database.xsd.types.IfTypeType;
+import com.cdoframework.cdolib.database.xsd.types.SQLIfTypeType;
+import com.cdoframework.cdolib.database.xsd.types.SQLTransTransFlagType;
+import com.cdoframework.cdolib.database.xsd.types.SetVarTypeType;
 
 /**
  * @author Frank
@@ -845,318 +849,9 @@ public class DataEngine implements IDataEngine
 //		return 1;
 //	}
 
-	// 去掉{和}，并得到是否为FieldId
-	protected boolean handleFieldIdText(String strFieldIdText,StringBuilder strbOutput)
-	{
-		// modified at 2006-12-21
-		if(strFieldIdText==null||strFieldIdText.length()==0)
-		{
-			return false;
-		}
-		strbOutput.setLength(0);
-
-		char chFirst=strFieldIdText.charAt(0);
-		int nIndex=0;
-		int nLength=strFieldIdText.length();
-		while(true)
-		{
-			if(nIndex>=nLength)
-			{
-				break;
-			}
-
-			char ch=strFieldIdText.charAt(nIndex);
-			if(ch=='{'||ch=='}')
-			{
-				if(nIndex==nLength-1)
-				{
-					break;
-				}
-				if(strFieldIdText.charAt(nIndex+1)==ch)
-				{
-					strbOutput.append(ch);
-				}
-			}
-			else
-			{
-				strbOutput.append(ch);
-			}
-			nIndex++;
-		}
-
-		if(chFirst=='{'&&strbOutput.charAt(0)!='{')
-		{// 为FieldId
-			return true;
-		}
-		else
-		{// 为一般文本
-			return false;
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected byte getByteValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return Byte.parseByte(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getByteValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected short getShortValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return Short.parseShort(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getShortValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected int getIntegerValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return Integer.parseInt(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getIntegerValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected float getFloatValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return Float.parseFloat(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getFloatValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected double getDoubleValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return Double.parseDouble(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getDoubleValue(strbFieldIdText.toString());
-		}
-	}
 	
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected boolean getBooleanValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
 
-		if(bIsFieldId==false)
-		{
-			return Boolean.parseBoolean(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getBooleanValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected long getLongValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return Long.parseLong(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getLongValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected String getStringValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return strbFieldIdText.toString();
-		}
-		else
-		{
-			return cdoRequest.getStringValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected String getDateValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return strbFieldIdText.toString();
-		}
-		else
-		{
-			return cdoRequest.getDateValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected String getTimeValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return strbFieldIdText.toString();
-		}
-		else
-		{
-			return cdoRequest.getTimeValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected String getDateTimeValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return strbFieldIdText.toString();
-		}
-		else
-		{
-			return cdoRequest.getDateTimeValue(strbFieldIdText.toString());
-		}
-	}
+	
 
 	protected Object getFieldValue(String strFieldId,CDO cdoRequest)
 	{
@@ -1192,43 +887,44 @@ public class DataEngine implements IDataEngine
 
 	protected void setVar(SetVar sv,CDO cdoRequest)
 	{
-		String strVarId=sv.getVarId();
-		String strFieldId=strVarId.substring(1,strVarId.length()-1);
-		switch(sv.getType().getType())
-		{
-			case SetVarTypeType.BYTE_TYPE:
-				cdoRequest.setByteValue(strFieldId,Byte.parseByte(sv.getValue()));
-				break;
-			case SetVarTypeType.SHORT_TYPE:
-				cdoRequest.setShortValue(strFieldId,Short.parseShort(sv.getValue()));
-				break;
-			case SetVarTypeType.INTEGER_TYPE:
-				cdoRequest.setIntegerValue(strFieldId,Integer.parseInt(sv.getValue()));
-				break;
-			case SetVarTypeType.LONG_TYPE:
-				cdoRequest.setLongValue(strFieldId,Long.parseLong(sv.getValue()));
-				break;
-			case SetVarTypeType.FLOAT_TYPE:
-				cdoRequest.setFloatValue(strFieldId,Float.parseFloat(sv.getValue()));
-				break;
-			case SetVarTypeType.DOUBLE_TYPE:
-				cdoRequest.setDoubleValue(strFieldId,Double.parseDouble(sv.getValue()));
-				break;
-			case SetVarTypeType.STRING_TYPE:
-				cdoRequest.setStringValue(strFieldId,sv.getValue());
-				break;
-			case SetVarTypeType.DATE_TYPE:
-				cdoRequest.setDateValue(strFieldId,sv.getValue());
-				break;
-			case SetVarTypeType.TIME_TYPE:
-				cdoRequest.setTimeValue(strFieldId,sv.getValue());
-				break;
-			case SetVarTypeType.DATETIME_TYPE:
-				cdoRequest.setDateTimeValue(strFieldId,sv.getValue());
-				break;
-			default:
-				throw new RuntimeException("Invalid type "+sv.getType().toString());
-		}
+		DataEngineHelp.setVar(sv, cdoRequest);
+//		String strVarId=sv.getVarId();
+//		String strFieldId=strVarId.substring(1,strVarId.length()-1);
+//		switch(sv.getType().getType())
+//		{
+//			case SetVarTypeType.BYTE_TYPE:
+//				cdoRequest.setByteValue(strFieldId,Byte.parseByte(sv.getValue()));
+//				break;
+//			case SetVarTypeType.SHORT_TYPE:
+//				cdoRequest.setShortValue(strFieldId,Short.parseShort(sv.getValue()));
+//				break;
+//			case SetVarTypeType.INTEGER_TYPE:
+//				cdoRequest.setIntegerValue(strFieldId,Integer.parseInt(sv.getValue()));
+//				break;
+//			case SetVarTypeType.LONG_TYPE:
+//				cdoRequest.setLongValue(strFieldId,Long.parseLong(sv.getValue()));
+//				break;
+//			case SetVarTypeType.FLOAT_TYPE:
+//				cdoRequest.setFloatValue(strFieldId,Float.parseFloat(sv.getValue()));
+//				break;
+//			case SetVarTypeType.DOUBLE_TYPE:
+//				cdoRequest.setDoubleValue(strFieldId,Double.parseDouble(sv.getValue()));
+//				break;
+//			case SetVarTypeType.STRING_TYPE:
+//				cdoRequest.setStringValue(strFieldId,sv.getValue());
+//				break;
+//			case SetVarTypeType.DATE_TYPE:
+//				cdoRequest.setDateValue(strFieldId,sv.getValue());
+//				break;
+//			case SetVarTypeType.TIME_TYPE:
+//				cdoRequest.setTimeValue(strFieldId,sv.getValue());
+//				break;
+//			case SetVarTypeType.DATETIME_TYPE:
+//				cdoRequest.setDateTimeValue(strFieldId,sv.getValue());
+//				break;
+//			default:
+//				throw new RuntimeException("Invalid type "+sv.getType().toString());
+//		}
 	}
 
 	/**
@@ -1242,550 +938,28 @@ public class DataEngine implements IDataEngine
 	 * @return
 	 * @throws Exception
 	 */
-	protected boolean checkCondition(String strValue1,String strOperator,String strValue2,int nType,String strType,
+	protected boolean checkCondition(String strValue1,String strOperator,String strValue2,IfTypeType ifType,String strType,
 					CDO cdoRequest)
 	{
-		// IS
-		if(strOperator.equalsIgnoreCase("IS")==true)
-		{
-			// 解析FieldId
-			StringBuilder strbText1=new StringBuilder();
-			StringBuilder strbText2=new StringBuilder();
-			boolean bIsFieldId1=handleFieldIdText(strValue1,strbText1);
-			boolean bIsFieldId2=handleFieldIdText(strValue2,strbText2);
-
-			if(bIsFieldId1&&!bIsFieldId2)
-			{// Value1是FieldId
-				if(cdoRequest.exists(strbText1.toString()))
-				{
-					return false;
-				}
-				else
-				{
-					return true;
-				}
-			}
-			else if(bIsFieldId2&&!bIsFieldId1)
-			{// Value2是FieldId
-				if(cdoRequest.exists(strbText2.toString()))
-				{
-					return false;
-				}
-				else
-				{
-					return true;
-				}
-			}
-			
-			throw new RuntimeException("Invalid IF condition");
-		}
-
-		// ISNOT
-		if(strOperator.equalsIgnoreCase("ISNOT")==true)
-		{
-			// 解析FieldId
-			StringBuilder strbText1=new StringBuilder();
-			StringBuilder strbText2=new StringBuilder();
-			boolean bIsFieldId1=handleFieldIdText(strValue1,strbText1);
-			boolean bIsFieldId2=handleFieldIdText(strValue2,strbText2);
-
-			if(bIsFieldId1&&!bIsFieldId2)
-			{// Value1是FieldId
-				if(cdoRequest.exists(strbText1.toString()))
-				{
-					return true;
-				}
-				else
-				{// Value2是FieldId
-					return false;
-				}
-			}
-			else if(bIsFieldId2&&!bIsFieldId1)
-			{
-				if(cdoRequest.exists(strbText2.toString()))
-				{
-					return true;
-				}
-				else
-				{
-					return false;
-				}
-			}
-
-			throw new RuntimeException("Invalid IF condition");
-		}
-
-		// =
-		if(strOperator.equalsIgnoreCase("="))
-		{
-			switch(nType)
-			{
-				case SQLIfTypeType.INTEGER_TYPE:
-				{
-					int value1=getIntegerValue(strValue1,cdoRequest);
-					int value2=getIntegerValue(strValue2,cdoRequest);
-					return value1==value2;
-				}
-				case SQLIfTypeType.STRING_TYPE:
-				{
-					String value1=getStringValue(strValue1,cdoRequest);
-					String value2=getStringValue(strValue2,cdoRequest);
-					return value1.equals(value2);
-				}
-				case SQLIfTypeType.LONG_TYPE:
-				{
-					long value1=getLongValue(strValue1,cdoRequest);
-					long value2=getLongValue(strValue2,cdoRequest);
-					return value1==value2;
-				}
-				case SQLIfTypeType.BYTE_TYPE:
-				{
-					byte value1=getByteValue(strValue1,cdoRequest);
-					byte value2=getByteValue(strValue2,cdoRequest);
-					return value1==value2;
-				}
-				case SQLIfTypeType.SHORT_TYPE:
-				{
-					short value1=getShortValue(strValue1,cdoRequest);
-					short value2=getShortValue(strValue2,cdoRequest);
-					return value1==value2;
-				}
-				case SQLIfTypeType.DATE_TYPE:
-				{
-					String value1=getDateValue(strValue1,cdoRequest);
-					String value2=getDateValue(strValue2,cdoRequest);
-					return value1.equals(value2);
-				}
-				case SQLIfTypeType.TIME_TYPE:
-				{
-					String value1=getTimeValue(strValue1,cdoRequest);
-					String value2=getTimeValue(strValue2,cdoRequest);
-					return value1.equals(value2);
-				}
-				case SQLIfTypeType.DATETIME_TYPE:
-				{
-					String value1=getDateTimeValue(strValue1,cdoRequest);
-					String value2=getDateTimeValue(strValue2,cdoRequest);
-					return value1.equals(value2);
-				}
-				case SQLIfTypeType.FLOAT_TYPE:
-				{
-					float value1=getFloatValue(strValue1,cdoRequest);
-					float value2=getFloatValue(strValue2,cdoRequest);
-					return value1==value2;
-				}
-				case SQLIfTypeType.DOUBLE_TYPE:
-				{
-					double value1=getDoubleValue(strValue1,cdoRequest);
-					double value2=getDoubleValue(strValue2,cdoRequest);
-					return value1==value2;
-				}
-				case SQLIfTypeType.BOOLEAN_TYPE:
-				{
-					boolean value1=getBooleanValue(strValue1,cdoRequest);
-					boolean value2=getBooleanValue(strValue2,cdoRequest);
-					return value1==value2;
-				}
-				default:
-				{
-					throw new RuntimeException("Invalid type"+strType);
-				}
-			}
-		}
-		else if(strOperator.equalsIgnoreCase("!="))
-		{
-			switch(nType)
-			{
-				case SQLIfTypeType.INTEGER_TYPE:
-				{
-					int value1=getIntegerValue(strValue1,cdoRequest);
-					int value2=getIntegerValue(strValue2,cdoRequest);
-					return value1!=value2;
-				}
-				case SQLIfTypeType.STRING_TYPE:
-				{
-					String value1=getStringValue(strValue1,cdoRequest);
-					String value2=getStringValue(strValue2,cdoRequest);
-					return !value1.equals(value2);
-				}
-				case SQLIfTypeType.LONG_TYPE:
-				{
-					long value1=getLongValue(strValue1,cdoRequest);
-					long value2=getLongValue(strValue2,cdoRequest);
-					return value1!=value2;
-				}
-				case SQLIfTypeType.BYTE_TYPE:
-				{
-					byte value1=getByteValue(strValue1,cdoRequest);
-					byte value2=getByteValue(strValue2,cdoRequest);
-					return value1!=value2;
-				}
-				case SQLIfTypeType.SHORT_TYPE:
-				{
-					short value1=getShortValue(strValue1,cdoRequest);
-					short value2=getShortValue(strValue2,cdoRequest);
-					return value1!=value2;
-				}
-				case SQLIfTypeType.DATE_TYPE:
-				{
-					String value1=getDateValue(strValue1,cdoRequest);
-					String value2=getDateValue(strValue2,cdoRequest);
-					return !value1.equals(value2);
-				}
-				case SQLIfTypeType.TIME_TYPE:
-				{
-					String value1=getTimeValue(strValue1,cdoRequest);
-					String value2=getTimeValue(strValue2,cdoRequest);
-					return !value1.equals(value2);
-				}
-				case SQLIfTypeType.DATETIME_TYPE:
-				{
-					String value1=getDateTimeValue(strValue1,cdoRequest);
-					String value2=getDateTimeValue(strValue2,cdoRequest);
-					return !value1.equals(value2);
-				}
-				case SQLIfTypeType.FLOAT_TYPE:
-				{
-					float value1=getFloatValue(strValue1,cdoRequest);
-					float value2=getFloatValue(strValue2,cdoRequest);
-					return value1!=value2;
-				}
-				case SQLIfTypeType.DOUBLE_TYPE:
-				{
-					double value1=getDoubleValue(strValue1,cdoRequest);
-					double value2=getDoubleValue(strValue2,cdoRequest);
-					return value1!=value2;
-				}
-				case SQLIfTypeType.BOOLEAN_TYPE:
-				{
-					boolean value1=getBooleanValue(strValue1,cdoRequest);
-					boolean value2=getBooleanValue(strValue2,cdoRequest);
-					return value1!=value2;
-				}				
-				default:
-				{
-					throw new RuntimeException("Invalid type "+strType);
-				}
-			}
-		}
-		else if(strOperator.equalsIgnoreCase(">"))
-		{
-			switch(nType)
-			{
-				case SQLIfTypeType.INTEGER_TYPE:
-				{
-					int value1=getIntegerValue(strValue1,cdoRequest);
-					int value2=getIntegerValue(strValue2,cdoRequest);
-					return value1>value2;
-				}
-				case SQLIfTypeType.STRING_TYPE:
-				{
-					String value1=getStringValue(strValue1,cdoRequest);
-					String value2=getStringValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)>0;
-				}
-				case SQLIfTypeType.LONG_TYPE:
-				{
-					long value1=getLongValue(strValue1,cdoRequest);
-					long value2=getLongValue(strValue2,cdoRequest);
-					return value1>value2;
-				}
-				case SQLIfTypeType.BYTE_TYPE:
-				{
-					byte value1=getByteValue(strValue1,cdoRequest);
-					byte value2=getByteValue(strValue2,cdoRequest);
-					return value1>value2;
-				}
-				case SQLIfTypeType.SHORT_TYPE:
-				{
-					short value1=getShortValue(strValue1,cdoRequest);
-					short value2=getShortValue(strValue2,cdoRequest);
-					return value1>value2;
-				}
-				case SQLIfTypeType.DATE_TYPE:
-				{
-					String value1=getDateValue(strValue1,cdoRequest);
-					String value2=getDateValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)>0;
-				}
-				case SQLIfTypeType.TIME_TYPE:
-				{
-					String value1=getTimeValue(strValue1,cdoRequest);
-					String value2=getTimeValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)>0;
-				}
-				case SQLIfTypeType.DATETIME_TYPE:
-				{
-					String value1=getDateTimeValue(strValue1,cdoRequest);
-					String value2=getDateTimeValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)>0;
-				}
-				case SQLIfTypeType.FLOAT_TYPE:
-				{
-					float value1=getFloatValue(strValue1,cdoRequest);
-					float value2=getFloatValue(strValue2,cdoRequest);
-					return value1>value2;
-				}
-				case SQLIfTypeType.DOUBLE_TYPE:
-				{
-					double value1=getDoubleValue(strValue1,cdoRequest);
-					double value2=getDoubleValue(strValue2,cdoRequest);
-					return value1>value2;
-				}
-				default:
-				{
-					throw new RuntimeException("Invalid type "+strType);
-				}
-			}
-		}
-		else if(strOperator.equalsIgnoreCase("<"))
-		{
-			switch(nType)
-			{
-				case SQLIfTypeType.INTEGER_TYPE:
-				{
-					int value1=getIntegerValue(strValue1,cdoRequest);
-					int value2=getIntegerValue(strValue2,cdoRequest);
-					return value1<value2;
-				}
-				case SQLIfTypeType.STRING_TYPE:
-				{
-					String value1=getStringValue(strValue1,cdoRequest);
-					String value2=getStringValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)<0;
-				}
-				case SQLIfTypeType.LONG_TYPE:
-				{
-					long value1=getLongValue(strValue1,cdoRequest);
-					long value2=getLongValue(strValue2,cdoRequest);
-					return value1<value2;
-				}
-				case SQLIfTypeType.BYTE_TYPE:
-				{
-					byte value1=getByteValue(strValue1,cdoRequest);
-					byte value2=getByteValue(strValue2,cdoRequest);
-					return value1<value2;
-				}
-				case SQLIfTypeType.SHORT_TYPE:
-				{
-					short value1=getShortValue(strValue1,cdoRequest);
-					short value2=getShortValue(strValue2,cdoRequest);
-					return value1<value2;
-				}
-				case SQLIfTypeType.DATE_TYPE:
-				{
-					String value1=getDateValue(strValue1,cdoRequest);
-					String value2=getDateValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)<0;
-				}
-				case SQLIfTypeType.TIME_TYPE:
-				{
-					String value1=getTimeValue(strValue1,cdoRequest);
-					String value2=getTimeValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)<0;
-				}
-				case SQLIfTypeType.DATETIME_TYPE:
-				{
-					String value1=getDateTimeValue(strValue1,cdoRequest);
-					String value2=getDateTimeValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)<0;
-				}
-				case SQLIfTypeType.FLOAT_TYPE:
-				{
-					float value1=getFloatValue(strValue1,cdoRequest);
-					float value2=getFloatValue(strValue2,cdoRequest);
-					return value1<value2;
-				}
-				case SQLIfTypeType.DOUBLE_TYPE:
-				{
-					double value1=getDoubleValue(strValue1,cdoRequest);
-					double value2=getDoubleValue(strValue2,cdoRequest);
-					return value1<value2;
-				}
-				default:
-				{
-					throw new RuntimeException("Invalid type "+strType);
-				}
-			}
-		}
-		else if(strOperator.equalsIgnoreCase(">="))
-		{
-			switch(nType)
-			{
-				case SQLIfTypeType.INTEGER_TYPE:
-				{
-					int value1=getIntegerValue(strValue1,cdoRequest);
-					int value2=getIntegerValue(strValue2,cdoRequest);
-					return value1>=value2;
-				}
-				case SQLIfTypeType.STRING_TYPE:
-				{
-					String value1=getStringValue(strValue1,cdoRequest);
-					String value2=getStringValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)>=0;
-				}
-				case SQLIfTypeType.LONG_TYPE:
-				{
-					long value1=getLongValue(strValue1,cdoRequest);
-					long value2=getLongValue(strValue2,cdoRequest);
-					return value1>=value2;
-				}
-				case SQLIfTypeType.BYTE_TYPE:
-				{
-					byte value1=getByteValue(strValue1,cdoRequest);
-					byte value2=getByteValue(strValue2,cdoRequest);
-					return value1>=value2;
-				}
-				case SQLIfTypeType.SHORT_TYPE:
-				{
-					short value1=getShortValue(strValue1,cdoRequest);
-					short value2=getShortValue(strValue2,cdoRequest);
-					return value1>=value2;
-				}
-				case SQLIfTypeType.DATE_TYPE:
-				{
-					String value1=getDateValue(strValue1,cdoRequest);
-					String value2=getDateValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)>=0;
-				}
-				case SQLIfTypeType.TIME_TYPE:
-				{
-					String value1=getTimeValue(strValue1,cdoRequest);
-					String value2=getTimeValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)>=0;
-				}
-				case SQLIfTypeType.DATETIME_TYPE:
-				{
-					String value1=getDateTimeValue(strValue1,cdoRequest);
-					String value2=getDateTimeValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)>=0;
-				}
-				case SQLIfTypeType.FLOAT_TYPE:
-				{
-					float value1=getFloatValue(strValue1,cdoRequest);
-					float value2=getFloatValue(strValue2,cdoRequest);
-					return value1>=value2;
-				}
-				case SQLIfTypeType.DOUBLE_TYPE:
-				{
-					double value1=getDoubleValue(strValue1,cdoRequest);
-					double value2=getDoubleValue(strValue2,cdoRequest);
-					return value1>=value2;
-				}
-				default:
-				{
-					throw new RuntimeException("Invalid type "+strType);
-				}
-			}
-		}
-		else if(strOperator.equalsIgnoreCase("<="))
-		{
-			switch(nType)
-			{
-				case SQLIfTypeType.INTEGER_TYPE:
-				{
-					int value1=getIntegerValue(strValue1,cdoRequest);
-					int value2=getIntegerValue(strValue2,cdoRequest);
-					return value1<value2;
-				}
-				case SQLIfTypeType.STRING_TYPE:
-				{
-					String value1=getStringValue(strValue1,cdoRequest);
-					String value2=getStringValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)<=0;
-				}
-				case SQLIfTypeType.LONG_TYPE:
-				{
-					long value1=getLongValue(strValue1,cdoRequest);
-					long value2=getLongValue(strValue2,cdoRequest);
-					return value1<=value2;
-				}
-				case SQLIfTypeType.BYTE_TYPE:
-				{
-					byte value1=getByteValue(strValue1,cdoRequest);
-					byte value2=getByteValue(strValue2,cdoRequest);
-					return value1<=value2;
-				}
-				case SQLIfTypeType.SHORT_TYPE:
-				{
-					short value1=getShortValue(strValue1,cdoRequest);
-					short value2=getShortValue(strValue2,cdoRequest);
-					return value1<=value2;
-				}
-				case SQLIfTypeType.DATE_TYPE:
-				{
-					String value1=getDateValue(strValue1,cdoRequest);
-					String value2=getDateValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)<=0;
-				}
-				case SQLIfTypeType.TIME_TYPE:
-				{
-					String value1=getTimeValue(strValue1,cdoRequest);
-					String value2=getTimeValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)<=0;
-				}
-				case SQLIfTypeType.DATETIME_TYPE:
-				{
-					String value1=getDateTimeValue(strValue1,cdoRequest);
-					String value2=getDateTimeValue(strValue2,cdoRequest);
-					return value1.compareTo(value2)<=0;
-				}
-				case SQLIfTypeType.FLOAT_TYPE:
-				{
-					float value1=getFloatValue(strValue1,cdoRequest);
-					float value2=getFloatValue(strValue2,cdoRequest);
-					return value1<=value2;
-				}
-				case SQLIfTypeType.DOUBLE_TYPE:
-				{
-					double value1=getDoubleValue(strValue1,cdoRequest);
-					double value2=getDoubleValue(strValue2,cdoRequest);
-					return value1<=value2;
-				}
-				default:
-				{
-					throw new RuntimeException("Invalid type "+strType);
-				}
-			}
-		}
-		else if(strOperator.equalsIgnoreCase("MATCH"))
-		{
-			switch(nType)
-			{
-				case SQLIfTypeType.STRING_TYPE:
-				{
-					String value1=getTimeValue(strValue1,cdoRequest);
-					String value2=getTimeValue(strValue2,cdoRequest);
-					return value1.matches(value2);
-				}
-				default:
-				{
-					throw new RuntimeException("Invalid type "+strType);
-				}
-			}
-		}
-		else if(strOperator.equalsIgnoreCase("NOTMATCH"))
-		{
-			switch(nType)
-			{
-				case SQLIfTypeType.STRING_TYPE:
-				{
-					String value1=getTimeValue(strValue1,cdoRequest);
-					String value2=getTimeValue(strValue2,cdoRequest);
-					return !value1.matches(value2);
-				}
-				default:
-				{
-					throw new RuntimeException("Invalid type "+strType);
-				}
-			}
-		}
-		else
-		{
-			throw new RuntimeException("Invalid operator "+strOperator);
-		}
+		return DataEngineHelp.checkCondition(strValue1, strOperator, strValue2, ifType, strType, cdoRequest);
 	}
 
+	/**
+	 * 检查If的条件
+	 * 
+	 * @param strValue1
+	 * @param strOperator
+	 * @param strValue2
+	 * @param strType
+	 * @param cdoRequest
+	 * @return
+	 * @throws Exception
+	 */
+	protected boolean checkCondition(String strValue1,String strOperator,String strValue2,SQLIfTypeType sqlIfType,String strType,
+					CDO cdoRequest)
+	{
+		return DataEngineHelp.checkCondition(strValue1, strOperator, strValue2, sqlIfType, strType, cdoRequest);
+	}	
 	/**
 	 * 处理SQL语句中的If语句
 	 * 
@@ -1798,7 +972,7 @@ public class DataEngine implements IDataEngine
 	{
 		// 检查执行条件
 		boolean bCondition=checkCondition(sqlIf.getValue1(),sqlIf.getOperator().toString(),sqlIf.getValue2(),sqlIf
-						.getType().getType(),sqlIf.getType().toString(),cdoRequest);
+						.getType(),sqlIf.getType().toString(),cdoRequest);
 		if(bCondition==true)
 		{// Handle Then
 			SQLThen sqlThen=sqlIf.getSQLThen();
@@ -1827,8 +1001,10 @@ public class DataEngine implements IDataEngine
 	protected int handleSQLFor(SQLFor sqlFor,CDO cdoRequest,StringBuilder strbSQL)
 	{
 		// 获取循环数据
-		int nFromIndex=this.getIntegerValue(sqlFor.getFromIndex(),cdoRequest);
-		int nCount=this.getIntegerValue(sqlFor.getCount(),cdoRequest);
+//		int nFromIndex=this.getIntegerValue(sqlFor.getFromIndex(),cdoRequest);
+//		int nCount=this.getIntegerValue(sqlFor.getCount(),cdoRequest);
+		int nFromIndex=DataEngineHelp.getIntegerValue(sqlFor.getFromIndex(),cdoRequest);
+		int nCount=DataEngineHelp.getIntegerValue(sqlFor.getCount(),cdoRequest);
 		String strIndexId=sqlFor.getIndexId();
 		strIndexId=strIndexId.substring(1,strIndexId.length()-1);
 
@@ -1934,7 +1110,7 @@ public class DataEngine implements IDataEngine
 	{
 		// 检查执行条件
 		boolean bCondition=checkCondition(ifItem.getValue1(),ifItem.getOperator().toString(),ifItem.getValue2(),ifItem
-						.getType().getType(),ifItem.getType().toString(),cdoRequest);
+						.getType(),ifItem.getType().toString(),cdoRequest);
 		if(bCondition==true)
 		{// Handle Then
 			Then thenItem=ifItem.getThen();
@@ -1964,8 +1140,10 @@ public class DataEngine implements IDataEngine
 					boolean bUseTransFlag,CDO cdoResponse,Return ret) throws SQLException,IOException
 	{
 		// 获取循环数据
-		int nFromIndex=this.getIntegerValue(forItem.getFromIndex(),cdoRequest);
-		int nCount=this.getIntegerValue(forItem.getCount(),cdoRequest);
+//		int nFromIndex=this.getIntegerValue(forItem.getFromIndex(),cdoRequest);
+//		int nCount=this.getIntegerValue(forItem.getCount(),cdoRequest);
+		int nFromIndex=DataEngineHelp.getIntegerValue(forItem.getFromIndex(),cdoRequest);
+		int nCount=DataEngineHelp.getIntegerValue(forItem.getCount(),cdoRequest);		
 		String strIndexId=forItem.getIndexId();
 		strIndexId=strIndexId.substring(1,strIndexId.length()-1);
 
@@ -1994,7 +1172,7 @@ public class DataEngine implements IDataEngine
 		return 0;
 	}
 
-	protected void handleReturn(com.cdoframework.cdolib.database.dataservice.Return returnObject,CDO cdoRequest,CDO cdoResponse,Return ret) throws SQLException
+	protected void handleReturn(com.cdoframework.cdolib.database.xsd.Return returnObject,CDO cdoRequest,CDO cdoResponse,Return ret) throws SQLException
 	{
 		int nReturnItemCount=returnObject.getReturnItemCount();
 		for(int j=0;j<nReturnItemCount;j++)
@@ -2255,7 +1433,7 @@ public class DataEngine implements IDataEngine
 			}
 			else if(blockItem.getReturn()!=null)
 			{
-				com.cdoframework.cdolib.database.dataservice.Return returnObject=(com.cdoframework.cdolib.database.dataservice.Return)blockItem.getReturn();
+				com.cdoframework.cdolib.database.xsd.Return returnObject=(com.cdoframework.cdolib.database.xsd.Return)blockItem.getReturn();
 				this.handleReturn(returnObject,cdoRequest,cdoResponse,ret);
 
 				return 2;
@@ -2284,7 +1462,8 @@ public class DataEngine implements IDataEngine
 		Return ret=new Return();
 
 		// 开始执行事务
-		int nTransFlag=trans.getTransFlag().getType();
+//		int nTransFlag=trans.getTransFlag().getType();
+		int nTransFlag=trans.getTransFlag().value().equals(SQLTransTransFlagType.VALUE_1.value())?1:0;
 
 		try
 		{
@@ -2295,10 +1474,12 @@ public class DataEngine implements IDataEngine
 
 			// 生成Block对象
 			BlockType block=new BlockType();
-			int nTransItemCount=trans.getSQLTransChoice(0).getSQLTransChoiceItemCount();
+//			int nTransItemCount=trans.getSQLTransChoice(0).getSQLTransChoiceItemCount();
+			int nTransItemCount=trans.getSQLTransChoice().getSQLTransChoiceItemCount();
 			for(int i=0;i<nTransItemCount;i++)
 			{
-				SQLTransChoiceItem transItem=trans.getSQLTransChoice(0).getSQLTransChoiceItem(i);
+//				SQLTransChoiceItem transItem=trans.getSQLTransChoice(0).getSQLTransChoiceItem(i);
+				SQLTransChoiceItem transItem=trans.getSQLTransChoice().getSQLTransChoiceItem(i);
 				BlockTypeItem blockItem=null;
 				if(transItem.getInsert()!=null)
 				{
@@ -2356,7 +1537,7 @@ public class DataEngine implements IDataEngine
 			int nResult=handleBlock(conn,hmTrans,block,cdoRequest,bUseTransFlag,cdoResponse,ret);
 			if(nResult!=2)
 			{// Break或自然执行完毕退出
-				com.cdoframework.cdolib.database.dataservice.Return returnObject=trans.getReturn();
+				com.cdoframework.cdolib.database.xsd.Return returnObject=trans.getReturn();
 				this.handleReturn(returnObject,cdoRequest,cdoResponse,ret);
 			}
 

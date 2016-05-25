@@ -10,17 +10,19 @@ import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.ValueField;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.CacheKey;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.CacheValue;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.Creteria;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.Creterias;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.CreteriasType;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.CreteriasTypeItem;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.ReturnCode;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.types.CriteriaTypeOperatorType;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.types.CriteriaTypeTypeType;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.types.ReturnCodeOperatorType;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.types.RequestKeyTypeType;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.CacheKey;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.CacheURL;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.CacheValue;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.Creteria;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.Creterias;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.CreteriasType;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.CreteriasTypeItem;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.ReturnCode;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.types.CacheKeyTypeTypeType;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.types.CriteriaTypeOperatorType;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.types.CriteriaTypeTypeType;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.types.ReturnCodeOperatorType;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.types.RequestKeyTypeType;
 
 public class FrameworkUtil
 {
@@ -38,7 +40,7 @@ public class FrameworkUtil
     	{
     		return true;
     	}
-    	if(cts.getType().getType()==com.cdoframework.cdolib.service.framework.transfilter.schema.types.CreteriasTypeItemTypeType.AND_TYPE)
+    	if(cts.getType().value().equals(com.cdoframework.cdolib.service.framework.transfilter.xsd.types.CreteriasTypeItemTypeType.AND.value()))
     	{
     		return isAndFitCreterias(cts,cdoRequest);
     	}
@@ -112,10 +114,10 @@ public class FrameworkUtil
 		{
 			strName = strName.substring(1,strName.length()-1);
 		}
-		int nOperatorType = ct.getOperator().getType();
+		CriteriaTypeOperatorType OperatorType = ct.getOperator();
 		if(!cdoRequest.exists(strName))
 		{
-			if(nOperatorType == CriteriaTypeOperatorType.VALUE_6_TYPE)
+			if(OperatorType.value().equals(CriteriaTypeOperatorType.VALUE_6.value()))
 			{//ISNULL
 				return true;
 			}
@@ -124,11 +126,11 @@ public class FrameworkUtil
 				return false;
 			}
 		}
-		if(nOperatorType==CriteriaTypeOperatorType.VALUE_7_TYPE)
+		if(OperatorType.value().equals(CriteriaTypeOperatorType.VALUE_7.value()))
 		{//ISNOTNULL
 			return true;
 		}
-		if(nOperatorType==CriteriaTypeOperatorType.VALUE_6_TYPE)
+		if(OperatorType.value().equals(CriteriaTypeOperatorType.VALUE_6.value()))
 		{//ISNULL
 			return false;
 		}
@@ -136,11 +138,11 @@ public class FrameworkUtil
 
 		
 		String strValue = ct.getValue();
-		int nType = ct.getType().getType();
+		CriteriaTypeTypeType nType = ct.getType();
 		
-		switch ( nOperatorType)
+		switch ( OperatorType)
 		{
-			case CriteriaTypeOperatorType.VALUE_0_TYPE:
+			case VALUE_0:
 				{//=
 					if(strValue==null)
 					{
@@ -149,14 +151,14 @@ public class FrameworkUtil
 					
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:
-						case CriteriaTypeTypeType.STRING_TYPE:
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case INTEGER:
+						case LONG:
+						case STRING:
+						case SHORT:
+						case BYTE:
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								if(objValue1.toString().equals(strValue))
 								{
@@ -167,8 +169,8 @@ public class FrameworkUtil
 									return false;
 								}
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								double value1 = Double.valueOf(objValue1.toString());
 								double value2 = Double.valueOf(strValue);
@@ -187,7 +189,7 @@ public class FrameworkUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_1_TYPE:
+			case VALUE_1:
 				{//!=
 					if(strValue==null)
 					{
@@ -195,14 +197,14 @@ public class FrameworkUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:
-						case CriteriaTypeTypeType.STRING_TYPE:
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case INTEGER:
+						case LONG:
+						case STRING:
+						case SHORT:
+						case BYTE:
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								if(objValue1.toString().equals(strValue))
 								{
@@ -213,8 +215,8 @@ public class FrameworkUtil
 									return true;
 								}
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								double value1 = Double.valueOf(objValue1.toString());
 								double value2 = Double.valueOf(strValue);
@@ -233,7 +235,7 @@ public class FrameworkUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_2_TYPE:
+			case VALUE_2:
 				{//>
 					if(strValue==null)
 					{
@@ -241,22 +243,22 @@ public class FrameworkUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:						
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
+						case INTEGER:
+						case LONG:						
+						case SHORT:
+						case BYTE:
 							{
 								return Utility.compareLong(objValue1,strValue)>0;
 							}
-						case CriteriaTypeTypeType.STRING_TYPE:
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case STRING:
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								return Utility.compareString(objValue1,strValue)>0;
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								return Utility.compareDouble(objValue1,strValue)>0;
 							}
@@ -266,7 +268,7 @@ public class FrameworkUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_3_TYPE:
+			case VALUE_3:
 				{//>=
 					if(strValue==null)
 					{
@@ -274,22 +276,22 @@ public class FrameworkUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:						
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
+						case INTEGER:
+						case LONG:						
+						case SHORT:
+						case BYTE:
 							{
 								return Utility.compareLong(objValue1,strValue)>=0;
 							}
-						case CriteriaTypeTypeType.STRING_TYPE:
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case STRING:
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								return Utility.compareString(objValue1,strValue)>=0;
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								return Utility.compareDouble(objValue1,strValue)>=0;
 							}
@@ -299,7 +301,7 @@ public class FrameworkUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_4_TYPE:
+			case VALUE_4:
 				{//<
 					if(strValue==null)
 					{
@@ -307,22 +309,22 @@ public class FrameworkUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:						
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
+						case INTEGER:
+						case LONG:						
+						case SHORT:
+						case BYTE:
 							{
 								return Utility.compareLong(objValue1,strValue)<0;
 							}
-						case CriteriaTypeTypeType.STRING_TYPE:
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case STRING:
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								return Utility.compareString(objValue1,strValue)<0;
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								return Utility.compareDouble(objValue1,strValue)<0;
 							}
@@ -332,7 +334,7 @@ public class FrameworkUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_5_TYPE:
+			case VALUE_5:
 				{//<=
 					if(strValue==null)
 					{
@@ -340,22 +342,22 @@ public class FrameworkUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:						
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
+						case INTEGER:
+						case LONG:						
+						case SHORT:
+						case BYTE:
 							{
 								return Utility.compareLong(objValue1,strValue)<=0;
 							}
-						case CriteriaTypeTypeType.STRING_TYPE:
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case STRING:
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								return Utility.compareString(objValue1,strValue)<=0;
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								return Utility.compareDouble(objValue1,strValue)<=0;
 							}
@@ -365,7 +367,7 @@ public class FrameworkUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_8_TYPE:
+			case VALUE_8:
 				{//MATCH
 					if(strValue==null)
 					{
@@ -373,7 +375,7 @@ public class FrameworkUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.STRING_TYPE:
+						case STRING:
 							{
 								String strObjectValue1 = objValue1.toString();
 								if(strObjectValue1.matches(strValue))
@@ -392,7 +394,7 @@ public class FrameworkUtil
 					}
 					
 				}
-			case CriteriaTypeOperatorType.VALUE_9_TYPE:
+			case VALUE_9:
 				{//NOT MATCH
 					if(strValue==null)
 					{
@@ -400,7 +402,7 @@ public class FrameworkUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.STRING_TYPE:
+						case STRING:
 							{
 								String strObjectValue1 = objValue1.toString();
 								if(strObjectValue1.matches(strValue))
@@ -418,7 +420,7 @@ public class FrameworkUtil
 							}							
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_10_TYPE:
+			case VALUE_10:
 				{//IN
 					if(strValue==null)
 					{
@@ -426,11 +428,11 @@ public class FrameworkUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:						
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
-						case CriteriaTypeTypeType.STRING_TYPE:
+						case INTEGER:
+						case LONG:						
+						case SHORT:
+						case BYTE:
+						case STRING:
 							{
 								String strObjectValue1 = objValue1.toString();
 								if(strObjectValue1.equalsIgnoreCase(strValue))
@@ -448,9 +450,9 @@ public class FrameworkUtil
 									return false;
 								}
 							}
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								String[] strsDateTime = strValue.toString().split(IN_SEPRATOR);
 								if(strsDateTime.length!=2)
@@ -470,8 +472,8 @@ public class FrameworkUtil
 									return false;
 								}
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								double d1 = Utility.parseDoubleValue(objValue1);
 								String strObjectValue2 = strValue.toString();
@@ -491,7 +493,7 @@ public class FrameworkUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_11_TYPE:
+			case VALUE_11:
 				{//NOT IN
 					if(strValue==null)
 					{
@@ -499,11 +501,11 @@ public class FrameworkUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:						
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
-						case CriteriaTypeTypeType.STRING_TYPE:
+						case INTEGER:
+						case LONG:						
+						case SHORT:
+						case BYTE:
+						case STRING:
 							{
 								String strObjectValue1 = objValue1.toString();
 								String strObjectValue2 = strValue;
@@ -522,9 +524,9 @@ public class FrameworkUtil
 									return false;
 								}
 							}
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								String[] strsDateTime = strValue.toString().split(IN_SEPRATOR);
 								if(strsDateTime.length!=2)
@@ -544,8 +546,8 @@ public class FrameworkUtil
 									return false;
 								}
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								double d1 = Utility.parseDoubleValue(objValue1);
 								String strObjectValue2 = strValue.toString();
@@ -884,8 +886,8 @@ public class FrameworkUtil
 			return cdoRequest.toJSON();
 		}
 		String strContent = cacheKey.getContent();
-		int nType = cacheKey.getType().getType();
-		return FrameworkUtil.getString(nType,strContent,cdoRequest,cdoResponse);
+//		int nType = cacheKey.getType().getType();
+		return FrameworkUtil.getString(getKeyType(cacheKey),strContent,cdoRequest,cdoResponse);
 	}
 	
 	public static String getKey(int fromIndex,String strIndexId,CacheKey cacheKey,CDO cdoRequest,CDO cdoResponse) throws Exception
@@ -895,8 +897,8 @@ public class FrameworkUtil
 			return cdoRequest.toJSON();
 		}
 		String strContent = cacheKey.getContent();
-		int nType = cacheKey.getType().getType();
-		return FrameworkUtil.getString(fromIndex,strIndexId,nType,strContent,cdoRequest,cdoResponse);
+//		int nType = cacheKey.getType().getType();
+		return FrameworkUtil.getString(fromIndex,strIndexId,getKeyType(cacheKey),strContent,cdoRequest,cdoResponse);
 	}	
 	
 	
@@ -965,29 +967,29 @@ public class FrameworkUtil
 		}
 		int nValue = returnCode.getValue();
 		int nCode = transHandleResult.getCode();
-		switch(returnCode.getOperator().getType())
+		switch(returnCode.getOperator())
 		{
-			case ReturnCodeOperatorType.VALUE_0_TYPE:
+			case VALUE_0:
 			{//=
 				return nCode == nValue;
 			}
-			case ReturnCodeOperatorType.VALUE_1_TYPE:
+			case VALUE_1:
 			{//!=
 				return nCode != nValue;
 			}
-			case ReturnCodeOperatorType.VALUE_2_TYPE:
+			case VALUE_2:
 			{//>
 				return nCode > nValue; 
 			}
-			case ReturnCodeOperatorType.VALUE_3_TYPE:
+			case VALUE_3:
 			{//>=
 				return nCode >= nValue;
 			}
-			case ReturnCodeOperatorType.VALUE_4_TYPE:
+			case VALUE_4:
 			{//<
 				return nCode < nValue;
 			}
-			case ReturnCodeOperatorType.VALUE_5_TYPE:
+			case VALUE_5:
 			{//<=
 				return nCode <= nValue;
 			}
@@ -1004,105 +1006,105 @@ public class FrameworkUtil
 		{
 			return DataType.NONE_TYPE;
 		}
-		int nType = type.getType();
-		switch(nType)
+//		int nType = type.getType();
+		switch(type)
 		{
-			case RequestKeyTypeType.STRING_TYPE:
+			case STRING:
 				{
 					return DataType.STRING_TYPE;
 				}
-			case RequestKeyTypeType.INTEGER_TYPE:
+			case INTEGER:
 				{
 					return DataType.INTEGER_TYPE;
 				}
-			case RequestKeyTypeType.LONG_TYPE:
+			case LONG:
 				{
 					return DataType.LONG_TYPE;
 				}
-			case RequestKeyTypeType.DATETIME_TYPE:
+			case DATETIME:
 				{
 					return DataType.DATETIME_TYPE;
 				}
-			case RequestKeyTypeType.STRINGARRAY_TYPE:
+			case STRINGARRAY:
 				{
 					return DataType.STRING_ARRAY_TYPE;
 				}
-			case RequestKeyTypeType.BOOLEAN_TYPE:
+			case BOOLEAN:
 				{
 					return DataType.BOOLEAN_TYPE;
 				}
-			case RequestKeyTypeType.BOOLEANARRAY_TYPE:
+			case BOOLEANARRAY:
 				{
 					return DataType.BOOLEAN_ARRAY_TYPE;
 				}
-			case RequestKeyTypeType.BYTE_TYPE:
+			case BYTE:
 				{
 					return DataType.BYTE_TYPE;
 				}
-			case RequestKeyTypeType.BYTEARRAY_TYPE:
+			case BYTEARRAY:
 				{
 					return DataType.BYTE_ARRAY_TYPE;
 				}
-			case RequestKeyTypeType.CDO_TYPE:
+			case CDO:
 				{
 					return DataType.CDO_TYPE;
 				}
-			case RequestKeyTypeType.CDOARRAY_TYPE:
+			case CDOARRAY:
 				{
 					return DataType.CDO_ARRAY_TYPE;
 				}
-			case RequestKeyTypeType.DATE_TYPE:
+			case DATE:
 				{
 					return DataType.DATE_TYPE;
 				}
-			case RequestKeyTypeType.DATEARRAY_TYPE:
+			case DATEARRAY:
 				{
 					return DataType.DATE_ARRAY_TYPE;
 				}
 			
-			case RequestKeyTypeType.DATETIMEARRAY_TYPE:
+			case DATETIMEARRAY:
 				{
 					return DataType.DATETIME_ARRAY_TYPE;
 				}
-			case RequestKeyTypeType.DOUBLE_TYPE:
+			case DOUBLE:
 				{
 					return DataType.DOUBLE_TYPE;
 				}
-			case RequestKeyTypeType.DOUBLEARRAY_TYPE:
+			case DOUBLEARRAY:
 				{
 					return DataType.DOUBLE_ARRAY_TYPE;
 				}
-			case RequestKeyTypeType.FLOAT_TYPE:
+			case FLOAT:
 				{
 					return DataType.FLOAT_TYPE;
 				}
-			case RequestKeyTypeType.FLOATARRAY_TYPE:
+			case FLOATARRAY:
 				{
 					return DataType.FLOAT_ARRAY_TYPE;
 				}
 			
-			case RequestKeyTypeType.INTEGERARRAY_TYPE:
+			case INTEGERARRAY:
 				{
 					return DataType.INTEGER_ARRAY_TYPE;
 				}
 			
-			case RequestKeyTypeType.LONGARRAY_TYPE:
+			case LONGARRAY:
 				{
 					return DataType.LONG_ARRAY_TYPE;
 				}
-			case RequestKeyTypeType.SHORT_TYPE:
+			case SHORT:
 				{
 					return DataType.SHORT_TYPE;
 				}
-			case RequestKeyTypeType.SHORTARRAY_TYPE:
+			case SHORTARRAY:
 				{
 					return DataType.SHORT_ARRAY_TYPE;
 				}
-			case RequestKeyTypeType.TIME_TYPE:
+			case TIME:
 				{
 					return DataType.TIME_TYPE;
 				}
-			case RequestKeyTypeType.TIMEARRAY_TYPE:
+			case TIMEARRAY:
 				{
 					return DataType.TIME_ARRAY_TYPE;
 				}
@@ -1216,29 +1218,29 @@ public class FrameworkUtil
 		
 		int nCode = ret.getCode();
 		int nValue = returnCode.getValue();
-		switch(returnCode.getOperator().getType()) 
+		switch(returnCode.getOperator()) 
 		{
-			case ReturnCodeOperatorType.VALUE_0_TYPE://=
+			case VALUE_0://=
 			{
 				return nCode==nValue;
 			}
-			case ReturnCodeOperatorType.VALUE_1_TYPE://!=
+			case VALUE_1://!=
 			{
 				return nCode!=nValue;
 			}
-			case ReturnCodeOperatorType.VALUE_2_TYPE://>
+			case VALUE_2://>
 				{
 					return nCode>nValue;
 				}
-			case ReturnCodeOperatorType.VALUE_3_TYPE://>=
+			case VALUE_3://>=
 				{
 					return nCode>=nValue;
 				}
-			case ReturnCodeOperatorType.VALUE_4_TYPE://<
+			case VALUE_4://<
 				{
 					return nCode<nValue;
 				}
-			case ReturnCodeOperatorType.VALUE_5_TYPE://<=
+			case VALUE_5://<=
 				{
 					return nCode<=nValue;
 				}
@@ -1246,16 +1248,21 @@ public class FrameworkUtil
 		return false;
 	}
 	
-	public  static void main(String[] args)
-	{
-		CDO[] cdos = new CDO[2];
-		for(int i=0;i<2;i++)
-		{
-			cdos[i] = new CDO();
-			cdos[i].setStringValue("str","imaya"+i);
-		}
-		CDO cdo = new CDO();
-		cdo.setCDOArrayValue("cdos",cdos);
-		//System.out.println(cdo.toJSON());
-	}
+	private static int getKeyType(CacheKey cacheKey){
+		
+		  int nType=0;
+		  switch (cacheKey.getType()) {
+			case COMMON:
+				nType=0;
+				break;
+			case JSON:
+				nType=1;
+			case XML:
+				nType=2;					
+			default:
+				 nType=0;
+			}
+		  return nType;
+	}	
+	
 }

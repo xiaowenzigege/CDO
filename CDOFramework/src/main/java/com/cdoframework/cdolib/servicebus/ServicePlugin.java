@@ -12,14 +12,14 @@ import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.database.IDataEngine;
 import com.cdoframework.cdolib.database.INoSQLDataEngine;
 import com.cdoframework.cdolib.database.NoSQLDataEngine;
-import com.cdoframework.cdolib.database.dataservice.BigTable;
-import com.cdoframework.cdolib.database.dataservice.DataService;
-import com.cdoframework.cdolib.servicebus.schema.ActiveService;
-import com.cdoframework.cdolib.servicebus.schema.DataGroup;
-import com.cdoframework.cdolib.servicebus.schema.NoSQLDB;
-import com.cdoframework.cdolib.servicebus.schema.Parameter;
-import com.cdoframework.cdolib.servicebus.schema.ServiceConfig;
-import com.cdoframework.cdolib.servicebus.schema.TransService;
+import com.cdoframework.cdolib.database.xsd.BigTable;
+import com.cdoframework.cdolib.database.xsd.DataService;
+import com.cdoframework.cdolib.servicebus.xsd.ActiveService;
+import com.cdoframework.cdolib.servicebus.xsd.DataGroup;
+import com.cdoframework.cdolib.servicebus.xsd.NoSQLDB;
+import com.cdoframework.cdolib.servicebus.xsd.Parameter;
+import com.cdoframework.cdolib.servicebus.xsd.ServiceConfig;
+import com.cdoframework.cdolib.servicebus.xsd.TransService;
 
 /**
  * @author Aaron
@@ -92,7 +92,7 @@ public class ServicePlugin implements IServicePlugin
 		return true;
 	}
 	
-	public void init(String strPluginName,ServiceBus serviceBus,com.cdoframework.cdolib.servicebus.schema.ServicePlugin pluginDefine)
+	public void init(String strPluginName,ServiceBus serviceBus,com.cdoframework.cdolib.servicebus.xsd.ServicePlugin pluginDefine)
 					throws Exception
 	{
 		this.serviceBus = serviceBus;
@@ -183,7 +183,7 @@ public class ServicePlugin implements IServicePlugin
 		{
 			for(int i=0;i<nDataServiceCount;i++)
 			{
-				com.cdoframework.cdolib.servicebus.schema.DataService dataServiceDefine=pluginDefine.getDataService(i);
+				com.cdoframework.cdolib.servicebus.xsd.DataService dataServiceDefine=pluginDefine.getDataService(i);
 				if(logger.isInfoEnabled()){logger.info("parse trans xml :"+dataServiceDefine.getResource());}
 				String strSQLTransXML=Utility.readTextResource(dataServiceDefine.getResource(),"utf-8");
 				if(strSQLTransXML==null)

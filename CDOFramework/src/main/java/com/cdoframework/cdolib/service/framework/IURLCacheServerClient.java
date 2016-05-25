@@ -2,8 +2,8 @@ package com.cdoframework.cdolib.service.framework;
 
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.service.framework.schema.URLCacheServer;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.RemoveURLCache;
+import com.cdoframework.cdolib.service.framework.xsd.URLCacheServer;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.RemoveURLCache;
 
 public interface IURLCacheServerClient
 {

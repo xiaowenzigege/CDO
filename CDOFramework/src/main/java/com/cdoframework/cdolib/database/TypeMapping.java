@@ -1,8 +1,8 @@
 package com.cdoframework.cdolib.database;
 
 import com.cdoframework.cdolib.base.DataType;
-import com.cdoframework.cdolib.database.dataservice.types.CriteriaTypeTypeType;
-import com.cdoframework.cdolib.database.dataservice.types.FieldTypeTypeType;
+import com.cdoframework.cdolib.database.xsd.types.CriteriaTypeTypeType;
+import com.cdoframework.cdolib.database.xsd.types.FieldTypeTypeType;
 
 public class TypeMapping
 {
@@ -16,106 +16,105 @@ public class TypeMapping
 		if(type==null)
 		{
 			return DataType.NONE_TYPE;
-		}
-		int nType = type.getType();
-		switch(nType)
+		}		
+		switch(type)
 		{
-			case FieldTypeTypeType.STRING_TYPE:
+			case STRING:
 				{
 					return DataType.STRING_TYPE;
 				}
-			case FieldTypeTypeType.INTEGER_TYPE:
+			case INTEGER:
 				{
 					return DataType.INTEGER_TYPE;
 				}
-			case FieldTypeTypeType.LONG_TYPE:
+			case LONG:
 				{
 					return DataType.LONG_TYPE;
 				}
-			case FieldTypeTypeType.DATETIME_TYPE:
+			case DATETIME:
 				{
 					return DataType.DATETIME_TYPE;
 				}
-			case FieldTypeTypeType.STRINGARRAY_TYPE:
+			case STRINGARRAY:
 				{
 					return DataType.STRING_ARRAY_TYPE;
 				}
-			case FieldTypeTypeType.BOOLEAN_TYPE:
+			case BOOLEAN:
 				{
 					return DataType.BOOLEAN_TYPE;
 				}
-			case FieldTypeTypeType.BOOLEANARRAY_TYPE:
+			case BOOLEANARRAY:
 				{
 					return DataType.BOOLEAN_ARRAY_TYPE;
 				}
-			case FieldTypeTypeType.BYTE_TYPE:
+			case BYTE:
 				{
 					return DataType.BYTE_TYPE;
 				}
-			case FieldTypeTypeType.BYTEARRAY_TYPE:
+			case BYTEARRAY:
 				{
 					return DataType.BYTE_ARRAY_TYPE;
 				}
-			case FieldTypeTypeType.CDO_TYPE:
+			case CDO:
 				{
 					return DataType.CDO_TYPE;
 				}
-			case FieldTypeTypeType.CDOARRAY_TYPE:
+			case CDOARRAY:
 				{
 					return DataType.CDO_ARRAY_TYPE;
 				}
-			case FieldTypeTypeType.DATE_TYPE:
+			case DATE:
 				{
 					return DataType.DATE_TYPE;
 				}
-			case FieldTypeTypeType.DATEARRAY_TYPE:
+			case DATEARRAY:
 				{
 					return DataType.DATE_ARRAY_TYPE;
 				}
 			
-			case FieldTypeTypeType.DATETIMEARRAY_TYPE:
+			case DATETIMEARRAY:
 				{
 					return DataType.DATETIME_ARRAY_TYPE;
 				}
-			case FieldTypeTypeType.DOUBLE_TYPE:
+			case DOUBLE:
 				{
 					return DataType.DOUBLE_TYPE;
 				}
-			case FieldTypeTypeType.DOUBLEARRAY_TYPE:
+			case DOUBLEARRAY:
 				{
 					return DataType.DOUBLE_ARRAY_TYPE;
 				}
-			case FieldTypeTypeType.FLOAT_TYPE:
+			case FLOAT:
 				{
 					return DataType.FLOAT_TYPE;
 				}
-			case FieldTypeTypeType.FLOATARRAY_TYPE:
+			case FLOATARRAY:
 				{
 					return DataType.FLOAT_ARRAY_TYPE;
 				}
 			
-			case FieldTypeTypeType.INTEGERARRAY_TYPE:
+			case INTEGERARRAY:
 				{
 					return DataType.INTEGER_ARRAY_TYPE;
 				}
 			
-			case FieldTypeTypeType.LONGARRAY_TYPE:
+			case LONGARRAY:
 				{
 					return DataType.LONG_ARRAY_TYPE;
 				}
-			case FieldTypeTypeType.SHORT_TYPE:
+			case SHORT:
 				{
 					return DataType.SHORT_TYPE;
 				}
-			case FieldTypeTypeType.SHORTARRAY_TYPE:
+			case SHORTARRAY:
 				{
 					return DataType.SHORT_ARRAY_TYPE;
 				}
-			case FieldTypeTypeType.TIME_TYPE:
+			case TIME:
 				{
 					return DataType.TIME_TYPE;
 				}
-			case FieldTypeTypeType.TIMEARRAY_TYPE:
+			case TIMEARRAY:
 				{
 					return DataType.TIME_ARRAY_TYPE;
 				}
@@ -136,97 +135,96 @@ public class TypeMapping
 		{
 			return DataType.NONE_TYPE;
 		}
-		int nType = type.getType();
-		switch(nType)
+		switch(type)
 		{
-			case CriteriaTypeTypeType.STRING_TYPE:
+			case STRING:
 				{
 					return DataType.STRING_TYPE;
 				}
-			case CriteriaTypeTypeType.INTEGER_TYPE:
+			case INTEGER:
 				{
 					return DataType.INTEGER_TYPE;
 				}
-			case CriteriaTypeTypeType.LONG_TYPE:
+			case LONG:
 				{
 					return DataType.LONG_TYPE;
 				}
-			case CriteriaTypeTypeType.DATETIME_TYPE:
+			case DATETIME:
 				{
 					return DataType.DATETIME_TYPE;
 				}
-			case CriteriaTypeTypeType.BOOLEAN_TYPE:
+			case BOOLEAN:
 				{
 					return DataType.BOOLEAN_TYPE;
 				}
-			case CriteriaTypeTypeType.BOOLEANARRAY_TYPE:
+			case BOOLEANARRAY:
 				{
 					return DataType.BOOLEAN_ARRAY_TYPE;
 				} 
-			case CriteriaTypeTypeType.STRINGARRAY_TYPE:
+			case STRINGARRAY:
 				{
 					return DataType.STRING_ARRAY_TYPE;
 				}
-			case CriteriaTypeTypeType.BYTE_TYPE:
+			case BYTE:
 				{
 					return DataType.BYTE_TYPE;
 				}
-			case CriteriaTypeTypeType.BYTEARRAY_TYPE:
+			case BYTEARRAY:
 				{
 					return DataType.BYTE_ARRAY_TYPE;
 				}
-			case CriteriaTypeTypeType.DATE_TYPE:
+			case DATE:
 				{
 					return DataType.DATE_TYPE;
 				}
-			case CriteriaTypeTypeType.DATEARRAY_TYPE:
+			case DATEARRAY:
 				{
 					return DataType.DATE_ARRAY_TYPE;
 				}
 			
-			case CriteriaTypeTypeType.DATETIMEARRAY_TYPE:
+			case DATETIMEARRAY:
 				{
 					return DataType.DATETIME_ARRAY_TYPE;
 				}
-			case CriteriaTypeTypeType.DOUBLE_TYPE:
+			case DOUBLE:
 				{
 					return DataType.DOUBLE_TYPE;
 				}
-			case CriteriaTypeTypeType.DOUBLEARRAY_TYPE:
+			case DOUBLEARRAY:
 				{
 					return DataType.DOUBLE_ARRAY_TYPE;
 				}
-			case CriteriaTypeTypeType.FLOAT_TYPE:
+			case FLOAT:
 				{
 					return DataType.FLOAT_TYPE;
 				}
-			case CriteriaTypeTypeType.FLOATARRAY_TYPE:
+			case FLOATARRAY:
 				{
 					return DataType.FLOAT_ARRAY_TYPE;
 				}
 			
-			case CriteriaTypeTypeType.INTEGERARRAY_TYPE:
+			case INTEGERARRAY:
 				{
 					return DataType.INTEGER_ARRAY_TYPE;
 				}
 			
-			case CriteriaTypeTypeType.LONGARRAY_TYPE:
+			case LONGARRAY:
 				{
 					return DataType.LONG_ARRAY_TYPE;
 				}
-			case CriteriaTypeTypeType.SHORT_TYPE:
+			case SHORT:
 				{
 					return DataType.SHORT_TYPE;
 				}
-			case CriteriaTypeTypeType.SHORTARRAY_TYPE:
+			case SHORTARRAY:
 				{
 					return DataType.SHORT_ARRAY_TYPE;
 				}
-			case CriteriaTypeTypeType.TIME_TYPE:
+			case TIME:
 				{
 					return DataType.TIME_TYPE;
 				}
-			case CriteriaTypeTypeType.TIMEARRAY_TYPE:
+			case TIMEARRAY:
 				{
 					return DataType.TIME_ARRAY_TYPE;
 				}

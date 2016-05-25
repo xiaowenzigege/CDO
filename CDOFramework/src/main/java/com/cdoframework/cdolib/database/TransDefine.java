@@ -1,10 +1,10 @@
 package com.cdoframework.cdolib.database;
 
-import com.cdoframework.cdolib.database.dataservice.NoSQLTrans;
-import com.cdoframework.cdolib.database.dataservice.SQLTrans;
+import com.cdoframework.cdolib.database.xsd.NoSQLTrans;
+import com.cdoframework.cdolib.database.xsd.SQLTrans;
 
 /**
- * @author Administrator
+ * @author KenelLiu
  */
 public class TransDefine
 {

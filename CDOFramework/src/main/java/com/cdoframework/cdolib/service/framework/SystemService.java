@@ -11,11 +11,11 @@ import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.framework.CacheHandler;
 import com.cdoframework.cdolib.framework.FilterHandler;
 import com.cdoframework.cdolib.parameter.GlobalConfiguration;
-import com.cdoframework.cdolib.service.framework.schema.FilterConfig;
-import com.cdoframework.cdolib.service.framework.schema.Framework;
-import com.cdoframework.cdolib.service.framework.schema.MemCacheServerGroup;
-import com.cdoframework.cdolib.service.framework.schema.Parameter;
-import com.cdoframework.cdolib.service.framework.schema.URLCacheServer;
+import com.cdoframework.cdolib.service.framework.xsd.FilterConfig;
+import com.cdoframework.cdolib.service.framework.xsd.Framework;
+import com.cdoframework.cdolib.service.framework.xsd.MemCacheServerGroup;
+import com.cdoframework.cdolib.service.framework.xsd.Parameter;
+import com.cdoframework.cdolib.service.framework.xsd.URLCacheServer;
 import com.cdoframework.cdolib.servicebus.IEventHandler;
 import com.cdoframework.cdolib.servicebus.TransService;
 

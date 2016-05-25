@@ -9,40 +9,40 @@ import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.framework.IFilter;
 import com.cdoframework.cdolib.framework.ITaskExecutor;
 import com.cdoframework.cdolib.framework.Task;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.BusinessLog;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.CreteriasType;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.Event;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.Filter;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.FilterDefine;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.For;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.ForItem;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.LoadCache;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.LoadCacheChoice;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.LoadCacheChoiceItem;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PostEvent;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PostEventGroup;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PostLoadCache;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PostPushCache;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PostRemoveCache;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PostRemoveURLCache;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PostTransEventTypeItem;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PostTransaction;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PreEvent;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PreEventGroup;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PreLoadCache;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PrePushCache;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PreRemoveCache;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PreRemoveURLCache;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PreTransEventTypeItem;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PreTransaction;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.PushCache;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.RemoveCache;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.RemoveURLCache;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.RequestKey;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.ReturnCode;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.TransCache;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.Transaction;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.types.RequestKeyScopeType;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.BusinessLog;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.CreteriasType;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.Event;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.Filter;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.FilterDefine;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.For;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.ForItem;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.LoadCache;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.LoadCacheChoice;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.LoadCacheChoiceItem;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PostEvent;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PostEventGroup;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PostLoadCache;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PostPushCache;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PostRemoveCache;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PostRemoveURLCache;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PostTransEventTypeItem;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PostTransaction;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PreEvent;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PreEventGroup;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PreLoadCache;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PrePushCache;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PreRemoveCache;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PreRemoveURLCache;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PreTransEventTypeItem;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PreTransaction;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.PushCache;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.RemoveCache;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.RemoveURLCache;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.RequestKey;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.ReturnCode;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.TransCache;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.Transaction;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.types.RequestKeyScopeType;
 import com.cdoframework.cdolib.servicebus.EventTask;
 import com.cdoframework.cdolib.servicebus.IServiceBus;
 import com.cdoframework.cdolib.servicebus.ITransService;
@@ -174,13 +174,15 @@ public class FilterManager implements IFilter,ITaskExecutor
 						{
 							loadCache.setFilter(filter);
 							loadCache.getTransaction().setFilter(filter);
-							LoadCacheChoice[] loadCacheChoices = loadCache.getLoadCacheChoice();
-							if(loadCacheChoices !=null && loadCacheChoices.length>0)
+//							LoadCacheChoice[] loadCacheChoices = loadCache.getLoadCacheChoice();
+							LoadCacheChoice loadCacheChoices = loadCache.getLoadCacheChoice();
+							if(loadCacheChoices !=null )
 							{
-								for(LoadCacheChoice loadCacheChoice:loadCacheChoices)
-								{
+//								for(LoadCacheChoice loadCacheChoice:loadCacheChoices)
+//								{
 									
-									LoadCacheChoiceItem[]  loadCacheChoiceItems = loadCacheChoice.getLoadCacheChoiceItem();
+//									LoadCacheChoiceItem[]  loadCacheChoiceItems = loadCacheChoice.getLoadCacheChoiceItem();
+								    LoadCacheChoiceItem[]  loadCacheChoiceItems = loadCacheChoices.getLoadCacheChoiceItem();
 									if(loadCacheChoiceItems!=null && loadCacheChoiceItems.length>0)
 									{
 										for(LoadCacheChoiceItem loadCacheChoiceItem:loadCacheChoiceItems)
@@ -204,7 +206,7 @@ public class FilterManager implements IFilter,ITaskExecutor
 											parseFor(filter,for1);
 										}
 									}
-								}
+//								}
 							}
 						}
 					}
@@ -299,13 +301,14 @@ public class FilterManager implements IFilter,ITaskExecutor
 						{
 							loadCache.setFilter(filter);
 							loadCache.getTransaction().setFilter(filter);
-							LoadCacheChoice[] loadCacheChoices = loadCache.getLoadCacheChoice();
-							if(loadCacheChoices !=null && loadCacheChoices.length>0)
+//							LoadCacheChoice[] loadCacheChoices = loadCache.getLoadCacheChoice();
+							LoadCacheChoice loadCacheChoices = loadCache.getLoadCacheChoice();
+							if(loadCacheChoices !=null)// && loadCacheChoices.length>0)
 							{
-								for(LoadCacheChoice loadCacheChoice:loadCacheChoices)
-								{
+//								for(LoadCacheChoice loadCacheChoice:loadCacheChoices)
+//								{
 									
-									LoadCacheChoiceItem[]  loadCacheChoiceItems = loadCacheChoice.getLoadCacheChoiceItem();
+									LoadCacheChoiceItem[]  loadCacheChoiceItems = loadCacheChoices.getLoadCacheChoiceItem();
 									if(loadCacheChoiceItems!=null && loadCacheChoiceItems.length>0)
 									{
 										for(LoadCacheChoiceItem loadCacheChoiceItem:loadCacheChoiceItems)
@@ -329,7 +332,7 @@ public class FilterManager implements IFilter,ITaskExecutor
 											parseFor(filter,for1);
 										}
 									}
-								}
+//								}
 							}
 						}
 					}
@@ -658,7 +661,7 @@ public class FilterManager implements IFilter,ITaskExecutor
 							}
 							
 							CDO cdoSource = null;
-							if(requestKey.getScope().getType()==RequestKeyScopeType.REQUEST_TYPE)
+							if(requestKey.getScope().value().equals(RequestKeyScopeType.REQUEST.value()))
 							{
 								cdoSource = cdoOldRequest;
 							}else						
@@ -795,10 +798,11 @@ public class FilterManager implements IFilter,ITaskExecutor
 			return Return.OK;
 		}
 		ret = Return.OK;
-		LoadCacheChoice[] lcs = loadCache.getLoadCacheChoice();
-		for(LoadCacheChoice lc:lcs)
-		{
-			LoadCacheChoiceItem[] lcItems = lc.getLoadCacheChoiceItem();
+//		LoadCacheChoice[] lcs = loadCache.getLoadCacheChoice();
+		LoadCacheChoice lcs = loadCache.getLoadCacheChoice();
+//		for(LoadCacheChoice lc:lcs)
+//		{
+			LoadCacheChoiceItem[] lcItems = lcs.getLoadCacheChoiceItem();
 			if(lcItems!=null && lcItems.length>0)
 			{
 				for(LoadCacheChoiceItem item:lcItems)
@@ -820,7 +824,7 @@ public class FilterManager implements IFilter,ITaskExecutor
 					}
 				}
 			}
-		}
+//		}
 		
 		return ret;
 	}

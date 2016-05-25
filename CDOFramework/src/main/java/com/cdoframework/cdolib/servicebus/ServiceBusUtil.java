@@ -5,12 +5,11 @@ import java.util.Date;
 import com.cdoframework.cdolib.base.DateTime;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.servicebus.schema.Creteria;
-import com.cdoframework.cdolib.servicebus.schema.Creterias;
-import com.cdoframework.cdolib.servicebus.schema.CreteriasType;
-import com.cdoframework.cdolib.servicebus.schema.CreteriasTypeItem;
-import com.cdoframework.cdolib.servicebus.schema.types.CriteriaTypeOperatorType;
-import com.cdoframework.cdolib.servicebus.schema.types.CriteriaTypeTypeType;
+import com.cdoframework.cdolib.servicebus.xsd.Creteria;
+import com.cdoframework.cdolib.servicebus.xsd.Creterias;
+import com.cdoframework.cdolib.servicebus.xsd.CreteriasType;
+import com.cdoframework.cdolib.servicebus.xsd.CreteriasTypeItem;
+import com.cdoframework.cdolib.servicebus.xsd.types.CriteriaTypeTypeType;
 
 public class ServiceBusUtil
 {
@@ -22,7 +21,7 @@ public class ServiceBusUtil
     	{
     		return true;
     	}
-    	if(cts.getType().getType()==com.cdoframework.cdolib.servicebus.schema.types.CreteriasTypeItemTypeType.AND_TYPE)
+    	if(cts.getType().value().equals(com.cdoframework.cdolib.servicebus.xsd.types.CreteriasTypeItemTypeType.AND.value()))
     	{
     		return isAndFitCreterias(cts,cdoRequest);
     	}
@@ -97,11 +96,11 @@ public class ServiceBusUtil
 
 		
 		String strValue = ct.getValue();
-		int nType = ct.getType().getType();
+		CriteriaTypeTypeType nType = ct.getType();
 
-		switch ( ct.getOperator().getType())
+		switch ( ct.getOperator())
 		{
-			case CriteriaTypeOperatorType.VALUE_0_TYPE:
+			case VALUE_0:
 				{//=
 					if(strValue==null)
 					{
@@ -110,14 +109,14 @@ public class ServiceBusUtil
 					
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:
-						case CriteriaTypeTypeType.STRING_TYPE:
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case INTEGER:
+						case LONG:
+						case STRING:
+						case SHORT:
+						case BYTE:
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								if(objValue1.toString().equals(strValue))
 								{
@@ -128,8 +127,8 @@ public class ServiceBusUtil
 									return false;
 								}
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								double value1 = Double.valueOf(objValue1.toString());
 								double value2 = Double.valueOf(strValue);
@@ -148,7 +147,7 @@ public class ServiceBusUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_1_TYPE:
+			case VALUE_1:
 				{//!=
 					if(strValue==null)
 					{
@@ -156,14 +155,14 @@ public class ServiceBusUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:
-						case CriteriaTypeTypeType.STRING_TYPE:
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case INTEGER:
+						case LONG:
+						case STRING:
+						case SHORT:
+						case BYTE:
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								if(objValue1.toString().equals(strValue))
 								{
@@ -174,8 +173,8 @@ public class ServiceBusUtil
 									return true;
 								}
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								double value1 = Double.valueOf(objValue1.toString());
 								double value2 = Double.valueOf(strValue);
@@ -194,7 +193,7 @@ public class ServiceBusUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_2_TYPE:
+			case VALUE_2:
 				{//>
 					if(strValue==null)
 					{
@@ -202,22 +201,22 @@ public class ServiceBusUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:						
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
+						case INTEGER:
+						case LONG:						
+						case SHORT:
+						case BYTE:
 							{
 								return Utility.compareLong(objValue1,strValue)>0;
 							}
-						case CriteriaTypeTypeType.STRING_TYPE:
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case STRING:
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								return Utility.compareString(objValue1,strValue)>0;
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								return Utility.compareDouble(objValue1,strValue)>0;
 							}
@@ -227,7 +226,7 @@ public class ServiceBusUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_3_TYPE:
+			case VALUE_3:
 				{//>=
 					if(strValue==null)
 					{
@@ -235,22 +234,22 @@ public class ServiceBusUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:						
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
+						case INTEGER:
+						case LONG:						
+						case SHORT:
+						case BYTE:
 							{
 								return Utility.compareLong(objValue1,strValue)>=0;
 							}
-						case CriteriaTypeTypeType.STRING_TYPE:
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case STRING:
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								return Utility.compareString(objValue1,strValue)>=0;
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								return Utility.compareDouble(objValue1,strValue)>=0;
 							}
@@ -260,7 +259,7 @@ public class ServiceBusUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_4_TYPE:
+			case VALUE_4:
 				{//<
 					if(strValue==null)
 					{
@@ -268,22 +267,22 @@ public class ServiceBusUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:						
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
+						case INTEGER:
+						case LONG:						
+						case SHORT:
+						case BYTE:
 							{
 								return Utility.compareLong(objValue1,strValue)<0;
 							}
-						case CriteriaTypeTypeType.STRING_TYPE:
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case STRING:
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								return Utility.compareString(objValue1,strValue)<0;
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								return Utility.compareDouble(objValue1,strValue)<0;
 							}
@@ -293,7 +292,7 @@ public class ServiceBusUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_5_TYPE:
+			case VALUE_5:
 				{//<=
 					if(strValue==null)
 					{
@@ -301,22 +300,22 @@ public class ServiceBusUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:						
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
+						case INTEGER:
+						case LONG:						
+						case SHORT:
+						case BYTE:
 							{
 								return Utility.compareLong(objValue1,strValue)<=0;
 							}
-						case CriteriaTypeTypeType.STRING_TYPE:
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case STRING:
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								return Utility.compareString(objValue1,strValue)<=0;
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								return Utility.compareDouble(objValue1,strValue)<=0;
 							}
@@ -326,15 +325,15 @@ public class ServiceBusUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_6_TYPE:
+			case VALUE_6:
 				{//IS TODO 暂不支持					
 					return false;
 				}
-			case CriteriaTypeOperatorType.VALUE_7_TYPE:
+			case VALUE_7:
 				{//IS NOT TODO 暂不支持
 					break;
 				} 
-			case CriteriaTypeOperatorType.VALUE_8_TYPE:
+			case VALUE_8:
 				{//MATCH
 					if(strValue==null)
 					{
@@ -342,7 +341,7 @@ public class ServiceBusUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.STRING_TYPE:
+						case STRING:
 							{
 								String strObjectValue1 = objValue1.toString();
 								if(strObjectValue1.matches(strValue))
@@ -361,7 +360,7 @@ public class ServiceBusUtil
 					}
 					
 				}
-			case CriteriaTypeOperatorType.VALUE_9_TYPE:
+			case VALUE_9:
 				{//NOT MATCH
 					if(strValue==null)
 					{
@@ -369,7 +368,7 @@ public class ServiceBusUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.STRING_TYPE:
+						case STRING:
 							{
 								String strObjectValue1 = objValue1.toString();
 								if(strObjectValue1.matches(strValue))
@@ -387,7 +386,7 @@ public class ServiceBusUtil
 							}							
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_10_TYPE:
+			case VALUE_10:
 				{//IN
 					if(strValue==null)
 					{
@@ -395,11 +394,11 @@ public class ServiceBusUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:						
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
-						case CriteriaTypeTypeType.STRING_TYPE:
+						case INTEGER:
+						case LONG:						
+						case SHORT:
+						case BYTE:
+						case STRING:
 							{
 								String strObjectValue1 = objValue1.toString();
 								if(strObjectValue1.equalsIgnoreCase(strValue))
@@ -417,9 +416,9 @@ public class ServiceBusUtil
 									return false;
 								}
 							}
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								String[] strsDateTime = strValue.toString().split(IN_SEPRATOR);
 								if(strsDateTime.length!=2)
@@ -439,8 +438,8 @@ public class ServiceBusUtil
 									return false;
 								}
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								double d1 = Utility.parseDoubleValue(objValue1);
 								String strObjectValue2 = strValue.toString();
@@ -460,7 +459,7 @@ public class ServiceBusUtil
 							}
 					}
 				}
-			case CriteriaTypeOperatorType.VALUE_11_TYPE:
+			case VALUE_11:
 				{//NOT IN
 					if(strValue==null)
 					{
@@ -468,11 +467,11 @@ public class ServiceBusUtil
 					}
 					switch(nType)
 					{
-						case CriteriaTypeTypeType.INTEGER_TYPE:
-						case CriteriaTypeTypeType.LONG_TYPE:						
-						case CriteriaTypeTypeType.SHORT_TYPE:
-						case CriteriaTypeTypeType.BYTE_TYPE:
-						case CriteriaTypeTypeType.STRING_TYPE:
+						case INTEGER:
+						case LONG:						
+						case SHORT:
+						case BYTE:
+						case STRING:
 							{
 								String strObjectValue1 = objValue1.toString();
 								String strObjectValue2 = strValue;
@@ -491,9 +490,9 @@ public class ServiceBusUtil
 									return false;
 								}
 							}
-						case CriteriaTypeTypeType.DATETIME_TYPE:
-						case CriteriaTypeTypeType.DATE_TYPE:
-						case CriteriaTypeTypeType.TIME_TYPE:							
+						case DATETIME:
+						case DATE:
+						case TIME:							
 							{
 								String[] strsDateTime = strValue.toString().split(IN_SEPRATOR);
 								if(strsDateTime.length!=2)
@@ -513,8 +512,8 @@ public class ServiceBusUtil
 									return false;
 								}
 							}
-						case CriteriaTypeTypeType.DOUBLE_TYPE:
-						case CriteriaTypeTypeType.FLOAT_TYPE:
+						case DOUBLE:
+						case FLOAT:
 							{
 								double d1 = Utility.parseDoubleValue(objValue1);
 								String strObjectValue2 = strValue.toString();

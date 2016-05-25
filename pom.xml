@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>	
 	<groupId>cdo</groupId>
 	<artifactId>cdo-parent</artifactId>
-	<version>1.2.5</version>
+	<version>1.3.0</version>
 	<packaging>pom</packaging>
 
 	<properties>
-	    <project.cdo.version>1.2.5</project.cdo.version>
+	    <project.cdo.version>1.3.0</project.cdo.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	

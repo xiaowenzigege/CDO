@@ -9,17 +9,19 @@ import java.util.HashMap;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.log4j.Logger;
 
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.service.framework.schema.Parameter;
-import com.cdoframework.cdolib.service.framework.schema.URLCacheServer;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.CacheURL;
-import com.cdoframework.cdolib.service.framework.transfilter.schema.RemoveURLCache;
+import com.cdoframework.cdolib.service.framework.xsd.Parameter;
+import com.cdoframework.cdolib.service.framework.xsd.URLCacheServer;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.CacheURL;
+import com.cdoframework.cdolib.service.framework.transfilter.xsd.RemoveURLCache;
 
 public class SquidHttpClient implements IURLCacheServerClient
 {
@@ -29,6 +31,14 @@ public class SquidHttpClient implements IURLCacheServerClient
 	private String URL;
 	private String DDA="MD5";
 	private HashMap<String,String> hmParameter;
+	
+	static RequestConfig.Builder requestBuilder;
+	static {		
+		requestBuilder= RequestConfig.custom();
+		requestBuilder = requestBuilder.setConnectTimeout(6000);
+		requestBuilder = requestBuilder.setSocketTimeout(6000);
+		requestBuilder = requestBuilder.setConnectionRequestTimeout(6000);
+	}
 	public SquidHttpClient()
 	{
 		this.hmParameter = new HashMap<String,String>(4);
@@ -75,25 +85,21 @@ public class SquidHttpClient implements IURLCacheServerClient
 	}
 	public boolean doGet(String url)
 	{
-		HttpGet getMethod = null;
-		HttpClient httpClient = new DefaultHttpClient();
-		getMethod = new HttpGet(url);
+
+		HttpClient httpClient = HttpClientBuilder.create()
+				   .setDefaultRequestConfig(requestBuilder.build()).build();//new DefaultHttpClient();
+		HttpGet method = new HttpGet(url);
 
 		// 执行GetMethod
 		int statusCode = 0;
 		try {
 			
-			HttpConnectionParams.setConnectionTimeout(httpClient.getParams(),
-					6000);
-			HttpConnectionParams.setSoTimeout(httpClient.getParams(),
-					6000);
-			HttpResponse response=httpClient.execute(getMethod);
+			HttpResponse response=httpClient.execute(method);
 			statusCode=response.getStatusLine().getStatusCode();
 			if(statusCode!=HttpStatus.SC_OK){
 				logger.error("failed to connect to  server");
 				return false;
 			}
-
 			if(response.getEntity()!=null)
 				return true;
 			logger.error("response.getEntity() is null");
@@ -101,9 +107,7 @@ public class SquidHttpClient implements IURLCacheServerClient
 		} catch (Exception e) {
 			logger.error("doGet:"+e.getMessage(),e);
 			return false;
-		}
-		finally
-		{
+		}finally{
 			//TODO 不释放连接
 		}
 	
@@ -143,9 +147,8 @@ public class SquidHttpClient implements IURLCacheServerClient
 		CacheURL[] cacheURLs = removeURLCache.getCacheURL();
 		for(CacheURL cacheURL: cacheURLs)
 		{
-			try
-			{
-				String strURL = FrameworkUtil.getString(cacheURL.getType().getType(),cacheURL.getContent(),cdoRequest,cdoResponse);
+			try{ 
+				String strURL = FrameworkUtil.getString(getURLType(cacheURL),cacheURL.getContent(),cdoRequest,cdoResponse);
 				boolean bOKTemp = removeCacheURL(strURL);	
 				if(bOKTemp == false)
 				{
@@ -171,9 +174,10 @@ public class SquidHttpClient implements IURLCacheServerClient
 		CacheURL[] cacheURLs = removeURLCache.getCacheURL();
 		for(CacheURL cacheURL: cacheURLs)
 		{
-			try
-			{
-				String strURL = FrameworkUtil.getString(fromIndex,strIndexId,cacheURL.getType().getType(),cacheURL.getContent(),cdoRequest,cdoResponse);
+			try{	
+
+				  
+				String strURL = FrameworkUtil.getString(fromIndex,strIndexId,getURLType(cacheURL),cacheURL.getContent(),cdoRequest,cdoResponse);
 				removeCacheURL(strURL);	
 			}
 			catch(Exception e)
@@ -227,4 +231,20 @@ public class SquidHttpClient implements IURLCacheServerClient
 	{
 		return true;
 	}
+	private int getURLType(CacheURL cacheURL){
+		
+		  int nType=0;
+		  switch (cacheURL.getType()) {
+			case COMMON:
+				nType=0;
+				break;
+			case JSON:
+				nType=1;
+			case XML:
+				nType=2;					
+			default:
+				 nType=0;
+			}
+		  return nType;
+	}	
 }

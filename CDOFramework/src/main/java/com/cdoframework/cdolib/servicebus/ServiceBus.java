@@ -27,13 +27,13 @@ import com.cdoframework.cdolib.database.BigTableEngine;
 import com.cdoframework.cdolib.database.IDataEngine;
 import com.cdoframework.cdolib.database.INoSQLDataEngine;
 import com.cdoframework.cdolib.database.NoSQLDataEngine;
-import com.cdoframework.cdolib.database.dataservice.BigTable;
-import com.cdoframework.cdolib.database.dataservice.BigTableGroup;
+import com.cdoframework.cdolib.database.xsd.BigTable;
+import com.cdoframework.cdolib.database.xsd.BigTableGroup;
 import com.cdoframework.cdolib.framework.CacheHandler;
 import com.cdoframework.cdolib.framework.ClusterController;
-import com.cdoframework.cdolib.servicebus.schema.DataGroup;
-import com.cdoframework.cdolib.servicebus.schema.NoSQLDB;
-import com.cdoframework.cdolib.servicebus.schema.Parameter;
+import com.cdoframework.cdolib.servicebus.xsd.DataGroup;
+import com.cdoframework.cdolib.servicebus.xsd.NoSQLDB;
+import com.cdoframework.cdolib.servicebus.xsd.Parameter;
 
 /**
  * @author Frank
@@ -104,10 +104,10 @@ public class ServiceBus implements IServiceBus
 		if(strBigTableConfigXML==null || strBigTableConfigXML.equals(""))
 			return Return.OK;
 		//将XML转换成对象
-		com.cdoframework.cdolib.database.dataservice.BigTableConfig bigTableConfig=null;
+		com.cdoframework.cdolib.database.xsd.BigTableConfig bigTableConfig=null;
 		try
 		{
-			bigTableConfig=com.cdoframework.cdolib.database.dataservice.BigTableConfig.fromXML(strBigTableConfigXML);
+			bigTableConfig=com.cdoframework.cdolib.database.xsd.BigTableConfig.fromXML(strBigTableConfigXML);
 		}
 		catch(Exception e)
 		{
@@ -174,10 +174,10 @@ public class ServiceBus implements IServiceBus
 	public Return init(String strServiceBusXML,String strBigTableConfigXML,
 			String strFrameworkResourcePath,String strFlitersConfigPath){
 		//将XML转换成对象
-		com.cdoframework.cdolib.servicebus.schema.ServiceBus serviceBus=null;
+		com.cdoframework.cdolib.servicebus.xsd.ServiceBus serviceBus=null;
 		try
 		{
-			serviceBus=com.cdoframework.cdolib.servicebus.schema.ServiceBus.fromXML(strServiceBusXML);
+			serviceBus=com.cdoframework.cdolib.servicebus.xsd.ServiceBus.fromXML(strServiceBusXML);
 		}
 		catch(Exception e)
 		{
@@ -260,7 +260,7 @@ public class ServiceBus implements IServiceBus
 		}
 
 		//初始化ClusterController
-		com.cdoframework.cdolib.servicebus.schema.ClusterController ccDefine=serviceBus.getClusterController();
+		com.cdoframework.cdolib.servicebus.xsd.ClusterController ccDefine=serviceBus.getClusterController();
 		if(ccDefine!=null)
 		{
 			if(logger.isInfoEnabled()){logger.info("Staring initialize  cluster controller ....................");}
@@ -278,7 +278,7 @@ public class ServiceBus implements IServiceBus
 		}
 		//初始化事件处理器
 		if(logger.isInfoEnabled()){logger.info("starting to init Event handler....................");}
-		com.cdoframework.cdolib.servicebus.schema.EventProcessor eventProcessorDefine = serviceBus.getEventProcessor();
+		com.cdoframework.cdolib.servicebus.xsd.EventProcessor eventProcessorDefine = serviceBus.getEventProcessor();
 		if(eventProcessorDefine != null)
 		{
 			eventProcessor			= new EventProcessor();
@@ -308,7 +308,7 @@ public class ServiceBus implements IServiceBus
 				{
 					throw new Exception("Resource "+strXMLResource+" invalid");
 				}
-				com.cdoframework.cdolib.servicebus.schema.ServicePlugin servicePluginDefine=com.cdoframework.cdolib.servicebus.schema.ServicePlugin.fromXML(strXML);
+				com.cdoframework.cdolib.servicebus.xsd.ServicePlugin servicePluginDefine=com.cdoframework.cdolib.servicebus.xsd.ServicePlugin.fromXML(strXML);
 				this.plugins[i]=new ServicePlugin();
 
 				//初始化插件

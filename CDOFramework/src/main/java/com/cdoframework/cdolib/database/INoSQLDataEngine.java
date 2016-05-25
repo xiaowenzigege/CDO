@@ -1,17 +1,19 @@
 package com.cdoframework.cdolib.database;
 
 import java.util.List;
-import java.util.Map;
 
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.database.dataservice.DataService;
-import com.cdoframework.cdolib.database.dataservice.NoSQLTrans;
+import com.cdoframework.cdolib.database.xsd.NoSQLTrans;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.ServerAddress;
 
-
+/**
+ * 
+ * @author KenelLiu
+ *
+ */
 public interface INoSQLDataEngine
 {
 	//-----------------modify method---------------------	
