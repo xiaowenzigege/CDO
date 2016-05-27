@@ -331,9 +331,8 @@ public class DataGroup implements java.io.Serializable {
         org.exolab.castor.xml.Validator validator = new org.exolab.castor.xml.Validator();
         validator.validate(this);
     }
-    
-  //------------------------------manual code----------------------
-    /**
+	/**
+	 * *************************************** manual  code *************************************************
 	 * 初始化DataGroup对象
 	 */
 	public CycleList<IDataEngine> init() throws Exception

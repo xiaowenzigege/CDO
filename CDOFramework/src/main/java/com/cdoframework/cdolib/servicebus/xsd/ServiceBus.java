@@ -771,14 +771,14 @@ public class ServiceBus implements java.io.Serializable {
         validator.validate(this);
     }
     
-  //------------------------------manual code----------------------
-    static Logger logger = Logger.getLogger(ServiceBus.class);
     /**
-     * ****************************************************************************************
+     * *************************************** manual  code *************************************************
      * 从一个XML字件串解析成BusinessManager对象
      * @param strXML
      * @return
      */
+    static Logger logger = Logger.getLogger(ServiceBus.class);
+    
     public static ServiceBus   fromXML(java.lang.String strXML) throws Exception
     {
     	StringReader reader=null;

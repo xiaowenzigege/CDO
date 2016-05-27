@@ -1,4 +1,4 @@
-#Tue May 24 13:43:12 CST 2016
+#Fri May 27 16:45:45 CST 2016
 com.cdoframework.cdolib.servicebus.xsd.Parameter=com.cdoframework.cdolib.servicebus.xsd.descriptors.ParameterDescriptor
 com.cdoframework.cdolib.servicebus.xsd.CreteriasType=com.cdoframework.cdolib.servicebus.xsd.descriptors.CreteriasTypeDescriptor
 com.cdoframework.cdolib.servicebus.xsd.ServerAddr=com.cdoframework.cdolib.servicebus.xsd.descriptors.ServerAddrDescriptor

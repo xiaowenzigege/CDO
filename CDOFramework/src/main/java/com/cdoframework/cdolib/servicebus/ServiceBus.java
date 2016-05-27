@@ -8,7 +8,6 @@ package com.cdoframework.cdolib.servicebus;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -328,6 +327,10 @@ public class ServiceBus implements IServiceBus
 			return Return.valueOf(-1,"Init ServiceBus Failed: "+e.getLocalizedMessage());
 		}
 		if(logger.isDebugEnabled()){logger.debug("load  plugins successfully....................");}
+		
+		if(dgs.length==0 &&  noSQLDBdefines.length==0){		  
+			logger.warn("........Data source is not set.........");
+		}
 		
 		return Return.OK;
 	}

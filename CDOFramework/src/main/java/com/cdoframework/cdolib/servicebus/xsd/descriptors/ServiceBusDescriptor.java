@@ -100,7 +100,6 @@ public class ServiceBusDescriptor extends org.exolab.castor.xml.util.XMLClassDes
             fieldValidator.setValidator(typeValidator);
             typeValidator.addPattern("(([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*)*");
             typeValidator.setWhiteSpace("preserve");
-            
         }
         desc.setValidator(fieldValidator);
         //-- noSQLDBId
@@ -144,7 +143,6 @@ public class ServiceBusDescriptor extends org.exolab.castor.xml.util.XMLClassDes
             fieldValidator.setValidator(typeValidator);
             typeValidator.addPattern("(([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*)*");
             typeValidator.setWhiteSpace("preserve");
-            
         }
         desc.setValidator(fieldValidator);
         //-- initialize element descriptors
@@ -235,14 +233,13 @@ public class ServiceBusDescriptor extends org.exolab.castor.xml.util.XMLClassDes
         desc.setSchemaType("list");
         desc.setComponentType("com.cdoframework.cdolib.servicebus.xsd.DataGroup");
         desc.setHandler(handler);
-        desc.setRequired(true);
         desc.setMultivalued(true);
         addFieldDescriptor(desc);
         addSequenceElement(desc);
 
         //-- validation code for: dataGroupList
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
+        fieldValidator.setMinOccurs(0);
         { //-- local scope
         }
         desc.setValidator(fieldValidator);
@@ -409,13 +406,14 @@ public class ServiceBusDescriptor extends org.exolab.castor.xml.util.XMLClassDes
         desc.setSchemaType("list");
         desc.setComponentType("string");
         desc.setHandler(handler);
+        desc.setRequired(true);
         desc.setMultivalued(true);
         addFieldDescriptor(desc);
         addSequenceElement(desc);
 
         //-- validation code for: pluginXMLResourceList
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(0);
+        fieldValidator.setMinOccurs(1);
         { //-- local scope
             org.exolab.castor.xml.validators.StringValidator typeValidator;
             typeValidator = new org.exolab.castor.xml.validators.StringValidator();
