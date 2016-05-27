@@ -411,55 +411,33 @@ public class ServiceBus implements IServiceBus
 		String strTransName=null;
 
 		try
-		{
-			strServiceName=cdoRequest.getStringValue("strServiceName");
-		}
-		catch(Exception e)
-		{
+		{                                             
+			strServiceName=cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);
+			strTransName=cdoRequest.getStringValue(ITransService.TRANSNAME_KEY);
+		}catch(Exception e){
 			logger.error("handleTrans:"+e.getMessage(),e);
 			return null;
 		}
-		try
-		{
-			strTransName=cdoRequest.getStringValue("strTransName");
-		}
-		catch(Exception e)
-		{
-			logger.error("handleTrans:"+e.getMessage(),e);
+
+		if(strServiceName==null||strTransName==null ||
+				strServiceName.trim().length()==0|| strTransName.trim().length()==0){
+			logger.error("[strServiceName,strTransName] can not be empty");
 			return null;
 		}
-		if(strTransName==null || strTransName.length()==0)
-		{
-			logger.error("strTransName can not be empty");
-			return null;
-		}
+		//-------开始事务---------------//
 		onTransStarted(strServiceName,strTransName,cdoRequest);
 		Return ret=null;
 		// 正常处理
 		IService service = this.hmService.get(strServiceName);
-		if(service==null)
-		{
-			try
-			{
-				onTransUnsupported(cdoRequest);
-			}
-			catch(Exception e)
-			{
-			}
+		if(service==null){
+			onTransUnsupported(strServiceName,strTransName);
 			return Return.valueOf(-1,"can not find service named "+strServiceName);
 		}
-	
 		ret = service.handleTrans(cdoRequest,cdoResponse);
 		if(ret==null)
 		{// Trans不支持
-			try
-			{
-				onTransUnsupported(cdoRequest);
-			}
-			catch(Exception e)
-			{
-			}
-			return Return.valueOf(-1,"can not find trans handler named "+strServiceName+"."+strTransName);
+			onTransUnsupported(strServiceName,strTransName);
+			return Return.valueOf(-1, strServiceName+"."+strTransName+" Return is null,maybe not find trans handler named");
 		}
 		onTransFinished(strServiceName,strTransName,cdoRequest,cdoResponse,ret);
 		return ret;
@@ -539,70 +517,36 @@ public class ServiceBus implements IServiceBus
 	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------
 
 	//事件定义,所有在本类中定义并调用，由派生类实现或重载的事件类方法(一般为on...ed)在此定义---------------------
-	public void onTransStarted(String strServiceName,String strTransName,CDO cdoRequest)
-	{
-		try
-		{
-			if(logger.isInfoEnabled())
-			{
-				//日志太多的昨时解决方案
-				String strTransName2 = strTransName.toUpperCase();
-				if(strTransName2.startsWith("GET") || strTransName2.startsWith("FIND") || strTransName2.startsWith("RETRIEVE"))
-				{
-					return;
-				}
-				
-				logger.info(new StringBuilder().append("Starting handle ").append(" ServceName=").append(strServiceName).append(" transName=").append(strTransName).append("\r\n").append(cdoRequest.toXMLLog()).toString());
-				
-			}
-		}
-		catch(Exception e)
-		{
-			
+	private void onTransStarted(String strServiceName,String strTransName,CDO cdoRequest){
+		if(logger.isInfoEnabled()){			
+			String strTransName2 = strTransName.toUpperCase();
+			if(strTransName2.startsWith("GET") || strTransName2.startsWith("FIND") || strTransName2.startsWith("RETRIEVE")){
+				return;
+			}			
+			logger.info(new StringBuilder().append("Starting handle ").append(" ServceName=").append(strServiceName).append(" transName=").append(strTransName).append("\r\n").append(cdoRequest.toXMLLog()).toString());			
 		}
 	}
-	public void onTransFinished(String strServiceName,String strTransName,CDO cdoRequest,CDO cdoResponse,Return retResult)
-	{
-			try
-			{	
-				if(logger.isInfoEnabled())
-				{
-					//日志太多的昨时解决方案
-					String strTransName2 = strTransName.toUpperCase();
-					if(strTransName2.startsWith("GET") || strTransName2.startsWith("FIND") || strTransName2.startsWith("RETRIEVE"))
-					{
-						return;
-					}
-					StringBuilder sb = new StringBuilder();
-					sb.append("End handle ").append(" ServceName=").append(strServiceName).append(" transName=").append(strTransName).append("\r\n");
-					if(retResult==null)
-					{
-						sb.append(" result is null ");
-					}
-					else
-					{
-						sb.append(" code=").append(retResult.getCode()).append(" text=").append(retResult.getText()).append(" info=").append(retResult.getInfo());
-					}
-					sb.append(" cdoResponse=").append(cdoResponse.toXMLLog());
-					logger.info(sb.toString());
-				}
+	
+	private void onTransFinished(String strServiceName,String strTransName,CDO cdoRequest,CDO cdoResponse,Return retResult){
+		if(logger.isInfoEnabled()){
+			String strTransName2 = strTransName.toUpperCase();
+			if(strTransName2.startsWith("GET") || strTransName2.startsWith("FIND") || strTransName2.startsWith("RETRIEVE")){
+				return;
 			}
-			catch(Exception e)
-			{
-				
+			StringBuilder sb = new StringBuilder();
+			sb.append("End handle ").append(" ServiceName=").append(strServiceName).append(" transName=").append(strTransName).append("\r\n");
+			if(retResult==null){
+				sb.append(" result is null ");
+			}else{
+				sb.append(" code=").append(retResult.getCode()).append(" text=").append(retResult.getText()).append(" info=").append(retResult.getInfo());
 			}
+			sb.append(" cdoResponse=").append(cdoResponse.toXMLLog());
+			logger.info(sb.toString());
+		}
 	}
-	public void onTransUnsupported(CDO cdoRequest)
-	{
-		try
-		{
-			logger.error("Trans not supported:"+cdoRequest.getStringValue("strServiceName")+'.'+cdoRequest.getStringValue("strTransName"));
-		}
-		catch(Exception e)
-		{
-			
-		}
 
+   private void onTransUnsupported(String strServiceName,String strTransName){
+	   logger.error("Trans not supported:"+strServiceName+'.'+strTransName);
 	}
 	
 	public void onEventHandled(CDO cdoEvent)

@@ -111,7 +111,7 @@ public class Service implements IService
 	}
 	public void addTransService(ITransService transService)
 	{
-		this.alTransService.add(transService);
+//		this.alTransService.add(transService);
 		addService(transService);
 	}
 	public void addActiveService(IActiveService activeService)
@@ -149,8 +149,9 @@ public class Service implements IService
 	}
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
-	/* (non-Javadoc)
-	 * @see com.cdoframework.cdolib.servicebus.IService#handleSQLTrans(com.cdoframework.cdolib.data.cdo.CDO, com.cdoframework.cdolib.data.cdo.CDO)
+
+	/**
+	 * @see {@link com.cdoframework.cdolib.servicebus.IService#handleDataTrans(com.cdoframework.cdolib.data.cdo.CDO, com.cdoframework.cdolib.data.cdo.CDO)}}
 	 */
 	public Return handleDataTrans(CDO cdoRequest,CDO cdoResponse)
 	{
@@ -158,31 +159,30 @@ public class Service implements IService
 		return this.executeDataServiceTrans(strTransName,cdoRequest,cdoResponse);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.cdoframework.cdolib.servicebus.IService#handleTrans(com.cdoframework.cdolib.data.cdo.CDO, com.cdoframework.cdolib.data.cdo.CDO)
+//	/* (non-Javadoc)
+//	 * @see com.cdoframework.cdolib.servicebus.IService#handleTrans(com.cdoframework.cdolib.data.cdo.CDO, com.cdoframework.cdolib.data.cdo.CDO)
+//	 * 
+//	 */
+	/**
+	 * @see {@link com.cdoframework.cdolib.servicebus.IService#handleTrans(com.cdoframework.cdolib.data.cdo.CDO, com.cdoframework.cdolib.data.cdo.CDO)}}
 	 */
 	public Return handleTrans(CDO cdoRequest,CDO cdoResponse)
 	{
 		long beginTime = System.currentTimeMillis();
-		if(this.strServiceURI!=null)
-		{//这种情况,说明本服务不在本机,需要远程调用. 注意在这种情况下,不能启用拦截器,因为对应的远程服务器上会启用
-			//TODO
+		if(this.strServiceURI!=null){//
+			//TODO 这种情况,说明本服务不在本机,需要远程调用. 注意在这种情况下,不能启用拦截器,因为对应的远程服务器上会启用
 		}
 		String strTransName = cdoRequest.getStringValue(ITransService.TRANSNAME_KEY);
-
-		//处理同步任务
+		//处理  service事前 同步任务
 		Return ret = null;
 		try
 		{
 			ret = FilterHandler.getInstance().handlePreEvent(strServiceName,strTransName,cdoRequest);
-		}
-		catch(Exception e)
-		{
+		}catch(Exception e){
 			logger.error("When handle pre filer of "+strServiceName+"."+strTransName,e);
-//			return Return.valueOf(-1,e.getLocalizedMessage(),e);
 		}
-		if(ret!=null && ret.getCode()!=0)
-		{//有同步事务,执行失败
+		if(ret!=null && ret.getCode()!=0){
+			//有同步事务,执行失败
 			logger.error("有同步事务,执行失败 "+strServiceName+"."+strTransName);
 			return ret;
 		}
@@ -198,24 +198,19 @@ public class Service implements IService
 				{
 					logger.debug("取得缓存,直接返回 "+strServiceName+"."+strTransName);
 				}
-
 				return ret;
 			}
-		}
-		catch(Exception e)
-		{
+		}catch(Exception e){
 			logger.error("When handle cache filer of "+strServiceName+"."+strTransName,e);
 		}
-
+		//缓存获取失败 执行下一步
 		boolean bCacheable = false;
-		if(ret!=null && ret.getCode()==2)
-		{//需要缓存,但未从缓存中取得值,
+		if(ret!=null && ret.getCode()==2){
+			//需要缓存,但未从缓存中取得值,
 			bCacheable = true;
-		}
-		
+		}		
 		//未取得缓存值, 执行Trans
-		ret = null;
-		
+		ret = null;		
 		// 根据serviceName直接定位Service
 		List<ITransService> transServices = this.hmServiceMap.get(strServiceName);
 		// 处理所有的TransService 和 ActiveService调用，ts==null 直接调用DataServiceTrans
@@ -236,31 +231,30 @@ public class Service implements IService
 				}
 			}
 		}
-		// 兼容之前的handletrans
+		// 不再支持老的写法 
 		// 如果新的方式定位不到，改用老的方式调用，先支持老的调用方式。
+//		if(ret==null)
+//		{
+//			try
+//			{
+//				for(ITransService ts:alTransService)
+//				{
+//					ret = ts.handleTrans(cdoRequest,cdoResponse);
+//					if(ret!=null)
+//					{
+//						break;
+//					}
+//				}		
+//			}
+//			catch(Exception e)
+//			{
+//				logger.error("When handle trans service "+strServiceName+"."+strTransName,e);
+//				return Return.valueOf(-1,e.getLocalizedMessage(),e);
+//			}
+//		}
 		if(ret==null)
 		{
-			try
-			{
-				for(ITransService ts:alTransService)
-				{
-					ret = ts.handleTrans(cdoRequest,cdoResponse);
-					if(ret!=null)
-					{
-						break;
-					}
-				}		
-			}
-			catch(Exception e)
-			{
-				logger.error("When handle trans service "+strServiceName+"."+strTransName,e);
-				return Return.valueOf(-1,e.getLocalizedMessage(),e);
-			}
-		}
-		if(ret==null)
-		{
-			try
-			{
+			try{
 				for(IActiveService as:alActiveService)
 				{
 					ret = as.handleTrans(cdoRequest,cdoResponse);
@@ -269,9 +263,7 @@ public class Service implements IService
 						break;
 					}
 				}
-			}
-			catch(Exception e)
-			{
+			}catch(Exception e){
 				logger.error("When handle active service "+strServiceName+"."+strTransName,e);
 				return Return.valueOf(-1,e.getLocalizedMessage(),e);
 			}
