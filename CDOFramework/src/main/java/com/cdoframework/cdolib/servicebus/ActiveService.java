@@ -2,6 +2,8 @@ package com.cdoframework.cdolib.servicebus;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,11 +13,13 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import com.cdoframework.cdolib.annotation.TransName;
+import com.cdoframework.cdolib.base.CycleList;
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.ThreadExt;
 import com.cdoframework.cdolib.base.Validator;
 import com.cdoframework.cdolib.data.cdo.CDO;
+import com.cdoframework.cdolib.database.IDataEngine;
 
 public abstract class ActiveService extends ThreadExt implements IActiveService
 {
@@ -47,30 +51,6 @@ public abstract class ActiveService extends ThreadExt implements IActiveService
 	protected Map<String ,Collection<Validator.FieldBean>> validateMap = new HashMap<String ,Collection<Validator.FieldBean>>();
 
 	private Return  validateArray(CDO cdoRequest,String strTransName){
-//		 ObjectExt[] fs  = cdoRequest.getFieldValues();
-//		 String[] strsFieldIds=cdoRequest.getFieldIds();
-//		  
-//		 	for(int i=0;i<fs.length;i++){
-//		 		ObjectExt f=fs[i];
-//			 	String name =	strsFieldIds[i].toLowerCase();
-//		 	   String key = (str!=null?(str.toLowerCase()+"."):"")+name;
-//		 	   Object value = f.getValue();
-//		 	   if(value instanceof CDO){
-//		 		  Return ret =	validate((CDO)value,validateMap.get(key));
-//		 	    	if( ret.getCode() == -1){
-//		 	    		return ret;
-//		 	    	} 
-//		 		  
-//		 	   }else if(value instanceof CDO[]  ){
-//		 	     for(CDO d :(CDO[])value){ 
-//		 	    	Return ret =	validate(d,validateMap.get(key));
-//		 	    	if( ret.getCode() == -1){
-//		 	    		return ret; 
-//		 	    	}  
-//		 	      }
-//		 	   } 
-//		 	}  
-//		 return Return.OK;
 	 	for(Iterator<Map.Entry<String, ObjectExt>> it=cdoRequest.iterator();it.hasNext();){
 	 		Entry<String,ObjectExt> entry=it.next();
 	 		ObjectExt f=entry.getValue();
@@ -228,5 +208,16 @@ public abstract class ActiveService extends ThreadExt implements IActiveService
 	public boolean containsTrans(String strTransName) {
 		return activeMap.containsKey(strTransName);
 	}
-
+	/**
+	 * 提供普通数据库connection, 非bigTable 分库分表连接
+	 * @param strDataGroupId
+	 * @return
+	 * @throws SQLException
+	 */
+	@Override
+	public Connection getConnection(String strDataGroupId) throws SQLException{
+		CycleList<IDataEngine> clDataEngine=this.serviceBus.getHMDataGroup().get(strDataGroupId);
+		IDataEngine dataEngine=clDataEngine.get();
+		return dataEngine.getConnection();
+	}
 }

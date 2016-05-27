@@ -2,6 +2,7 @@ package com.cdoframework.cdolib.servicebus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ public class Service implements IService
 	private static Logger logger = Logger.getLogger(Service.class);
 	private static Logger loggerStatistics = Logger.getLogger("transStatistics");
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
-	private ArrayList<ITransService> alTransService;//静态服务对象集合
+//	private ArrayList<ITransService> alTransService;//静态服务对象集合
 	private ArrayList<IActiveService> alActiveService;//动态服务对象集合
 	private Map<String,TransDefine> hmTransDefine;
 	private HashMap<String,CycleList<IDataEngine>> hmAllDataGroup;//关系数据库引擎容器
@@ -43,7 +44,7 @@ public class Service implements IService
 	private BigTableEngine btEngin;
 	private IServicePlugin servicePlugin;
 	private IServiceBus serviceBus;
-	// 存放所有的transService 和 activeService
+	// 存放所有的普通的transService 和 动态 activeService 对象
 	private Map<String, List<ITransService>> hmServiceMap;
 
 	public void setServiceName(String strServiceName)
@@ -111,7 +112,6 @@ public class Service implements IService
 	}
 	public void addTransService(ITransService transService)
 	{
-//		this.alTransService.add(transService);
 		addService(transService);
 	}
 	public void addActiveService(IActiveService activeService)
@@ -120,6 +120,7 @@ public class Service implements IService
 		addService(activeService);
 		
 	}
+	
 	private void addService(ITransService service) {
 		List<ITransService> services = null;
 		synchronized (hmServiceMap) {
@@ -159,10 +160,7 @@ public class Service implements IService
 		return this.executeDataServiceTrans(strTransName,cdoRequest,cdoResponse);
 	}
 
-//	/* (non-Javadoc)
-//	 * @see com.cdoframework.cdolib.servicebus.IService#handleTrans(com.cdoframework.cdolib.data.cdo.CDO, com.cdoframework.cdolib.data.cdo.CDO)
-//	 * 
-//	 */
+
 	/**
 	 * @see {@link com.cdoframework.cdolib.servicebus.IService#handleTrans(com.cdoframework.cdolib.data.cdo.CDO, com.cdoframework.cdolib.data.cdo.CDO)}}
 	 */
@@ -230,54 +228,12 @@ public class Service implements IService
 					}
 				}
 			}
-		}
-		// 不再支持老的写法 
-		// 如果新的方式定位不到，改用老的方式调用，先支持老的调用方式。
-//		if(ret==null)
-//		{
-//			try
-//			{
-//				for(ITransService ts:alTransService)
-//				{
-//					ret = ts.handleTrans(cdoRequest,cdoResponse);
-//					if(ret!=null)
-//					{
-//						break;
-//					}
-//				}		
-//			}
-//			catch(Exception e)
-//			{
-//				logger.error("When handle trans service "+strServiceName+"."+strTransName,e);
-//				return Return.valueOf(-1,e.getLocalizedMessage(),e);
-//			}
-//		}
-		if(ret==null)
-		{
-			try{
-				for(IActiveService as:alActiveService)
-				{
-					ret = as.handleTrans(cdoRequest,cdoResponse);
-					if(ret!=null)
-					{
-						break;
-					}
-				}
-			}catch(Exception e){
-				logger.error("When handle active service "+strServiceName+"."+strTransName,e);
-				return Return.valueOf(-1,e.getLocalizedMessage(),e);
-			}
-		}
-		
+		}				
 		long beginTimeDataTrans = System.currentTimeMillis();
-		if(ret==null)
-		{
-			try
-			{
+		if(ret==null){
+			try{
 				ret = this.executeDataServiceTrans(strTransName,cdoRequest,cdoResponse);
-			}
-			catch(Exception e)
-			{
+			}catch(Exception e){
 				logger.error("When handle data service "+strServiceName+"."+strTransName,e);
 				return Return.valueOf(-1,e.getLocalizedMessage(),e);
 			}
@@ -323,26 +279,16 @@ public class Service implements IService
 	 */
 	public void handleEvent(CDO cdoEvent)
 	{//此处需要在循环体中处理异常,以保证事件都能通知到
-		for(ITransService ts:alTransService)
-		{
-			try
-			{
-				ts.handleEvent(cdoEvent);
-			}catch(Exception e)
-			{
-				logger.error("handleEvent:"+e.getMessage(),e);
-			}
-		}
-		for(IActiveService as:alActiveService)
-		{
-			try
-			{
-				as.handleEvent(cdoEvent);
-			}catch(Exception e)
-			{
-				logger.error("handleEvent:"+e.getMessage(),e);
-			}
-		}
+		for(Iterator<Map.Entry<String, List<ITransService>>> it=hmServiceMap.entrySet().iterator();it.hasNext();){
+			 List<ITransService> list=it.next().getValue();
+			 for(int i=0;i<list.size();i++){
+				 try{
+					 list.get(i).handleEvent(cdoEvent);
+					}catch(Exception e){
+						logger.error("handleEvent:"+e.getMessage(),e);
+					}
+			 }
+		}			
 
 	}
 
@@ -353,7 +299,7 @@ public class Service implements IService
 	}
 
 	/**
-	 * 启动Business服务
+	 * 启动 active服务
 	 * @return
 	 */
 	public Return start()
@@ -390,7 +336,7 @@ public class Service implements IService
 
 	public Service()
 	{
-		alTransService	= new ArrayList<ITransService>(1);
+//		alTransService	= new ArrayList<ITransService>(1);
 		alActiveService	= new ArrayList<IActiveService>(1);
 		hmTransDefine	= new HashMap<String,TransDefine>(30); 
 		hmAllDataGroup	= new HashMap<String,CycleList<IDataEngine>>(1);	

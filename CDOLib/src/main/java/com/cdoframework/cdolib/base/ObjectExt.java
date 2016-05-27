@@ -62,20 +62,17 @@ public class ObjectExt implements DataType
 	public Object getObjectValue()
 	{
 		switch(nType)
-		{
-			case DataType.STRING_TYPE:
-			case DataType.BOOLEAN_TYPE:			
-			case DataType.DATE_TYPE:
-			case DataType.DATE_ARRAY_TYPE:
-			case DataType.DATETIME_ARRAY_TYPE:
-			case DataType.DATETIME_TYPE:
+		{			
+			case DataType.BOOLEAN_TYPE:					
+			case DataType.SHORT_TYPE:
+			case DataType.INTEGER_TYPE:
+			case DataType.LONG_TYPE:	
 			case DataType.DOUBLE_TYPE:
 			case DataType.FLOAT_TYPE:
-			case DataType.INTEGER_TYPE:
-			case DataType.LONG_TYPE:
-			case DataType.SHORT_TYPE:
-			case DataType.TIME_ARRAY_TYPE:
-			case DataType.TIME_TYPE:	
+			case DataType.TIME_TYPE:
+			case DataType.DATE_TYPE:
+			case DataType.DATETIME_TYPE:
+			case DataType.STRING_TYPE:	
 				return objValue;
 			case DataType.BOOLEAN_ARRAY_TYPE:
 				boolean[] bs=(boolean[])objValue;
@@ -126,6 +123,9 @@ public class ObjectExt implements DataType
 				}
 				return dsObj;
 			case DataType.STRING_ARRAY_TYPE:
+			case DataType.DATE_ARRAY_TYPE:
+			case DataType.DATETIME_ARRAY_TYPE:
+			case DataType.TIME_ARRAY_TYPE:				
 				return (String[])objValue;	
 			default:
 				throw new RuntimeException(" type is not unSupported! ");				
@@ -183,21 +183,12 @@ public class ObjectExt implements DataType
 				return ((double[])objValue).length;
 			}
 			case ObjectExt.STRING_ARRAY_TYPE:
+			case ObjectExt.DATE_ARRAY_TYPE:	
+			case ObjectExt.TIME_ARRAY_TYPE:	
+			case ObjectExt.DATETIME_ARRAY_TYPE:	
 			{
 				return ((String[])objValue).length;
-			}
-			case ObjectExt.DATE_ARRAY_TYPE:
-			{
-				return ((String[])objValue).length;
-			}
-			case ObjectExt.TIME_ARRAY_TYPE:
-			{
-				return ((String[])objValue).length;
-			}
-			case ObjectExt.DATETIME_ARRAY_TYPE:
-			{
-				return ((String[])objValue).length;
-			}
+			}					
 			case ObjectExt.CDO_ARRAY_TYPE:
 			{
 				return ((CDO[])objValue).length;
@@ -260,7 +251,7 @@ public class ObjectExt implements DataType
 			{
 				return ((Double)objValue).byteValue();
 			}
-			case ObjectExt.STRING_TYPE:
+			case DataType.STRING_TYPE:		
 			{
 				return Byte.parseByte((String)objValue);
 			}

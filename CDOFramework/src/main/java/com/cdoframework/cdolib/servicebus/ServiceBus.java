@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -52,7 +53,7 @@ public class ServiceBus implements IServiceBus
 	private ReentrantReadWriteLock lockSharedData;	
 	private HashMap<String,NoSQLDataEngine> hmNoSQLDataEngine;
 	private HashMap<String,IService> hmService;
-	private ArrayList<IService> alService;
+//	private ArrayList<IService> alService;
 	
 	private HashMap<String,BigTable[]> hmBigTableGroupConfig;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
@@ -332,25 +333,23 @@ public class ServiceBus implements IServiceBus
 	}
 	 	
 
-	public void destroy()
-	{
-		for(int i=0;i<this.alService.size();i++)
-		{
-			alService.get(i).destroy();
+	public void destroy(){
+		
+		for(Iterator<Map.Entry<String, IService>> it=hmService.entrySet().iterator();it.hasNext();){
+			it.next().getValue().destroy();
 		}
 	}
 	
 	/**
-	 * 启动Business服务
+	 * 启动 Plugin服务
 	 * @return
 	 */
 	public Return start()
 	{
 		Return ret=null;
-		
-		for(int i=0;i<this.alService.size();i++)
-		{
-			alService.get(i).start();
+
+		for(Iterator<Map.Entry<String, IService>> it=hmService.entrySet().iterator();it.hasNext();){
+			it.next().getValue().start();
 		}
 		
 		//Start ClusterController
@@ -387,11 +386,9 @@ public class ServiceBus implements IServiceBus
 		}
 		CacheHandler.getInstance().close();
 		//Stop Plugin
-		for(int i=0;i<this.alService.size();i++)
-		{
-			alService.get(i).stop();
+		for(Iterator<Map.Entry<String, IService>> it=hmService.entrySet().iterator();it.hasNext();){
+			it.next().getValue().stop();
 		}
-		
 		// add by hill 2011年8月25日 stop eventProcessor
 		if(eventProcessor != null ) {
 			eventProcessor.stop();
@@ -473,14 +470,8 @@ public class ServiceBus implements IServiceBus
 		lock.unlock();
 	}
 	
-	public IService addService(IService service)
-	{
-		IService oldService = this.hmService.put(service.getServiceName(),service);
-		if(oldService==null)
-		{
-			alService.add(service);
-		}
-		return oldService;
+	public IService addService(IService service){
+		return this.hmService.put(service.getServiceName(),service);
 	}
  
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
@@ -491,11 +482,9 @@ public class ServiceBus implements IServiceBus
 	 */
 	public void handleEvent(CDO cdoEvent)
 	{
-		for(int i=0;i<this.alService.size();i++)
-		{
-			this.alService.get(i).handleEvent(cdoEvent);
+		for(Iterator<Map.Entry<String, IService>> it=hmService.entrySet().iterator();it.hasNext();){
+			it.next().getValue().handleEvent(cdoEvent);
 		}
-
 		onEventHandled(cdoEvent);
 	}
 
@@ -803,14 +792,14 @@ public class ServiceBus implements IServiceBus
 		btEngine				=new BigTableEngine();
 //		hmCacheClient			=new HashMap<String,CacheClient>(3);
 		hmNoSQLDataEngine		=new HashMap<String,NoSQLDataEngine>(3);
-		hmService 				= new HashMap<String,IService>(20);
-		alService				= new ArrayList<IService>(20) ;
+		hmService 				= new LinkedHashMap<String,IService>(20);
+//		alService				= new ArrayList<IService>(20) ;
 		hmParameterMap			= new HashMap<String,String>(10);	
 		hmBigTableGroupConfig	=new HashMap<String,BigTable[]>(2);
 	}
-	public ArrayList<IService> getAlService() {
-		return alService;
-	}
+//	public ArrayList<IService> getAlService() {
+//		return alService;
+//	}
 	public HashMap<String,com.cdoframework.cdolib.base.CycleList<IDataEngine>> getHMDataGroup(){		
 		return hmDataGroup;		
 	}

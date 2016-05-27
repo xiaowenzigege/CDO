@@ -54,7 +54,7 @@ public interface ITransServiceObject extends IServiceObject
 	Return init();
 
 	/**
-	 * 销毁事务对象操作
+	 * 销毁事务对象操作;
 	 */
 	void destroy();
 
