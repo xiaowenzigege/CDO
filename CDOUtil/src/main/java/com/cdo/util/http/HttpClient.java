@@ -207,7 +207,7 @@ public class HttpClient {
 					//其他参数
 					for(NameValuePair pair:this.paramsList){
 						reqEntity.addTextBody(pair.getName(),pair.getValue(),TEXT_PLAIN_UTF8);	
-					}
+					}					
 					entity=reqEntity.build();
 				}else{
 					//没有文件传输

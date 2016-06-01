@@ -9,7 +9,11 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,11 +23,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import nanoxml.XMLElement;
-
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
@@ -1855,9 +1858,17 @@ public class CDO implements Serializable
 		return str_String.toString();
 	}
 	
-	public static void main(String[] args)
+
+	
+	
+	
+				
+	
+	
+	public static void main(String[] args) throws IOException
 	{
 		CDO cdo = new CDO();
+		cdo.setByteArrayValue("bytes", new byte[]{1,2,3});
 		cdo.setStringValue("strName1","张三");
 		cdo.setIntegerValue("nAge1",0);
 		cdo.setDateValue("dBirthday1","2000-01-01");
@@ -1870,40 +1881,61 @@ public class CDO implements Serializable
 		String[] strsValue=new String[3];
 		for(int i=0;i<strsValue.length;i++)
 		{
-			strsValue[i]="Value"+i;
+			strsValue[i]="strValue"+i;
 		}
-		cdo.setStringArrayValue("strsValue1",strsValue);
+		cdo.setStringArrayValue("strsValue",strsValue);
+
+
+		CDO cdoResponse=new CDO();
+		cdoResponse.setIntegerValue("ncount", 5);
 		CDO[] cdosList=new CDO[5];
 		for(int i=0;i<cdosList.length;i++)
 		{			
 			cdosList[i]=new CDO();
-			cdosList[i].setStringValue("strName2","张三"+i);
-			cdosList[i].setIntegerValue("nAge2",0);
-			cdosList[i].setDateValue("dBirthday2","2000-01-01");
+
+			CDO[] cdo1=new CDO[2];
+			for(int j=0;j<cdo1.length;j++){
+				cdo1[j]=new CDO();
+				cdo1[j].setStringValue("strName2","张三"+i);
+				cdo1[j].setDateValue("dBirthday2","2000-01-01");
+			}
+			cdosList[i].setCDOArrayValue("cdo1", cdo1);
+			cdosList[i].setBooleanValue("booleanValue", true);
+			cdosList[i].setStringValue("strValue", "cdosList张"+i);
+			cdosList[i].setIntegerArrayValue("nsCDOList"+i, new int[]{1,2,3});
+			CDO cdo2=new CDO();
+			cdo2.setStringArrayValue("xx", new String[]{"ss","x"});
+			cdo2.setIntegerArrayValue("nsCDOList"+i, new int[]{1,2,3});
+			cdosList[i].setCDOValue("cdo", cdo2);
+			
 		}
-		cdo.setCDOArrayValue("cdosList1",cdosList);
+		cdoResponse.setCDOArrayValue("cdosList", cdosList);
+		
+		CDO cdoReturn=new CDO();
+		cdoReturn.setIntegerValue("nCode",0);
+		cdoReturn.setStringValue("strText","测试");
+		cdoReturn.setStringValue("strInfo","测试");
+		cdo.setCDOValue("cdoReturn",cdoReturn);
+		cdo.setCDOValue("cdoResponse", cdoResponse);
+
 		CDO cdoChild=new CDO();
 		cdoChild.setStringValue("strName2","张三");
 		cdoChild.setIntegerValue("nAge2",0);
 		cdoChild.setDateValue("dBirthday2","2000-01-01");
-		cdoChild.setCDOArrayValue("cdosList2",cdosList);
 		cdoChild.setIntegerArrayValue("nsValue2",nsValue);
+		CDO cdo2=new CDO();
+		cdo2.setStringValue("x", "v");
+		cdoChild.setCDOValue("cdo2", cdo2);
 		cdo.setCDOValue("cdoChild",cdoChild);
-		cdo.setByteArrayValue("bytes", new byte[]{1,2,3});
-//		String strXML=cdo.toXMLWithIndent();
-		cdo=CDO.fromXML(cdo.toXML());
-//		strXML=cdo.toXMLWithIndent();
-		System.out.println(cdo.toXMLWithIndent());
-		System.out.println(cdo.getCDOValue("cdoChild").toXMLWithIndent());
-		try {
-			JSONObject s=new JSONObject(cdo.toJSON());
-			System.out.println("json="+s.toString());
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		
+		
+		System.out.println("cdo ="+cdo.toXMLWithIndent());
+		long startTime=System.currentTimeMillis();
+		for(int i=0;i<1;i++){
+			String xml=cdo.toXML();
+			System.out.println("time2 ="+(System.currentTimeMillis()-startTime));
+			CDO tmp=CDO.fromXML(xml);
+			System.out.println("time3 ="+(System.currentTimeMillis()-startTime));
 		}
-//		System.out.println(cdo.toXML());
-//		System.out.println(cdo.toXMLLog());
-//		System.out.println(cdo.clone().toXML());
 	}
 }

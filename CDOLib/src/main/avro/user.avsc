@@ -1,0 +1,11 @@
+{"namespace": "example.avro",
+ "type": "record",
+ "name": "User",
+ "fields": [
+ 	 {"name":"arr","type": {"type":"array", "items": "string"}},
+ 	 {"name":"bytes","type": {"type":"map", "values": "bytes"}},
+     {"name": "name", "type": "string"},
+     {"name": "favorite_number",  "type": ["int", "null"]},
+     {"name": "favorite_color", "type": ["string", "null"]}
+ ]
+}

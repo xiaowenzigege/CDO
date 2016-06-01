@@ -1,0 +1,29 @@
+{ 
+ "namespace": "com.cdo.avro.schema", 
+ "name": "CDO", 
+ "type": "record",
+ "fields": [
+ {"name":"booleanValue","type":["null","boolean"]},
+ {"name":"stringValue","type":["null","string"]},
+ {"name":"timeValue","type":["null","string"]},
+ {"name":"dateValue","type":["null","string"]},
+ {"name":"dateTimeValue","type":["null","string"]},
+ {"name":"byteValue","type":["null","bytes"]},
+ {"name":"shortValue","type":["null","int"]},
+ {"name":"integerValue","type":["null","int"]},
+ {"name":"longValue","type":["null","long"]},
+ {"name":"floatValue","type":["null","float"]},
+ {"name":"doubleValue","type":["null","double"]},
+{"name":"booleanArrayValue","type":["null",{"type":"array","items":"boolean"}]},
+{"name":"stringArrayValue","type":["null",{"type":"array","items":"string"}]},
+{"name":"timeArrayValue","type":["null",{"type":"array","items":"string"}]},
+{"name":"dateArrayValue","type":["null",{"type":"array","items":"string"}]},
+{"name":"dateTimeArrayValue","type":["null",{"type":"array","items":"string"}]},
+{"name":"byteArrayValue","type":["null",{"type":"array","items":"bytes"}]},
+{"name":"shortArrayValue","type":["null",{"type":"array","items":"int"}]},
+{"name":"integerArrayValue","type":["null",{"type":"array","items":"int"}]},
+{"name":"longArrayValue","type":["null",{"type":"array","items":"long"}]},
+{"name":"floatArrayValue","type":["null",{"type":"array","items":"float"}]},
+{"name":"doubleArrayValue","type":["null",{"type":"array","items":"double"}]}
+]
+}
