@@ -12,6 +12,10 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.ByteBuffer;
+import java.util.Map;
+
+import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.util.Function;
@@ -79,6 +83,11 @@ public class StringArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
+	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+		ByteBuffer buffer=strArr2Bytes(this.strsValue,DataType.STRING_ARRAY_TYPE);
+		fieldMap.put(prefixField+this.getName(), buffer);
+	}	
+	
 	public void toXML(StringBuilder strbXML)
 	{	
 		strbXML.append("<STRAF N=\"").append(this.getName()).append("\">");

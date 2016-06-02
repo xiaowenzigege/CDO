@@ -27,6 +27,11 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+
+import com.cdoframework.cdolib.base.DataType;
+
 /**
  * @author Frank
  */
@@ -73,4 +78,14 @@ public abstract class ValueFieldImpl extends FieldImpl implements ValueField
 		super(strFieldName);
 	}
 
+	protected ByteBuffer str2Bytes(String strValue,int DataType) {
+		byte[] value=strValue.getBytes(Charset.forName("UTF-8"));//faster in Java 7 & 8,slow in java6
+		int dataLen=value.length;
+		int len=1+dataLen;//字段类型所占字节+数据所占字节
+		ByteBuffer buffer=ByteBuffer.allocate(len);
+		buffer.put((byte)DataType);
+		buffer.put(value);
+		buffer.flip();		
+		return buffer;
+	}
 }

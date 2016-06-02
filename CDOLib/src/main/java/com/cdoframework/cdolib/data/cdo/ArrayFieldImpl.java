@@ -3,26 +3,15 @@
  *
  * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/ArrayField.java,v 1.2 2008/03/12 10:30:57 Frank Exp $
  *
- * $Log: ArrayField.java,v $
- * Revision 1.2  2008/03/12 10:30:57  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2008/03/07 11:20:19  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2007/11/03 02:25:42  Frank
- * *** empty log message ***
- *
- * Revision 1.2  2007/10/11 13:55:05  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2007/10/11 01:10:57  Frank
- * *** empty log message ***
- *
  *
  */
 
 package com.cdoframework.cdolib.data.cdo;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+
+import com.cdoframework.cdolib.base.DataType;
 
 /**
  * @author Frank
@@ -55,9 +44,8 @@ public abstract class ArrayFieldImpl extends ValueFieldImpl implements ArrayFiel
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -4217710643711672017L;
-
-
+	private static final long serialVersionUID = -4217710643711672017L;	
+	
 	public ArrayFieldImpl()
 	{
 
@@ -71,5 +59,30 @@ public abstract class ArrayFieldImpl extends ValueFieldImpl implements ArrayFiel
 
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
+	}
+	
+	protected ByteBuffer strArr2Bytes(String[] strsValue,int DataType){
+		int[] dataLen=new int[strsValue.length];//每个字符串长度
+		byte[][] content=new byte[strsValue.length][];//内容字节
+		byte[] value=null;
+		int dataTotalLen=0;
+		for(int i=0;i<strsValue.length;i++)
+		{			
+			value=strsValue[i].getBytes(Charset.forName("UTF-8"));//faster in Java 7 & 8,slow in java6
+			content[i]=value;           //内容数据 
+			dataLen[i]=value.length;  //内容数据的长度
+			dataTotalLen=dataTotalLen+value.length;//所有内容数据的长度
+		}
+		
+		int len=1+2+strsValue.length*4+dataTotalLen;//字段类型所占字节+数组个数所占字节+数据长度所占字节+数据所占字节
+		ByteBuffer buffer=ByteBuffer.allocate(len);
+		buffer.put((byte)DataType);
+		buffer.putShort((short)strsValue.length);
+		for(int i=0;i<strsValue.length;i++){
+			buffer.putInt(dataLen[i]);
+			buffer.put(content[i]);
+		}
+		buffer.flip();	
+		return buffer;
 	}
 }

@@ -11,6 +11,9 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.ByteBuffer;
+import java.util.Map;
+
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
@@ -46,6 +49,22 @@ public class CDOField extends ValueFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
+	
+	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){				
+		String prefix=prefixField+this.getName()+".";
+		this.cdoValue.toAvro(prefix,fieldMap);		
+	}
+	
+	public int toAvro(String prefixField,Map<String,ByteBuffer> fieldMap,int maxLevel){
+		int curLevel=1;
+		if(prefixField.length()>0){
+			curLevel=(prefixField.split("\\.").length+1);
+		}			
+		maxLevel=maxLevel>curLevel?maxLevel:curLevel;				
+		String prefix=prefixField+this.getName()+".";
+		return this.cdoValue.toAvro(prefix,fieldMap,maxLevel);
+	}	
+	
 	public void toXML(StringBuilder strbXML)
 	{
 		strbXML.append("<CDOF N=\"").append(this.getName()).append("\">");

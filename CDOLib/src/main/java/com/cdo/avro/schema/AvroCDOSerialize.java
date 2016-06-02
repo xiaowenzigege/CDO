@@ -35,10 +35,10 @@ public class AvroCDOSerialize {
 	public AvroCDOSerialize(CDO cdo){
 		this.cdo=cdo;
 	}
-	public  AvroCDO toAvro(){
+	public  AvroCDOMixed toAvro(){
 		 Map<CharSequence,Object> map=new LinkedHashMap<CharSequence, Object>();
 		 CDO2Avro("", this.cdo, map);		
-		 return  AvroCDO.newBuilder().setKey(map).build();
+		 return  AvroCDOMixed.newBuilder().setKey(map).build();
 	} 
 	
 	private  void CDO2Avro(String cdoKey,CDO cdo,Map<CharSequence, Object> map){				 
@@ -137,7 +137,7 @@ public class AvroCDOSerialize {
 		 }
 	}
 	
-	public static CDO fromAvro(AvroCDO avro){		
+	public static CDO fromAvro(AvroCDOMixed avro){		
 		CDO cdo=new CDO();
 		avro2CDO(avro.getKey(), cdo);					
 		return cdo;

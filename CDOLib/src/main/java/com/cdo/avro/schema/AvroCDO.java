@@ -10,10 +10,11 @@ import org.apache.avro.specific.SpecificData;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = -2471577526191504831L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"AvroCDO\",\"namespace\":\"com.cdo.avro.schema\",\"fields\":[{\"name\":\"key\",\"type\":[\"null\",{\"type\":\"map\",\"values\":[\"boolean\",\"int\",\"long\",\"float\",\"double\",\"bytes\",\"string\",{\"type\":\"array\",\"items\":\"string\"}]}]}]}");
+  private static final long serialVersionUID = 8521175148681024244L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"AvroCDO\",\"namespace\":\"com.cdo.avro.schema\",\"fields\":[{\"name\":\"level\",\"type\":\"int\"},{\"name\":\"fields\",\"type\":{\"type\":\"map\",\"values\":\"bytes\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public java.util.Map<java.lang.CharSequence,java.lang.Object> key;
+  @Deprecated public int level;
+  @Deprecated public java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> fields;
 
   /**
    * Default constructor.  Note that this does not initialize fields
@@ -24,17 +25,20 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
 
   /**
    * All-args constructor.
-   * @param key The new value for key
+   * @param level The new value for level
+   * @param fields The new value for fields
    */
-  public AvroCDO(java.util.Map<java.lang.CharSequence,java.lang.Object> key) {
-    this.key = key;
+  public AvroCDO(java.lang.Integer level, java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> fields) {
+    this.level = level;
+    this.fields = fields;
   }
 
   public org.apache.avro.Schema getSchema() { return SCHEMA$; }
   // Used by DatumWriter.  Applications should not call.
   public java.lang.Object get(int field$) {
     switch (field$) {
-    case 0: return key;
+    case 0: return level;
+    case 1: return fields;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
@@ -43,25 +47,42 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: key = (java.util.Map<java.lang.CharSequence,java.lang.Object>)value$; break;
+    case 0: level = (java.lang.Integer)value$; break;
+    case 1: fields = (java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
 
   /**
-   * Gets the value of the 'key' field.
-   * @return The value of the 'key' field.
+   * Gets the value of the 'level' field.
+   * @return The value of the 'level' field.
    */
-  public java.util.Map<java.lang.CharSequence,java.lang.Object> getKey() {
-    return key;
+  public java.lang.Integer getLevel() {
+    return level;
   }
 
   /**
-   * Sets the value of the 'key' field.
+   * Sets the value of the 'level' field.
    * @param value the value to set.
    */
-  public void setKey(java.util.Map<java.lang.CharSequence,java.lang.Object> value) {
-    this.key = value;
+  public void setLevel(java.lang.Integer value) {
+    this.level = value;
+  }
+
+  /**
+   * Gets the value of the 'fields' field.
+   * @return The value of the 'fields' field.
+   */
+  public java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> getFields() {
+    return fields;
+  }
+
+  /**
+   * Sets the value of the 'fields' field.
+   * @param value the value to set.
+   */
+  public void setFields(java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> value) {
+    this.fields = value;
   }
 
   /**
@@ -96,7 +117,8 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<AvroCDO>
     implements org.apache.avro.data.RecordBuilder<AvroCDO> {
 
-    private java.util.Map<java.lang.CharSequence,java.lang.Object> key;
+    private int level;
+    private java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> fields;
 
     /** Creates a new Builder */
     private Builder() {
@@ -109,9 +131,13 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
      */
     private Builder(com.cdo.avro.schema.AvroCDO.Builder other) {
       super(other);
-      if (isValidValue(fields()[0], other.key)) {
-        this.key = data().deepCopy(fields()[0].schema(), other.key);
+      if (isValidValue(fields()[0], other.level)) {
+        this.level = data().deepCopy(fields()[0].schema(), other.level);
         fieldSetFlags()[0] = true;
+      }
+      if (isValidValue(fields()[1], other.fields)) {
+        this.fields = data().deepCopy(fields()[1].schema(), other.fields);
+        fieldSetFlags()[1] = true;
       }
     }
 
@@ -121,48 +147,90 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
      */
     private Builder(com.cdo.avro.schema.AvroCDO other) {
             super(SCHEMA$);
-      if (isValidValue(fields()[0], other.key)) {
-        this.key = data().deepCopy(fields()[0].schema(), other.key);
+      if (isValidValue(fields()[0], other.level)) {
+        this.level = data().deepCopy(fields()[0].schema(), other.level);
         fieldSetFlags()[0] = true;
+      }
+      if (isValidValue(fields()[1], other.fields)) {
+        this.fields = data().deepCopy(fields()[1].schema(), other.fields);
+        fieldSetFlags()[1] = true;
       }
     }
 
     /**
-      * Gets the value of the 'key' field.
+      * Gets the value of the 'level' field.
       * @return The value.
       */
-    public java.util.Map<java.lang.CharSequence,java.lang.Object> getKey() {
-      return key;
+    public java.lang.Integer getLevel() {
+      return level;
     }
 
     /**
-      * Sets the value of the 'key' field.
-      * @param value The value of 'key'.
+      * Sets the value of the 'level' field.
+      * @param value The value of 'level'.
       * @return This builder.
       */
-    public com.cdo.avro.schema.AvroCDO.Builder setKey(java.util.Map<java.lang.CharSequence,java.lang.Object> value) {
+    public com.cdo.avro.schema.AvroCDO.Builder setLevel(int value) {
       validate(fields()[0], value);
-      this.key = value;
+      this.level = value;
       fieldSetFlags()[0] = true;
       return this;
     }
 
     /**
-      * Checks whether the 'key' field has been set.
-      * @return True if the 'key' field has been set, false otherwise.
+      * Checks whether the 'level' field has been set.
+      * @return True if the 'level' field has been set, false otherwise.
       */
-    public boolean hasKey() {
+    public boolean hasLevel() {
       return fieldSetFlags()[0];
     }
 
 
     /**
-      * Clears the value of the 'key' field.
+      * Clears the value of the 'level' field.
       * @return This builder.
       */
-    public com.cdo.avro.schema.AvroCDO.Builder clearKey() {
-      key = null;
+    public com.cdo.avro.schema.AvroCDO.Builder clearLevel() {
       fieldSetFlags()[0] = false;
+      return this;
+    }
+
+    /**
+      * Gets the value of the 'fields' field.
+      * @return The value.
+      */
+    public java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> getFields() {
+      return fields;
+    }
+
+    /**
+      * Sets the value of the 'fields' field.
+      * @param value The value of 'fields'.
+      * @return This builder.
+      */
+    public com.cdo.avro.schema.AvroCDO.Builder setFields(java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> value) {
+      validate(fields()[1], value);
+      this.fields = value;
+      fieldSetFlags()[1] = true;
+      return this;
+    }
+
+    /**
+      * Checks whether the 'fields' field has been set.
+      * @return True if the 'fields' field has been set, false otherwise.
+      */
+    public boolean hasFields() {
+      return fieldSetFlags()[1];
+    }
+
+
+    /**
+      * Clears the value of the 'fields' field.
+      * @return This builder.
+      */
+    public com.cdo.avro.schema.AvroCDO.Builder clearFields() {
+      fields = null;
+      fieldSetFlags()[1] = false;
       return this;
     }
 
@@ -170,7 +238,8 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
     public AvroCDO build() {
       try {
         AvroCDO record = new AvroCDO();
-        record.key = fieldSetFlags()[0] ? this.key : (java.util.Map<java.lang.CharSequence,java.lang.Object>) defaultValue(fields()[0]);
+        record.level = fieldSetFlags()[0] ? this.level : (java.lang.Integer) defaultValue(fields()[0]);
+        record.fields = fieldSetFlags()[1] ? this.fields : (java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer>) defaultValue(fields()[1]);
         return record;
       } catch (Exception e) {
         throw new org.apache.avro.AvroRuntimeException(e);

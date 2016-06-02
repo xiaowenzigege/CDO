@@ -27,6 +27,9 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.ByteBuffer;
+import java.util.Map;
+
 
 /**
  * @author Frank
@@ -122,8 +125,20 @@ public class FieldImpl implements Field
 	public void toXMLLog(StringBuilder strbXML) {
 		toXML(strbXML);		
 	}
+	
 	@Override
 	public String toString() {
 		return toJSONString();		
+	}
+	
+	@Override
+	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+		
+	}
+	
+	@Override
+	public int toAvro(String prefixField,Map<String,ByteBuffer> fieldMap,int maxLevel){
+		toAvro(prefixField, fieldMap);
+		return 0;
 	}
 }

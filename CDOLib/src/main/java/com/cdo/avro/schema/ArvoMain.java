@@ -146,12 +146,12 @@ public class ArvoMain {
 			cdo.setCDOValue("cdoChild",cdoChild);			
 			 for(int i=0;i<1;i++){
 					AvroCDOSerialize serialize=new AvroCDOSerialize(cdo);
-					AvroCDO arvo= serialize.toAvro();	
+					AvroCDOMixed arvo= serialize.toAvro();	
 					
 					ByteArrayOutputStream out=new ByteArrayOutputStream();
 					
-					DatumWriter<AvroCDO> userDatumWriter = new SpecificDatumWriter<AvroCDO>(AvroCDO.class);
-					DataFileWriter<AvroCDO> dataFileWriter = new DataFileWriter<AvroCDO>(userDatumWriter);
+					DatumWriter<AvroCDOMixed> userDatumWriter = new SpecificDatumWriter<AvroCDOMixed>(AvroCDOMixed.class);
+					DataFileWriter<AvroCDOMixed> dataFileWriter = new DataFileWriter<AvroCDOMixed>(userDatumWriter);
 					dataFileWriter.create(arvo.getSchema(),out);
 					dataFileWriter.append(arvo);
 					dataFileWriter.close();
@@ -159,8 +159,8 @@ public class ArvoMain {
 					
 					InputStream bis = new ByteArrayInputStream(out.toByteArray());
 					
-					DatumReader<AvroCDO> userDatumReader = new SpecificDatumReader<AvroCDO>(AvroCDO.class);
-					DataFileStream<AvroCDO> dataFileReader = new DataFileStream<AvroCDO>(bis,userDatumReader);
+					DatumReader<AvroCDOMixed> userDatumReader = new SpecificDatumReader<AvroCDOMixed>(AvroCDOMixed.class);
+					DataFileStream<AvroCDOMixed> dataFileReader = new DataFileStream<AvroCDOMixed>(bis,userDatumReader);
 					
 					while (dataFileReader.hasNext()) {
 						arvo=dataFileReader.next(arvo);

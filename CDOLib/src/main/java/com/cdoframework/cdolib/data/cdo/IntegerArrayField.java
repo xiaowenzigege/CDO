@@ -7,35 +7,15 @@
  * Revision 1.4  2008/03/12 10:30:56  Frank
  * *** empty log message ***
  *
- * Revision 1.4  2008/03/11 15:07:52  Frank
- * *** empty log message ***
- *
- * Revision 1.3  2008/03/10 14:54:15  Frank
- * *** empty log message ***
- *
- * Revision 1.2  2008/03/08 12:10:53  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2008/03/07 11:20:21  Frank
- * *** empty log message ***
- *
- * Revision 1.3  2007/11/03 02:25:42  Frank
- * *** empty log message ***
- *
- * Revision 1.2  2007/10/12 02:36:16  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2007/10/11 13:41:24  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2007/10/11 01:10:57  Frank
- * *** empty log message ***
- *
  *
  */
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.ByteBuffer;
+import java.util.Map;
+
+import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
@@ -90,6 +70,19 @@ public class IntegerArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
+	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+		int len=1+2+this.nsValue.length*4;//字段类型所占字节+数组个数所占字节+数据所占字节
+		ByteBuffer buffer=ByteBuffer.allocate(len);
+		buffer.put((byte)DataType.INTEGER_ARRAY_TYPE);
+		buffer.putShort((short)this.nsValue.length);
+		for(int i=0;i<this.nsValue.length;i++){
+			buffer.putInt(nsValue[i]);			
+		}
+		buffer.flip();
+		
+		fieldMap.put(prefixField+this.getName(), buffer);
+	}	
+	
 	public void toXML(StringBuilder strbXML)
 	{
 		strbXML.append("<NAF N=\"").append(this.getName()).append("\"");;

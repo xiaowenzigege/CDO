@@ -3,41 +3,12 @@
  *
  * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/CDOArrayField.java,v 1.4 2008/03/12 10:30:57 Frank Exp $
  *
- * $Log: CDOArrayField.java,v $
- * Revision 1.4  2008/03/12 10:30:57  Frank
- * *** empty log message ***
- *
- * Revision 1.4  2008/03/11 15:06:59  Frank
- * *** empty log message ***
- *
- * Revision 1.3  2008/03/10 14:54:14  Frank
- * *** empty log message ***
- *
- * Revision 1.2  2008/03/08 12:10:53  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2008/03/07 11:20:20  Frank
- * *** empty log message ***
- *
- * Revision 1.2  2008/01/22 11:31:51  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2007/11/03 02:25:40  Frank
- * *** empty log message ***
- *
- * Revision 1.2  2007/10/12 02:36:16  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2007/10/11 13:41:24  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2007/10/11 01:10:57  Frank
- * *** empty log message ***
- *
- *
  */
 
 package com.cdoframework.cdolib.data.cdo;
+
+import java.nio.ByteBuffer;
+import java.util.Map;
 
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
@@ -107,6 +78,29 @@ public class CDOArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
+	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+		for(int i=0;i<this.cdosValue.length;i=i+1){
+			String prefix=prefixField+this.getName()+"["+i+"].";
+			this.cdosValue[i].toAvro(prefix,fieldMap);
+		}
+		
+	}	
+	
+	public int toAvro(String prefixField,Map<String,ByteBuffer> fieldMap,int maxLevel){
+		int curLevel=1;
+		if(prefixField.length()>0){
+			curLevel=(prefixField.split("\\.").length+1);
+		}							
+		maxLevel=maxLevel>curLevel?maxLevel:curLevel;				
+		for(int i=0;i<this.cdosValue.length;i=i+1){
+			String prefix=prefixField+this.getName()+"["+i+"].";
+			curLevel=this.cdosValue[i].toAvro(prefix,fieldMap,maxLevel);
+			if(curLevel>maxLevel)
+				maxLevel=curLevel;
+		}
+		return maxLevel;
+	}
+	
 	public void toXML(StringBuilder strbXML)
 	{
 		strbXML.append("<CDOAF N=\"").append(this.getName()).append("\">");

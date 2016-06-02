@@ -36,6 +36,10 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.ByteBuffer;
+import java.util.Map;
+
+import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
@@ -90,6 +94,19 @@ public class LongArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
+	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+		int len=1+2+this.lsValue.length*8;//字段类型所占字节+数组个数所占字节+数据所占字节
+		ByteBuffer buffer=ByteBuffer.allocate(len);
+		buffer.put((byte)DataType.LONG_ARRAY_TYPE);
+		buffer.putShort((short)this.lsValue.length);
+		for(int i=0;i<this.lsValue.length;i++){
+			buffer.putLong(lsValue[i]);			
+		}
+		buffer.flip();
+		
+		fieldMap.put(prefixField+this.getName(), buffer);
+	}	
+	
 	public void toXML(StringBuilder strbXML)
 	{
 		strbXML.append("<LAF N=\"").append(this.getName()).append("\"");;

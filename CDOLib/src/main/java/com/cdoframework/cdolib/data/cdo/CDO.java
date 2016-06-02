@@ -13,8 +13,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -23,17 +24,20 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import nanoxml.XMLElement;
+
 import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
-import com.cdoframework.cdolib.base.DataType;
+
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
  * @author Frank
  * modify by @author KenelLiu
- * delete list 
+ * delete 2 list[vecTerm,objectExt]
+ * change map->LinkedHashMap
+ * change toXml  travel
+ * add avro Serializable
+ * add support file
  */
 public class CDO implements Serializable
 {
@@ -578,7 +582,37 @@ public class CDO implements Serializable
 		xmlNode.parseString(strXML);
 		cdoOutPut.fromXML(xmlNode,true);		
 	}	
-
+	
+	public  Map<String, ByteBuffer> toAvro(){
+		Map<String,ByteBuffer> fieldMap=new LinkedHashMap<String, ByteBuffer>();
+		String prefixField="";
+		int maxLevel=toAvro(prefixField,fieldMap,0);
+		
+		return fieldMap;
+	}
+	
+	protected void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+		Entry<String, ObjectExt> entry=null;
+		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
+			entry=it.next();
+			Field fieldItem=this.createField(entry.getKey(),entry.getValue());			
+			fieldItem.toAvro(prefixField, fieldMap);
+		}
+	}
+	
+	public int toAvro(String prefixField,Map<String,ByteBuffer> fieldMap,int maxLevel){
+		Entry<String, ObjectExt> entry=null;
+		int curLevel=0;
+		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
+			entry=it.next();
+			Field fieldItem=this.createField(entry.getKey(),entry.getValue());			
+			curLevel=fieldItem.toAvro(prefixField, fieldMap,maxLevel);
+			if(curLevel>maxLevel)
+				maxLevel=curLevel;
+		}
+		return maxLevel;
+	}	
+	
 	public String toXML()
 	{
 		StringBuilder strbXML=new StringBuilder(500);
@@ -621,10 +655,9 @@ public class CDO implements Serializable
 			Field fieldItem=this.createField(entry.getKey(),entry.getValue());
 			fieldItem.toXMLLog(strbXML);
 		}				
-		strbXML.append("</CDO>");
-		String strXML=strbXML.toString();
+		strbXML.append("</CDO>");		
 		
-		return strXML;
+		return strbXML.toString();
 	}
 	
 	public String toXMLWithIndent(){
@@ -1929,13 +1962,108 @@ public class CDO implements Serializable
 		cdo.setCDOValue("cdoChild",cdoChild);
 		
 		
-		System.out.println("cdo ="+cdo.toXMLWithIndent());
-		long startTime=System.currentTimeMillis();
+//		System.out.println("cdo ="+cdo.toXMLWithIndent());
+		cdo=new CDO();
+		cdo.setCDOValue("cdoReturn", cdoReturn);
+		cdo.setCDOArrayValue("cdoChild",cdosList);
+		long startTime=System.nanoTime();
+		String xml=null;
 		for(int i=0;i<1;i++){
-			String xml=cdo.toXML();
-			System.out.println("time2 ="+(System.currentTimeMillis()-startTime));
-			CDO tmp=CDO.fromXML(xml);
-			System.out.println("time3 ="+(System.currentTimeMillis()-startTime));
+			 xml=cdo.toXML();
 		}
+		long midTime=System.nanoTime();
+		System.out.println("time2 ="+(midTime-startTime));
+		for(int i=0;i<1;i++){
+			CDO tmp=CDO.fromXML(xml);
+		}
+		long lastTime=System.nanoTime();
+		System.out.println("time3 ="+(lastTime-midTime));
+//		System.out.println(cdo.toXMLWithIndent());
+		
+		 Map<String, ByteBuffer> map=cdo.toAvro();
+		 System.out.println("lastTime="+(System.nanoTime()-lastTime));
+		for(Iterator<Map.Entry<String, ByteBuffer>> iterator=map.entrySet().iterator();iterator.hasNext(); ){
+			System.out.println(iterator.next().getKey());
+		}
+		ByteBuffer buffer=ByteBuffer.allocate(3+1*2);
+		buffer.put((byte)1);
+		buffer.putShort((short)2);
+		buffer.put((byte)3);
+		buffer.put((byte)4);
+		buffer.flip();
+		System.out.println("start="+buffer.get(3));
+//		System.out.println(buffer.getShort());
+//		int l=buffer.getShort();
+//		for(int i=0;i<l;i++){
+//			System.out.println("arr int="+buffer.getInt());
+//		}
+		
+		
+//		System.out.println(buffer.get());
+		String strValue="中国123测试dst";
+		byte[] value=strValue.getBytes("UTF-8");//faster in Java 7 & 8,slow in java6
+		String strValue1="1中国123测试1";
+		byte[] value1=strValue1.getBytes("UTF-8");//faster in Java 7 & 8,slow in java6
+		
+		int len=1+value.length;
+		buffer=ByteBuffer.allocate(len);
+		buffer.put((byte)1);
+//		buffer.putInt(value.length);
+		buffer.put(value);
+		buffer.flip();
+//		System.out.println("buffer="+buffer.get());
+		buffer.position(1);
+//		buffer.limit(1+value.length);
+		ByteBuffer slice = buffer.slice();
+		byte[] dst=new byte[slice.capacity()];
+		slice.get(dst);
+		System.out.println("first="+new String(dst,"UTF-8"));
+		
+		int dataLen=value.length+value1.length;
+		len=1+4*2+dataLen;//字段类型所占字节+数据所占字节
+		buffer=ByteBuffer.allocate(len);
+		buffer.put((byte)1);
+		buffer.putInt(value.length);
+		buffer.put(value);
+		buffer.putInt(value1.length);
+		buffer.put(value1);		
+		buffer.flip();		
+		buffer.get();
+		
+		buffer.position(1+4);
+		buffer.limit(1+4+value.length);
+		ByteBuffer b1=buffer.slice();
+		System.out.println("buffer cap="+buffer.capacity());
+		System.out.println("b1 cap="+b1.capacity());
+		 dst=new byte[b1.capacity()];
+		b1.get(dst);
+		System.out.println(new String(dst,"UTF-8"));
+		
+		
+	     buffer = ByteBuffer.allocate( 10 );
+
+	    for (int i=0; i<buffer.capacity(); ++i) {
+	      buffer.put( (byte)i );
+	    }
+	    buffer.flip();
+	    System.out.println("buffer="+buffer.get());
+	    buffer.position( 3 ); 
+	    buffer.limit( 7 );
+
+	     slice = buffer.slice();
+        System.out.println("slice cap="+slice.capacity());
+	    for (int i=0; i<slice.capacity(); ++i) {
+	      byte b = slice.get( i );
+	      System.out.println("slice cap b="+b);
+	      b *= 11;
+	      slice.put( i, b );
+	    }
+
+	    buffer.position( 0 );
+	    buffer.limit( buffer.capacity() );
+
+	    while (buffer.remaining()>0) {
+	      System.out.println( buffer.get() );
+	    }		
 	}
 }

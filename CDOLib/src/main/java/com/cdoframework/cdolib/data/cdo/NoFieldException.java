@@ -1,7 +1,7 @@
 package com.cdoframework.cdolib.data.cdo;
 
 /**
- * @author Administrator
+ * @author KenelLiu
  */
 public class NoFieldException extends RuntimeException
 {

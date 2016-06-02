@@ -2,34 +2,15 @@
  * www.cdoforum.com 2007版权所有
  *
  * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/ByteField.java,v 1.4 2008/03/12 10:28:13 Frank Exp $
- *
- * $Log: ByteField.java,v $
- * Revision 1.4  2008/03/12 10:28:13  Frank
- * *** empty log message ***
- *
- * Revision 1.3  2008/03/10 14:54:16  Frank
- * *** empty log message ***
- *
- * Revision 1.2  2008/03/08 12:10:54  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2008/03/07 11:20:19  Frank
- * *** empty log message ***
- *
- * Revision 1.3  2007/11/03 02:25:41  Frank
- * *** empty log message ***
- *
- * Revision 1.2  2007/10/11 13:55:05  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2007/10/11 01:10:57  Frank
- * *** empty log message ***
- *
- *
+
  */
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.ByteBuffer;
+import java.util.Map;
+
+import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
@@ -65,6 +46,16 @@ public class ByteField extends ValueFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
+	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+		int len=1+1;//字段类型所占字节+数据所占字节
+		ByteBuffer buffer=ByteBuffer.allocate(len);
+		buffer.put((byte)DataType.BYTE_TYPE);
+		buffer.put(this.byValue);
+		buffer.flip();	
+		
+		fieldMap.put(prefixField+this.getName(), buffer);
+	}	
+	
 	public void toXML(StringBuilder strbXML)
 	{		
 		strbXML.append("<BYF N=\"").append(this.getName()).append("\"");

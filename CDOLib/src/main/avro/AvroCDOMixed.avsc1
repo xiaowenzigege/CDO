@@ -1,0 +1,8 @@
+{
+  "namespace" : "com.cdo.avro.schema",
+  "type" : "record",
+  "name" : "AvroCDOMixed",
+  "fields" : [  
+   {"name":"key","type":["null",{"type":"map", "values": ["boolean","int","long","float","double","bytes","string",{"type":"array","items":"string"}]}]}
+]
+}
