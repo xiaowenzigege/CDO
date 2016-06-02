@@ -73,7 +73,7 @@ public interface Field extends DataType
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML);
 	
 	
-	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap);
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap);
 	/**
 	 *  A 类型-数据	
 	 *  对  boolean,short,int,long,float,double,string 序列化
@@ -112,7 +112,7 @@ public interface Field extends DataType
 	  
 	   D 对文件类型  在传输中  特别处理，不再这儿做处理	 
 	 */
-	public int toAvro(String prefixField,Map<String,ByteBuffer> fieldMap,int maxLevel);
+	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel);
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
 	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------

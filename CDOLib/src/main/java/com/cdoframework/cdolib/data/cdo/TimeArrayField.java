@@ -90,7 +90,7 @@ public class TimeArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
 		ByteBuffer buffer=strArr2Bytes(this.strsValue,DataType.TIME_ARRAY_TYPE);
 		fieldMap.put(prefixField+this.getName(), buffer);
 	}		

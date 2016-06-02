@@ -70,7 +70,7 @@ public class IntegerArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
 		int len=1+2+this.nsValue.length*4;//字段类型所占字节+数组个数所占字节+数据所占字节
 		ByteBuffer buffer=ByteBuffer.allocate(len);
 		buffer.put((byte)DataType.INTEGER_ARRAY_TYPE);

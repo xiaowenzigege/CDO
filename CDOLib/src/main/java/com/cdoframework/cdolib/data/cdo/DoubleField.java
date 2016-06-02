@@ -52,7 +52,7 @@ public class DoubleField extends ValueFieldImpl
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 
-	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
 		int len=1+8;//字段类型所占字节+数据所占字节
 		ByteBuffer buffer=ByteBuffer.allocate(len);
 		buffer.put((byte)DataType.DOUBLE_TYPE);

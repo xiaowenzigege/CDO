@@ -78,7 +78,7 @@ public class CDOArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
 		for(int i=0;i<this.cdosValue.length;i=i+1){
 			String prefix=prefixField+this.getName()+"["+i+"].";
 			this.cdosValue[i].toAvro(prefix,fieldMap);
@@ -86,7 +86,7 @@ public class CDOArrayField extends ArrayFieldImpl
 		
 	}	
 	
-	public int toAvro(String prefixField,Map<String,ByteBuffer> fieldMap,int maxLevel){
+	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
 		int curLevel=1;
 		if(prefixField.length()>0){
 			curLevel=(prefixField.split("\\.").length+1);

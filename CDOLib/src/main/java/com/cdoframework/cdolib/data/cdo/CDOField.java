@@ -50,12 +50,12 @@ public class CDOField extends ValueFieldImpl
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 	
-	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){				
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){				
 		String prefix=prefixField+this.getName()+".";
 		this.cdoValue.toAvro(prefix,fieldMap);		
 	}
 	
-	public int toAvro(String prefixField,Map<String,ByteBuffer> fieldMap,int maxLevel){
+	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
 		int curLevel=1;
 		if(prefixField.length()>0){
 			curLevel=(prefixField.split("\\.").length+1);

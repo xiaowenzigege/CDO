@@ -25,8 +25,18 @@ import java.util.Set;
 
 import nanoxml.XMLElement;
 
+import org.apache.avro.io.DatumReader;
+import org.apache.avro.io.DatumWriter;
+import org.apache.avro.io.Decoder;
+import org.apache.avro.io.DecoderFactory;
+import org.apache.avro.io.Encoder;
+import org.apache.avro.io.EncoderFactory;
+import org.apache.avro.specific.SpecificDatumReader;
+import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.log4j.Logger;
 
+import com.cdo.avro.schema.ArvoMain;
+import com.cdo.avro.schema.AvroCDO;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
@@ -584,15 +594,17 @@ public class CDO implements Serializable
 		cdoOutPut.fromXML(xmlNode,true);		
 	}	
 	
-	public  Map<String, ByteBuffer> toAvro(){
-		Map<String,ByteBuffer> fieldMap=new LinkedHashMap<String, ByteBuffer>();
+	public  AvroCDO toAvro(){
+		Map<CharSequence,ByteBuffer> fieldMap=new LinkedHashMap<CharSequence, ByteBuffer>();
 		String prefixField="";
 		int maxLevel=toAvro(prefixField,fieldMap,0);
-		
-		return fieldMap;
+		AvroCDO arvo=new AvroCDO();
+		arvo.setFields(fieldMap);
+		arvo.setLevel(maxLevel);
+		return arvo;
 	}
 	
-	protected void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+	protected void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
 		Entry<String, ObjectExt> entry=null;
 		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
 			entry=it.next();
@@ -601,7 +613,7 @@ public class CDO implements Serializable
 		}
 	}
 	
-	public int toAvro(String prefixField,Map<String,ByteBuffer> fieldMap,int maxLevel){
+	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
 		Entry<String, ObjectExt> entry=null;
 		int curLevel=0;
 		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
@@ -1964,9 +1976,23 @@ public class CDO implements Serializable
 		
 		
 //		System.out.println("cdo ="+cdo.toXMLWithIndent());
-		cdo=new CDO();
-		cdo.setCDOValue("cdoReturn", cdoReturn);
-		cdo.setCDOArrayValue("cdoChild",cdosList);
+//		cdo=new CDO();
+//		cdo.setCDOValue("cdoReturn", cdoReturn);
+//		cdo.setCDOArrayValue("cdoChild",cdosList);
+		AvroCDO arvo=cdo.toAvro();
+        ByteArrayOutputStream out=new ByteArrayOutputStream();  
+        //不再需要传schema了，直接用StringPair作为范型和参数，  
+        DatumWriter<AvroCDO> writer=new SpecificDatumWriter<AvroCDO>(AvroCDO.class);  
+        Encoder encoder= EncoderFactory.get().binaryEncoder(out,null);  
+        writer.write(arvo, encoder);  
+        encoder.flush();  
+        out.close();  
+  
+        DatumReader<AvroCDO> reader=new SpecificDatumReader<AvroCDO>(AvroCDO.class);  
+        Decoder decoder= DecoderFactory.get().binaryDecoder(out.toByteArray(),null);  
+        AvroCDO result=reader.read(null,decoder);  
+        
+        
 		long startTime=System.nanoTime();
 		String xml=null;
 		for(int i=0;i<1;i++){
@@ -1981,11 +2007,12 @@ public class CDO implements Serializable
 		System.out.println("time3 ="+(lastTime-midTime));
 //		System.out.println(cdo.toXMLWithIndent());
 		
-		 Map<String, ByteBuffer> map=cdo.toAvro();
-		 System.out.println("lastTime="+(System.nanoTime()-lastTime));
-		for(Iterator<Map.Entry<String, ByteBuffer>> iterator=map.entrySet().iterator();iterator.hasNext(); ){
-			System.out.println(iterator.next().getKey());
-		}
+//		AvroCDO map=cdo.toAvro().getFields();
+//		
+//		 System.out.println("lastTime="+(System.nanoTime()-lastTime));
+//		for(Iterator<Map.Entry<Se, ByteBuffer>> iterator=map.entrySet().iterator();iterator.hasNext(); ){
+//			System.out.println(iterator.next().getKey());
+//		}
 		ByteBuffer buffer=ByteBuffer.allocate(3+1*2);
 		buffer.put((byte)1);
 		buffer.putShort((short)2);

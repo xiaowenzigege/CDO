@@ -132,12 +132,12 @@ public class FieldImpl implements Field
 	}
 	
 	@Override
-	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
 		
 	}
 	
 	@Override
-	public int toAvro(String prefixField,Map<String,ByteBuffer> fieldMap,int maxLevel){
+	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
 		toAvro(prefixField, fieldMap);
 		return 0;
 	}

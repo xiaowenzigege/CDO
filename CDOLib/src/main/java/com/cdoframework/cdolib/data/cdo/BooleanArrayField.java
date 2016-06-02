@@ -72,7 +72,7 @@ public class BooleanArrayField extends ArrayFieldImpl
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 
-	public void toAvro(String prefixField,Map<String,ByteBuffer> fieldMap){
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
 		//为数组分配字节  boolean型为一个字节  1表示true,0表示fasle. 数组
 		int len=1+2+this.bsValue.length;//字段类型所占字节+数组个数所占字节+数据所占字节
 		ByteBuffer buffer=ByteBuffer.allocate(len);
