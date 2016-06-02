@@ -307,25 +307,25 @@ public class AvroCDODeserialize {
 		byte[] arr=new byte[len];
 		int length=arr.length;	
 	
-		int mid=length/2+5;
-		int quarter=mid/2+5;
-		int j=quarter+1+5;
-		int m=mid+1+5;
-		int quarter3=mid+quarter+5;
-		int n=mid+quarter+1+5;					
+		int mid=length/2;
+		int quarter=mid/2;
+		int j=quarter+1;
+		int m=mid+1;
+		int quarter3=mid+quarter;
+		int n=mid+quarter+1;					
 		for(int i=0;i<=quarter ;i++){
 			try{
-				arr[i]=buffer.get(i);				
+				arr[i]=buffer.get(i+5);				
 				if(j<=mid){
-					arr[j]=buffer.get(j);
+					arr[j]=buffer.get(j+5);
 					j++;
 				}
 				if(m<=quarter3){
-					arr[m]=buffer.get(m);
+					arr[m]=buffer.get(m+5);
 					m++;
 				}
 				if(n<length){
-					arr[n]=buffer.get(n);
+					arr[n]=buffer.get(n+5);
 					n++;
 				}				
 			}catch(Exception ex){

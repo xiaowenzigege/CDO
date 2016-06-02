@@ -37,6 +37,7 @@ import org.apache.log4j.Logger;
 
 import com.cdo.avro.schema.ArvoMain;
 import com.cdo.avro.schema.AvroCDO;
+import com.cdo.avro.schema.AvroCDODeserialize;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
@@ -1979,32 +1980,36 @@ public class CDO implements Serializable
 //		cdo=new CDO();
 //		cdo.setCDOValue("cdoReturn", cdoReturn);
 //		cdo.setCDOArrayValue("cdoChild",cdosList);
+		long startTime=System.currentTimeMillis();
 		AvroCDO arvo=cdo.toAvro();
         ByteArrayOutputStream out=new ByteArrayOutputStream();  
         //不再需要传schema了，直接用StringPair作为范型和参数，  
+        System.out.println("avro 1 ="+(System.currentTimeMillis()-startTime));
         DatumWriter<AvroCDO> writer=new SpecificDatumWriter<AvroCDO>(AvroCDO.class);  
         Encoder encoder= EncoderFactory.get().binaryEncoder(out,null);  
         writer.write(arvo, encoder);  
         encoder.flush();  
         out.close();  
-  
+        System.out.println("avro 2 ="+(System.currentTimeMillis()-startTime)+",length="+out.toByteArray().length);
         DatumReader<AvroCDO> reader=new SpecificDatumReader<AvroCDO>(AvroCDO.class);  
         Decoder decoder= DecoderFactory.get().binaryDecoder(out.toByteArray(),null);  
         AvroCDO result=reader.read(null,decoder);  
+        CDO cdo3=AvroCDODeserialize.fromAvro(result);
+        System.out.println("avro 3 ="+(System.currentTimeMillis()-startTime));
+//		for(Iterator<Map.Entry<CharSequence, ByteBuffer>> iterator=result.getFields().entrySet().iterator();iterator.hasNext(); ){
+//		System.out.println(iterator.next().getKey());
+//	}      
         
-        
-		long startTime=System.nanoTime();
+		startTime=System.currentTimeMillis();
 		String xml=null;
 		for(int i=0;i<1;i++){
 			 xml=cdo.toXML();
 		}
-		long midTime=System.nanoTime();
-		System.out.println("time2 ="+(midTime-startTime));
+		System.out.println("xml 1 ="+(System.currentTimeMillis()-startTime)+",length="+xml.getBytes("UTF-8").length);
 		for(int i=0;i<1;i++){
 			CDO tmp=CDO.fromXML(xml);
 		}
-		long lastTime=System.nanoTime();
-		System.out.println("time3 ="+(lastTime-midTime));
+		System.out.println("time3 ="+(System.currentTimeMillis()-startTime));
 //		System.out.println(cdo.toXMLWithIndent());
 		
 //		AvroCDO map=cdo.toAvro().getFields();
