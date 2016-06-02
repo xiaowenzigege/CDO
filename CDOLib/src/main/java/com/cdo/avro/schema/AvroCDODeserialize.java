@@ -268,6 +268,7 @@ public class AvroCDODeserialize {
 			
 			 arr[i]=new String(dst,Charset.forName("UTF-8"));
 			 //移位
+			 buffer.limit(buffer.capacity());
 			 index=pos+contentLen;			
 		 }
 		 return arr;

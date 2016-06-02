@@ -27,6 +27,7 @@ import nanoxml.XMLElement;
 
 import org.apache.log4j.Logger;
 
+import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
@@ -2005,65 +2006,125 @@ public class CDO implements Serializable
 		String strValue1="1中国123测试1";
 		byte[] value1=strValue1.getBytes("UTF-8");//faster in Java 7 & 8,slow in java6
 		
-		int len=1+value.length;
-		buffer=ByteBuffer.allocate(len);
-		buffer.put((byte)1);
+		String[] strArr={"中国","测试中uo","vba数据侧室"};
+		ByteBuffer b1=strArr2Bytes(strArr, DataType.STRING_ARRAY_TYPE);
+		String[] strArr1=byte2StrArr(b1);
+		for(int i=0;i<strArr.length;i++){
+			System.out.println(strArr1[i]);
+		}
+//		int len=1+value.length;
+//		buffer=ByteBuffer.allocate(len);
+//		buffer.put((byte)1);
 //		buffer.putInt(value.length);
-		buffer.put(value);
-		buffer.flip();
+//		buffer.put(value);
+//		buffer.flip();
 //		System.out.println("buffer="+buffer.get());
-		buffer.position(1);
+//		buffer.position(1);
 //		buffer.limit(1+value.length);
-		ByteBuffer slice = buffer.slice();
-		byte[] dst=new byte[slice.capacity()];
-		slice.get(dst);
-		System.out.println("first="+new String(dst,"UTF-8"));
+//		ByteBuffer slice = buffer.slice();
+//		byte[] dst=new byte[slice.capacity()];
+//		slice.get(dst);
+//		System.out.println("first="+new String(dst,"UTF-8"));
+//		
+//		int dataLen=value.length+value1.length;
+//		len=1+4*2+dataLen;//字段类型所占字节+数据所占字节
+//		buffer=ByteBuffer.allocate(len);
+//		buffer.put((byte)1);
+//		buffer.putInt(value.length);
+//		buffer.put(value);
+//		buffer.putInt(value1.length);
+//		buffer.put(value1);		
+//		buffer.flip();		
+//		buffer.get();
+//		
+//		buffer.position(1+4);
+//		buffer.limit(1+4+value.length);
+//		ByteBuffer b1=buffer.slice();
+//		System.out.println("buffer cap="+buffer.capacity());
+//		System.out.println("b1 cap="+b1.capacity());
+//		 dst=new byte[b1.capacity()];
+//		b1.get(dst);
+//		System.out.println(new String(dst,"UTF-8"));
+//		
+//		
+//	     buffer = ByteBuffer.allocate( 10 );
+//
+//	    for (int i=0; i<buffer.capacity(); ++i) {
+//	      buffer.put( (byte)i );
+//	    }
+//	    buffer.flip();
+//	    System.out.println("buffer="+buffer.get());
+//	    buffer.position( 3 ); 
+//	    buffer.limit( 7 );
+//
+//	     slice = buffer.slice();
+//        System.out.println("slice cap="+slice.capacity());
+//	    for (int i=0; i<slice.capacity(); ++i) {
+//	      byte b = slice.get( i );
+//	      System.out.println("slice cap b="+b);
+//	      b *= 11;
+//	      slice.put( i, b );
+//	    }
+//
+//	    buffer.position( 0 );
+//	    buffer.limit( buffer.capacity() );
+//
+//	    while (buffer.remaining()>0) {
+//	      System.out.println( buffer.get() );
+//	    }		
+	}
+	
+	private static String[] byte2StrArr(ByteBuffer buffer){
+		 byte dataType=buffer.get();
+		 int len=buffer.getShort();
+		 String[] arr=new String[len];
+		 int totalContentLen=0;
+		 int index=3;
+		 ByteBuffer slice=null;
+		 byte[] dst=null;
+		 for(int i=0;i<len;i++){
+			 //计算字符串内容所在buffer 下标
+			 int contentLen=buffer.getInt(index);			 
+			 int pos=(3+4*(i+1))+totalContentLen;
+			 totalContentLen=totalContentLen+contentLen;	
+			 buffer.position(pos);
+			 buffer.limit(pos+contentLen);
+			 //截取内容 ,buffer copy出来，直接使用buffer.array[] 有不存在的字符会有乱码
+			 slice=buffer.slice();
+			 dst=new byte[contentLen];
+			 slice.get(dst);			
+			
+			 arr[i]=new String(dst,Charset.forName("UTF-8"));
+			 System.out.println(arr[i]);
+			 //移位
+			 buffer.limit(buffer.capacity());
+			 
+			 index=pos+contentLen;			
+		 }
+		 return arr;
+	}	
+	private static  ByteBuffer strArr2Bytes(String[] strsValue,int DataType){
+		int[] dataLen=new int[strsValue.length];//每个字符串长度
+		byte[][] content=new byte[strsValue.length][];//内容字节
+		byte[] value=null;
+		int dataTotalLen=0;
+		for(int i=0;i<strsValue.length;i++)
+		{			
+			value=strsValue[i].getBytes(Charset.forName("UTF-8"));//faster in Java 7 & 8,slow in java6
+			content[i]=value;           //内容数据 
+			dataLen[i]=value.length;  //内容数据的长度
+			dataTotalLen=dataTotalLen+value.length;//所有内容数据的长度
+		}
 		
-		int dataLen=value.length+value1.length;
-		len=1+4*2+dataLen;//字段类型所占字节+数据所占字节
-		buffer=ByteBuffer.allocate(len);
-		buffer.put((byte)1);
-		buffer.putInt(value.length);
-		buffer.put(value);
-		buffer.putInt(value1.length);
-		buffer.put(value1);		
-		buffer.flip();		
-		buffer.get();
-		
-		buffer.position(1+4);
-		buffer.limit(1+4+value.length);
-		ByteBuffer b1=buffer.slice();
-		System.out.println("buffer cap="+buffer.capacity());
-		System.out.println("b1 cap="+b1.capacity());
-		 dst=new byte[b1.capacity()];
-		b1.get(dst);
-		System.out.println(new String(dst,"UTF-8"));
-		
-		
-	     buffer = ByteBuffer.allocate( 10 );
-
-	    for (int i=0; i<buffer.capacity(); ++i) {
-	      buffer.put( (byte)i );
-	    }
-	    buffer.flip();
-	    System.out.println("buffer="+buffer.get());
-	    buffer.position( 3 ); 
-	    buffer.limit( 7 );
-
-	     slice = buffer.slice();
-        System.out.println("slice cap="+slice.capacity());
-	    for (int i=0; i<slice.capacity(); ++i) {
-	      byte b = slice.get( i );
-	      System.out.println("slice cap b="+b);
-	      b *= 11;
-	      slice.put( i, b );
-	    }
-
-	    buffer.position( 0 );
-	    buffer.limit( buffer.capacity() );
-
-	    while (buffer.remaining()>0) {
-	      System.out.println( buffer.get() );
-	    }		
+		int len=1+2+strsValue.length*4+dataTotalLen;//字段类型所占字节+数组个数所占字节+数据长度所占字节+数据所占字节
+		ByteBuffer buffer=ByteBuffer.allocate(len);
+		buffer.put((byte)DataType);
+		buffer.putShort((short)strsValue.length);
+		for(int i=0;i<strsValue.length;i++){
+			buffer.putInt(dataLen[i]);
+			buffer.put(content[i]);
+		}
+		buffer.flip();	
+		return buffer;
 	}
 }
