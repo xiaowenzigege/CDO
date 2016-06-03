@@ -9,6 +9,7 @@ package com.cdoframework.cdolib.service.framework.transfilter.xsd;
 
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.data.cdo.CDO;
+import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.service.framework.FrameworkUtil;
 import com.cdoframework.cdolib.service.framework.transfilter.xsd.types.CacheKeyTypeTypeType;
 
@@ -192,7 +193,7 @@ implements java.io.Serializable
 			CDO.xmlToCDO(obj.toString(),cdoResponse);
 			return;
 		}
-		cdoResponse.setObjectExt(strFieldId,(ObjectExt)obj);
+		cdoResponse.setObjectExt(strFieldId,(Field)obj);
 		
 	}
 }

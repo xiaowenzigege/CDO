@@ -17,6 +17,8 @@ import com.cdo.util.http.HttpClient;
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
+import com.cdoframework.cdolib.data.cdo.Field;
+import com.cdoframework.cdolib.data.cdo.FileField;
 
 public class BusinessClient implements IBusinessClient{
 	private static Logger logger = Logger.getLogger(BusinessClient.class);
@@ -81,12 +83,12 @@ public class BusinessClient implements IBusinessClient{
 				if(cdoRequest.getSerialFileCount()>0){
 					 Map<String,File> uploadFiles=new HashMap<String,File>();
 		    		 Map<String,String> headers=new HashMap<String,String>();
-					 Iterator<Map.Entry<String,ObjectExt>> it=cdoRequest.entrySet().iterator();		    		 
+					 Iterator<Map.Entry<String,Field>> it=cdoRequest.entrySet().iterator();		    		 
 		    		 while(it.hasNext()){
-		    			 Map.Entry<String,ObjectExt> entry=it.next();
-		    			 ObjectExt objExt=entry.getValue();
+		    			 Map.Entry<String,Field> entry=it.next();
+		    			 Field objExt=entry.getValue();
 		    			 if(objExt.getType()==ObjectExt.FILE_TYPE){
-		    				 uploadFiles.put(entry.getKey(),entry.getValue().getFile());
+		    				 uploadFiles.put(entry.getKey(),((FileField)entry.getValue()).getValue());
 		    				 //设置普通参表示有文件上传
 		    				 headers.put(Constants.CDO.HTTP_CDO_UPLOADFILE_KEY, "true");
 		    			 }

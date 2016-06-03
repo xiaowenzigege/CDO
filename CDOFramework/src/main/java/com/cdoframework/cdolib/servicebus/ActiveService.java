@@ -19,6 +19,7 @@ import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.ThreadExt;
 import com.cdoframework.cdolib.base.Validator;
 import com.cdoframework.cdolib.data.cdo.CDO;
+import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.database.IDataEngine;
 
 public abstract class ActiveService extends ThreadExt implements IActiveService
@@ -51,12 +52,12 @@ public abstract class ActiveService extends ThreadExt implements IActiveService
 	protected Map<String ,Collection<Validator.FieldBean>> validateMap = new HashMap<String ,Collection<Validator.FieldBean>>();
 
 	private Return  validateArray(CDO cdoRequest,String strTransName){
-	 	for(Iterator<Map.Entry<String, ObjectExt>> it=cdoRequest.iterator();it.hasNext();){
-	 		Entry<String,ObjectExt> entry=it.next();
-	 		ObjectExt f=entry.getValue();
+	 	for(Iterator<Map.Entry<String, Field>> it=cdoRequest.iterator();it.hasNext();){
+	 		Entry<String,Field> entry=it.next();
+	 		Field f=entry.getValue();
 	 	    String name =entry.getKey().toLowerCase();
 	 	    String key = (strTransName!=null?(strTransName.toLowerCase()+"."):"")+name;
-	 	    Object value = f.getValue();
+	 	    Object value = f.getObjectValue();
 	 	    if(value instanceof CDO){
 	 		  Return ret =	validate((CDO)value,validateMap.get(key));
 	 	    	if( ret.getCode() == -1){

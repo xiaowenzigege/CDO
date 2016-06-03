@@ -16,6 +16,7 @@ import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
+import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.database.xsd.Add;
 import com.cdoframework.cdolib.database.xsd.AddField;
 import com.cdoframework.cdolib.database.xsd.CollectionNameType;
@@ -82,13 +83,13 @@ public class NoSQLUtil
 			String strValueId = returnObject.getReturnItem(j).getValueId();
 			strFieldId = getStringKey(strFieldId);
 			strValueId = getStringKey(strValueId);
-			ObjectExt object = null;
+			Field object = null;
 			try
 			{
 				object = cdoRequest.getObject(strValueId);
 				// 输出
-				int nType = object.getType();
-				Object objValue = object.getValue();
+//				int nType = object.getType();
+//				Object objValue = object.getObjectValue();
 				cdoResponse.setObjectExt(strFieldId, object);
 			}
 			catch (Exception e)
@@ -353,7 +354,8 @@ public class NoSQLUtil
 				return Return.OK;
 			}
 //			ObjectExt objectExt = cdos[0].getObjectAt(0);
-			ObjectExt objectExt = cdos[0].iterator().next().getValue();
+			 Field  cdoField= cdos[0].iterator().next().getValue();
+			 ObjectExt objectExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
 			JsonUtil4NoSQL.setCDOValue(cdoRequest, objectExt.getType(), key, objectExt.getValue());
 		} 
 		else
@@ -1033,7 +1035,7 @@ public class NoSQLUtil
 			String strKey = getStringKey(strValue);
 			if (cdoRequest.exists(strKey))
 			{
-				ObjectExt obj = cdoRequest.getObject(strKey);
+				Field obj = cdoRequest.getObject(strKey);
 				return obj.getType();
 			}
 			else
@@ -1089,14 +1091,15 @@ public class NoSQLUtil
 			String strKey = getStringKey(strValue);
 			if (cdoRequest.exists(strKey))
 			{
-				ObjectExt obj = cdoRequest.getObject(strKey);
+				Field field = cdoRequest.getObject(strKey);
+				ObjectExt obj=new ObjectExt(field.getType(), field.getObjectValue());
 				if (nDataType != DataType.NONE_TYPE)
 				{
 					result = getObjectExt(nDataType, obj);
 				}
 				else
 				{
-					result = obj;
+					result = new ObjectExt(obj.getType(), obj.getObjectValue());
 				}
 			}
 			else
@@ -1364,7 +1367,9 @@ public class NoSQLUtil
 					basicDBObject.put(strFieldName, null);
 					continue;
 				}
-				ObjectExt objExt = cdoRequest.getObject(strValue);
+				 Field cdoField = cdoRequest.getObject(strValue);
+				
+				ObjectExt objExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
 				if (nType == DataType.NONE_TYPE)
 				{
 					nType = objExt.getType();
@@ -1467,7 +1472,8 @@ public class NoSQLUtil
 
 	private static void setVarDBObject(BasicDBObject basicDBObject, String fieldName, int nDataType, CDO cdoRequest, String key) throws Exception
 	{
-		ObjectExt objExt = cdoRequest.getObject(key);
+		Field cdoField = cdoRequest.getObject(key);
+		ObjectExt objExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
 		setVarDBObject(basicDBObject, fieldName, nDataType, objExt);
 	}
 
@@ -1747,7 +1753,8 @@ public class NoSQLUtil
 						continue;
 					}
 				}
-				ObjectExt objExt = cdoRequest.getObject(strValue);
+				Field cdoField = cdoRequest.getObject(strValue);
+				ObjectExt objExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
 				if (nType == DataType.NONE_TYPE)
 				{
 					nType = objExt.getType();
@@ -1846,18 +1853,9 @@ public class NoSQLUtil
 		String fieldName = null;
 		int cdoFieldType = DataType.NONE_TYPE;
 
-//		String[] strFieldIds = cdo.getFieldIds();
-//		ObjectExt[] objs = cdo.getFieldValues();
-//		for (int i = 0; i < strFieldIds.length; i++)
-//		{
-//			fieldName = strFieldIds[i];
-//			cdoFieldType = objs[i].getType();
-//			setVarDBObject(basicDBObject, fieldName, cdoFieldType, cdo, fieldName);
-//		}
-		
-		for (Iterator<Map.Entry<String, ObjectExt>> it=cdo.iterator();it.hasNext();)
+		for (Iterator<Map.Entry<String, Field>> it=cdo.iterator();it.hasNext();)
 		{
-			Entry<String, ObjectExt> entry=it.next();
+			Entry<String, Field> entry=it.next();
 			fieldName = entry.getKey();
 			cdoFieldType = entry.getValue().getType();
 			setVarDBObject(basicDBObject, fieldName, cdoFieldType, cdo, fieldName);

@@ -18,6 +18,7 @@ import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.Validator;
 import com.cdoframework.cdolib.data.cdo.CDO;
+import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.database.IDataEngine;
 public abstract class TransService implements ITransService
 {
@@ -123,44 +124,15 @@ public abstract class TransService implements ITransService
 		}
 	}
 	
-//	private ThreadLocal<String> threadLocal = new ThreadLocal<String>();
-	 
-	
+
 	private Return validateArray(CDO cdoRequest,String strTransName){
-//		 ObjectExt[] fs  = cdoRequest.getFieldValues();
-//		 String[] strsFieldIds=cdoRequest.getFieldIds();
-//		  
-//		 	for(int i=0;i<fs.length;i++){
-//		 		ObjectExt f=fs[i];
-//		 	   String name =	strsFieldIds[i].toLowerCase();
-//		 	   String key = (strTransName!=null?(strTransName.toLowerCase()+"."):"")+name;
-//		 	   Object value = f.getValue();
-//		 	   if(value instanceof CDO){
-//		 		  Return ret =	validate((CDO)value,validateMap.get(key));
-//		 	    	if( ret.getCode() == -1){
-//		 	    		return ret; 
-//		 	    	} 
-//		 		  
-//		 	   }else if(value instanceof CDO[]  ){
-//		 	     for(CDO d :(CDO[])value){ 
-//		 	    	Return ret =	validate(d,validateMap.get(key));
-//		 	    	if( ret.getCode() == -1){
-//		 	    		return ret;  
-//		 	    	}  
-//		 	      }
-//		 	   } 
-//		 	}  
-//		 return Return.OK;
-		
-//		 ObjectExt[] fs  = cdoRequest.getFieldValues();
-//		 String[] strsFieldIds=cdoRequest.getFieldIds();
-//		  
-		 	for(Iterator<Map.Entry<String, ObjectExt>> it=cdoRequest.iterator();it.hasNext();){
-		 		Entry<String,ObjectExt> entry=it.next();
-		 		ObjectExt f=entry.getValue();
+  
+		 	for(Iterator<Map.Entry<String, Field>> it=cdoRequest.iterator();it.hasNext();){
+		 		Entry<String,Field> entry=it.next();
+		 		Field f=entry.getValue();
 		 	    String name =entry.getKey().toLowerCase();
 		 	    String key = (strTransName!=null?(strTransName.toLowerCase()+"."):"")+name;
-		 	    Object value = f.getValue();
+		 	    Object value = f.getObjectValue();
 		 	    if(value instanceof CDO){
 		 		  Return ret =	validate((CDO)value,validateMap.get(key));
 		 	    	if( ret.getCode() == -1){

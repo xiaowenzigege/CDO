@@ -31,6 +31,7 @@ import com.cdoframework.cdolib.base.SortedSet;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.CDOArrayField;
+import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.database.xsd.BigTable;
 import com.cdoframework.cdolib.database.xsd.BigTableGroup;
 import com.cdoframework.cdolib.database.xsd.BlockType;
@@ -122,7 +123,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 			String strValueId=returnObject.getReturnItem(j).getValueId();
 			strFieldId=strFieldId.substring(1,strFieldId.length()-1);
 			strValueId=strValueId.substring(1,strValueId.length()-1);
-			ObjectExt object=null;
+			Field object=null;
 			try
 			{
 				object=cdoRequest.getObject(strValueId);
@@ -138,7 +139,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				continue;
 			}
 			int nType=object.getType();
-			Object objValue=object.getValue();
+			Object objValue=object.getObjectValue();
 			switch(nType)
 			{
 				case ObjectExt.BYTE_TYPE:
@@ -2112,7 +2113,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 					dataAccess.dataEngine.executeQueryRecord(dataAccess.conn, strSQL, cdoRequest, cdoResponse);
 //					nCount+=cdoResponse.getValueAt(0).getInteger();
 					if(cdoResponse.iterator().hasNext()){
-						nCount+=cdoResponse.iterator().next().getValue().getInteger();
+						nCount+=new Integer(cdoResponse.iterator().next().getValue().getObjectValue()+"").intValue();
 					}					
 				}
 				finally

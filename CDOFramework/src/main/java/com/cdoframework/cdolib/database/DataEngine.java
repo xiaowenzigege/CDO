@@ -18,6 +18,7 @@ import java.util.Properties;
 
 
 
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.log4j.Logger;
 
@@ -29,6 +30,7 @@ import com.cdoframework.cdolib.base.Time;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.CDOArrayField;
+import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.database.xsd.BlockType;
 import com.cdoframework.cdolib.database.xsd.BlockTypeItem;
 import com.cdoframework.cdolib.database.xsd.Delete;
@@ -372,8 +374,8 @@ public class DataEngine implements IDataEngine
 			for(int i=0;i<nParaCount;i++)
 			{
 				String strParaName=anaSQL.alParaName.get(i);
-				ObjectExt object=cdoRequest.getObject(strParaName);
-				Object objValue=object.getValue();
+				Field  object=cdoRequest.getObject(strParaName);
+				Object objValue=object.getObjectValue();
 				if(objValue==null){
 					ps.setNull(i+1,java.sql.Types.NULL);
 					continue;
@@ -473,9 +475,8 @@ public class DataEngine implements IDataEngine
 		if (log.isDebugEnabled()) {
 			StringBuilder sb = new StringBuilder("\n{");
 			for (int i = 0; i < anaSQL.alParaName.size(); i++) {
-				ObjectExt object = cdoRequest.getObject(anaSQL.alParaName
-						.get(i));
-				Object objValue = object.getValue();
+				Field object = cdoRequest.getObject(anaSQL.alParaName.get(i));
+				Object objValue = object.getObjectValue();
 				int nType = object.getType();
 				sb.append(nType==ObjectExt.BYTE_ARRAY_TYPE?new String((byte[]) objValue):objValue);
 				sb.append(',');
@@ -1181,7 +1182,7 @@ public class DataEngine implements IDataEngine
 			String strValueId=returnObject.getReturnItem(j).getValueId();
 			strFieldId=strFieldId.substring(1,strFieldId.length()-1);
 			strValueId=strValueId.substring(1,strValueId.length()-1);
-			ObjectExt object=null;
+			Field object=null;
 			try
 			{
 				object=cdoRequest.getObject(strValueId);
@@ -1904,7 +1905,8 @@ public class DataEngine implements IDataEngine
 			// 输出
 			if(cdoRecord.exists(strsFieldName[0]))
 			{
-				return cdoRecord.getObject(strsFieldName[0]);
+//				return cdoRecord.getObject(strsFieldName[0]);
+				return new ObjectExt(cdoRecord.getObject(strsFieldName[0]).getType(), cdoRecord.getObject(strsFieldName[0]).getObjectValue());
 			}
 			else
 			{

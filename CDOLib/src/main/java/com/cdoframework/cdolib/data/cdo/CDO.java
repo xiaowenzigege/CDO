@@ -1746,11 +1746,11 @@ public class CDO implements Serializable
     	return CDO.fromXML(strXML);
     }
     
-    /**
-    public void setObjectExt(String strFieldId, ObjectExt object) throws RuntimeException
+    
+    public void setObjectExt(String strFieldId, Field object) throws RuntimeException
     {
   		int nType=object.getType();
-		Object objValue=object.getValue();
+		Object objValue=object.getObjectValue();
 		switch(nType)
 		{
 			case DataType.BYTE_TYPE:
@@ -1859,7 +1859,7 @@ public class CDO implements Serializable
 			}
 		}
     }
-	*/
+	
 	public void remove(String key)
 	{
 		Field objExt=hmItem.remove(key);
