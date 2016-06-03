@@ -48,6 +48,8 @@ import com.cdo.util.resource.GlobalResource;
 import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
+import com.cdoframework.cdolib.data.cdo.Field;
+import com.cdoframework.cdolib.data.cdo.FileField;
 /**
  * 
  * @author KenelLiu
@@ -255,16 +257,17 @@ public abstract class CDOServlet extends HttpServlet
 		
 		List<File> listFiles=new ArrayList<File>();
 		if(cdoResponse!=null && cdoResponse.getSerialFileCount()>0){
-    		 Iterator<Map.Entry<String,ObjectExt>> it=cdoResponse.entrySet().iterator();    		 
+    		 Iterator<Map.Entry<String,Field>> it=cdoResponse.entrySet().iterator();    		 
     		 while(it.hasNext()){
-    			 Map.Entry<String,ObjectExt> entry=it.next();
-    			 ObjectExt objExt=entry.getValue();
-    			 if(objExt.getType()==ObjectExt.FILE_TYPE){    				
+    			 Map.Entry<String,Field> entry=it.next();
+    			 Field objExt=entry.getValue();
+    			 if(objExt.getType()==ObjectExt.FILE_TYPE){  
+    				 FileField f=(FileField)objExt;
     				 sbFieldName.append(","+entry.getKey());
-    				 sbLength.append(","+objExt.getFile().length());
-    				 sbFileName.append(","+objExt.getFile().getName());
-    				 totalLen=totalLen+objExt.getFile().length();
-    				 listFiles.add(objExt.getFile());
+    				 sbLength.append(","+f.getValue().length());
+    				 sbFileName.append(","+f.getValue().getName());
+    				 totalLen=totalLen+f.getValue().length();
+    				 listFiles.add(f.getValue());
     			 }
     		 }	    		
 		}
