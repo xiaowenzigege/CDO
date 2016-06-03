@@ -12,11 +12,11 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
  * @author Frank
+ * modify by @author KenelLiu 
  */
 public class FloatArrayField extends ArrayFieldImpl
 {
@@ -121,15 +121,6 @@ public class FloatArrayField extends ArrayFieldImpl
 		return new Float(fsValue[nIndex]);
 	}
 
-	public ObjectExt getObject()
-	{
-		return new ObjectExt(this.getType(),fsValue);
-	}
-
-	public ObjectExt getObjectAt(int nIndex)
-	{
-		return new ObjectExt(ValueField.FLOAT_TYPE,fsValue[nIndex]);
-	}
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
@@ -145,7 +136,7 @@ public class FloatArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.FLOAT_ARRAY_TYPE);
+		setType(DataType.FLOAT_ARRAY_TYPE);
 		
 		this.fsValue	=new float[0];
 	}
@@ -156,7 +147,7 @@ public class FloatArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.FLOAT_ARRAY_TYPE);
+		setType(DataType.FLOAT_ARRAY_TYPE);
 		
 		if(fValue==null)
 		{

@@ -11,12 +11,12 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
-import com.cdoframework.cdolib.base.ObjectExt;
 
 /**
  * @author Frank
+ * modify by @author KenelLiu 
  */
-public interface ArrayField extends ValueField
+public interface ArrayField extends Field
 {
 
 	//内部类,所有内部类在此声明----------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ public interface ArrayField extends ValueField
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 	
 	public Object getObjectValueAt(int nIndex);
-	public ObjectExt getObjectAt(int nIndex);
+	
 	public int getLength();
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------

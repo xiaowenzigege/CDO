@@ -25,13 +25,14 @@ import java.util.Random;
 import org.apache.log4j.Logger;
 
 import com.cdoframework.cdolib.base.CycleList;
-import com.cdoframework.cdolib.base.ObjectExt;
+import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.SortedSet;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.CDOArrayField;
 import com.cdoframework.cdolib.data.cdo.Field;
+import com.cdoframework.cdolib.data.cdo.IntegerField;
 import com.cdoframework.cdolib.database.xsd.BigTable;
 import com.cdoframework.cdolib.database.xsd.BigTableGroup;
 import com.cdoframework.cdolib.database.xsd.BlockType;
@@ -142,67 +143,67 @@ public class BigTableEngine// extends ParallelTaskProcessor
 			Object objValue=object.getObjectValue();
 			switch(nType)
 			{
-				case ObjectExt.BYTE_TYPE:
+				case DataType.BYTE_TYPE:
 				{
 					cdoResponse.setByteValue(strFieldId,((Byte)objValue).byteValue());
 					break;
 				}
-				case ObjectExt.SHORT_TYPE:
+				case DataType.SHORT_TYPE:
 				{
 					cdoResponse.setShortValue(strFieldId,((Short)objValue).shortValue());
 					break;
 				}
-				case ObjectExt.INTEGER_TYPE:
+				case DataType.INTEGER_TYPE:
 				{
 					cdoResponse.setIntegerValue(strFieldId,((Integer)objValue).intValue());
 					break;
 				}
-				case ObjectExt.LONG_TYPE:
+				case DataType.LONG_TYPE:
 				{
 					cdoResponse.setLongValue(strFieldId,((Long)objValue).longValue());
 					break;
 				}
-				case ObjectExt.FLOAT_TYPE:
+				case DataType.FLOAT_TYPE:
 				{
 					cdoResponse.setFloatValue(strFieldId,((Float)objValue).floatValue());
 					break;
 				}
-				case ObjectExt.DOUBLE_TYPE:
+				case DataType.DOUBLE_TYPE:
 				{
 					cdoResponse.setDoubleValue(strFieldId,((Double)objValue).doubleValue());
 					break;
 				}
-				case ObjectExt.STRING_TYPE:
+				case DataType.STRING_TYPE:
 				{
 					cdoResponse.setStringValue(strFieldId,((String)objValue));
 					break;
 				}
-				case ObjectExt.DATE_TYPE:
+				case DataType.DATE_TYPE:
 				{
 					cdoResponse.setDateValue(strFieldId,((String)objValue));
 					break;
 				}
-				case ObjectExt.TIME_TYPE:
+				case DataType.TIME_TYPE:
 				{
 					cdoResponse.setTimeValue(strFieldId,((String)objValue));
 					break;
 				}
-				case ObjectExt.DATETIME_TYPE:
+				case DataType.DATETIME_TYPE:
 				{
 					cdoResponse.setDateTimeValue(strFieldId,((String)objValue));
 					break;
 				}
-				case ObjectExt.BYTE_ARRAY_TYPE:
+				case DataType.BYTE_ARRAY_TYPE:
 				{
 					cdoResponse.setByteArrayValue(strFieldId,((byte[])objValue));
 					break;
 				}
-				case ObjectExt.CDO_TYPE:
+				case DataType.CDO_TYPE:
 				{
 					cdoResponse.setCDOValue(strFieldId,(CDO)objValue);
 					break;
 				}
-				case ObjectExt.CDO_ARRAY_TYPE:
+				case DataType.CDO_ARRAY_TYPE:
 				{
 					cdoResponse.setCDOArrayValue(strFieldId,(CDO[])objValue);
 					break;
@@ -2044,7 +2045,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	 * @return
 	 * @throws Exception
 	 */
-	protected ObjectExt executeQueryFieldExt(HashMap<String,CycleList<IDataEngine>> hmDataGroup,DataService dataService,HashMap<String,DataAccess> hmDataAccessUsed,SQLTrans trans,String strSQL,CDO cdoRequest) throws SQLException,IOException
+	protected Field executeQueryFieldExt(HashMap<String,CycleList<IDataEngine>> hmDataGroup,DataService dataService,HashMap<String,DataAccess> hmDataAccessUsed,SQLTrans trans,String strSQL,CDO cdoRequest) throws SQLException,IOException
 	{
 		//分析原先的SQL语句
 		ParsedSQL parsedSQL=this.parseSourceSQL(strSQL);
@@ -2086,7 +2087,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 			long[] lIds = getIds(parsedSQL, strsIds);
 
 			int nCount=0;
-			ObjectExt objExt=new ObjectExt();
+//			ObjectExt objExt=new ObjectExt();
 			for(int i=0;i<lIds.length;i++)
 			{
 				//获取连接
@@ -2110,20 +2111,18 @@ public class BigTableEngine// extends ParallelTaskProcessor
 					
 					//执行数据库操作
 					CDO cdoResponse = new CDO();
-					dataAccess.dataEngine.executeQueryRecord(dataAccess.conn, strSQL, cdoRequest, cdoResponse);
-//					nCount+=cdoResponse.getValueAt(0).getInteger();
-					if(cdoResponse.iterator().hasNext()){
-						nCount+=new Integer(cdoResponse.iterator().next().getValue().getObjectValue()+"").intValue();
-					}					
+					int count=dataAccess.dataEngine.executeQueryRecord(dataAccess.conn, strSQL, cdoRequest, cdoResponse);
+					nCount+=count;
+						
 				}
 				finally
 				{
 					
 				}
 			}
-			objExt.setValue(new Integer(nCount));
-			objExt.setType(ObjectExt.INTEGER_TYPE);
-			return objExt;
+//			objExt.setValue(new Integer(nCount));
+//			objExt.setType(DataType.INTEGER_TYPE);
+			return new IntegerField(nCount);
 		}
 		
 		//获取连接
@@ -2151,7 +2150,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		}
 
 		//未提供Id，遍历数据库表读取记录
-		ObjectExt objExt=null;
+		Field objExt=null;
 		if(parsedSQL.strCountFieldName==null)
 		{//一般性记录
 			int nGroupCount=bigTable.getGroupCount();
@@ -2225,17 +2224,17 @@ public class BigTableEngine// extends ParallelTaskProcessor
 					{
 						switch(objExt.getType())
 						{
-							case ObjectExt.BYTE_TYPE:
-								nCount+=(Byte)objExt.getValue();
+							case DataType.BYTE_TYPE:
+								nCount+=(Byte)objExt.getObjectValue();
 								break;
-							case ObjectExt.SHORT_TYPE:
-								nCount+=(Short)objExt.getValue();
+							case DataType.SHORT_TYPE:
+								nCount+=(Short)objExt.getObjectValue();
 								break;
-							case ObjectExt.INTEGER_TYPE:
-								nCount+=(Integer)objExt.getValue();
+							case DataType.INTEGER_TYPE:
+								nCount+=(Integer)objExt.getObjectValue();
 								break;
-							case ObjectExt.LONG_TYPE:
-								nCount+=(Long)objExt.getValue();
+							case DataType.LONG_TYPE:
+								nCount+=(Long)objExt.getObjectValue();
 								break;
 							default:
 								throw new SQLException("Invaid bigtable SQL: "+strSQL);
@@ -2254,10 +2253,10 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				}
 			}
 		}
-		objExt.setValue(new Integer(nCount));
-		objExt.setType(ObjectExt.INTEGER_TYPE);
+//		objExt.setValue(new Integer(nCount));
+//		objExt.setType(DataType.INTEGER_TYPE);
 		
-		return objExt;
+		return new IntegerField(nCount);
 	}
 
 	/**
@@ -2541,69 +2540,69 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				String strSQL=strbSQL.toString();
 
 				// 执行SQL
-				ObjectExt objFieldValue=this.executeQueryFieldExt(hmDataGroup,dataService,hmDataAccessUsed,trans,strSQL,cdoRequest);
+				Field objFieldValue=this.executeQueryFieldExt(hmDataGroup,dataService,hmDataAccessUsed,trans,strSQL,cdoRequest);
 				if(objFieldValue==null)
 				{
 					continue;
 				}
 				int nType=objFieldValue.getType();
-				Object objValue=objFieldValue.getValue();
+				Object objValue=objFieldValue.getObjectValue();
 
 				String strOutputId=selectField.getOutputId();
 				strOutputId=strOutputId.substring(1,strOutputId.length()-1);
 				switch(nType)
 				{
-					case ObjectExt.BYTE_TYPE:
+					case DataType.BYTE_TYPE:
 					{
 						cdoRequest.setByteValue(strOutputId,((Byte)objValue).byteValue());
 						break;
 					}
-					case ObjectExt.SHORT_TYPE:
+					case DataType.SHORT_TYPE:
 					{
 						cdoRequest.setShortValue(strOutputId,((Short)objValue).shortValue());
 						break;
 					}
-					case ObjectExt.INTEGER_TYPE:
+					case DataType.INTEGER_TYPE:
 					{
 						cdoRequest.setIntegerValue(strOutputId,((Integer)objValue).intValue());
 						break;
 					}
-					case ObjectExt.LONG_TYPE:
+					case DataType.LONG_TYPE:
 					{
 						cdoRequest.setLongValue(strOutputId,((Long)objValue).longValue());
 						break;
 					}
-					case ObjectExt.FLOAT_TYPE:
+					case DataType.FLOAT_TYPE:
 					{
 						cdoRequest.setFloatValue(strOutputId,((Float)objValue).floatValue());
 						break;
 					}
-					case ObjectExt.DOUBLE_TYPE:
+					case DataType.DOUBLE_TYPE:
 					{
 						cdoRequest.setDoubleValue(strOutputId,((Double)objValue).doubleValue());
 						break;
 					}
-					case ObjectExt.STRING_TYPE:
+					case DataType.STRING_TYPE:
 					{
 						cdoRequest.setStringValue(strOutputId,((String)objValue));
 						break;
 					}
-					case ObjectExt.DATE_TYPE:
+					case DataType.DATE_TYPE:
 					{
 						cdoRequest.setDateValue(strOutputId,((String)objValue));
 						break;
 					}
-					case ObjectExt.TIME_TYPE:
+					case DataType.TIME_TYPE:
 					{
 						cdoRequest.setTimeValue(strOutputId,((String)objValue));
 						break;
 					}
-					case ObjectExt.DATETIME_TYPE:
+					case DataType.DATETIME_TYPE:
 					{
 						cdoRequest.setDateTimeValue(strOutputId,((String)objValue));
 						break;
 					}
-					case ObjectExt.BYTE_ARRAY_TYPE:
+					case DataType.BYTE_ARRAY_TYPE:
 					{
 						cdoRequest.setByteArrayValue(strOutputId,((byte[])objValue));
 						break;

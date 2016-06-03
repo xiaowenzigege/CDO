@@ -12,11 +12,32 @@ import org.apache.log4j.Logger;
 
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.DateTime;
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.Utility;
+import com.cdoframework.cdolib.data.cdo.BooleanArrayField;
+import com.cdoframework.cdolib.data.cdo.BooleanField;
 import com.cdoframework.cdolib.data.cdo.CDO;
+import com.cdoframework.cdolib.data.cdo.CDOArrayField;
+import com.cdoframework.cdolib.data.cdo.CDOField;
+import com.cdoframework.cdolib.data.cdo.DateArrayField;
+import com.cdoframework.cdolib.data.cdo.DateField;
+import com.cdoframework.cdolib.data.cdo.DateTimeArrayField;
+import com.cdoframework.cdolib.data.cdo.DateTimeField;
+import com.cdoframework.cdolib.data.cdo.DoubleArrayField;
+import com.cdoframework.cdolib.data.cdo.DoubleField;
 import com.cdoframework.cdolib.data.cdo.Field;
+import com.cdoframework.cdolib.data.cdo.FloatArrayField;
+import com.cdoframework.cdolib.data.cdo.FloatField;
+import com.cdoframework.cdolib.data.cdo.IntegerArrayField;
+import com.cdoframework.cdolib.data.cdo.IntegerField;
+import com.cdoframework.cdolib.data.cdo.LongArrayField;
+import com.cdoframework.cdolib.data.cdo.LongField;
+import com.cdoframework.cdolib.data.cdo.ShortArrayField;
+import com.cdoframework.cdolib.data.cdo.ShortField;
+import com.cdoframework.cdolib.data.cdo.StringArrayField;
+import com.cdoframework.cdolib.data.cdo.StringField;
+import com.cdoframework.cdolib.data.cdo.TimeArrayField;
+import com.cdoframework.cdolib.data.cdo.TimeField;
 import com.cdoframework.cdolib.database.xsd.Add;
 import com.cdoframework.cdolib.database.xsd.AddField;
 import com.cdoframework.cdolib.database.xsd.CollectionNameType;
@@ -355,8 +376,8 @@ public class NoSQLUtil
 			}
 //			ObjectExt objectExt = cdos[0].getObjectAt(0);
 			 Field  cdoField= cdos[0].iterator().next().getValue();
-			 ObjectExt objectExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
-			JsonUtil4NoSQL.setCDOValue(cdoRequest, objectExt.getType(), key, objectExt.getValue());
+//			 ObjectExt objectExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
+			JsonUtil4NoSQL.setCDOValue(cdoRequest, cdoField.getType(), key, cdoField.getObjectValue());
 		} 
 		else
 		{
@@ -781,7 +802,7 @@ public class NoSQLUtil
 		// 操作符
 		CriteriaTypeOperatorType operatType = creteriaType.getOperator();
 		// 值对象
-		ObjectExt valueObject = null;
+		Field valueObject = null;
 		// 根据操作符来判断生成查询条件,有的条件不需要关心value和type
 		switch (operatType)
 		{
@@ -791,7 +812,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(fieldName, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue()));
+			basicDBObject.put(fieldName, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue()));
 			break;
 		case VALUE_1:// !=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -799,7 +820,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.NE, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue())));
+			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.NE, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue())));
 			break;
 		case VALUE_2:// >
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType,fieldName, isValueRequired);
@@ -807,7 +828,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.GT, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue())));
+			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.GT, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue())));
 			break;
 		case VALUE_3:// >=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType,fieldName, isValueRequired);
@@ -815,7 +836,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.GTE, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue())));
+			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.GTE, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue())));
 			break;
 		case VALUE_4:// <
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -823,7 +844,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.LT, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue())));
+			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.LT, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue())));
 			break;
 		case VALUE_5:// <=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -831,7 +852,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.LTE,Utility.parseObjectValue(valueObject.getType(), valueObject.getValue())));
+			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.LTE,Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue())));
 			break;
 		case VALUE_6:// ISNULL
 			basicDBObject.put(fieldName, new BasicDBObject(INoSQLDataEngine.FIND_TYPE, INoSQLDataEngine.TYPE_NULL));
@@ -853,7 +874,7 @@ public class NoSQLUtil
 			}
 			if (valueObject != null)
 			{
-				Pattern pattern = Pattern.compile("^" + Function.FormatTextForMongodb(valueObject.getValue().toString()) + ".*", Pattern.CASE_INSENSITIVE);
+				Pattern pattern = Pattern.compile("^" + Function.FormatTextForMongodb(valueObject.getObjectValue().toString()) + ".*", Pattern.CASE_INSENSITIVE);
 				basicDBObject.put(fieldName, pattern);
 			}
 			break;
@@ -890,7 +911,7 @@ public class NoSQLUtil
 			}
 			if (valueObject != null)
 			{
-				Pattern pattern = Pattern.compile(".*" + Function.FormatTextForMongodb(valueObject.getValue().toString()) + ".*", Pattern.CASE_INSENSITIVE);
+				Pattern pattern = Pattern.compile(".*" + Function.FormatTextForMongodb(valueObject.getObjectValue().toString()) + ".*", Pattern.CASE_INSENSITIVE);
 				basicDBObject.put(fieldName, pattern);
 			}
 			break;
@@ -902,7 +923,7 @@ public class NoSQLUtil
 			}
 			if (valueObject != null)
 			{
-				Pattern pattern = Pattern.compile(".*" + Function.FormatTextForMongodb(valueObject.getValue().toString()) + "$", Pattern.CASE_INSENSITIVE);
+				Pattern pattern = Pattern.compile(".*" + Function.FormatTextForMongodb(valueObject.getObjectValue().toString()) + "$", Pattern.CASE_INSENSITIVE);
 				basicDBObject.put(fieldName, pattern);
 			}
 			break;
@@ -925,7 +946,7 @@ public class NoSQLUtil
 		// 操作符
 		CriteriaTypeOperatorType operatType = creteriaType.getOperator();
 		// 值对象
-		ObjectExt valueObject = null;
+		Field valueObject = null;
 		// 根据操作符来判断生成查询条件,有的条件不需要关心value和type
 		switch (operatType)
 		{
@@ -937,7 +958,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(QueryOperators.NE, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue()));
+			basicDBObject.put(QueryOperators.NE, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue()));
 			break;
 		case VALUE_2:// >
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -945,7 +966,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(QueryOperators.GT, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue()));
+			basicDBObject.put(QueryOperators.GT, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue()));
 			break;
 		case VALUE_3:// >=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -953,7 +974,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(QueryOperators.GTE, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue()));
+			basicDBObject.put(QueryOperators.GTE, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue()));
 			break;
 		case VALUE_4:// <
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -961,7 +982,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(QueryOperators.LT, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue()));
+			basicDBObject.put(QueryOperators.LT, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue()));
 			break;
 		case VALUE_5:// <=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -969,7 +990,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(QueryOperators.LTE, Utility.parseObjectValue(valueObject.getType(), valueObject.getValue()));
+			basicDBObject.put(QueryOperators.LTE, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue()));
 			break;
 		case VALUE_6:// ISNULL
 			throw new RuntimeException(" Creteria Operator Type ISNULL is not unSupported for multi-criteria");
@@ -979,7 +1000,7 @@ public class NoSQLUtil
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
 			if (valueObject != null)
 			{
-				Pattern pattern = Pattern.compile("^" + Function.FormatTextForMongodb(valueObject.getValue().toString()) + ".*", Pattern.CASE_INSENSITIVE);
+				Pattern pattern = Pattern.compile("^" + Function.FormatTextForMongodb(valueObject.getObjectValue().toString()) + ".*", Pattern.CASE_INSENSITIVE);
 				basicDBObject.put(INoSQLDataEngine.FIND_REGEX, pattern);
 			}
 			break;
@@ -1066,9 +1087,9 @@ public class NoSQLUtil
 	 * @param isValueRequired
 	 * @return
 	 */
-	private static ObjectExt parseCreteriaTypeValue(CDO cdoRequest, CriteriaType creteriaType, String fieldName, boolean isValueRequired)
+	private static Field parseCreteriaTypeValue(CDO cdoRequest, CriteriaType creteriaType, String fieldName, boolean isValueRequired)
 	{
-		ObjectExt result = null;
+		Field result = null;
 		// 值类型
 		CriteriaTypeTypeType criteriaType = creteriaType.getType();// 配置的类型
 		int nDataType = DataType.NONE_TYPE;
@@ -1092,15 +1113,16 @@ public class NoSQLUtil
 			if (cdoRequest.exists(strKey))
 			{
 				Field field = cdoRequest.getObject(strKey);
-				ObjectExt obj=new ObjectExt(field.getType(), field.getObjectValue());
-				if (nDataType != DataType.NONE_TYPE)
-				{
-					result = getObjectExt(nDataType, obj);
-				}
-				else
-				{
-					result = new ObjectExt(obj.getType(), obj.getObjectValue());
-				}
+//				ObjectExt obj=new ObjectExt(field.getType(), field.getObjectValue());
+//				if (nDataType != DataType.NONE_TYPE)
+//				{
+//					result = getObjectExt(nDataType, obj);
+//				}
+//				else
+//				{
+//					result = new ObjectExt(obj.getType(), obj.getObjectValue());
+//				}
+				return field;
 			}
 			else
 			{
@@ -1125,56 +1147,58 @@ public class NoSQLUtil
 		return result;
 	}
 
-	private static ObjectExt getObjectExt(int cdoDataType, ObjectExt obj)
+	
+	private static Field getObject(int cdoDataType, String obj)
 	{
+		Field result =null;
 		switch (cdoDataType)
 		{
+
 		case DataType.STRING_TYPE:
-		case DataType.BOOLEAN_TYPE:
+			return new StringField("",obj);			
 		case DataType.DATE_TYPE:
-		case DataType.DATE_ARRAY_TYPE:
-		case DataType.DATETIME_ARRAY_TYPE:
+			return new DateField("",obj);
 		case DataType.DATETIME_TYPE:
-		case DataType.DOUBLE_TYPE:
-		case DataType.FLOAT_TYPE:
-		case DataType.INTEGER_TYPE:
-		case DataType.LONG_TYPE:
-		case DataType.SHORT_TYPE:
-		case DataType.TIME_ARRAY_TYPE:
+			return new DateTimeField("",obj);			
 		case DataType.TIME_TYPE:
-			return obj;
+			return new TimeField("",obj);			
+		case DataType.BOOLEAN_TYPE:
+			return new BooleanField(new Boolean(obj));
+			
+		case DataType.INTEGER_TYPE:
+			return new IntegerField(new Integer(obj));		
+		case DataType.LONG_TYPE:
+			return new LongField(new Long(obj));
+		case DataType.SHORT_TYPE:
+			return new ShortField(new Short(obj));			
+		case DataType.DOUBLE_TYPE:
+			return new DoubleField(new Double(obj));
+		case DataType.FLOAT_TYPE:
+			return new FloatField(new Float(obj));
+
 		case DataType.BOOLEAN_ARRAY_TYPE:
-			obj.setValue(Utility.parseBooleanArrayValue(obj.getValue()));
-			return obj;
+			return new BooleanArrayField("", Utility.parseBooleanArrayValue(obj));
 		case DataType.SHORT_ARRAY_TYPE:
-			obj.setValue(Utility.parseShortArrayValue(obj.getValue()));
-			return obj;
-		case DataType.INTEGER_ARRAY_TYPE:
-			obj.setValue(Utility.parseIntegerArrayValue(obj.getValue()));
-			return obj;
+			return new ShortArrayField("", Utility.parseShortArrayValue(obj));
+		case DataType.INTEGER_ARRAY_TYPE:			
+			return new IntegerArrayField("", Utility.parseIntegerArrayValue(obj));
 		case DataType.LONG_ARRAY_TYPE:
-			obj.setValue(Utility.parseLongArrayValue(obj.getValue()));
-			return obj;
+			return new LongArrayField("", Utility.parseLongArrayValue(obj));
 		case DataType.FLOAT_ARRAY_TYPE:
-			obj.setValue(Utility.parseFloatArrayValue(obj.getValue()));
-			return obj;
+			return new FloatArrayField("", Utility.parseFloatArrayValue(obj));
 		case DataType.DOUBLE_ARRAY_TYPE:
-			obj.setValue(Utility.parseDoubleArrayValue(obj.getValue()));
-			return obj;
+			return new DoubleArrayField("", Utility.parseDoubleArrayValue(obj));
 		case DataType.STRING_ARRAY_TYPE:
-			obj.setValue(Utility.parseStringArrayValue(obj.getValue()));
-			return obj;
+			return new StringArrayField("", Utility.parseStringArrayValue(obj));
+		case DataType.TIME_ARRAY_TYPE:
+			return new TimeArrayField("",obj.split(","));			
+		case DataType.DATE_ARRAY_TYPE:
+			return new DateArrayField("",obj.split(","));			
+		case DataType.DATETIME_ARRAY_TYPE:
+			return new DateTimeArrayField("",obj.split(","));			
 		default:
 			throw new RuntimeException(" Creteria type is not unSupported! ");
-		}
-	}
-
-	private static ObjectExt getObject(int cdoDataType, Object obj)
-	{
-		ObjectExt result = new ObjectExt();
-		result.setType(cdoDataType);
-		result.setValue(Utility.parseObjectValue(cdoDataType, obj));
-		return result;
+		}		
 	}
 
 	// 操作相关
@@ -1369,12 +1393,12 @@ public class NoSQLUtil
 				}
 				 Field cdoField = cdoRequest.getObject(strValue);
 				
-				ObjectExt objExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
+//				ObjectExt objExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
 				if (nType == DataType.NONE_TYPE)
 				{
-					nType = objExt.getType();
+					nType = cdoField.getType();
 				}
-				setVarDBObject(basicDBObject, strFieldName, nType, objExt);
+				setVarDBObject(basicDBObject, strFieldName, nType, cdoField);
 			}
 			else
 			{
@@ -1473,34 +1497,34 @@ public class NoSQLUtil
 	private static void setVarDBObject(BasicDBObject basicDBObject, String fieldName, int nDataType, CDO cdoRequest, String key) throws Exception
 	{
 		Field cdoField = cdoRequest.getObject(key);
-		ObjectExt objExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
-		setVarDBObject(basicDBObject, fieldName, nDataType, objExt);
+//		ObjectExt objExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
+		setVarDBObject(basicDBObject, fieldName, nDataType, cdoField);
 	}
 
-	private static void setVarDBObject(BasicDBObject basicDBObject, String fieldName, int nDataType, ObjectExt objExt) throws Exception
+	private static void setVarDBObject(BasicDBObject basicDBObject, String fieldName, int nDataType, Field objExt) throws Exception
 	{
 		switch (nDataType)
 		{
 		case DataType.STRING_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, objExt.getObjectValue());
 			break;
 		case DataType.LONG_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, objExt.getObjectValue());
 			break;
 		case DataType.INTEGER_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, objExt.getObjectValue());
 			break;
 		case DataType.DATETIME_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, objExt.getObjectValue());
 			break;
 		case DataType.CDO_TYPE:
-			CDO cdo = (CDO) objExt.getValue();
+			CDO cdo = ((CDOField)objExt).getValue();
 			BasicDBObject subDBObject = new BasicDBObject();
 			setCDODBObject(subDBObject, cdo);
 			basicDBObject.put(fieldName, subDBObject);
 			break;
 		case DataType.CDO_ARRAY_TYPE:
-			CDO[] cdoArr = (CDO[]) objExt.getValue();
+			CDO[] cdoArr = ((CDOArrayField) objExt).getValue();
 			BasicDBObject[] subDBObjectArr = new BasicDBObject[cdoArr.length];
 			for (int i = 0; i < cdoArr.length; i++)
 			{
@@ -1510,52 +1534,52 @@ public class NoSQLUtil
 			basicDBObject.put(fieldName, subDBObjectArr);
 			break;
 		case DataType.BOOLEAN_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, objExt.getObjectValue());
 			break;
 		case DataType.BOOLEAN_ARRAY_TYPE:
-			basicDBObject.put(fieldName, objExt.getBlooeanObjArray());
+			basicDBObject.put(fieldName, ((BooleanArrayField)objExt).getValue());
 			break;
 		case DataType.DATE_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, ((DateField)objExt).getValue());
 			break;
 		case DataType.DATE_ARRAY_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, ((DateArrayField)objExt).getValue());
 			break;
 		case DataType.DATETIME_ARRAY_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, ((DateTimeArrayField)objExt).getValue());
 			break;
 		case DataType.DOUBLE_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, ((DoubleField)objExt).getValue());
 			break;
 		case DataType.DOUBLE_ARRAY_TYPE:
-			basicDBObject.put(fieldName, objExt.getDoubleObjArray());
+			basicDBObject.put(fieldName, ((DoubleArrayField)objExt).getValue());
 			break;
 		case DataType.FLOAT_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, ((FloatField)objExt).getValue());
 			break;
 		case DataType.FLOAT_ARRAY_TYPE:
-			basicDBObject.put(fieldName, objExt.getFloatObjArray());
+			basicDBObject.put(fieldName, ((FloatArrayField)objExt).getValue());
 			break;
 		case DataType.INTEGER_ARRAY_TYPE:
-			basicDBObject.put(fieldName, objExt.getIntegerObjArray());
+			basicDBObject.put(fieldName, ((IntegerArrayField)objExt).getValue());
 			break;
 		case DataType.LONG_ARRAY_TYPE:
-			basicDBObject.put(fieldName, objExt.getLongObjArray());
+			basicDBObject.put(fieldName, ((LongArrayField)objExt).getValue());
 			break;
 		case DataType.SHORT_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, ((ShortField)objExt).getValue());
 			break;
 		case DataType.SHORT_ARRAY_TYPE:
-			basicDBObject.put(fieldName, objExt.getShortObjArray());
+			basicDBObject.put(fieldName, ((ShortArrayField)objExt).getValue());
 			break;
 		case DataType.STRING_ARRAY_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, ((StringArrayField)objExt).getValue());
 			break;
 		case DataType.TIME_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, ((TimeField)objExt).getValue());
 			break;
 		case DataType.TIME_ARRAY_TYPE:
-			basicDBObject.put(fieldName, objExt.getValue());
+			basicDBObject.put(fieldName, ((TimeArrayField)objExt).getValue());
 			break;
 		case DataType.BYTE_TYPE:// TODO
 			break;
@@ -1754,12 +1778,13 @@ public class NoSQLUtil
 					}
 				}
 				Field cdoField = cdoRequest.getObject(strValue);
-				ObjectExt objExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
+//				ObjectExt objExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
 				if (nType == DataType.NONE_TYPE)
 				{
-					nType = objExt.getType();
+//					nType = objExt.getType();
+					nType=cdoField.getType();
 				}
-				setVarDBObject(subObject, strFieldName, nType, objExt);
+				setVarDBObject(subObject, strFieldName, nType, cdoField);
 			}
 			else
 			{

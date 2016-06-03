@@ -38,10 +38,10 @@ import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Properties;
 
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.CDOArrayField;
+import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.database.xsd.SQLTrans;
 
 public interface IDataEngine
@@ -179,7 +179,7 @@ public interface IDataEngine
 	 * @return
 	 * @throws Exception
 	 */
-	public ObjectExt executeQueryFieldExt(Connection conn,String strSQL,CDO cdoRequest) throws SQLException,IOException;
+	public Field executeQueryFieldExt(Connection conn,String strSQL,CDO cdoRequest) throws SQLException,IOException;
 
 	/**
 	 * 通过一个传入的数据库连接查询并输出第一条记录

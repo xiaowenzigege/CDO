@@ -15,7 +15,6 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.util.Function;
 
@@ -90,10 +89,7 @@ public class StringField extends ValueFieldImpl
 		return strValue;
 	}
 
-	public ObjectExt getObject()
-	{
-		return new ObjectExt(this.getType(),strValue);
-	}
+
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
@@ -109,7 +105,7 @@ public class StringField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.STRING_TYPE);
+		setType(DataType.STRING_TYPE);
 		
 		this.strValue	="";
 	}
@@ -120,7 +116,7 @@ public class StringField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.STRING_TYPE);
+		setType(DataType.STRING_TYPE);
 		
 		if(strValue==null)
 		{

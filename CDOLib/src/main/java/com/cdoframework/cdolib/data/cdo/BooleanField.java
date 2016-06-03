@@ -12,11 +12,11 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
  * @author Frank
+ * modify by @author KenelLiu 
  */
 public class BooleanField extends ValueFieldImpl
 {
@@ -79,11 +79,6 @@ public class BooleanField extends ValueFieldImpl
 		return new Boolean(bValue);
 	}
 
-	public ObjectExt getObject()
-	{
-		return new ObjectExt(this.getType(),new Boolean(bValue));
-	}
-
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
 	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------
@@ -96,7 +91,7 @@ public class BooleanField extends ValueFieldImpl
 	{
 
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
-		setType(ValueField.BOOLEAN_TYPE);
+		setType(BOOLEAN_TYPE);
 		
 		this.bValue	=false;
 	}
@@ -107,7 +102,7 @@ public class BooleanField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.BOOLEAN_TYPE);
+		setType(BOOLEAN_TYPE);
 		
 		this.bValue	=bValue;
 	}
@@ -116,7 +111,7 @@ public class BooleanField extends ValueFieldImpl
 	{
 
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系				
-		setType(ValueField.BOOLEAN_TYPE);
+		setType(BOOLEAN_TYPE);
 		
 		this.bValue	=bValue;
 	}

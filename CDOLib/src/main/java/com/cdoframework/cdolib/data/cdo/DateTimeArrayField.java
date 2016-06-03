@@ -12,11 +12,11 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
  * @author Frank
+ * modify by @author KenelLiu 
  */
 public class DateTimeArrayField extends ArrayFieldImpl
 {
@@ -135,15 +135,6 @@ public class DateTimeArrayField extends ArrayFieldImpl
 		return strsValue[nIndex];
 	}
 
-	public ObjectExt getObject()
-	{
-		return new ObjectExt(this.getType(),strsValue);
-	}
-
-	public ObjectExt getObjectAt(int nIndex)
-	{
-		return new ObjectExt(ValueField.DATETIME_TYPE,strsValue[nIndex]);
-	}
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
@@ -159,7 +150,7 @@ public class DateTimeArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.DATETIME_ARRAY_TYPE);
+		setType(DataType.DATETIME_ARRAY_TYPE);
 		
 		this.strsValue	=new String[0];
 	}
@@ -170,7 +161,7 @@ public class DateTimeArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.DATETIME_ARRAY_TYPE);
+		setType(DataType.DATETIME_ARRAY_TYPE);
 		
 		if(strsValue==null)
 		{

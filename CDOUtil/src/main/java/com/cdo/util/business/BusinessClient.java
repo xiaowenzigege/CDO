@@ -14,7 +14,7 @@ import org.apache.log4j.Logger;
 import com.cdo.util.bean.CDOHTTPResponse;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.http.HttpClient;
-import com.cdoframework.cdolib.base.ObjectExt;
+import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.Field;
@@ -87,7 +87,7 @@ public class BusinessClient implements IBusinessClient{
 		    		 while(it.hasNext()){
 		    			 Map.Entry<String,Field> entry=it.next();
 		    			 Field objExt=entry.getValue();
-		    			 if(objExt.getType()==ObjectExt.FILE_TYPE){
+		    			 if(objExt.getType()==DataType.FILE_TYPE){
 		    				 uploadFiles.put(entry.getKey(),((FileField)entry.getValue()).getValue());
 		    				 //设置普通参表示有文件上传
 		    				 headers.put(Constants.CDO.HTTP_CDO_UPLOADFILE_KEY, "true");

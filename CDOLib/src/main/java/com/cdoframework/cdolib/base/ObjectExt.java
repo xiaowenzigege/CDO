@@ -46,6 +46,7 @@ import com.cdoframework.cdolib.data.cdo.CDO;
  * Type为Object的实际类型的定义字符串，比如Byte,byte[],Date,Date[]
  * 其中Date,Time,DateTime实际为特定格式的String，但是Type不是String
  */
+@Deprecated
 public class ObjectExt implements DataType
 {
 
@@ -54,6 +55,7 @@ public class ObjectExt implements DataType
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
 
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
+	
 	private Object objValue;
 	public Object getValue()
 	{
@@ -146,8 +148,7 @@ public class ObjectExt implements DataType
 		this.nType=nType;
 	}
 	
-	public int getLength()
-	{
+	public int getLength(){
 		// fix objValue NullPointerException.
 		if(objValue == null) {
 			return 0;
@@ -202,6 +203,7 @@ public class ObjectExt implements DataType
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
+	
 	public boolean isArrayType()
 	{
 		if(this.nType>=ObjectExt.BOOLEAN_ARRAY_TYPE)
@@ -994,4 +996,5 @@ public class ObjectExt implements DataType
 		this.objValue	=object;
 		this.nType	=nType;
 	}
+	
 }

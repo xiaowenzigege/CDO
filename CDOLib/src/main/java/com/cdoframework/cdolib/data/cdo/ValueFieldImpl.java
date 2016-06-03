@@ -35,7 +35,7 @@ import com.cdoframework.cdolib.base.DataType;
 /**
  * @author Frank
  */
-public abstract class ValueFieldImpl extends FieldImpl implements ValueField
+public abstract class ValueFieldImpl extends FieldImpl implements Field
 {
 
 	//内部类,所有内部类在此声明----------------------------------------------------------------------------------

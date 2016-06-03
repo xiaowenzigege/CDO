@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 
 import com.cdoframework.cdolib.annotation.TransName;
 import com.cdoframework.cdolib.base.CycleList;
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.ThreadExt;
 import com.cdoframework.cdolib.base.Validator;

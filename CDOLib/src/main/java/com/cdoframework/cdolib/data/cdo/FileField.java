@@ -1,19 +1,8 @@
-/**
- * www.cdoforum.com 2007版权所有
- *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/CDOField.java,v 1.4 2008/03/12 10:28:13 Frank Exp $
- *
- * $Log: CDOField.java,v $
- * Revision 1.4  2008/03/12 10:28:13  Frank
- * *** empty log message ***
- *
- */
-
 package com.cdoframework.cdolib.data.cdo;
 
 import java.io.File;
 
-import com.cdoframework.cdolib.base.ObjectExt;
+import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.util.Function;
 
@@ -81,10 +70,6 @@ public class FileField extends ValueFieldImpl
 		return fileValue;
 	}
 
-	public ObjectExt getObject()
-	{
-		return new ObjectExt(this.getType(),fileValue);
-	}
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
@@ -107,7 +92,7 @@ public class FileField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.FILE_TYPE);
+		setType(DataType.FILE_TYPE);
 		
 		this.fileValue	=fileValue;
 	}

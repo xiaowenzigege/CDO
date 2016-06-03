@@ -7,7 +7,6 @@
 
 package com.cdoframework.cdolib.service.framework.transfilter.xsd;
 
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.service.framework.FrameworkUtil;

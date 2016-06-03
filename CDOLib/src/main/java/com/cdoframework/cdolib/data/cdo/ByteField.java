@@ -11,11 +11,11 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
  * @author Frank
+ * modify by @author KenelLiu 
  */
 public class ByteField extends ValueFieldImpl
 {
@@ -75,10 +75,6 @@ public class ByteField extends ValueFieldImpl
 		return new Byte(byValue);
 	}
 
-	public ObjectExt getObject()
-	{
-		return new ObjectExt(this.getType(),new Byte(byValue));
-	}
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
@@ -92,7 +88,7 @@ public class ByteField extends ValueFieldImpl
 	{
 
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
-		setType(ValueField.BYTE_TYPE);
+		setType(DataType.BYTE_TYPE);
 		
 		this.byValue	=0;
 	}
@@ -103,7 +99,7 @@ public class ByteField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.BYTE_TYPE);
+		setType(DataType.BYTE_TYPE);
 		
 		this.byValue	=byValue;
 	}
@@ -112,7 +108,7 @@ public class ByteField extends ValueFieldImpl
 	{
 
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系				
-		setType(ValueField.BYTE_TYPE);
+		setType(DataType.BYTE_TYPE);
 		
 		this.byValue	=byValue;
 	}

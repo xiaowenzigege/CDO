@@ -11,10 +11,9 @@ package com.cdoframework.cdolib.data.cdo;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import com.cdoframework.cdolib.base.DataType;
-
 /**
  * @author Frank
+ * modify by @author KenelLiu 
  */
 public abstract class ArrayFieldImpl extends ValueFieldImpl implements ArrayField
 {

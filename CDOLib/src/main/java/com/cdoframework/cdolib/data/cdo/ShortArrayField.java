@@ -17,11 +17,11 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
  * @author Frank
+ * modify by @author KenelLiu 
  */
 public class ShortArrayField extends ArrayFieldImpl
 {
@@ -66,10 +66,6 @@ public class ShortArrayField extends ArrayFieldImpl
 		return shsValue.length;
 	}
 
-	public ObjectExt getObject()
-	{
-		return new ObjectExt(this.getType(),shsValue);
-	}
 
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 
@@ -131,10 +127,7 @@ public class ShortArrayField extends ArrayFieldImpl
 		return new Short(shsValue[nIndex]);
 	}
 
-	public ObjectExt getObjectAt(int nIndex)
-	{
-		return new ObjectExt(ValueField.SHORT_TYPE,shsValue[nIndex]);
-	}
+
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
@@ -150,7 +143,7 @@ public class ShortArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.SHORT_ARRAY_TYPE);
+		setType(DataType.SHORT_ARRAY_TYPE);
 		
 		this.shsValue	=new short[0];
 	}
@@ -161,7 +154,7 @@ public class ShortArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.SHORT_ARRAY_TYPE);
+		setType(DataType.SHORT_ARRAY_TYPE);
 		
 		if(shsValue==null)
 		{

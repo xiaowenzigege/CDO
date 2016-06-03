@@ -39,17 +39,17 @@ import com.cdo.avro.schema.ArvoMain;
 import com.cdo.avro.schema.AvroCDO;
 import com.cdo.avro.schema.AvroCDODeserialize;
 import com.cdoframework.cdolib.base.DataType;
-//import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
  * @author Frank
  * modify by @author KenelLiu
  * delete 2 list[vecTerm,objectExt]
- * change map->LinkedHashMap
+ * change map<String,ObjectExt>  to  LinkedHashMap<String,Field>
  * change toXml  travel
  * add avro Serializable
  * add support file
+ 
  */
 public class CDO implements Serializable
 {
@@ -1716,12 +1716,12 @@ public class CDO implements Serializable
     }
     
   **/
-    public ValueField getField(String strFieldId)
+    public Field getField(String strFieldId)
     {
 //    	ObjectExt objExt=this.getObject(strFieldId);
 //    	
 //    	return this.createField(strFieldId, objExt);
-    	return (ValueField)this.getObject(strFieldId);
+    	return this.getObject(strFieldId);
     }
     
     public void copyFrom(CDO cdoSource)
@@ -2063,6 +2063,7 @@ public class CDO implements Serializable
             cdo.fromXML(xml);
         }
         System.out.println("xml serialize "+(System.currentTimeMillis()-startTime));
+//        System.out.println(cdo.tox);
     	HashMap<String,ValueFieldImpl> hm=new LinkedHashMap<String, ValueFieldImpl>();
     	hm.put("a", new LongField("ab",100));
         for(Iterator<Map.Entry<String, ValueFieldImpl>> iterator=hm.entrySet().iterator();iterator.hasNext();){

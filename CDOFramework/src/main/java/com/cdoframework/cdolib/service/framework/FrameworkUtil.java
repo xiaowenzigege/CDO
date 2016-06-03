@@ -9,19 +9,16 @@ import com.cdoframework.cdolib.base.DateTime;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.data.cdo.ValueField;
+import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.service.framework.transfilter.xsd.CacheKey;
-import com.cdoframework.cdolib.service.framework.transfilter.xsd.CacheURL;
 import com.cdoframework.cdolib.service.framework.transfilter.xsd.CacheValue;
 import com.cdoframework.cdolib.service.framework.transfilter.xsd.Creteria;
 import com.cdoframework.cdolib.service.framework.transfilter.xsd.Creterias;
 import com.cdoframework.cdolib.service.framework.transfilter.xsd.CreteriasType;
 import com.cdoframework.cdolib.service.framework.transfilter.xsd.CreteriasTypeItem;
 import com.cdoframework.cdolib.service.framework.transfilter.xsd.ReturnCode;
-import com.cdoframework.cdolib.service.framework.transfilter.xsd.types.CacheKeyTypeTypeType;
 import com.cdoframework.cdolib.service.framework.transfilter.xsd.types.CriteriaTypeOperatorType;
 import com.cdoframework.cdolib.service.framework.transfilter.xsd.types.CriteriaTypeTypeType;
-import com.cdoframework.cdolib.service.framework.transfilter.xsd.types.ReturnCodeOperatorType;
 import com.cdoframework.cdolib.service.framework.transfilter.xsd.types.RequestKeyTypeType;
 
 public class FrameworkUtil
@@ -912,7 +909,7 @@ public class FrameworkUtil
 
 	private static String getFiledString(int nStringType,String strFieldId,CDO cdoRequest,CDO cdoResponse) throws Exception
 	{
-		ValueField vf = null;
+		Field vf = null;
 		if(cdoResponse.exists(strFieldId))
 		{
 			vf = cdoResponse.getField(strFieldId);

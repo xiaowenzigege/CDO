@@ -12,11 +12,11 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
  * @author Frank
+ * modify by @author KenelLiu 
  */
 public class IntegerField extends ValueFieldImpl
 {
@@ -76,10 +76,6 @@ public class IntegerField extends ValueFieldImpl
 		return new Integer(nValue);
 	}
 
-	public ObjectExt getObject()
-	{
-		return new ObjectExt(this.getType(),nValue);
-	}
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
@@ -95,7 +91,7 @@ public class IntegerField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.INTEGER_TYPE);
+		setType(DataType.INTEGER_TYPE);
 
 		this.nValue	=0;
 	}
@@ -105,7 +101,7 @@ public class IntegerField extends ValueFieldImpl
 
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系		
 		
-		setType(ValueField.INTEGER_TYPE);
+		setType(DataType.INTEGER_TYPE);
 		this.nValue	=nValue;
 	}
 	
@@ -115,7 +111,7 @@ public class IntegerField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.INTEGER_TYPE);
+		setType(DataType.INTEGER_TYPE);
 		
 		this.nValue	=nValue;
 	}

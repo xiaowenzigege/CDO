@@ -45,7 +45,7 @@ import org.apache.log4j.Logger;
 
 import com.cdo.util.constants.Constants;
 import com.cdo.util.resource.GlobalResource;
-import com.cdoframework.cdolib.base.ObjectExt;
+import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.Field;
@@ -261,7 +261,7 @@ public abstract class CDOServlet extends HttpServlet
     		 while(it.hasNext()){
     			 Map.Entry<String,Field> entry=it.next();
     			 Field objExt=entry.getValue();
-    			 if(objExt.getType()==ObjectExt.FILE_TYPE){  
+    			 if(objExt.getType()==DataType.FILE_TYPE){  
     				 FileField f=(FileField)objExt;
     				 sbFieldName.append(","+entry.getKey());
     				 sbLength.append(","+f.getValue().length());

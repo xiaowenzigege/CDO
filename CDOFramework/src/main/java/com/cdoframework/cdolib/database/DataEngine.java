@@ -19,12 +19,13 @@ import java.util.Properties;
 
 
 
+
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.log4j.Logger;
 
+import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Date;
 import com.cdoframework.cdolib.base.DateTime;
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.Time;
 import com.cdoframework.cdolib.base.Utility;
@@ -383,25 +384,25 @@ public class DataEngine implements IDataEngine
 				int nType=object.getType();
 				switch(nType)
 				{
-					case ObjectExt.BYTE_TYPE:
-					case ObjectExt.SHORT_TYPE:
-					case ObjectExt.INTEGER_TYPE:
-					case ObjectExt.LONG_TYPE:
-					case ObjectExt.FLOAT_TYPE:
-					case ObjectExt.DOUBLE_TYPE:						
+					case DataType.BYTE_TYPE:
+					case DataType.SHORT_TYPE:
+					case DataType.INTEGER_TYPE:
+					case DataType.LONG_TYPE:
+					case DataType.FLOAT_TYPE:
+					case DataType.DOUBLE_TYPE:						
 					{
 						
 						ps.setObject(i+1,objValue);
 						break;
 					}
-					case ObjectExt.STRING_TYPE:
+					case DataType.STRING_TYPE:
 					{
 						String strValue=(String)objValue;
 						strValue=Utility.encodingText(strValue,strSystemCharset,strCharset);
 						ps.setString(i+1,strValue);
 						break;
 					}
-					case ObjectExt.DATE_TYPE:
+					case DataType.DATE_TYPE:
 					{
 						String strValue=(String)objValue;
 						if(strValue.length()==0)
@@ -415,7 +416,7 @@ public class DataEngine implements IDataEngine
 						}
 						break;
 					}
-					case ObjectExt.TIME_TYPE:
+					case DataType.TIME_TYPE:
 					{
 						String strValue=(String)objValue;
 						if(strValue.length()==0)
@@ -429,7 +430,7 @@ public class DataEngine implements IDataEngine
 						}
 						break;
 					}
-					case ObjectExt.DATETIME_TYPE:
+					case DataType.DATETIME_TYPE:
 					{
 						String strValue=(String)objValue;
 						if(strValue.length()==0)
@@ -443,13 +444,13 @@ public class DataEngine implements IDataEngine
 						}
 						break;
 					}
-					case ObjectExt.BOOLEAN_TYPE:
+					case DataType.BOOLEAN_TYPE:
 					{
 						ps.setBoolean(i+1,(Boolean)objValue);
 						break;
 					}
 
-					case ObjectExt.BYTE_ARRAY_TYPE:
+					case DataType.BYTE_ARRAY_TYPE:
 					{
 						ps.setBytes(i+1,(byte[])objValue);
 						break;
@@ -478,7 +479,7 @@ public class DataEngine implements IDataEngine
 				Field object = cdoRequest.getObject(anaSQL.alParaName.get(i));
 				Object objValue = object.getObjectValue();
 				int nType = object.getType();
-				sb.append(nType==ObjectExt.BYTE_ARRAY_TYPE?new String((byte[]) objValue):objValue);
+				sb.append(nType==DataType.BYTE_ARRAY_TYPE?new String((byte[]) objValue):objValue);
 				sb.append(',');
 			}
 			sb.append('}');
@@ -1330,69 +1331,69 @@ public class DataEngine implements IDataEngine
 				String strSQL=strbSQL.toString();
 
 				// 执行SQL
-				ObjectExt objFieldValue=this.executeQueryFieldExt(conn,strSQL,cdoRequest);
+				Field objFieldValue=this.executeQueryFieldExt(conn,strSQL,cdoRequest);
 				if(objFieldValue==null)
 				{
 					continue;
 				}
 				int nType=objFieldValue.getType();
-				Object objValue=objFieldValue.getValue();
+				Object objValue=objFieldValue.getObjectValue();
 
 				String strOutputId=selectField.getOutputId();
 				strOutputId=strOutputId.substring(1,strOutputId.length()-1);
 				switch(nType)
 				{
-					case ObjectExt.BYTE_TYPE:
+					case DataType.BYTE_TYPE:
 					{
 						cdoRequest.setByteValue(selectField.getOutputId(),((Byte)objValue).byteValue());
 						break;
 					}
-					case ObjectExt.SHORT_TYPE:
+					case DataType.SHORT_TYPE:
 					{
 						cdoRequest.setShortValue(strOutputId,((Short)objValue).shortValue());
 						break;
 					}
-					case ObjectExt.INTEGER_TYPE:
+					case DataType.INTEGER_TYPE:
 					{
 						cdoRequest.setIntegerValue(strOutputId,((Integer)objValue).intValue());
 						break;
 					}
-					case ObjectExt.LONG_TYPE:
+					case DataType.LONG_TYPE:
 					{
 						cdoRequest.setLongValue(strOutputId,((Long)objValue).longValue());
 						break;
 					}
-					case ObjectExt.FLOAT_TYPE:
+					case DataType.FLOAT_TYPE:
 					{
 						cdoRequest.setFloatValue(strOutputId,((Float)objValue).floatValue());
 						break;
 					}
-					case ObjectExt.DOUBLE_TYPE:
+					case DataType.DOUBLE_TYPE:
 					{
 						cdoRequest.setDoubleValue(strOutputId,((Double)objValue).doubleValue());
 						break;
 					}
-					case ObjectExt.STRING_TYPE:
+					case DataType.STRING_TYPE:
 					{
 						cdoRequest.setStringValue(strOutputId,((String)objValue));
 						break;
 					}
-					case ObjectExt.DATE_TYPE:
+					case DataType.DATE_TYPE:
 					{
 						cdoRequest.setDateValue(strOutputId,((String)objValue));
 						break;
 					}
-					case ObjectExt.TIME_TYPE:
+					case DataType.TIME_TYPE:
 					{
 						cdoRequest.setTimeValue(strOutputId,((String)objValue));
 						break;
 					}
-					case ObjectExt.DATETIME_TYPE:
+					case DataType.DATETIME_TYPE:
 					{
 						cdoRequest.setDateTimeValue(strOutputId,((String)objValue));
 						break;
 					}
-					case ObjectExt.BYTE_ARRAY_TYPE:
+					case DataType.BYTE_ARRAY_TYPE:
 					{
 						cdoRequest.setByteArrayValue(strOutputId,((byte[])objValue));
 						break;
@@ -1870,7 +1871,7 @@ public class DataEngine implements IDataEngine
 	 * @return
 	 * @throws Exception
 	 */
-	public ObjectExt executeQueryFieldExt(Connection conn,String strSQL,CDO cdoRequest) throws SQLException,IOException
+	public Field executeQueryFieldExt(Connection conn,String strSQL,CDO cdoRequest) throws SQLException,IOException
 	{
 		// 准备JDBC语句
 		PreparedStatement ps=prepareStatement(conn,strSQL,cdoRequest);
@@ -1879,7 +1880,6 @@ public class DataEngine implements IDataEngine
 		ResultSet rs=null;
 		try
 		{
-////System.out.println("Query "+conn.toString());
 			// 执行查询
 			rs=ps.executeQuery();
 			ResultSetMetaData meta=rs.getMetaData();
@@ -1905,8 +1905,8 @@ public class DataEngine implements IDataEngine
 			// 输出
 			if(cdoRecord.exists(strsFieldName[0]))
 			{
-//				return cdoRecord.getObject(strsFieldName[0]);
-				return new ObjectExt(cdoRecord.getObject(strsFieldName[0]).getType(), cdoRecord.getObject(strsFieldName[0]).getObjectValue());
+				return cdoRecord.getObject(strsFieldName[0]);
+//				return new ObjectExt(cdoRecord.getObject(strsFieldName[0]).getType(), cdoRecord.getObject(strsFieldName[0]).getObjectValue());
 			}
 			else
 			{
@@ -1956,8 +1956,6 @@ public class DataEngine implements IDataEngine
 			{
 				/**支持JDBC4**/
 				strsFieldName[i]=meta.getColumnLabel(i+1);
-				/**支持JDBC3**/
-				/**strsFieldName[i]=meta.getColumnName(i+1);**/
 				nsFieldType[i]=meta.getColumnType(i+1);
 				nsPrecision[i]=meta.getPrecision(i+1);
 				nsScale[i]=meta.getScale(i+1);

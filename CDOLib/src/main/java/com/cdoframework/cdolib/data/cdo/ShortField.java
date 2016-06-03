@@ -14,11 +14,11 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
  * @author Frank
+ * modify by @author KenelLiu 
  */
 public class ShortField extends ValueFieldImpl
 {
@@ -78,10 +78,7 @@ public class ShortField extends ValueFieldImpl
 		return new Short(shValue);
 	}
 
-	public ObjectExt getObject()
-	{
-		return new ObjectExt(this.getType(),shValue);
-	}
+
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
@@ -97,7 +94,7 @@ public class ShortField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.SHORT_TYPE);
+		setType(DataType.SHORT_TYPE);
 		
 		this.shValue	=0;
 	}
@@ -108,7 +105,7 @@ public class ShortField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.SHORT_TYPE);
+		setType(DataType.SHORT_TYPE);
 		
 		this.shValue	=shValue;
 	}
@@ -116,7 +113,7 @@ public class ShortField extends ValueFieldImpl
 	public ShortField(short shValue)
 	{
 		
-		setType(ValueField.SHORT_TYPE);
+		setType(DataType.SHORT_TYPE);
 		
 		this.shValue	=shValue;
 	}

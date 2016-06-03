@@ -10,12 +10,13 @@ package com.cdoframework.cdolib.data.cdo;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-import com.cdoframework.cdolib.base.ObjectExt;
+import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 
 
 /**
  * @author Frank
+ *  modify by @author KenelLiu 
  */
 public class CDOArrayField extends ArrayFieldImpl
 {
@@ -133,15 +134,6 @@ public class CDOArrayField extends ArrayFieldImpl
 		return cdosValue[nIndex];
 	}
 
-	public ObjectExt getObject()
-	{
-		return new ObjectExt(this.getType(),cdosValue);
-	}
-
-	public ObjectExt getObjectAt(int nIndex)
-	{
-		return new ObjectExt(ValueField.CDO_TYPE,cdosValue[nIndex]);
-	}
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
@@ -157,7 +149,7 @@ public class CDOArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super();
 		
-		setType(ValueField.CDO_ARRAY_TYPE);
+		setType(DataType.CDO_ARRAY_TYPE);
 		
 		this.cdosValue	=new CDO[0];
 	}
@@ -168,7 +160,7 @@ public class CDOArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.CDO_ARRAY_TYPE);
+		setType(DataType.CDO_ARRAY_TYPE);
 		
 		this.cdosValue	=new CDO[0];
 	}
@@ -179,7 +171,7 @@ public class CDOArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(ValueField.CDO_ARRAY_TYPE);
+		setType(DataType.CDO_ARRAY_TYPE);
 		
 		if(cdosValue==null)
 		{
@@ -191,7 +183,7 @@ public class CDOArrayField extends ArrayFieldImpl
 	
 	public CDOArrayField(CDO[] cdosValue)
 	{	
-		setType(ValueField.CDO_ARRAY_TYPE);
+		setType(DataType.CDO_ARRAY_TYPE);
 		
 		if(cdosValue==null)
 		{
