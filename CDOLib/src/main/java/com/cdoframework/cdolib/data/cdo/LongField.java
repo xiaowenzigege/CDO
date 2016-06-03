@@ -102,6 +102,14 @@ public class LongField extends ValueFieldImpl
 		this.lValue	=0;
 	}
 
+	public LongField(long lValue)
+	{
+		
+		setType(ValueField.LONG_TYPE);
+		
+		this.lValue	=0;
+	}
+	
 	public LongField(String strFieldName,long lValue)
 	{
 

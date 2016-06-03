@@ -111,6 +111,15 @@ public class FloatField extends ValueFieldImpl
 		this.fValue	=fValue;
 	}
 
+
+	public FloatField(float fValue)
+	{
+
+		setType(ValueField.FLOAT_TYPE);
+		
+		this.fValue	=fValue;
+	}
+	
 	public String toJSON()
 	{
 		StringBuffer str_JSON=new StringBuffer();

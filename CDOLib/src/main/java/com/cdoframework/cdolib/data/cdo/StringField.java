@@ -128,6 +128,8 @@ public class StringField extends ValueFieldImpl
 		}
 		this.strValue	=strValue;
 	}
+	
+	
 	public String toJSON()
 	{
 		StringBuffer str_JSON=new StringBuffer();

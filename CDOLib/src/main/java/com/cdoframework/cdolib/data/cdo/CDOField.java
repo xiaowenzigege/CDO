@@ -121,6 +121,14 @@ public class CDOField extends ValueFieldImpl
 	}
 
 
+	public CDOField(CDO cdoValue)
+	{
+		setType(ValueField.CDO_TYPE);
+		
+		this.cdoValue	=cdoValue;
+	}
+
+	
 	public String toJSON()
 	{
 		StringBuffer str_JSON=new StringBuffer();

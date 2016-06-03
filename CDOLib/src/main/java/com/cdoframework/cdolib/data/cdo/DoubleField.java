@@ -115,7 +115,14 @@ public class DoubleField extends ValueFieldImpl
 		
 		this.dblValue	=dblValue;
 	}
+	
+	public DoubleField(double dblValue)
+	{
 
+		setType(ValueField.DOUBLE_TYPE);		
+		this.dblValue	=dblValue;
+	}
+	
 	public String toJSON()
 	{
 		StringBuffer str_JSON=new StringBuffer();

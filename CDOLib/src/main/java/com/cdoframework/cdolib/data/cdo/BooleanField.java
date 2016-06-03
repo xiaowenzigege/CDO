@@ -111,6 +111,15 @@ public class BooleanField extends ValueFieldImpl
 		
 		this.bValue	=bValue;
 	}
+	
+	public BooleanField(boolean bValue)
+	{
+
+		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系				
+		setType(ValueField.BOOLEAN_TYPE);
+		
+		this.bValue	=bValue;
+	}
 	public String toJSONString()
 	{
 		StringBuffer str_JSON=new StringBuffer();

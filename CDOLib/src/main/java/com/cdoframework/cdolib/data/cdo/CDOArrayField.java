@@ -188,7 +188,18 @@ public class CDOArrayField extends ArrayFieldImpl
 
 		setValue(cdosValue);
 	}
+	
+	public CDOArrayField(CDO[] cdosValue)
+	{	
+		setType(ValueField.CDO_ARRAY_TYPE);
+		
+		if(cdosValue==null)
+		{
+			cdosValue=new CDO[0];
+		}
 
+		setValue(cdosValue);
+	}
 	public String toJSONString()
 	{
 		StringBuffer str_JSON=new StringBuffer();

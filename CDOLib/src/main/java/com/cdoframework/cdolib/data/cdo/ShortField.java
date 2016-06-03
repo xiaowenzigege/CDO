@@ -112,7 +112,14 @@ public class ShortField extends ValueFieldImpl
 		
 		this.shValue	=shValue;
 	}
-
+	
+	public ShortField(short shValue)
+	{
+		
+		setType(ValueField.SHORT_TYPE);
+		
+		this.shValue	=shValue;
+	}
 	public String toJSON()
 	{
 		StringBuffer str_JSON=new StringBuffer();

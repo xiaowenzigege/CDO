@@ -100,6 +100,15 @@ public class IntegerField extends ValueFieldImpl
 		this.nValue	=0;
 	}
 
+	public IntegerField(int nValue)
+	{
+
+		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系		
+		
+		setType(ValueField.INTEGER_TYPE);
+		this.nValue	=nValue;
+	}
+	
 	public IntegerField(String strFieldName,int nValue)
 	{
 
@@ -110,7 +119,7 @@ public class IntegerField extends ValueFieldImpl
 		
 		this.nValue	=nValue;
 	}
-
+	
 	public String toJSON()
 	{
 		StringBuffer str_JSON=new StringBuffer();

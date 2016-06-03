@@ -144,30 +144,30 @@ public class ArvoMain {
 			cdo2.setStringValue("x", "v");
 			cdoChild.setCDOValue("cdo2", cdo2);
 			cdo.setCDOValue("cdoChild",cdoChild);			
-			 for(int i=0;i<1;i++){
-					AvroCDOSerialize serialize=new AvroCDOSerialize(cdo);
-					AvroCDOMixed arvo= serialize.toAvro();	
-					
-					ByteArrayOutputStream out=new ByteArrayOutputStream();
-					
-					DatumWriter<AvroCDOMixed> userDatumWriter = new SpecificDatumWriter<AvroCDOMixed>(AvroCDOMixed.class);
-					DataFileWriter<AvroCDOMixed> dataFileWriter = new DataFileWriter<AvroCDOMixed>(userDatumWriter);
-					dataFileWriter.create(arvo.getSchema(),out);
-					dataFileWriter.append(arvo);
-					dataFileWriter.close();
-//					System.out.println("time2 ="+(System.currentTimeMillis()-startTime));
-					
-					InputStream bis = new ByteArrayInputStream(out.toByteArray());
-					
-					DatumReader<AvroCDOMixed> userDatumReader = new SpecificDatumReader<AvroCDOMixed>(AvroCDOMixed.class);
-					DataFileStream<AvroCDOMixed> dataFileReader = new DataFileStream<AvroCDOMixed>(bis,userDatumReader);
-					
-					while (dataFileReader.hasNext()) {
-						arvo=dataFileReader.next(arvo);
-						cdo=AvroCDOSerialize.fromAvro(arvo);			
-					}
-//					System.out.println("time3 ="+(System.currentTimeMillis()-startTime));
-			 }			
+//			 for(int i=0;i<1;i++){
+//					AvroCDOSerialize serialize=new AvroCDOSerialize(cdo);
+//					AvroCDOMixed arvo= serialize.toAvro();	
+//					
+//					ByteArrayOutputStream out=new ByteArrayOutputStream();
+//					
+//					DatumWriter<AvroCDOMixed> userDatumWriter = new SpecificDatumWriter<AvroCDOMixed>(AvroCDOMixed.class);
+//					DataFileWriter<AvroCDOMixed> dataFileWriter = new DataFileWriter<AvroCDOMixed>(userDatumWriter);
+//					dataFileWriter.create(arvo.getSchema(),out);
+//					dataFileWriter.append(arvo);
+//					dataFileWriter.close();
+////					System.out.println("time2 ="+(System.currentTimeMillis()-startTime));
+//					
+//					InputStream bis = new ByteArrayInputStream(out.toByteArray());
+//					
+//					DatumReader<AvroCDOMixed> userDatumReader = new SpecificDatumReader<AvroCDOMixed>(AvroCDOMixed.class);
+//					DataFileStream<AvroCDOMixed> dataFileReader = new DataFileStream<AvroCDOMixed>(bis,userDatumReader);
+//					
+//					while (dataFileReader.hasNext()) {
+//						arvo=dataFileReader.next(arvo);
+//						cdo=AvroCDOSerialize.fromAvro(arvo);			
+//					}
+////					System.out.println("time3 ="+(System.currentTimeMillis()-startTime));
+//			 }			
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
