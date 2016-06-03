@@ -1,22 +1,15 @@
 package com.cdo.avro.schema;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.apache.avro.util.Utf8;
-
 import com.cdoframework.cdolib.base.DataType;
-import com.cdoframework.cdolib.base.ObjectExt;
 import com.cdoframework.cdolib.data.cdo.CDO;
 
 public class AvroCDODeserialize {
@@ -29,9 +22,8 @@ public class AvroCDODeserialize {
 		return cdo;
 	} 
 	
-	private static void avro2CDO(CDO cdo,Map<CharSequence,ByteBuffer> fieldsMap,int maxDot){
+	private static void avro2CDO(CDO cdo,Map<CharSequence,ByteBuffer> fieldsMap,int level){
 		 Map<String,CDO> mapCDO=new LinkedHashMap<String, CDO>();
-//		 int maxDot=0;
 		 for(Iterator<Map.Entry<CharSequence,ByteBuffer>> iterator=fieldsMap.entrySet().iterator();iterator.hasNext();){
 			 Entry<CharSequence, ByteBuffer> entry=iterator.next();
 			 String key=entry.getKey().toString();
@@ -51,14 +43,34 @@ public class AvroCDODeserialize {
 				 mapCDO.put(mapKey, cdoValue);
 			 }			 
 		 }
-		 Map<String, CDO> retMapCDO=mergeRightCDO(mapCDO, maxDot); 
+		 Map<String, CDO> retMapCDO=mergeRightCDO(mapCDO, level); 
+		 Map<String, List<CDO>> arrMap=new HashMap<String, List<CDO>>();
 		 for(Iterator<Map.Entry<String,CDO>> iterator=retMapCDO.entrySet().iterator();iterator.hasNext();){
 			   Entry<String, CDO> entry=iterator.next();
-			   cdo.setCDOValue(entry.getKey(), entry.getValue());
-		 }		
+			   String key=entry.getKey();
+			   CDO  valueCDO= entry.getValue();
+				int index=key.lastIndexOf("[");
+				if(index==-1){
+					cdo.setCDOValue(entry.getKey(), entry.getValue());
+				}else{
+					//数组
+					 String fieldKey=key.substring(0,index);
+					 List<CDO> list=arrMap.get(fieldKey);
+					 if(list==null)
+						 list=new ArrayList<CDO>();
+					 list.add(valueCDO);
+					 arrMap.put(fieldKey, list); 
+				}			
+		 }	
+		 for(Iterator<Map.Entry<String,List<CDO>>> iterator=arrMap.entrySet().iterator();iterator.hasNext();){
+			   Entry<String, List<CDO>> entry=iterator.next();
+			   String key=entry.getKey();
+			   List<CDO> list=entry.getValue();			   
+			   cdo.setCDOArrayValue(key, list.toArray(new CDO[list.size()]));	
+		 }
 	}
 
-	private static Map<String,CDO> mergeRightCDO(Map<String,CDO>  mapCDO,int maxDot){
+	private static Map<String,CDO> mergeRightCDO(Map<String,CDO>  mapCDO,int level){
 		 Map<String,CDO> childMap=new LinkedHashMap<String, CDO>();
 		 Map<String, List<CDO>> arrMap=new HashMap<String, List<CDO>>();
 		 Map<String, String> arrFieldMap=new HashMap<String, String>();
@@ -72,7 +84,7 @@ public class AvroCDODeserialize {
 			 String key=entry.getKey();
 			 int length=key.split("\\.").length-1;
 			 //从右向左进行合并	
-			 if(maxDot==length){				
+			 if(level==length){				
 				 int index=key.lastIndexOf(".");
 				 String fieldKey="";
 				 String realkey="";
@@ -128,8 +140,8 @@ public class AvroCDODeserialize {
 			 }
 			 mapIndex++;
 		 }		
-		 if(maxDot>0){
-			  return mergeRightCDO(childMap, (maxDot-1));
+		 if(level>0){
+			  return mergeRightCDO(childMap, (level-1));
 		 }
 		 return childMap;
 	}
