@@ -142,9 +142,10 @@ public class FieldImpl implements Field
 		toAvro(prefixField, fieldMap);
 		return 0;
 	}
-	
 	@Override
-	public Buffer getBuffer() {	
+	public Buffer getBuffer() {
+		// TODO Auto-generated method stub
 		return null;
 	}
+	
 }

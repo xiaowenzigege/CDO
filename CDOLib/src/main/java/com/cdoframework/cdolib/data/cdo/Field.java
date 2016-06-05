@@ -78,7 +78,7 @@ public interface Field extends DataType
 	 * [CDOField,CDOArrayField]字段  由CDO构成，CDO保存的数据是由 以下基础数据字段组成
 	 * 即对基础字段序列化即可
 	 * 
-	 * 数据存储采用buffer 字节存储。以便使用avro 字节快速序列化,反序列化
+	 * 数据存储采用buffer 字节存储。以便使用avro 字节序列化,反序列化
 	 * I 类型-数据
 	 * 	 boolean,short,int,long,float,double,date,dataTime,Time,String 序列化
 	 *   第一个字节  字段类型参数	

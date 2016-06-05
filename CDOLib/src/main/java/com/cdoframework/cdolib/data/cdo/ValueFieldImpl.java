@@ -60,16 +60,5 @@ public abstract class ValueFieldImpl extends FieldImpl implements Field
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 	}
-
-	protected ByteBuffer str2Bytes(String strValue,int DataType) {
-		byte[] value=strValue.getBytes(Charset.forName("UTF-8"));//faster in Java 7 & 8,slow in java6
-		int dataLen=value.length;
-		int len=1+dataLen;//字段类型所占字节+数据所占字节
-		ByteBuffer buffer=ByteBuffer.allocate(len);
-		buffer.put((byte)DataType);
-		buffer.put(value);
-		buffer.flip();		
-		return buffer;
-	}
 	
 }
