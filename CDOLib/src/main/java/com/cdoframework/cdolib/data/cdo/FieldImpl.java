@@ -27,6 +27,7 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -140,5 +141,10 @@ public class FieldImpl implements Field
 	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
 		toAvro(prefixField, fieldMap);
 		return 0;
+	}
+	
+	@Override
+	public Buffer getBuffer() {	
+		return null;
 	}
 }

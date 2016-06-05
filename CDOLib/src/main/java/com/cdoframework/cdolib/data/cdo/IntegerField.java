@@ -8,6 +8,7 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -32,50 +33,81 @@ public class IntegerField extends ValueFieldImpl
 	 */
 	private static final long serialVersionUID = -4743998197912167653L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
-	private int nValue;
+	private ByteBuffer buffer;
+	private final int dataIndex=1;//数据保存的起始位置
+	private final int databuffer=4;//数据占用字节
+	
 	public void setValue(int nValue)
 	{
-		this.nValue=nValue;
+		allocate(nValue);
 	}
 	public int getValue()
 	{
-		return this.nValue;
+		buffer.position(dataIndex);
+		return buffer.getInt();
+	}
+	
+	public Object getObjectValue()
+	{
+		return new Integer(getValue());
 	}
 
+	
+	@Override
+	public Buffer getBuffer() {	
+		return buffer;
+	}
+	
+	private void allocate(int dblValue){
+		if(buffer==null){
+			int len=dataIndex+databuffer;
+			buffer=ByteBuffer.allocate(len);
+			buffer.put((byte)DataType.INTEGER_TYPE);
+		}
+		buffer.position(dataIndex);
+		buffer.putFloat(dblValue);
+		buffer.flip();
+	}		
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
-		int len=1+4;//字段类型所占字节+数据所占字节
-		ByteBuffer buffer=ByteBuffer.allocate(len);
-		buffer.put((byte)DataType.INTEGER_TYPE);
-		buffer.putInt(nValue);
-		buffer.flip();
-		
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){		
 		fieldMap.put(prefixField+this.getName(), buffer);
 	}	
 	
 	public void toXML(StringBuilder strbXML)
 	{
+		int nValue=getValue();
 		strbXML.append("<NF N=\"").append(this.getName()).append("\"");
-		strbXML.append(" V=\"").append(this.nValue).append("\"/>");
+		strbXML.append(" V=\"").append(nValue).append("\"/>");
 	}
 	
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
+		int nValue=getValue();
 		String strIndent=Utility.makeSameCharString('\t',nIndentSize);
 		
 		strbXML.append(strIndent).append("<NF N=\"").append(this.getName()).append("\"");
-		strbXML.append(" V=\"").append(this.nValue).append("\"/>\r\n");
+		strbXML.append(" V=\"").append(nValue).append("\"/>\r\n");
 	}
 
-	public Object getObjectValue()
+	public String toJSON()
 	{
-		return new Integer(nValue);
+		int nValue=getValue();
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(nValue).append(",");
+		return str_JSON.toString();
 	}
 
+	public String toJSONString()
+	{
+		int nValue=getValue();
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(nValue).append(",");
+		return str_JSON.toString();
+	}	
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
@@ -93,7 +125,7 @@ public class IntegerField extends ValueFieldImpl
 		
 		setType(DataType.INTEGER_TYPE);
 
-		this.nValue	=0;
+		setValue(0);
 	}
 
 	public IntegerField(int nValue)
@@ -102,7 +134,7 @@ public class IntegerField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系		
 		
 		setType(DataType.INTEGER_TYPE);
-		this.nValue	=nValue;
+		setValue(nValue);
 	}
 	
 	public IntegerField(String strFieldName,int nValue)
@@ -113,20 +145,17 @@ public class IntegerField extends ValueFieldImpl
 		
 		setType(DataType.INTEGER_TYPE);
 		
-		this.nValue	=nValue;
+		setValue(nValue);
 	}
 	
-	public String toJSON()
+	IntegerField(String strFieldName,ByteBuffer buffer)
 	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(this.nValue).append(",");
-		return str_JSON.toString();
-	}
 
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(this.nValue).append(",");
-		return str_JSON.toString();
-	}	
+		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
+		super(strFieldName);
+		
+		setType(DataType.INTEGER_TYPE);
+		
+		this.buffer=buffer;
+	}
 }

@@ -8,6 +8,7 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -32,7 +33,17 @@ public class DateTimeArrayField extends ArrayFieldImpl
 	 */
 	private static final long serialVersionUID = -1218499970415772864L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
-	private String[] strsValue;
+	private ByteBuffer buffer;
+	private final int dataIndex=3;//数据保存的起始位置
+	private final int databuffer=DATETIME_FORMAT_STRING.length();//数据占用字节
+	private static String defaultWhiteSpace="";
+	
+	static{
+		for(int i=0;i<DATETIME_FORMAT_STRING.length();i++){//空格用于占位使用
+			defaultWhiteSpace=defaultWhiteSpace+" ";
+		}
+	}	
+	
 	public void setValue(String[] strsValue)
 	{
 		if(strsValue==null)
@@ -41,68 +52,97 @@ public class DateTimeArrayField extends ArrayFieldImpl
 		}
 		for(int i=0;i<strsValue.length;i++)
 		{
-			if(strsValue[i]==null)
-			{
-				strsValue[i]="";
-			}
-			else if(Utility.checkDateTime(strsValue[i])==false)
-			{
-				throw new RuntimeException("Invalid datetime format");
+			if(strsValue[i]==null){				
+				strsValue[i]=defaultWhiteSpace;				
+			}else if(Utility.checkDateTime(strsValue[i])==false){
+				throw new RuntimeException("Invalid datetime or Invalid datetime format,dateTime format is "+DATETIME_FORMAT_STRING);
 			}
 		}
-		this.strsValue=strsValue;
+		allocate(strsValue);
 	}
 
 	public String[] getValue()
 	{
-		return this.strsValue;
+		return DateBufferUtil.getDateArrayValue(buffer, dataIndex, databuffer);
 	}
 
 	public String getValueAt(int nIndex)
 	{
-		return strsValue[nIndex];
+		checkArrayIndex(nIndex);
+		return DateBufferUtil.getDateArrayValueAt(nIndex, buffer, dataIndex, databuffer);
 	}
 
 	public void setValueAt(int nIndex,String strValue)
 	{
+		checkArrayIndex(nIndex);
 		if(strValue==null)
 		{
-			strValue="";
+			strValue=defaultWhiteSpace;
 		}
 		else if(Utility.checkDateTime(strValue)==false)
 		{
-			throw new RuntimeException("Invalid datetime format");
+			throw new RuntimeException("Invalid datetime or Invalid datetime format,dateTime format is "+DATETIME_FORMAT_STRING);
 		}
-
-		strsValue[nIndex]=strValue;
+		int pos=dataIndex+databuffer*nIndex;
+		buffer.position(pos);
+		buffer.put(strValue.getBytes());
+		buffer.clear();
 	}
 	
 	public int getLength()
 	{
-		return strsValue.length;
+		buffer.position(1);
+		int len=buffer.getShort();
+		buffer.clear();
+		return len;
 	}
 
+	public Object getObjectValue()
+	{
+		return getValue();
+	}
+
+	public Object getObjectValueAt(int nIndex)
+	{
+		return getValueAt(nIndex);
+	}
+	
+	@Override
+	public Buffer getBuffer() {	
+		return buffer;
+	}
+
+	private void allocate(String[] strsValue){
+
+		buffer=DateBufferUtil.allocate(strsValue.length, DataType.DATETIME_ARRAY_TYPE, buffer, dataIndex, databuffer);
+		//设置起始位置  
+		buffer.position(dataIndex);
+		for(int i=0;i<strsValue.length;i++){
+			buffer.put(strsValue[i].getBytes());
+		}
+		buffer.flip();
+	}			
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
-		ByteBuffer buffer=strArr2Bytes(this.strsValue,DataType.DATETIME_ARRAY_TYPE);
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){		
 		fieldMap.put(prefixField+this.getName(), buffer);
 	}	
 	
 	public void toXML(StringBuilder strbXML)
 	{
+		String[]  strsValue=getValue();
 		strbXML.append("<DTAF N=\"").append(this.getName()).append("\"");;
 		strbXML.append(" V=\"");
-		for(int i=0;i<this.strsValue.length;i=i+1)
+		for(int i=0;i<strsValue.length;i=i+1)
 		{
 			if(i>0)
 			{
 				strbXML.append(",");	
 			}
-			strbXML.append(this.strsValue[i]);	
+			strbXML.append(strsValue[i]);	
 		}
 		strbXML.append("\"/>");
 	}
@@ -110,32 +150,50 @@ public class DateTimeArrayField extends ArrayFieldImpl
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		String strIndent=Utility.makeSameCharString('\t',nIndentSize);
-
+		
+		String[]  strsValue=getValue();
 		strbXML.append(strIndent).append("<DTAF N=\"").append(this.getName()).append("\"");
 		strbXML.append(" V=\"");
-		for(int i=0;i<this.strsValue.length;i=i+1)
+		for(int i=0;i<strsValue.length;i=i+1)
 		{		
 			if(i>0)
 			{
 				strbXML.append(",");	
 			}
-			strbXML.append(this.strsValue[i]);				
+			strbXML.append(strsValue[i]);				
 		}
 		strbXML.append("\"/>\r\n");
 	}
 
-	
-	public Object getObjectValue()
+	public String toJSONString()
 	{
-		return strsValue;
+		StringBuffer str_JSON=new StringBuffer();
+		String[] strsValue=getValue();
+		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append("[");
+		int _length=strsValue.length;
+		for(int i=0;i<strsValue.length;i=i+1)
+		{
+			String _sign=(i==_length-1)?"\\\"":"\\\",";
+			str_JSON.append("\\\"").append(strsValue[i]).append(_sign);
+		}
+		str_JSON.append("],");
+		return str_JSON.toString();
 	}
 
-	public Object getObjectValueAt(int nIndex)
+	public String toJSON()
 	{
-		return strsValue[nIndex];
+		StringBuffer str_JSON=new StringBuffer();
+		String[] strsValue=getValue();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append("[");
+		int _length=strsValue.length;
+		for(int i=0;i<strsValue.length;i=i+1)
+		{
+			String _sign=(i==_length-1)?"\"":"\",";
+			str_JSON.append("\"").append(strsValue[i]).append(_sign);
+		}
+		str_JSON.append("],");
+		return str_JSON.toString();
 	}
-
-
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
 	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------
@@ -152,7 +210,7 @@ public class DateTimeArrayField extends ArrayFieldImpl
 		
 		setType(DataType.DATETIME_ARRAY_TYPE);
 		
-		this.strsValue	=new String[0];
+		setValue(new String[0]);
 	}
 
 	public DateTimeArrayField(String strFieldName,String[] strsValue)
@@ -171,31 +229,12 @@ public class DateTimeArrayField extends ArrayFieldImpl
 		setValue(strsValue);
 	}
 
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append("[");
-		int _length=strsValue.length;
-		for(int i=0;i<this.strsValue.length;i=i+1)
-		{
-			String _sign=(i==_length-1)?"\\\"":"\\\",";
-			str_JSON.append("\\\"").append(this.strsValue[i]).append(_sign);
-		}
-		str_JSON.append("],");
-		return str_JSON.toString();
+	 DateTimeArrayField(String strFieldName,ByteBuffer buffer)
+	 {
+			super(strFieldName);
+			
+			setType(DataType.DATETIME_ARRAY_TYPE);
+			
+			this.buffer=buffer;
 	}
-
-	public String toJSON()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append("[");
-		int _length=strsValue.length;
-		for(int i=0;i<this.strsValue.length;i=i+1)
-		{
-			String _sign=(i==_length-1)?"\"":"\",";
-			str_JSON.append("\"").append(this.strsValue[i]).append(_sign);
-		}
-		str_JSON.append("],");
-		return str_JSON.toString();
-	}	
 }

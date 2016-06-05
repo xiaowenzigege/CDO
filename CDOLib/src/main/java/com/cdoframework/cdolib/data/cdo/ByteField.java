@@ -70,6 +70,21 @@ public class ByteField extends ValueFieldImpl
 		strbXML.append(" V=\"").append(this.byValue).append("\"/>\r\n");
 	}
 
+	
+	public String toJSONString()
+	{
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(this.byValue).append(",");
+		return str_JSON.toString();
+	}
+
+	public String toJSON()
+	{
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(this.byValue).append(",");
+		return str_JSON.toString();
+	}	
+	
 	public Object getObjectValue()
 	{
 		return new Byte(byValue);
@@ -112,19 +127,6 @@ public class ByteField extends ValueFieldImpl
 		
 		this.byValue	=byValue;
 	}
-	
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(this.byValue).append(",");
-		return str_JSON.toString();
-	}
 
-	public String toJSON()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(this.byValue).append(",");
-		return str_JSON.toString();
-	}	
 
 }

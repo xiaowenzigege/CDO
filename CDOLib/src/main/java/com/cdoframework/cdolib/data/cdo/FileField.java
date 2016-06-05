@@ -30,13 +30,20 @@ public class FileField extends ValueFieldImpl
 
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	private File fileValue;
+	
 	public void setValue(File fileValue)
 	{
 		this.fileValue=fileValue;
 	}
+	
 	public File getValue()
 	{
 		return this.fileValue;
+	}
+	
+	public Object getObjectValue()
+	{
+		return fileValue;
 	}
 
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
@@ -64,10 +71,19 @@ public class FileField extends ValueFieldImpl
 		strbXML.append(" V=\"").append(Function.FormatTextForXML(this.fileValue.getPath())).append("\"/>");
 		
 	}	
-	
-	public Object getObjectValue()
+	public String toJSON()
 	{
-		return fileValue;
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":\"").append(Function.FormatTextForJson(this.fileValue.getPath())).append("\",");
+		return str_JSON.toString();
+	}
+
+	public String toJSONString()
+	{
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":\\\"").append(Function.FormatTextForJson(this.fileValue.getPath())).append(
+						"\\\",");
+		return str_JSON.toString();
 	}
 
 
@@ -96,18 +112,5 @@ public class FileField extends ValueFieldImpl
 		
 		this.fileValue	=fileValue;
 	}
-	public String toJSON()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\"").append(this.getName()).append("\"").append(":\"").append(Function.FormatTextForJson(this.fileValue.getPath())).append("\",");
-		return str_JSON.toString();
-	}
 
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":\\\"").append(Function.FormatTextForJson(this.fileValue.getPath())).append(
-						"\\\",");
-		return str_JSON.toString();
-	}
 }

@@ -37,7 +37,7 @@ import org.apache.log4j.Logger;
 
 import com.cdo.avro.schema.ArvoMain;
 import com.cdo.avro.schema.AvroCDO;
-import com.cdo.avro.schema.AvroCDODeserialize;
+import com.cdo.avro.serialize.AvroCDODeserialize;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 
@@ -92,7 +92,7 @@ public class CDO implements Serializable
 	
 	//0-简单类型，1-多级，2-数组元素
 	//如果FieldId错误，则返回null
-	private FieldId parseFieldId(String strFieldId)
+	 FieldId parseFieldId(String strFieldId)
 	{
 		char[] chsFieldId=strFieldId.toCharArray();
 		
@@ -1029,7 +1029,7 @@ public class CDO implements Serializable
     	
     }
 
-	private void setObjectValue(FieldId fieldId,int nType,Object objValue,Field field,CDO cdoRoot)
+	 void setObjectValue(FieldId fieldId,int nType,Object objValue,Field field,CDO cdoRoot)
 	{
     	if(fieldId.nType==FieldId.SIMPLE)
     	{
@@ -1118,7 +1118,7 @@ public class CDO implements Serializable
 
     public void setBooleanValue(String strFieldId,boolean bValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1128,11 +1128,9 @@ public class CDO implements Serializable
     	Field field=new BooleanField(fieldId.strFieldId,bValue);
    		this.setObjectValue(fieldId,DataType.BOOLEAN_TYPE,bValue,field,this);
     }
-
+  
     public void setByteValue(String strFieldId,byte byValue)
     {
-    	//this.strXML=null;
-
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
     	{
@@ -1141,23 +1139,24 @@ public class CDO implements Serializable
     	Field field=new ByteField(fieldId.strFieldId,byValue);
 		this.setObjectValue(fieldId,DataType.BYTE_TYPE,byValue,field,this);
     }
-
+    
+    
     public void setShortValue(String strFieldId,short shValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
     	{
 			throw new RuntimeException("Invalid FieldId "+strFieldId);
     	}
-    	Field field=new DoubleField(fieldId.strFieldId,shValue);
+    	Field field=new ShortField(fieldId.strFieldId,shValue);
 		this.setObjectValue(fieldId,DataType.SHORT_TYPE,shValue,field,this);
     }
 
     public void setIntegerValue(String strFieldId,int nValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1170,7 +1169,7 @@ public class CDO implements Serializable
 
     public void setLongValue(String strFieldId,long lValue)
     {
-    	//this.strXML=null;
+    	
     	
     	FieldId fieldId=this.parseFieldId(strFieldId);
 
@@ -1184,7 +1183,7 @@ public class CDO implements Serializable
 
     public void setFloatValue(String strFieldId,float fValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1197,7 +1196,7 @@ public class CDO implements Serializable
 
     public void setDoubleValue(String strFieldId,double dValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1210,7 +1209,7 @@ public class CDO implements Serializable
 
     public void setStringValue(String strFieldId,String strValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1240,7 +1239,7 @@ public class CDO implements Serializable
     
     public void setDateValue(String strFieldId,String strValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1253,7 +1252,7 @@ public class CDO implements Serializable
 
     public void setTimeValue(String strFieldId,String strValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1266,7 +1265,7 @@ public class CDO implements Serializable
 
     public void setDateTimeValue(String strFieldId,String strValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1279,7 +1278,7 @@ public class CDO implements Serializable
 
     public void setCDOValue(String strFieldId,CDO cdoValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1292,7 +1291,7 @@ public class CDO implements Serializable
 
     public void setBooleanArrayValue(String strFieldId,boolean[] bsValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1313,7 +1312,7 @@ public class CDO implements Serializable
 
     public void setByteArrayValue(String strFieldId,byte[] bysValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1334,7 +1333,7 @@ public class CDO implements Serializable
 
     public void setShortArrayValue(String strFieldId,short[] shsValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1355,7 +1354,7 @@ public class CDO implements Serializable
 
     public void setIntegerArrayValue(String strFieldId,int[] nsValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1375,7 +1374,7 @@ public class CDO implements Serializable
     }
     public void setFloatArrayValue(String strFieldId,float[] fsValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1395,7 +1394,7 @@ public class CDO implements Serializable
     }
     public void setDoubleArrayValue(String strFieldId,double[] dblsValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1415,7 +1414,7 @@ public class CDO implements Serializable
     }
     public void setLongArrayValue(String strFieldId,long[] lsValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1435,7 +1434,7 @@ public class CDO implements Serializable
     }
     public void setStringArrayValue(String strFieldId,String[] strsValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1456,7 +1455,7 @@ public class CDO implements Serializable
 
     public void setDateArrayValue(String strFieldId,String[] strsValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1477,7 +1476,7 @@ public class CDO implements Serializable
 
     public void setTimeArrayValue(String strFieldId,String[] strsValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1498,7 +1497,7 @@ public class CDO implements Serializable
 
     public void setDateTimeArrayValue(String strFieldId,String[] strsValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1519,7 +1518,7 @@ public class CDO implements Serializable
 
     public void setCDOArrayValue(String strFieldId,CDO[] cdosValue)
     {
-    	//this.strXML=null;
+    	
 
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
@@ -1747,8 +1746,16 @@ public class CDO implements Serializable
     }
     
     
-    public void setObjectExt(String strFieldId, Field object) throws RuntimeException
+    public void setObjectExt(String strFieldId, Field field) throws RuntimeException
     {
+    	FieldId fieldId=this.parseFieldId(strFieldId);
+    	if(fieldId==null)
+    	{
+			throw new RuntimeException("Invalid FieldId "+strFieldId);
+    	}
+    	
+   		this.setObjectValue(fieldId,DataType.BOOLEAN_TYPE,field.getObjectValue(),field,this);
+   		/**
   		int nType=object.getType();
 		Object objValue=object.getObjectValue();
 		switch(nType)
@@ -1858,6 +1865,7 @@ public class CDO implements Serializable
 				throw new RuntimeException("Unsupported type "+nType);
 			}
 		}
+		**/
     }
 	
 	public void remove(String key)
@@ -2037,11 +2045,13 @@ public class CDO implements Serializable
 		cdoReturn.setIntegerValue("nCode",0);
 		cdoReturn.setStringValue("strText","测试");
 		cdoReturn.setStringValue("strInfo","测试");
+		cdo.setCDOArrayValue("cdosList", cdosList);
 		cdo.setCDOValue("cdoReturn",cdoReturn);
 		cdo.setCDOValue("cdoResponse", cdoResponse);
 		cdo.setStringArrayValue("cdoResponse.str",  new String[]{"xxx","yyy"});
 		
 		long startTime=System.currentTimeMillis();
+		CDO cdo2=null;
 		   for(int i=0;i<1;i++){
 				AvroCDO arvo=cdo.toAvro();
 		        ByteArrayOutputStream out=new ByteArrayOutputStream();  		        
@@ -2054,23 +2064,79 @@ public class CDO implements Serializable
 		        DatumReader<AvroCDO> reader=new SpecificDatumReader<AvroCDO>(AvroCDO.class);  
 		        Decoder decoder= DecoderFactory.get().binaryDecoder(out.toByteArray(),null);  
 		        AvroCDO result=reader.read(null,decoder);
-		        CDO cdo2=AvroCDODeserialize.fromAvro(result);
-		   }	   
-        System.out.println("avro ="+(System.currentTimeMillis()-startTime));
-        startTime=System.currentTimeMillis();
-        for(int i=0;i<1;i++){
-            String xml=cdo.toXML();
-            cdo.fromXML(xml);
-        }
-        System.out.println("xml serialize "+(System.currentTimeMillis()-startTime));
-//        System.out.println(cdo.tox);
-    	HashMap<String,ValueFieldImpl> hm=new LinkedHashMap<String, ValueFieldImpl>();
-    	hm.put("a", new LongField("ab",100));
-        for(Iterator<Map.Entry<String, ValueFieldImpl>> iterator=hm.entrySet().iterator();iterator.hasNext();){
-        	StringBuilder sBuilder=new StringBuilder();
-        	System.out.println( iterator.next().getValue().toString());
-        }
-	}
+		        AvroCDODeserialize a1=new AvroCDODeserialize();
+		         cdo2=a1.fromAvro(result);
+		   }	
+		   System.out.println(System.currentTimeMillis()-startTime);
+		   System.out.println(cdo2.toXMLWithIndent());
+		   startTime=System.currentTimeMillis();
+		   String xml=cdo.toXML();
+		   CDO cdo3=CDO.fromXML(xml);
+		   System.out.println("xml==="+(System.currentTimeMillis()-startTime));
+		   System.out.println("cdo3 length==="+cdo3.toXML());	   
+//        System.out.println("avro ="+(System.currentTimeMillis()-startTime));
+//        startTime=System.currentTimeMillis();
+//        for(int i=0;i<1;i++){
+//            String xml=cdo.toXML();
+//            cdo.fromXML(xml);
+//        }
+//        System.out.println("xml serialize "+(System.currentTimeMillis()-startTime));
+////        System.out.println(cdo.tox);
+//    	HashMap<String,ValueFieldImpl> hm=new LinkedHashMap<String, ValueFieldImpl>();
+//    	hm.put("a", new LongField("ab",100));
+//        for(Iterator<Map.Entry<String, ValueFieldImpl>> iterator=hm.entrySet().iterator();iterator.hasNext();){
+//        	StringBuilder sBuilder=new StringBuilder();
+//        	System.out.println( iterator.next().getValue().toString());
+//        }s
+		   
+//		   ByteBuffer buffer=ByteBuffer.allocate(5);
+//		   buffer.put((byte)1);
+//		   buffer.putInt(6);
+//		   buffer.flip();
+//		   
+//		   buffer.position(1);
+//		   System.out.println(buffer.getInt());
+//		   buffer.position(1);
+//		   System.out.println(buffer.getInt());
+//		   BooleanField b=new BooleanField("b", true);
+//		   System.out.println(b.getValue());
+//		   System.out.println(b.getValue());
+//		   System.out.println(b.getValue());
+//		   b.setValue(false);
+//		   System.out.println(b.getValue());
+//		   b.setValue(true);
+//		   System.out.println(b.getValue());
+//		   System.out.println(b.getValue());
 	
+//		    byte[] bsValue=new byte[]{32,45,12};
+			ByteBuffer buffer=null;
+			buffer=ByteBuffer.allocate(1+10*2);
+			buffer.put((byte)DataType.DATE_TYPE);
+			
+//			buffer.putInt(bsValue.length);
+//			buffer.put(" ".getBytes());
+//			buffer.put("".getBytes());
+//			buffer.put("".getBytes());
+//			buffer.put("".getBytes());
+//			buffer.put("1111-11-11".getBytes());
+//			buffer.flip();
+			
+//			buffer.position(1);
+//			buffer.limit(11);
+			byte[] bsValue=new byte[10]; 
+			buffer.clear();
+//			buffer.ge
+//			(buffer.slice()).get(bsValue);
+//			buffer.get(bsValue, 2, 12);
+//			buffer.clear();
+//			System.out.println("bytes="+new String(bsValue));
+//			String[] a=new String[]{"2012-05-01","2013-05-01","2014-05-01"};
+//			DateArrayField ab=new DateArrayField("feild", a);
+//			System.out.println(ab.getObjectValueAt(2));
+//			System.out.println(ab.getObjectValueAt(2));
+//			ab.setValueAt(2, "2014");
+//			System.out.println("xx="+ab.getObjectValueAt(2));
+			
+	}
 	
 }

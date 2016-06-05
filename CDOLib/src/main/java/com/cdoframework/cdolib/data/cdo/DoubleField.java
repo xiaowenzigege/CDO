@@ -12,6 +12,7 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -36,16 +37,40 @@ public class DoubleField extends ValueFieldImpl
 	 */
 	private static final long serialVersionUID = -794889290408597843L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
-	private double dblValue;
+	private ByteBuffer buffer;
+	private final int dataIndex=1;//数据保存的起始位置
+	private final int databuffer=8;//数据占用字节
 	public void setValue(double dblValue)
 	{
-		this.dblValue=dblValue;
+		allocate(dblValue);
 	}
 	public double getValue()
 	{
-		return this.dblValue;
+		
+		buffer.position(dataIndex);
+		return buffer.getDouble();
 	}
 
+	public Object getObjectValue()
+	{
+		 return new Double(getValue());
+	}
+	
+	@Override
+	public Buffer getBuffer() {	
+		return buffer;
+	}
+	
+	private void allocate(double dblValue){
+		if(buffer==null){
+			int len=dataIndex+databuffer;
+			buffer=ByteBuffer.allocate(len);
+			buffer.put((byte)DataType.DOUBLE_TYPE);
+		}
+		buffer.position(dataIndex);
+		buffer.putDouble(dblValue);
+		buffer.flip();
+	}	
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
@@ -53,33 +78,40 @@ public class DoubleField extends ValueFieldImpl
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
-		int len=1+8;//字段类型所占字节+数据所占字节
-		ByteBuffer buffer=ByteBuffer.allocate(len);
-		buffer.put((byte)DataType.DOUBLE_TYPE);
-		buffer.putDouble(dblValue);
-		buffer.flip();
-		
 		fieldMap.put(prefixField+this.getName(), buffer);
 	}	
 	
 	public void toXML(StringBuilder strbXML)
 	{
+		double dblValue=getValue();
 		strbXML.append("<DBLF N=\"").append(this.getName()).append("\"");
-		strbXML.append(" V=\"").append(this.dblValue).append("\"/>");
+		strbXML.append(" V=\"").append(dblValue).append("\"/>");
 	}
 
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
+		double dblValue=getValue();
 		String strIndent=Utility.makeSameCharString('\t',nIndentSize);		
 
 		strbXML.append(strIndent).append("<DBLF N=\"").append(this.getName()).append("\"");
-		strbXML.append(" V=\"").append(this.dblValue).append("\"/>\r\n");
+		strbXML.append(" V=\"").append(dblValue).append("\"/>\r\n");
 	}
 	
-	public Object getObjectValue()
+	public String toJSON()
 	{
-		return new Double(dblValue);
+		double dblValue=getValue();
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(dblValue).append(",");
+		return str_JSON.toString();
 	}
+
+	public String toJSONString()
+	{
+		double dblValue=getValue();
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(dblValue).append(",");
+		return str_JSON.toString();
+	}	
 
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
@@ -98,7 +130,7 @@ public class DoubleField extends ValueFieldImpl
 		
 		setType(DataType.DOUBLE_TYPE);
 		
-		this.dblValue	=0;
+		setValue(0);
 	}
 
 	public DoubleField(String strFieldName,double dblValue)
@@ -109,27 +141,23 @@ public class DoubleField extends ValueFieldImpl
 		
 		setType(DataType.DOUBLE_TYPE);
 		
-		this.dblValue	=dblValue;
+		setValue(dblValue);
 	}
 	
 	public DoubleField(double dblValue)
 	{
 
 		setType(DataType.DOUBLE_TYPE);		
-		this.dblValue	=dblValue;
+		setValue(dblValue);
 	}
 	
-	public String toJSON()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(this.dblValue).append(",");
-		return str_JSON.toString();
-	}
+	 DoubleField(String strFieldName,ByteBuffer buffer){
 
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(this.dblValue).append(",");
-		return str_JSON.toString();
-	}	
+			//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
+			super(strFieldName);
+			
+			setType(DataType.DOUBLE_TYPE);
+			
+			this.buffer=buffer;
+		} 
 }

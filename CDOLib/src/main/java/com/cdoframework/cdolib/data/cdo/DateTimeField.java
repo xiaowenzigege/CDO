@@ -12,6 +12,7 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -37,119 +38,96 @@ public class DateTimeField extends ValueFieldImpl
 	 */
 	private static final long serialVersionUID = 885706546812383630L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
-	private String strValue;
+	private ByteBuffer buffer;
+	private final int dataIndex=1;//数据保存的起始位置
+	private final int databuffer=DATETIME_FORMAT_STRING.length();//数据占用字节
+	private static String defaultWhiteSpace="";
+	
+	static{
+		for(int i=0;i<DATETIME_FORMAT_STRING.length();i++){//空格用于占位使用
+			defaultWhiteSpace=defaultWhiteSpace+" ";
+		}
+	}
 	public void setValue(String strValue)
 	{
-		if(strValue.length()!=19)
+		if(Utility.checkDateTime(strValue)==false)
 		{
-			throw new RuntimeException("Invalid date format");
-		}
-		
-		//处理日期
-		if(strValue.charAt(4)!='-' && strValue.charAt(7)!='-')
-		{
-			throw new RuntimeException("Invalid date format");
-		}
-		String strYear=strValue.substring(0,4);
-		String strMonth=strValue.substring(5,7);
-		String strDay=strValue.substring(8,10);
-		if(Utility.isIntText(strYear)==false || Utility.isIntText(strMonth)==false || Utility.isIntText(strDay)==false)
-		{
-			throw new RuntimeException("Invalid date format");
-		}
-		int nMonth=Integer.parseInt(strMonth);
-		if(nMonth<1 || nMonth>12)
-		{
-			throw new RuntimeException("Invalid date format");
-		}
-		int nDay=Integer.parseInt(strDay);
-		if(nDay<1 || nDay>31)
-		{
-			throw new RuntimeException("Invalid date format");
-		}
-		if((nMonth==1 || nMonth==3 || nMonth==5 || nMonth==7 || nMonth==8 || nMonth==10 || nMonth==12) && nDay>31)
-		{//大月
-			throw new RuntimeException("Invalid date format");
-		}
-		if((nMonth==4 || nMonth==6 || nMonth==9 || nMonth==11) && nDay>30)
-		{//小月
-			throw new RuntimeException("Invalid date format");
-		}
-		int nYear=Integer.parseInt(strYear);
-		if(Utility.isLeapYear(nYear)==false && nDay>28)
-		{
-			throw new RuntimeException("Invalid date format");
-		}
-		if(Utility.isLeapYear(nYear) && nDay>29)
-		{
-			throw new RuntimeException("Invalid date format");
-		}
+			throw new RuntimeException("Invalid dateTime or Invalid dateTime format,dateTime format is "+DATETIME_FORMAT_STRING);
+		}		
+		allocate(strValue);
 
-		//处理时间
-		if(strValue.charAt(13)!=':' && strValue.charAt(16)!=':')
-		{
-			throw new RuntimeException("Invalid date format");
-		}
-		String strHour=strValue.substring(11,13);
-		String strMinute=strValue.substring(14,16);
-		String strSecond=strValue.substring(17);
-		if(Utility.isIntText(strHour)==false || Utility.isIntText(strMinute)==false || Utility.isIntText(strSecond)==false)
-		{
-			throw new RuntimeException("Invalid date format");
-		}
-		int nHour=Integer.parseInt(strHour);
-		if(nHour<0 || nHour>23)
-		{
-			throw new RuntimeException("Invalid date format");
-		}
-		int nMinute=Integer.parseInt(strMinute);
-		if(nMinute<0 || nMinute>59)
-		{
-			throw new RuntimeException("Invalid date format");
-		}
-		int nSecond=Integer.parseInt(strSecond);
-		if(nSecond<0 || nSecond>59)
-		{
-			throw new RuntimeException("Invalid date format");
-		}
-		
-		this.strValue=strValue;
 	}
 	
 	public String getValue()
 	{
-		return this.strValue;
+		byte[] bsValue=new byte[databuffer];
+		buffer.position(dataIndex);
+		buffer.limit(buffer.capacity());
+		(buffer.slice()).get(bsValue);
+		buffer.clear();
+		return new String(bsValue).trim();
 	}
 
+	public Object getObjectValue()
+	{
+		return getValue();
+	}
+	
+	@Override
+	public Buffer getBuffer() {	
+		return buffer;
+	}
+	
+	private void allocate(String strValue){
+		if(buffer==null){
+			int len=dataIndex+databuffer;
+			buffer=ByteBuffer.allocate(len);
+			buffer.put((byte)DataType.DATETIME_TYPE);
+		}
+		buffer.position(dataIndex);
+		buffer.put(strValue.getBytes());
+		buffer.flip();
+	}	
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
-		ByteBuffer buffer=str2Bytes(this.strValue,DataType.DATETIME_TYPE);			
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){				
 		fieldMap.put(prefixField+this.getName(), buffer);
 	}	
 	
 	public void toXML(StringBuilder strbXML)
 	{
+		String strValue=getValue();
 		strbXML.append("<DTF N=\"").append(this.getName()).append("\"");
-		strbXML.append(" V=\"").append(this.strValue).append("\"/>");
+		strbXML.append(" V=\"").append(strValue).append("\"/>");
 	}
 	
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		String strIndent=Utility.makeSameCharString('\t',nIndentSize);
-		
+		String strValue=getValue();
 		strbXML.append(strIndent).append("<DTF N=\"").append(this.getName()).append("\"");
-		strbXML.append(" V=\"").append(this.strValue).append("\"/>\r\n");
+		strbXML.append(" V=\"").append(strValue).append("\"/>\r\n");
 	}
 
-	public Object getObjectValue()
+	public String toJSON()
 	{
-		return strValue;
+		String strValue=getValue();
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":\"").append(strValue).append("\",");
+		return str_JSON.toString();
 	}
 
+	public String toJSONString()
+	{
+		String strValue=getValue();
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":\\\"").append(strValue).append(
+						"\\\",");
+		return str_JSON.toString();
+	}		
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
@@ -167,7 +145,7 @@ public class DateTimeField extends ValueFieldImpl
 		
 		setType(DataType.DATETIME_TYPE);
 		
-		this.strValue	="";
+		allocate(defaultWhiteSpace);
 	}
 
 	public DateTimeField(String strFieldName,String strValue)
@@ -178,21 +156,22 @@ public class DateTimeField extends ValueFieldImpl
 		
 		setType(DataType.DATETIME_TYPE);
 		
-		this.strValue	=strValue;
+		if(strValue==null)
+		{
+			strValue="";
+		}
+		setValue(strValue);
 	}
 
-	public String toJSON()
+	 DateTimeField(String strFieldName,ByteBuffer buffer)
 	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\"").append(this.getName()).append("\"").append(":\"").append(this.strValue).append("\",");
-		return str_JSON.toString();
+
+		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
+		super(strFieldName);
+		
+		setType(DataType.DATETIME_TYPE);
+		
+		this.buffer=buffer;
 	}
 
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":\\\"").append(this.strValue).append(
-						"\\\",");
-		return str_JSON.toString();
-	}	
 }

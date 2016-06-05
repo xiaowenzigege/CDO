@@ -28,6 +28,7 @@
 package com.cdoframework.cdolib.data.cdo;
 
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import com.cdoframework.cdolib.base.DataType;
  * @author Frank
  * modify by @author KenelLiu
  * add method toXMLLog  toString  toAvro 
+ * add buffer
  */
 public interface Field extends DataType
 {
@@ -72,46 +74,45 @@ public interface Field extends DataType
 	public void toXMLLog(StringBuilder strbXML);
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML);
 	
+	/**
+	 * [CDOField,CDOArrayField]字段  由CDO构成，CDO保存的数据是由 以下基础数据字段组成
+	 * 即对基础字段序列化即可
+	 * 
+	 * 数据存储采用buffer 字节存储。以便使用avro 字节快速序列化,反序列化
+	 * I 类型-数据
+	 * 	 boolean,short,int,long,float,double,date,dataTime,Time,String 序列化
+	 *   第一个字节  字段类型参数	
+	 *   第二个字节到末尾为数据
+		 * 每个数据 内容  所占字节
+		 * boolean  1个字节
+		 * byte  1个字节
+		 * short 2个字节
+		 * int   4个字节
+		 * long  8个字节
+		 * float 4个字节
+		 * doulbe 8个字节
+		 * date   10个字节  格式(2012-10-15)
+		 * dateTime 19字节 格式(2012-10-15 20:12:10)
+		 * Time 8个字节   格式(20:12:10)
+		 * string utf8实际占用的字节长度
+	   II 类型-数组长度--数据-数据-数据-数据-数据-数据	   
+	      byte,boolean,short,int,long,float,double,date,dataTime,Time数组序列化 
+	                    第一个字节  字段类型参数
+	      A  byte数组  的 数组长度    使用 int型表示 占4个字节  最多为 (Integer.MAX_VALUE)         
+	      B  其余[boolean,short,...Time] 数组长度  为short型  占2个字节,数组最多为 (Short.MAX_VALUE) 	       
+	                    数组中的每个数据 所占字节参考 I
+	   III string数组类型-数组长度-数据长度-数据内容-数据长度-数据内容....--数据长度--数据内容-.....
+	                       第一个字节  字段类型参数    
+	                        数组长度     占2个字节 为short型,数组最多为 (Short.MAX_VALUE)
+	                        每个数据长度     占4个字节 为int 型,表示  实际数据内容的字节长度,最多有(Integer.MAX_VALUE)个UTF8字节         
+	                        每个数据内容   utf8实际占用的字节长度
+	   IV 文件类型  考虑到文件数据量大,不在这儿序列化,在传输中做字节流特别处理,且仅对CDO 最外层的文件类型 做传输
+	                    对CDO里嵌套CDO包含的文件对象，考虑复杂度,性能,实际用途均会忽略掉文件传输.	                         	                                                                                   
+	 */
+	public  Buffer getBuffer();
 	
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap);
-	/**
-	 *  A 类型-数据	
-	 *  对  boolean,short,int,long,float,double,string 序列化
-	 *  第一个字节  字段类型参数
-	 *  第2个字节到末尾为数据
-		 * 每个数据 占字节
-		 * boolean  1个字节
-		 * short 2个字节
-		 * int   4个字节
-		 * long  8个字节
-		 * float 4个字节
-		 * doulbe 8个字节
-		 * string utf8实际占用的字节长度
-
-	 * B 类型-数组个数(Short型)-数据-数据-数据。。。。
-	 *  对于 boolean,short,int,long,float,double数组序列化 
-	 * 第一个字节  字段类型参数
-	 * 第2,3个字节组合  为数组长度。short型  最多(Short.MAX_VALUE)个数组
-	 * 第4个到末尾 数据,
-	 * 每个数据 占字节
-		 * boolean  1个字节
-		 * short 2个字节
-		 * int   4个字节
-		 * long  8个字节
-		 * float 4个字节
-		 * doulbe 8个字节
-		 * 
-	         对于 bytes数组 类型-数组个数(int型)-数据-数据-数据
-
-	   C  类型-数组个数(short型)-int长度-utf8数据-int长度-utf8数据-int长度-utf8数据	
-	             对String 数组序列化 
-	   	  第一个字节  字段类型参数 
-	   	  第2,3个字节组合  为数组长度。short型  最多(Short.MAX_VALUE)个数组
-	   	 第4-7个字节 4个字节长度，后面为第一个数据UTF8字符长度
-	   	 之后为第二个字符的长度[4个字节表示] 后面为第二个数据UTF8字符内容
-	  
-	   D 对文件类型  在传输中  特别处理，不再这儿做处理	 
-	 */
+	
 	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel);
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 

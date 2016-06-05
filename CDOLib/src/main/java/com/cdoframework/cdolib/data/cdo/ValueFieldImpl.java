@@ -6,22 +6,7 @@
  * $Log: Field.java,v $
  * Revision 1.3  2008/03/22 13:32:54  Frank
  * *** empty log message ***
- *
- * Revision 1.2  2008/03/12 10:30:57  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2008/03/07 11:20:20  Frank
- * *** empty log message ***
- *
- * Revision 1.3  2007/11/03 02:25:40  Frank
- * *** empty log message ***
- *
- * Revision 1.2  2007/10/11 13:55:05  Frank
- * *** empty log message ***
- *
- * Revision 1.1  2007/10/11 01:10:56  Frank
- * *** empty log message ***
- *
+
  *
  */
 
@@ -29,8 +14,6 @@ package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-
-import com.cdoframework.cdolib.base.DataType;
 
 /**
  * @author Frank
@@ -88,4 +71,5 @@ public abstract class ValueFieldImpl extends FieldImpl implements Field
 		buffer.flip();		
 		return buffer;
 	}
+	
 }

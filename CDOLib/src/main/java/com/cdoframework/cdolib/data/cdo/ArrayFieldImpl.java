@@ -60,28 +60,10 @@ public abstract class ArrayFieldImpl extends ValueFieldImpl implements ArrayFiel
 		super(strFieldName);
 	}
 	
-	protected ByteBuffer strArr2Bytes(String[] strsValue,int DataType){
-		int[] dataLen=new int[strsValue.length];//每个字符串长度
-		byte[][] content=new byte[strsValue.length][];//内容字节
-		byte[] value=null;
-		int dataTotalLen=0;
-		for(int i=0;i<strsValue.length;i++)
-		{			
-			value=strsValue[i].getBytes(Charset.forName("UTF-8"));//faster in Java 7 & 8,slow in java6
-			content[i]=value;           //内容数据 
-			dataLen[i]=value.length;  //内容数据的长度
-			dataTotalLen=dataTotalLen+value.length;//所有内容数据的长度
-		}
-		
-		int len=1+2+strsValue.length*4+dataTotalLen;//字段类型所占字节+数组个数所占字节+数据长度所占字节+数据所占字节
-		ByteBuffer buffer=ByteBuffer.allocate(len);
-		buffer.put((byte)DataType);
-		buffer.putShort((short)strsValue.length);
-		for(int i=0;i<strsValue.length;i++){
-			buffer.putInt(dataLen[i]);
-			buffer.put(content[i]);
-		}
-		buffer.flip();	
-		return buffer;
+	protected void checkArrayIndex(int nIndex){
+		int len=getLength();
+		if(nIndex>=len)
+			throw new ArrayIndexOutOfBoundsException("index ["+nIndex+"],array length="+len);
 	}
+	
 }

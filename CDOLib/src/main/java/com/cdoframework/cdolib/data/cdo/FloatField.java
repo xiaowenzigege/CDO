@@ -8,6 +8,7 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -32,50 +33,82 @@ public class FloatField extends ValueFieldImpl
 	 */
 	private static final long serialVersionUID = -6190593964278306132L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
-	private float fValue;
+	private ByteBuffer buffer;
+	private final int dataIndex=1;//数据保存的起始位置
+	private final int databuffer=4;//数据占用字节
+	
 	public void setValue(float fValue)
 	{
-		this.fValue=fValue;
+		allocate(fValue);
 	}
 	public float getValue()
 	{
-		return this.fValue;
+		
+		buffer.position(dataIndex);
+		return buffer.getFloat();
 	}
-
+	
+	public Object getObjectValue()
+	{
+		return new Float(getValue());
+	}
+	
+	
+	@Override
+	public Buffer getBuffer() {	
+		return buffer;
+	}
+	
+	private void allocate(float dblValue){
+		if(buffer==null){
+			int len=dataIndex+databuffer;
+			buffer=ByteBuffer.allocate(len);
+			buffer.put((byte)DataType.FLOAT_TYPE);
+		}
+		buffer.position(dataIndex);
+		buffer.putFloat(dblValue);
+		buffer.flip();
+	}		
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
-		int len=1+4;//字段类型所占字节+数据所占字节
-		ByteBuffer buffer=ByteBuffer.allocate(len);
-		buffer.put((byte)DataType.FLOAT_TYPE);
-		buffer.putFloat(fValue);
-		buffer.flip();
-		
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){		
 		fieldMap.put(prefixField+this.getName(), buffer);
 	}		
 	
 	public void toXML(StringBuilder strbXML)
 	{
+		float fValue=getValue();
 		strbXML.append("<FF N=\"").append(this.getName()).append("\"");
-		strbXML.append(" V=\"").append(this.fValue).append("\"/>");
+		strbXML.append(" V=\"").append(fValue).append("\"/>");
 	}
 
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
+		float fValue=getValue();
 		String strIndent=Utility.makeSameCharString('\t',nIndentSize);		
 
 		strbXML.append(strIndent).append("<FF N=\"").append(this.getName()).append("\"");
-		strbXML.append(" V=\"").append(this.fValue).append("\"/>\r\n");
-	}
-	
-	public Object getObjectValue()
-	{
-		return new Float(fValue);
+		strbXML.append(" V=\"").append(fValue).append("\"/>\r\n");
 	}
 
+	public String toJSON()
+	{
+		float fValue=getValue();
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(fValue).append(",");
+		return str_JSON.toString();
+	}
+
+	public String toJSONString()
+	{
+		float fValue=getValue();
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(fValue).append(",");
+		return str_JSON.toString();
+	}	
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
@@ -92,8 +125,8 @@ public class FloatField extends ValueFieldImpl
 		super(strFieldName);
 		
 		setType(DataType.FLOAT_TYPE);
-		
-		this.fValue	=0;
+				
+		setValue(0);
 	}
 
 	public FloatField(String strFieldName,float fValue)
@@ -104,7 +137,7 @@ public class FloatField extends ValueFieldImpl
 		
 		setType(DataType.FLOAT_TYPE);
 		
-		this.fValue	=fValue;
+		setValue(fValue);
 	}
 
 
@@ -113,20 +146,18 @@ public class FloatField extends ValueFieldImpl
 
 		setType(DataType.FLOAT_TYPE);
 		
-		this.fValue	=fValue;
+		setValue(fValue);
 	}
 	
-	public String toJSON()
+	 //仅作反序列化使用  不对外开放
+	 FloatField(String strFieldName,ByteBuffer buffer)
 	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(this.fValue).append(",");
-		return str_JSON.toString();
-	}
 
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(this.fValue).append(",");
-		return str_JSON.toString();
-	}	
+		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
+		super(strFieldName);
+		
+		setType(DataType.FLOAT_TYPE);
+		
+		this.buffer=buffer;
+	}
 }

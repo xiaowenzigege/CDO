@@ -10,6 +10,7 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
@@ -34,49 +35,81 @@ public class ShortField extends ValueFieldImpl
 	 */
 	private static final long serialVersionUID = 5553898334046272956L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
-	private short shValue;
+	private ByteBuffer buffer;
+	private final int dataIndex=1;//数据保存的起始位置
+	private final int databuffer=2;//数据占用字节
+	
 	public void setValue(short shValue)
 	{
-		this.shValue=shValue;
+		allocate(shValue);
 	}
+	
 	public short getValue()
 	{
-		return this.shValue;
+		buffer.position(dataIndex);
+		return buffer.getShort();
 	}
-
+	
+	public Object getObjectValue()
+	{
+		return new Short(getValue());
+	}
+	
+	@Override
+	public Buffer getBuffer() {	
+		return buffer;
+	}
+	
+	private void allocate(short shValue){
+		if(buffer==null){
+			int len=dataIndex+databuffer;
+			buffer=ByteBuffer.allocate(len);
+			buffer.put((byte)DataType.SHORT_TYPE);
+		}
+		buffer.position(dataIndex);
+		buffer.putShort(shValue);
+		buffer.flip();
+	}		
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
-		int len=1+2;//字段类型所占字节+数据所占字节
-		ByteBuffer buffer=ByteBuffer.allocate(len);
-		buffer.put((byte)DataType.SHORT_TYPE);
-		buffer.putShort(shValue);
-		buffer.flip();
-		
 		fieldMap.put(prefixField+this.getName(), buffer);
 	}		
 	
 	public void toXML(StringBuilder strbXML)
 	{
+		short shValue=getValue(); 
 		strbXML.append("<SF N=\"").append(this.getName()).append("\"");
-		strbXML.append(" V=\"").append(this.shValue).append("\"/>");
+		strbXML.append(" V=\"").append(shValue).append("\"/>");
 	}
 
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
+		short shValue=getValue(); 
 		String strIndent=Utility.makeSameCharString('\t',nIndentSize);		
 
 		strbXML.append(strIndent).append("<SF N=\"").append(this.getName()).append("\"");
-		strbXML.append(" V=\"").append(this.shValue).append("\"/>\r\n");
+		strbXML.append(" V=\"").append(shValue).append("\"/>\r\n");
 	}
 
-	public Object getObjectValue()
+	public String toJSON()
 	{
-		return new Short(shValue);
+		short shValue=getValue(); 
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(shValue).append(",");
+		return str_JSON.toString();
 	}
+
+	public String toJSONString()
+	{
+		short shValue=getValue(); 
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(shValue).append(",");
+		return str_JSON.toString();
+	}	
 
 
 
@@ -95,8 +128,8 @@ public class ShortField extends ValueFieldImpl
 		super(strFieldName);
 		
 		setType(DataType.SHORT_TYPE);
-		
-		this.shValue	=0;
+
+		setValue((short)0);
 	}
 
 	public ShortField(String strFieldName,short shValue)
@@ -107,7 +140,7 @@ public class ShortField extends ValueFieldImpl
 		
 		setType(DataType.SHORT_TYPE);
 		
-		this.shValue	=shValue;
+		setValue(shValue);
 	}
 	
 	public ShortField(short shValue)
@@ -115,19 +148,17 @@ public class ShortField extends ValueFieldImpl
 		
 		setType(DataType.SHORT_TYPE);
 		
-		this.shValue	=shValue;
-	}
-	public String toJSON()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(this.shValue).append(",");
-		return str_JSON.toString();
+		setValue(shValue);
 	}
 
-	public String toJSONString()
+	 ShortField(String strFieldName,ByteBuffer buffer)
 	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(this.shValue).append(",");
-		return str_JSON.toString();
-	}	
+
+		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
+		super(strFieldName);
+		
+		setType(DataType.SHORT_TYPE);
+		
+		this.buffer=buffer;
+	}
 }
