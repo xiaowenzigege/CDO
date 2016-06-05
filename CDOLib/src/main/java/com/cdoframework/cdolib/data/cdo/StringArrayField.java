@@ -62,7 +62,8 @@ public class StringArrayField extends ArrayFieldImpl
 				strsValue[i]="";
 			}
 		}
-		this.strsValue=strsValue;		
+		this.strsValue=strsValue;	
+		allocate(this.strsValue);
 	}
 	public String[] getValue()
 	{
@@ -170,8 +171,7 @@ public class StringArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){		
-		allocate(this.strsValue);
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){				
 		fieldMap.put(prefixField+this.getName(), buffer);
 	}	
 	
@@ -307,6 +307,7 @@ public class StringArrayField extends ArrayFieldImpl
 
 		this.strsValue	=strsValue;
 		setValue(this.strsValue);
+		
 	}
 	
 	StringArrayField(String strFieldName,ByteBuffer buffer)

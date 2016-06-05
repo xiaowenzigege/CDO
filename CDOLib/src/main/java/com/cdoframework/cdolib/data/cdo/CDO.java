@@ -25,6 +25,8 @@ import java.util.Set;
 
 import nanoxml.XMLElement;
 
+import org.apache.avro.file.DataFileStream;
+import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Decoder;
@@ -37,10 +39,10 @@ import org.apache.log4j.Logger;
 
 import com.cdo.avro.schema.ArvoMain;
 import com.cdo.avro.schema.AvroCDO;
+import com.cdo.avro.schema.AvroCDONameValuePair;
 import com.cdo.avro.serialize.AvroCDODeserialize;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
-
 /**
  * @author Frank
  * modify by @author KenelLiu
@@ -587,10 +589,15 @@ public class CDO implements Serializable
 	public  AvroCDO toAvro(){
 		Map<CharSequence,ByteBuffer> fieldMap=new LinkedHashMap<CharSequence, ByteBuffer>();
 		String prefixField="";
+		long startTime=System.nanoTime();
 		int maxLevel=toAvro(prefixField,fieldMap,0);
+		System.out.println("total 0="+(System.nanoTime()-startTime));
 		AvroCDO arvo=new AvroCDO();
+		System.out.println("total 1="+(System.nanoTime()-startTime));
 		arvo.setFields(fieldMap);
+		System.out.println("total 2="+(System.nanoTime()-startTime));
 		arvo.setLevel(maxLevel);
+		System.out.println("total 3="+(System.nanoTime()-startTime));
 		return arvo;
 	}
 	
@@ -598,7 +605,6 @@ public class CDO implements Serializable
 		Entry<String, Field> entry=null;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
 			entry=it.next();
-//			Field fieldItem=this.createField(entry.getKey(),entry.getValue());			
 			entry.getValue().toAvro(prefixField, fieldMap);
 		}
 	}
@@ -608,7 +614,6 @@ public class CDO implements Serializable
 		int curLevel=0;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
 			entry=it.next();
-//			Field fieldItem=this.createField(entry.getKey(),entry.getValue());			
 			curLevel=entry.getValue().toAvro(prefixField, fieldMap,maxLevel);
 			if(curLevel>maxLevel)
 				maxLevel=curLevel;
@@ -2022,20 +2027,20 @@ public class CDO implements Serializable
 		{			
 			cdosList[i]=new CDO();
 
-			CDO[] cdo1=new CDO[2];
-			for(int j=0;j<cdo1.length;j++){
-				cdo1[j]=new CDO();
-				cdo1[j].setStringValue("strName2","张三"+i);
-				cdo1[j].setDateValue("dBirthday2","2000-01-01");
-			}
-			cdosList[i].setCDOArrayValue("cdoArr", cdo1);
+//			CDO[] cdo1=new CDO[2];
+//			for(int j=0;j<cdo1.length;j++){
+//				cdo1[j]=new CDO();
+//				cdo1[j].setStringValue("strName2","张三"+i);
+//				cdo1[j].setDateValue("dBirthday2","2000-01-01");
+//			}
+//			cdosList[i].setCDOArrayValue("cdoArr", cdo1);
 			cdosList[i].setBooleanValue("booleanValue", true);
 			cdosList[i].setStringValue("strValue", "cdosList张"+i);
 			cdosList[i].setIntegerArrayValue("nsCDOList"+i, new int[]{1,2,3});
-			CDO subcdo=new CDO();
-			subcdo.setStringArrayValue("xx", new String[]{"ss","x"});
-			subcdo.setIntegerArrayValue("nsCDOList"+i, new int[]{1,2,3});
-			cdosList[i].setCDOValue("subCDO", subcdo);
+//			CDO subcdo=new CDO();
+//			subcdo.setStringArrayValue("xx", new String[]{"ss","x"});
+//			subcdo.setIntegerArrayValue("nsCDOList"+i, new int[]{1,2,3});
+//			cdosList[i].setCDOValue("subCDO", subcdo);
 			
 		}
 		cdoResponse.setCDOArrayValue("cdosList", cdosList);
@@ -2045,35 +2050,42 @@ public class CDO implements Serializable
 		cdoReturn.setIntegerValue("nCode",0);
 		cdoReturn.setStringValue("strText","测试");
 		cdoReturn.setStringValue("strInfo","测试");
-		cdo.setCDOArrayValue("cdosList", cdosList);
+//		cdo.setCDOArrayValue("cdosList", cdosList);
 		cdo.setCDOValue("cdoReturn",cdoReturn);
 		cdo.setCDOValue("cdoResponse", cdoResponse);
 		cdo.setStringArrayValue("cdoResponse.str",  new String[]{"xxx","yyy"});
 		
 		long startTime=System.currentTimeMillis();
 		CDO cdo2=null;
+		AvroCDO arvo=null;
 		   for(int i=0;i<1;i++){
-				AvroCDO arvo=cdo.toAvro();
+				 arvo=cdo.toAvro();
+				 System.out.println("avro map="+(System.currentTimeMillis()-startTime));
+				 startTime=System.currentTimeMillis();
 		        ByteArrayOutputStream out=new ByteArrayOutputStream();  		        
 		        DatumWriter<AvroCDO> writer=new SpecificDatumWriter<AvroCDO>(AvroCDO.class);  
 		        Encoder encoder= EncoderFactory.get().binaryEncoder(out,null);  
 		        writer.write(arvo, encoder);  
 		        encoder.flush();  
 		        out.close();  
-		        
+		        System.out.println("avro serialize="+(System.currentTimeMillis()-startTime));
+		        startTime=System.currentTimeMillis();
 		        DatumReader<AvroCDO> reader=new SpecificDatumReader<AvroCDO>(AvroCDO.class);  
 		        Decoder decoder= DecoderFactory.get().binaryDecoder(out.toByteArray(),null);  
 		        AvroCDO result=reader.read(null,decoder);
 		        AvroCDODeserialize a1=new AvroCDODeserialize();
-		         cdo2=a1.fromAvro(result);
+		        System.out.println("avro read deserialize="+(System.currentTimeMillis()-startTime));
+		        startTime=System.currentTimeMillis();
+		        cdo2=a1.fromAvro(result);
+		        System.out.println("avro deserialize="+(System.currentTimeMillis()-startTime));
 		   }	
 		   System.out.println(System.currentTimeMillis()-startTime);
-		   System.out.println(cdo2.toXMLWithIndent());
-		   startTime=System.currentTimeMillis();
+//		   System.out.println(cdo2.toXMLWithIndent());
+		   startTime=System.nanoTime();
 		   String xml=cdo.toXML();
 		   CDO cdo3=CDO.fromXML(xml);
-		   System.out.println("xml==="+(System.currentTimeMillis()-startTime));
-		   System.out.println("cdo3 length==="+cdo3.toXML());	   
+		   System.out.println("xml==="+(System.nanoTime()-startTime));
+//		   System.out.println("cdo3 length==="+cdo3.toXML());	   
 //        System.out.println("avro ="+(System.currentTimeMillis()-startTime));
 //        startTime=System.currentTimeMillis();
 //        for(int i=0;i<1;i++){
@@ -2137,6 +2149,43 @@ public class CDO implements Serializable
 //			ab.setValueAt(2, "2014");
 //			System.out.println("xx="+ab.getObjectValueAt(2));
 			
+			AvroCDONameValuePair nameValue=new AvroCDONameValuePair();
+			
+			Map<java.lang.CharSequence,java.nio.ByteBuffer>  map=arvo.getFields();
+			ByteArrayOutputStream out=new ByteArrayOutputStream();  
+			startTime=System.nanoTime();		  		
+		    DatumWriter<AvroCDONameValuePair> writer=new SpecificDatumWriter<AvroCDONameValuePair>(AvroCDONameValuePair.class);    
+		    DataFileWriter<AvroCDONameValuePair> dataFileWriter = new DataFileWriter<AvroCDONameValuePair>(writer); 		          
+		    dataFileWriter.create(nameValue.getSchema(),out);
+		    System.out.println("nan ms==="+(System.nanoTime()-startTime));
+		    startTime=System.nanoTime();
+			for(Iterator<Map.Entry<CharSequence, ByteBuffer>> it=map.entrySet().iterator();it.hasNext();){
+				
+				Entry<CharSequence, ByteBuffer> entry=it.next();
+				nameValue=new AvroCDONameValuePair();
+				nameValue.setName(entry.getKey());
+				nameValue.setValue(entry.getValue());
+				dataFileWriter.append(nameValue);
+				  System.out.println("nan ms==="+(System.nanoTime()-startTime));
+			}
+					
+		   //.flush();  
+		   dataFileWriter.close();
+		   out.close(); 
+//		   517946586
+//		   201112628 
+		   System.out.println("nan ms==="+(System.nanoTime()-startTime));
+		   ByteArrayInputStream in=new ByteArrayInputStream(out.toByteArray());
+		   DatumReader<AvroCDONameValuePair> reader=new SpecificDatumReader<AvroCDONameValuePair>(AvroCDONameValuePair.class);  
+		   DataFileStream<AvroCDONameValuePair> dataFileReader = new DataFileStream<AvroCDONameValuePair>( in,reader);
+		   AvroCDONameValuePair user = null;
+	       while (dataFileReader.hasNext()) {
+	            user = dataFileReader.next();	            
+	       }  
+	       //203240390
+//	         174835515
+	 
+		
 	}
 	
 }
