@@ -1,0 +1,19 @@
+{"namespace": "com.cdo.avro.protocol",
+ "protocol": "CDOProtocol",
+ "doc":"avro cdo rpc ",
+  
+ "types": [
+     {"name": "AvroCDO", "type": "record",
+      "fields": [
+	   {"name":"level","type":"int"},
+	   {"name":"fields","type":{"type":"map", "values":"bytes"}}
+      ]
+     }
+ ],
+ "messages": {
+     "send": {
+         "request": [{"name": "avroCDOReq", "type": "AvroCDO"}],
+         "response":"AvroCDO"
+     }
+ }
+}
