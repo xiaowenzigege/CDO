@@ -1,9 +1,0 @@
-{
-  "namespace" : "com.cdo.avro.schema",
-  "type" : "record",
-  "name" : "AvroCDO",
-  "fields" : [  
-   {"name":"level","type":"int"},
-   {"name":"fields","type":{"type":"map", "values":"bytes"}}
-]
-}

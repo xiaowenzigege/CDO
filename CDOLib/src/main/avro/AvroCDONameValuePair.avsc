@@ -1,9 +1,0 @@
-{
-  "namespace" : "com.cdo.avro.schema",
-  "type" : "record",
-  "name" : "AvroCDONameValuePair",
-  "fields" : [  
-   {"name":"name","type":"string"},
-   {"name":"value","type":"bytes"}
-]
-}

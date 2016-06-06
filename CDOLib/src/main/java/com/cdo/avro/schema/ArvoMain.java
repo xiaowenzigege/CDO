@@ -4,9 +4,12 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.util.LinkedHashMap;
 
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileStream;
@@ -15,9 +18,11 @@ import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.DatumWriter;
+import org.apache.avro.ipc.HandshakeRequest;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 
+import com.cdo.avro.protocol.AvroCDO;
 import com.cdoframework.cdolib.data.cdo.CDO;
 
 
@@ -65,109 +70,18 @@ public class ArvoMain {
 	                      " {\"name\": \"CDO\", \"type\": example.avro.AvroCDO },\n" +
 	                      " {\"name\": \"specialData\", \"type\": \"int\"} ]\n" +
 	          "}";
+
 	       
 	public static void main(String[] args) {
 		try{
-//			schemaDescription=readFile(new FileInputStream("E:/CDO/CDO/CDOLib/src/main/avro/AvroCDO.avsc"));
+			schemaDescription=readFile(new FileInputStream("E:/CDO/CDO/CDOLib/src/main/avro/CDONameValuePair.avsc"));
 			AvroUtils.parseSchema(schemaDescription);
-//			schemaDescriptionExt=readFile(new FileInputStream("E:/CDO/CDO/CDOLib/src/main/avro/CDO.avsc"));
+			schemaDescriptionExt=readFile(new FileInputStream("E:/CDO/CDO/CDOLib/src/main/avro/ArrayCDONameValuePair.avsc"));
 			Schema extended = AvroUtils.parseSchema(schemaDescriptionExt);
 			System.out.println(extended.toString(true));
-			Schema schema = new Schema.Parser().parse(new File("d:/test/test.txt"));
-			GenericRecord user1 = new GenericData.Record(schema);
-			user1.put("name", "Alyssa");
-			user1.put("favorite_number", 256);
-			// Leave favorite color null
 
-			GenericRecord user2 = new GenericData.Record(schema);
-			user2.put("name", "Ben");
-			user2.put("favorite_number", 7);
-			user2.put("favorite_color", "red");
-//			user2.put(key, v);
-			CDO cdo = new CDO();
-			cdo.setByteArrayValue("bytes", new byte[]{1,2,3});
-			cdo.setStringValue("strName1","张三");
-			cdo.setIntegerValue("nAge1",0);
-			cdo.setDateValue("dBirthday1","2000-01-01");
-			int[] nsValue=new int[3];
-			for(int i=0;i<nsValue.length;i++)
-			{
-				nsValue[i]=i;
-			}
-			cdo.setIntegerArrayValue("nsValue1",nsValue);
-			String[] strsValue=new String[3];
-			for(int i=0;i<strsValue.length;i++)
-			{
-				strsValue[i]="strValue"+i;
-			}
-			cdo.setStringArrayValue("strsValue",strsValue);
-
-
-			CDO cdoResponse=new CDO();
-			cdoResponse.setIntegerValue("ncount", 5);
-			CDO[] cdosList=new CDO[5];
-			for(int i=0;i<cdosList.length;i++)
-			{			
-				cdosList[i]=new CDO();
-
-				CDO[] cdo1=new CDO[2];
-				for(int j=0;j<cdo1.length;j++){
-					cdo1[j]=new CDO();
-					cdo1[j].setStringValue("strName2","张三"+i);
-					cdo1[j].setDateValue("dBirthday2","2000-01-01");
-				}
-				cdosList[i].setCDOArrayValue("cdo1", cdo1);
-				cdosList[i].setBooleanValue("booleanValue", true);
-				cdosList[i].setStringValue("strValue", "cdosList张"+i);
-				cdosList[i].setIntegerArrayValue("nsCDOList"+i, new int[]{1,2,3});
-				CDO cdo2=new CDO();
-				cdo2.setStringArrayValue("xx", new String[]{"ss","x"});
-				cdo2.setIntegerArrayValue("nsCDOList"+i, new int[]{1,2,3});
-				cdosList[i].setCDOValue("cdo", cdo2);
-				
-			}
-			cdoResponse.setCDOArrayValue("cdosList", cdosList);
-			
-			CDO cdoReturn=new CDO();
-			cdoReturn.setIntegerValue("nCode",0);
-			cdoReturn.setStringValue("strText","测试");
-			cdoReturn.setStringValue("strInfo","测试");
-			cdo.setCDOValue("cdoReturn",cdoReturn);
-			cdo.setCDOValue("cdoResponse", cdoResponse);
-
-			CDO cdoChild=new CDO();
-			cdoChild.setStringValue("strName2","张三");
-			cdoChild.setIntegerValue("nAge2",0);
-			cdoChild.setDateValue("dBirthday2","2000-01-01");
-			cdoChild.setIntegerArrayValue("nsValue2",nsValue);
-			CDO cdo2=new CDO();
-			cdo2.setStringValue("x", "v");
-			cdoChild.setCDOValue("cdo2", cdo2);
-			cdo.setCDOValue("cdoChild",cdoChild);			
-//			 for(int i=0;i<1;i++){
-//					AvroCDOSerialize serialize=new AvroCDOSerialize(cdo);
-//					AvroCDOMixed arvo= serialize.toAvro();	
-//					
-//					ByteArrayOutputStream out=new ByteArrayOutputStream();
-//					
-//					DatumWriter<AvroCDOMixed> userDatumWriter = new SpecificDatumWriter<AvroCDOMixed>(AvroCDOMixed.class);
-//					DataFileWriter<AvroCDOMixed> dataFileWriter = new DataFileWriter<AvroCDOMixed>(userDatumWriter);
-//					dataFileWriter.create(arvo.getSchema(),out);
-//					dataFileWriter.append(arvo);
-//					dataFileWriter.close();
-////					System.out.println("time2 ="+(System.currentTimeMillis()-startTime));
-//					
-//					InputStream bis = new ByteArrayInputStream(out.toByteArray());
-//					
-//					DatumReader<AvroCDOMixed> userDatumReader = new SpecificDatumReader<AvroCDOMixed>(AvroCDOMixed.class);
-//					DataFileStream<AvroCDOMixed> dataFileReader = new DataFileStream<AvroCDOMixed>(bis,userDatumReader);
-//					
-//					while (dataFileReader.hasNext()) {
-//						arvo=dataFileReader.next(arvo);
-//						cdo=AvroCDOSerialize.fromAvro(arvo);			
-//					}
-////					System.out.println("time3 ="+(System.currentTimeMillis()-startTime));
-//			 }			
+		
+		
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
@@ -181,5 +95,92 @@ public class ArvoMain {
   	    	message.append(line+"\n");   
   	          } 
   	    return message.toString();
+	}
+	private static void  testAvro(CDO cdo) throws IOException{
+		
+		long startTime=System.nanoTime();	
+		
+		LinkedHashMap<CharSequence,ByteBuffer> fieldMap=new LinkedHashMap<CharSequence,ByteBuffer>();
+		int level=cdo.toAvroFieldMap(fieldMap);
+		
+		System.out.println("toMap nan s ="+(System.nanoTime()-startTime));
+		startTime=System.nanoTime();	
+		
+		AvroCDO arvoCDO=new  AvroCDO();
+		arvoCDO.setFields(fieldMap);
+		arvoCDO.setLevel(level);
+		
+		System.out.println("new AvroCDO nan s ="+(System.nanoTime()-startTime));
+		startTime=System.nanoTime();
+		
+		ByteArrayOutputStream out=new ByteArrayOutputStream();
+	    DatumWriter<AvroCDO> writer=new SpecificDatumWriter<AvroCDO>(AvroCDO.class);    
+	    DataFileWriter<AvroCDO> dataFileWriter = new DataFileWriter<AvroCDO>(writer); 		          
+	    dataFileWriter.create(arvoCDO.getSchema(),out);
+	    
+	    System.out.println("create avro write serialize shcema ns==="+(System.nanoTime()-startTime));
+	    startTime=System.nanoTime();
+	    
+	    dataFileWriter.append(arvoCDO);
+		dataFileWriter.close();
+		out.close();
+		
+		System.out.println("avro write serialize  data ns==="+(System.nanoTime()-startTime));
+		startTime=System.nanoTime();
+		
+		ByteArrayInputStream in=new ByteArrayInputStream(out.toByteArray());
+	    DatumReader<AvroCDO> reader=new SpecificDatumReader<AvroCDO>(AvroCDO.class);	    	   
+		DataFileStream<AvroCDO> dataFileReader = new DataFileStream<AvroCDO>(in,reader);
+	
+		System.out.println("create avro reader deserialize shcema ns==="+(System.nanoTime()-startTime));	  
+	    startTime=System.nanoTime();
+	    
+		arvoCDO= null;
+	    while (dataFileReader.hasNext()) {
+	    	   arvoCDO = dataFileReader.next();	            
+	    }	
+	    
+		System.out.println("avro  read deserialize  data ns==="+(System.nanoTime()-startTime));
+	}
+	private static void  testHandshake() throws IOException{
+		
+		long startTime=System.nanoTime();	
+		
+		
+		HandshakeRequest request=new HandshakeRequest();
+//		arvoCDO.setFields(fieldMap);
+//		arvoCDO.setLevel(level);
+		
+		System.out.println("new Handshake nan s ="+(System.nanoTime()-startTime));
+		startTime=System.nanoTime();
+		
+		ByteArrayOutputStream out=new ByteArrayOutputStream();
+	    DatumWriter<HandshakeRequest> writer=new SpecificDatumWriter<HandshakeRequest>(HandshakeRequest.class);    
+	    DataFileWriter<HandshakeRequest> dataFileWriter = new DataFileWriter<HandshakeRequest>(writer); 		          
+	    dataFileWriter.create(request.getSchema(),out);
+	    
+	    System.out.println("create Handshake write serialize shcema ns==="+(System.nanoTime()-startTime));
+	    startTime=System.nanoTime();
+	    
+	    dataFileWriter.append(request);
+		dataFileWriter.close();
+		out.close();
+		
+		System.out.println("avro Handshake serialize  data ns==="+(System.nanoTime()-startTime));
+		startTime=System.nanoTime();
+		
+		ByteArrayInputStream in=new ByteArrayInputStream(out.toByteArray());
+	    DatumReader<HandshakeRequest> reader=new SpecificDatumReader<HandshakeRequest>(HandshakeRequest.class);	    	   
+		DataFileStream<HandshakeRequest> dataFileReader = new DataFileStream<HandshakeRequest>(in,reader);
+	
+		System.out.println("create Handshake reader deserialize shcema ns==="+(System.nanoTime()-startTime));	  
+	    startTime=System.nanoTime();
+	    
+	    request= null;
+	    while (dataFileReader.hasNext()) {
+	    	request = dataFileReader.next();	            
+	    }	
+	    
+		System.out.println("Handshake  read deserialize  data ns==="+(System.nanoTime()-startTime));
 	}
 }

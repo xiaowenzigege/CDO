@@ -3,15 +3,15 @@
  *
  * DO NOT EDIT DIRECTLY
  */
-package com.cdo.avro.schema;
+package com.cdo.avro.protocol;
 
 import org.apache.avro.specific.SpecificData;
 
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = 8521175148681024244L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"AvroCDO\",\"namespace\":\"com.cdo.avro.schema\",\"fields\":[{\"name\":\"level\",\"type\":\"int\"},{\"name\":\"fields\",\"type\":{\"type\":\"map\",\"values\":\"bytes\"}}]}");
+  private static final long serialVersionUID = -3416507115673375877L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"AvroCDO\",\"namespace\":\"com.cdo.avro.protocol\",\"fields\":[{\"name\":\"level\",\"type\":\"int\"},{\"name\":\"fields\",\"type\":{\"type\":\"map\",\"values\":\"bytes\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
   @Deprecated public int level;
   @Deprecated public java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> fields;
@@ -89,8 +89,8 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
    * Creates a new AvroCDO RecordBuilder.
    * @return A new AvroCDO RecordBuilder
    */
-  public static com.cdo.avro.schema.AvroCDO.Builder newBuilder() {
-    return new com.cdo.avro.schema.AvroCDO.Builder();
+  public static com.cdo.avro.protocol.AvroCDO.Builder newBuilder() {
+    return new com.cdo.avro.protocol.AvroCDO.Builder();
   }
 
   /**
@@ -98,8 +98,8 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
    * @param other The existing builder to copy.
    * @return A new AvroCDO RecordBuilder
    */
-  public static com.cdo.avro.schema.AvroCDO.Builder newBuilder(com.cdo.avro.schema.AvroCDO.Builder other) {
-    return new com.cdo.avro.schema.AvroCDO.Builder(other);
+  public static com.cdo.avro.protocol.AvroCDO.Builder newBuilder(com.cdo.avro.protocol.AvroCDO.Builder other) {
+    return new com.cdo.avro.protocol.AvroCDO.Builder(other);
   }
 
   /**
@@ -107,8 +107,8 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
    * @param other The existing instance to copy.
    * @return A new AvroCDO RecordBuilder
    */
-  public static com.cdo.avro.schema.AvroCDO.Builder newBuilder(com.cdo.avro.schema.AvroCDO other) {
-    return new com.cdo.avro.schema.AvroCDO.Builder(other);
+  public static com.cdo.avro.protocol.AvroCDO.Builder newBuilder(com.cdo.avro.protocol.AvroCDO other) {
+    return new com.cdo.avro.protocol.AvroCDO.Builder(other);
   }
 
   /**
@@ -129,7 +129,7 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
      * Creates a Builder by copying an existing Builder.
      * @param other The existing Builder to copy.
      */
-    private Builder(com.cdo.avro.schema.AvroCDO.Builder other) {
+    private Builder(com.cdo.avro.protocol.AvroCDO.Builder other) {
       super(other);
       if (isValidValue(fields()[0], other.level)) {
         this.level = data().deepCopy(fields()[0].schema(), other.level);
@@ -145,7 +145,7 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
      * Creates a Builder by copying an existing AvroCDO instance
      * @param other The existing instance to copy.
      */
-    private Builder(com.cdo.avro.schema.AvroCDO other) {
+    private Builder(com.cdo.avro.protocol.AvroCDO other) {
             super(SCHEMA$);
       if (isValidValue(fields()[0], other.level)) {
         this.level = data().deepCopy(fields()[0].schema(), other.level);
@@ -170,7 +170,7 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
       * @param value The value of 'level'.
       * @return This builder.
       */
-    public com.cdo.avro.schema.AvroCDO.Builder setLevel(int value) {
+    public com.cdo.avro.protocol.AvroCDO.Builder setLevel(int value) {
       validate(fields()[0], value);
       this.level = value;
       fieldSetFlags()[0] = true;
@@ -190,7 +190,7 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
       * Clears the value of the 'level' field.
       * @return This builder.
       */
-    public com.cdo.avro.schema.AvroCDO.Builder clearLevel() {
+    public com.cdo.avro.protocol.AvroCDO.Builder clearLevel() {
       fieldSetFlags()[0] = false;
       return this;
     }
@@ -208,7 +208,7 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
       * @param value The value of 'fields'.
       * @return This builder.
       */
-    public com.cdo.avro.schema.AvroCDO.Builder setFields(java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> value) {
+    public com.cdo.avro.protocol.AvroCDO.Builder setFields(java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> value) {
       validate(fields()[1], value);
       this.fields = value;
       fieldSetFlags()[1] = true;
@@ -228,7 +228,7 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
       * Clears the value of the 'fields' field.
       * @return This builder.
       */
-    public com.cdo.avro.schema.AvroCDO.Builder clearFields() {
+    public com.cdo.avro.protocol.AvroCDO.Builder clearFields() {
       fields = null;
       fieldSetFlags()[1] = false;
       return this;
