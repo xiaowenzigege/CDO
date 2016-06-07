@@ -261,7 +261,7 @@ public abstract class CDOServlet extends HttpServlet
     		 while(it.hasNext()){
     			 Map.Entry<String,Field> entry=it.next();
     			 Field objExt=entry.getValue();
-    			 if(objExt.getType()==DataType.FILE_TYPE){  
+    			 if(objExt.getType().getDataType()==DataType.FILE_TYPE){  
     				 FileField f=(FileField)objExt;
     				 sbFieldName.append(","+entry.getKey());
     				 sbLength.append(","+f.getValue().length());
