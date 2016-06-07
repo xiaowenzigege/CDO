@@ -45,8 +45,7 @@ public class DoubleField extends ValueFieldImpl
 		allocate(dblValue);
 	}
 	public double getValue()
-	{
-		
+	{		
 		buffer.position(dataIndex);
 		return buffer.getDouble();
 	}

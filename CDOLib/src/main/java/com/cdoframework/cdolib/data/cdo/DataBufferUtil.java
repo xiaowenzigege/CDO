@@ -65,7 +65,7 @@ public class DataBufferUtil {
 			buffer.limit(index+databuffer);
 			(buffer.slice()).get(bsValue);
 			strsValue[i]=new String(bsValue).trim();
-			buffer.clear();
+//			buffer.clear();
 		}
 		return strsValue;		
 	}
@@ -85,9 +85,7 @@ public class DataBufferUtil {
 		buffer.position(pos);
 		buffer.limit(pos+databuffer);
 		(buffer.slice()).get(bsValue);
-		String strValue=new String(bsValue).trim();		
-		buffer.clear();
-		return strValue;
+		return new String(bsValue).trim();
 	}
 	
 	static byte getByte(Field field)

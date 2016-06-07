@@ -61,7 +61,7 @@ public class TimeField extends ValueFieldImpl
 		buffer.position(dataIndex);
 		buffer.limit(buffer.capacity());
 		(buffer.slice()).get(bsValue);
-		buffer.clear();
+	
 		return new String(bsValue).trim();
 	}
 

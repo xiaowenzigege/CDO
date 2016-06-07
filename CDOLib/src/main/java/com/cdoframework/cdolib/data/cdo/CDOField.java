@@ -13,8 +13,6 @@ package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
-
-import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 
 /**

@@ -54,7 +54,6 @@ public class FloatArrayField extends ArrayFieldImpl
 		for(int i=0;i<result.length;i++){			
 			result[i]=buffer.getFloat();
 		}
-		buffer.clear();
 		return result;
 	}
 
@@ -63,27 +62,23 @@ public class FloatArrayField extends ArrayFieldImpl
 		checkArrayIndex(nIndex);
 		
 		int pos=dataIndex+databuffer*nIndex;
-		buffer.position(pos);
-		float result=buffer.getFloat();		
-		buffer.clear();
-		return result;
+		buffer.position(pos);		
+		return buffer.getFloat();
 	}
 
 	public void setValueAt(int nIndex,float fValue)
 	{
 		checkArrayIndex(nIndex);
+		
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
 		buffer.putFloat(fValue);
-		buffer.clear();	
 	}
 	
 	public int getLength()
 	{
 		buffer.position(1);
-		int len=buffer.getShort();
-		buffer.clear();
-		return len;
+		return buffer.getShort();
 	}
 	
 	public Object getObjectValue()

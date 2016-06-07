@@ -58,7 +58,6 @@ public class IntegerArrayField extends ArrayFieldImpl
 		for(int i=0;i<result.length;i++){			
 			result[i]=buffer.getInt();
 		}
-		buffer.clear();
 		return result;
 	}
 
@@ -68,26 +67,22 @@ public class IntegerArrayField extends ArrayFieldImpl
 		
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
-		int result=buffer.getInt();		
-		buffer.clear();
-		return result;
+		return buffer.getInt();
 	}
 
 	public void setValueAt(int nIndex,int nValue)
 	{
 		checkArrayIndex(nIndex);
+		
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
 		buffer.putInt(nValue);
-		buffer.clear();	
 	}
 	
 	public int getLength()
 	{
 		buffer.position(1);
-		int len=buffer.getShort();
-		buffer.clear();
-		return len;
+		return buffer.getShort();
 	}
 	public Object getObjectValue()
 	{

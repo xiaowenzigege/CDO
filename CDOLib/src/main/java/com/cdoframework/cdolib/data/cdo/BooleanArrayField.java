@@ -59,8 +59,7 @@ public class BooleanArrayField extends ArrayFieldImpl
 				bsValue[i]=true;
 			else
 				bsValue[i]=false;
-		}
-		buffer.clear();
+		}		
 		return bsValue;
 	}
 
@@ -69,8 +68,7 @@ public class BooleanArrayField extends ArrayFieldImpl
 		checkArrayIndex(nIndex);
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
-		byte b=buffer.get();
-		buffer.clear();
+		byte b=buffer.get();		
 		if(b==1)
 			return true;
 		return false;
@@ -85,15 +83,13 @@ public class BooleanArrayField extends ArrayFieldImpl
 			buffer.put((byte)1);
 		else
 			buffer.put((byte)0);
-		buffer.clear();
+		
 	}
 
 	public int getLength()
 	{
 		buffer.position(1);
-		int len=buffer.getShort();
-		buffer.clear();
-		return len;
+		return buffer.getShort();
 	}
 	
 	public Object getObjectValue()

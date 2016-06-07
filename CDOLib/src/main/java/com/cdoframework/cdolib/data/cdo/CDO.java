@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1695,7 +1696,6 @@ public class CDO implements Serializable
 		Entry<String, Field> entry=null;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
 			entry=it.next();
-//			Field fieldItem=this.createField(entry.getKey(),entry.getValue());
 			str_JSON.append(entry.getValue().toJSON());
 		}
 		
@@ -1718,7 +1718,6 @@ public class CDO implements Serializable
 		Entry<String, Field> entry=null;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
 			entry=it.next();
-//			Field fieldItem=this.createField(entry.getKey(),entry.getValue());
 			str_JSON.append(entry.getValue().toJSONString());
 		}
 		// ugly 方法去掉最后一个","
@@ -1740,7 +1739,6 @@ public class CDO implements Serializable
 		Entry<String, Field> entry=null;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
 			entry=it.next();
-//			Field fieldItem=this.createField(entry.getKey(),entry.getValue());
 			str_String.append(entry.getValue().toString());
 		}		
 		int _lastComma=str_String.lastIndexOf(",");
@@ -1781,13 +1779,65 @@ public class CDO implements Serializable
 		cdo.setTimeArrayValue("times", new String[]{"17:00:00","18:00:00","20:00:00"});
 		cdo.setDateTimeValue("dateTime", "2012-05-01 20:00:00");
 		cdo.setDateTimeArrayValue("dateTimeValues", new String[]{"2012-05-01 20:00:00","2013-05-01 21:00:00","2014-05-01 22:00:00"});
-		
-		CDO cdoResponse=new CDO();
-		cdoResponse.setIntegerValue("ncount", 5);
-		CDO[] cdosList=new CDO[5];
-		for(int i=0;i<cdosList.length;i++)
-		{			
-			cdosList[i]=new CDO();
+		System.out.println(cdo.getBooleanValue("bvalue"));
+		System.out.println(cdo.getBooleanValue("bvalue"));
+		for(int i=0;i<5;i++){
+			System.out.println(cdo.getBooleanValue("bvalue"));
+			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
+			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
+		    ((BooleanArrayField)cdo.getField("bsValue")).setValueAt(3, true);
+			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
+			
+			System.out.println(((DateArrayField)cdo.getField("date1")).getValueAt(1));
+			System.out.println(((DateArrayField)cdo.getField("date1")).getValueAt(1));
+			System.out.println(((DateArrayField)cdo.getField("date1")).getValue()[2]);
+			System.out.println(((DateArrayField)cdo.getField("date1")).getValue()[2]);
+			System.out.println(((DateArrayField)cdo.getField("date1")).getLength());
+			System.out.println(((DateArrayField)cdo.getField("date1")).getLength());	
+			
+			System.out.println(((TimeArrayField)cdo.getField("times")).getValueAt(1));
+			System.out.println(((TimeArrayField)cdo.getField("times")).getValueAt(1));
+			System.out.println(((TimeArrayField)cdo.getField("times")).getValue()[0]);
+			System.out.println(((TimeArrayField)cdo.getField("times")).getValue()[0]);
+			System.out.println(((TimeArrayField)cdo.getField("times")).getLength());
+			System.out.println(((TimeArrayField)cdo.getField("times")).getLength());
+			
+			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValueAt(1));
+			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValueAt(1));
+			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValue()[0]);
+			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValue()[0]);
+			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getLength());
+			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getLength());
+			
+			System.out.println(((ShortArrayField)cdo.getField("shorts")).getValueAt(1));
+			System.out.println(((ShortArrayField)cdo.getField("shorts")).getValueAt(1));
+			System.out.println(((ShortArrayField)cdo.getField("shorts")).getLength());
+			System.out.println(((ShortArrayField)cdo.getField("shorts")).getLength());			
+			System.out.println(((ShortArrayField)cdo.getField("shorts")).getValue()[0]);
+			System.out.println(((ShortArrayField)cdo.getField("shorts")).getValue()[0]);
+
+			System.out.println(((IntegerArrayField)cdo.getField("ints")).getValueAt(1));
+			System.out.println(((IntegerArrayField)cdo.getField("ints")).getValueAt(1));
+			System.out.println(((IntegerArrayField)cdo.getField("ints")).getLength());
+			System.out.println(((IntegerArrayField)cdo.getField("ints")).getLength());			
+			System.out.println(((IntegerArrayField)cdo.getField("ints")).getValue()[0]);
+			System.out.println(((IntegerArrayField)cdo.getField("ints")).getValue()[0]);
+			
+			System.out.println(((LongArrayField)cdo.getField("longs")).getValueAt(1));
+			System.out.println(((LongArrayField)cdo.getField("longs")).getValueAt(1));
+			System.out.println(((LongArrayField)cdo.getField("longs")).getLength());
+			System.out.println(((LongArrayField)cdo.getField("longs")).getLength());			
+			System.out.println(((LongArrayField)cdo.getField("longs")).getValue()[0]);
+			System.out.println(((LongArrayField)cdo.getField("longs")).getValue()[0]);
+			
+			
+		}
+//		CDO cdoResponse=new CDO();
+//		cdoResponse.setIntegerValue("ncount", 5);
+//		CDO[] cdosList=new CDO[5];
+//		for(int i=0;i<cdosList.length;i++)
+//		{			
+//			cdosList[i]=new CDO();
 
 //			CDO[] cdo1=new CDO[2];
 //			for(int j=0;j<cdo1.length;j++){
@@ -1796,37 +1846,37 @@ public class CDO implements Serializable
 //				cdo1[j].setDateValue("dBirthday2","2000-01-01");
 //			}
 //			cdosList[i].setCDOArrayValue("cdoArr", cdo1);
-			cdosList[i].setBooleanValue("booleanValue", true);
-			cdosList[i].setStringValue("strValue", "cdosList张"+i);
-			cdosList[i].setIntegerArrayValue("nsCDOList"+i, new int[]{1,2,3});
+//			cdosList[i].setBooleanValue("booleanValue", true);
+//			cdosList[i].setStringValue("strValue", "cdosList张"+i);
+//			cdosList[i].setIntegerArrayValue("nsCDOList"+i, new int[]{1,2,3});
 //			CDO subcdo=new CDO();
 //			subcdo.setStringArrayValue("xx", new String[]{"ss","x"});
 //			subcdo.setIntegerArrayValue("nsCDOList"+i, new int[]{1,2,3});
 //			cdosList[i].setCDOValue("subCDO", subcdo);
 			
-		}
-		cdoResponse.setCDOArrayValue("cdosList", cdosList);
-
-		CDO cdo2=CDO.fromXML(cdo.toXML());
-		CDO cdoReturn=new CDO();
-		cdoReturn.setIntegerValue("nCode",0);
-		cdoReturn.setStringValue("strText","测试");
-		cdoReturn.setStringValue("strInfo","测试");
-		cdo.setCDOArrayValue("cdosList", cdosList);
-		cdo.setCDOValue("cdoReturn",cdoReturn);
-		cdo.setCDOValue("cdoResponse", cdoResponse);
-		cdo.setStringArrayValue("cdoResponse.str",  new String[]{"xxx","yyy"});
-	
-		for(int i=0;i<100;i++){
-			long startTime=System.nanoTime();
-			cdo.toAvro();
-			System.out.println("avr ns="+(System.nanoTime()-startTime));
-		}
-		for(int i=0;i<100;i++){
-			long startTime=System.nanoTime();
-			cdo.toXML();
-			System.out.println("xml ns="+(System.nanoTime()-startTime));
-		}
+//		}
+//		cdoResponse.setCDOArrayValue("cdosList", cdosList);
+//
+//		CDO cdo2=CDO.fromXML(cdo.toXML());
+//		CDO cdoReturn=new CDO();
+//		cdoReturn.setIntegerValue("nCode",0);
+//		cdoReturn.setStringValue("strText","测试");
+//		cdoReturn.setStringValue("strInfo","测试");
+//		cdo.setCDOArrayValue("cdosList", cdosList);
+//		cdo.setCDOValue("cdoReturn",cdoReturn);
+//		cdo.setCDOValue("cdoResponse", cdoResponse);
+//		cdo.setStringArrayValue("cdoResponse.str",  new String[]{"xxx","yyy"});
+//	
+//		for(int i=0;i<100;i++){
+//			long startTime=System.nanoTime();
+//			cdo.toAvro();
+//			System.out.println("avr ns="+(System.nanoTime()-startTime));
+//		}
+//		for(int i=0;i<100;i++){
+//			long startTime=System.nanoTime();
+//			cdo.toXML();
+//			System.out.println("xml ns="+(System.nanoTime()-startTime));
+//		}
 	}
 
 	

@@ -59,7 +59,6 @@ public class ShortArrayField extends ArrayFieldImpl
 		for(int i=0;i<result.length;i++){			
 			result[i]=buffer.getShort();
 		}
-		buffer.clear();
 		return result;
 	}
 
@@ -69,26 +68,22 @@ public class ShortArrayField extends ArrayFieldImpl
 		
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
-		short result=buffer.getShort();		
-		buffer.clear();
-		return result;
+		return buffer.getShort();
 	}
 
 	public void setValueAt(int nIndex,short shValue)
 	{
 		checkArrayIndex(nIndex);
+		
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
 		buffer.putShort(shValue);
-		buffer.clear();	
 	}
 	
 	public int getLength()
 	{
 		buffer.position(1);
-		int len=buffer.getShort();
-		buffer.clear();
-		return len;
+		return buffer.getShort();
 	}
 
 	public Object getObjectValue()

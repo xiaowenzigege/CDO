@@ -88,16 +88,13 @@ public class DateArrayField extends ArrayFieldImpl
 		}		
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
-		buffer.put(strValue.getBytes());
-		buffer.clear();
+		buffer.put(strValue.getBytes());		
 	}
 	
 	public int getLength()
 	{
 		buffer.position(1);
-		int len=buffer.getShort();
-		buffer.clear();
-		return len;
+		return buffer.getShort();
 	}
 	
 	public Object getObjectValue()

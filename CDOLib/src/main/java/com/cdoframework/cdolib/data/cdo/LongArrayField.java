@@ -82,7 +82,6 @@ public class LongArrayField extends ArrayFieldImpl
 		for(int i=0;i<result.length;i++){			
 			result[i]=buffer.getLong();
 		}
-		buffer.clear();
 		return result;
 	}
 
@@ -92,26 +91,22 @@ public class LongArrayField extends ArrayFieldImpl
 		
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
-		long result=buffer.getLong();		
-		buffer.clear();
-		return result;
+		return buffer.getLong();
 	}
 
 	public void setValueAt(int nIndex,long lValue)
 	{
 		checkArrayIndex(nIndex);
+		
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
-		buffer.putLong(lValue);
-		buffer.clear();	
+		buffer.putLong(lValue);		
 	}
 	
 	public int getLength()
 	{
 		buffer.position(1);
-		int len=buffer.getShort();
-		buffer.clear();
-		return len;
+		return buffer.getShort();
 	}
 	
 	public Object getObjectValue()

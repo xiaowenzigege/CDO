@@ -52,8 +52,7 @@ public class ByteArrayField extends ArrayFieldImpl
 		byte[] bsValue=new byte[len];
 		buffer.position(dataIndex);
 		buffer.limit(buffer.capacity());		
-		(buffer.slice()).get(bsValue);
-		buffer.clear();
+		(buffer.slice()).get(bsValue);		
 		return bsValue;
 	}
 
@@ -62,9 +61,7 @@ public class ByteArrayField extends ArrayFieldImpl
 		checkArrayIndex(nIndex);
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
-		byte b=buffer.get();
-		buffer.clear();
-		return b;
+		return buffer.get();
 	}
 
 	public void setValueAt(int nIndex,byte byValue)
@@ -72,16 +69,13 @@ public class ByteArrayField extends ArrayFieldImpl
 		checkArrayIndex(nIndex);
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
-		buffer.put(byValue);
-		buffer.clear();
+		buffer.put(byValue);		
 	}
 	
 	public int getLength()
 	{
 		buffer.position(1);
-		int len=buffer.getInt();
-		buffer.clear();
-		return len;
+		return buffer.getInt();
 	}
 	
 	public Object getObjectValue()

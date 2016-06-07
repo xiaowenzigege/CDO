@@ -63,8 +63,7 @@ public class DateTimeField extends ValueFieldImpl
 		byte[] bsValue=new byte[databuffer];
 		buffer.position(dataIndex);
 		buffer.limit(buffer.capacity());
-		(buffer.slice()).get(bsValue);
-		buffer.clear();
+		(buffer.slice()).get(bsValue);		
 		return new String(bsValue).trim();
 	}
 

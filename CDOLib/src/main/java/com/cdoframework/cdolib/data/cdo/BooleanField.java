@@ -44,8 +44,7 @@ public class BooleanField extends ValueFieldImpl
 	public boolean getValue()
 	{
 		buffer.position(dataIndex);
-		byte b=buffer.get();
-		buffer.clear();
+		byte b=buffer.get();		
 		if(b==1)
 			return true;
 		return false;	

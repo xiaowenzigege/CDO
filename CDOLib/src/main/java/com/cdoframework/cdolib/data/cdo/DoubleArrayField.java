@@ -56,8 +56,7 @@ public class DoubleArrayField extends ArrayFieldImpl
 		buffer.position(dataIndex);
 		for(int i=0;i<result.length;i++){			
 			result[i]=buffer.getDouble();
-		}
-		buffer.clear();
+		}		
 		return result;
 	}
 
@@ -67,9 +66,7 @@ public class DoubleArrayField extends ArrayFieldImpl
 		
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
-		double result=buffer.getDouble();		
-		buffer.clear();
-		return result;
+		return buffer.getDouble();
 	}
 
 	public void setValueAt(int nIndex,double dblValue)
@@ -77,16 +74,13 @@ public class DoubleArrayField extends ArrayFieldImpl
 		checkArrayIndex(nIndex);
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
-		buffer.putDouble(dblValue);
-		buffer.clear();		
+		buffer.putDouble(dblValue);		
 	}
 	
 	public int getLength()
 	{
 		buffer.position(1);
-		int len=buffer.getShort();
-		buffer.clear();
-		return len;
+		return buffer.getShort();
 	}
 	public Object getObjectValue()
 	{
