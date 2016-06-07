@@ -105,7 +105,7 @@ public class IntegerArrayField extends ArrayFieldImpl
 	}
 
 	private ByteBuffer allocate(int[] nsValue){
-		buffer=DateBufferUtil.allocate(nsValue.length, DataType.INTEGER_ARRAY_TYPE, buffer, dataIndex, databuffer);
+		buffer=DataBufferUtil.allocate(nsValue.length, DataType.INTEGER_ARRAY_TYPE, buffer, dataIndex, databuffer);
 		//设置起始位置  
 		buffer.position(dataIndex);
 		for(int i=0;i<nsValue.length;i++){
@@ -201,7 +201,7 @@ public class IntegerArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.INTEGER_ARRAY_TYPE);
+		setType(Data.INTEGER_ARRAY);
 
 		setValue(new int[0]);
 	}
@@ -212,7 +212,7 @@ public class IntegerArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.INTEGER_ARRAY_TYPE);
+		setType(Data.INTEGER_ARRAY);
 		
 		if(nsValue==null)
 		{
@@ -227,7 +227,7 @@ public class IntegerArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.INTEGER_ARRAY_TYPE);
+		setType(Data.INTEGER_ARRAY);
 		
 		this.buffer=buffer;
 	}

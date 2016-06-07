@@ -49,12 +49,12 @@ public class FieldImpl implements Field
 	 */
 	private static final long serialVersionUID = 1324693182949266208L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
-	private int nType;
-	public void setType(int nType)
+	private Data nType;
+	public void setType(Data nType)
 	{
 		this.nType=nType;
 	}
-	public int getType()
+	public Data getType()
 	{
 		return nType;
 	}
@@ -87,7 +87,7 @@ public class FieldImpl implements Field
 	{
 
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
-		nType=NONE_TYPE;
+		nType=Data.NONE;
 		strName="";
 	}
 
@@ -95,7 +95,7 @@ public class FieldImpl implements Field
 	{
 
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
-		nType=NONE_TYPE;
+		nType=Data.NONE;
 		strName=strFieldName;
 	}
 

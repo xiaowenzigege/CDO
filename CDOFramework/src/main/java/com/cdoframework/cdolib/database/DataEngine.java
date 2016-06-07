@@ -381,7 +381,7 @@ public class DataEngine implements IDataEngine
 					ps.setNull(i+1,java.sql.Types.NULL);
 					continue;
 				}
-				int nType=object.getType();
+				int nType=object.getType().getDataType();
 				switch(nType)
 				{
 					case DataType.BYTE_TYPE:
@@ -478,7 +478,7 @@ public class DataEngine implements IDataEngine
 			for (int i = 0; i < anaSQL.alParaName.size(); i++) {
 				Field object = cdoRequest.getObject(anaSQL.alParaName.get(i));
 				Object objValue = object.getObjectValue();
-				int nType = object.getType();
+				int nType = object.getType().getDataType();
 				sb.append(nType==DataType.BYTE_ARRAY_TYPE?new String((byte[]) objValue):objValue);
 				sb.append(',');
 			}
@@ -1336,7 +1336,7 @@ public class DataEngine implements IDataEngine
 				{
 					continue;
 				}
-				int nType=objFieldValue.getType();
+				int nType=objFieldValue.getType().getDataType();
 				Object objValue=objFieldValue.getObjectValue();
 
 				String strOutputId=selectField.getOutputId();

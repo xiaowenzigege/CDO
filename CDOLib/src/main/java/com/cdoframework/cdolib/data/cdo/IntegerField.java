@@ -58,14 +58,14 @@ public class IntegerField extends ValueFieldImpl
 		return buffer;
 	}
 	
-	private void allocate(int dblValue){
+	private void allocate(int nValue){
 		if(buffer==null){
 			int len=dataIndex+databuffer;
 			buffer=ByteBuffer.allocate(len);
 			buffer.put((byte)DataType.INTEGER_TYPE);
 		}
 		buffer.position(dataIndex);
-		buffer.putFloat(dblValue);
+		buffer.putInt(nValue);
 		buffer.flip();
 	}		
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
@@ -123,7 +123,7 @@ public class IntegerField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.INTEGER_TYPE);
+		setType(Data.INTEGER);
 
 		setValue(0);
 	}
@@ -133,7 +133,7 @@ public class IntegerField extends ValueFieldImpl
 
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系		
 		
-		setType(DataType.INTEGER_TYPE);
+		setType(Data.INTEGER);
 		setValue(nValue);
 	}
 	
@@ -143,7 +143,7 @@ public class IntegerField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.INTEGER_TYPE);
+		setType(Data.INTEGER);
 		
 		setValue(nValue);
 	}
@@ -154,7 +154,7 @@ public class IntegerField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.INTEGER_TYPE);
+		setType(Data.INTEGER);
 		
 		this.buffer=buffer;
 	}

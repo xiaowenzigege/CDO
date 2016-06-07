@@ -240,7 +240,7 @@ public class ByteArrayField extends ArrayFieldImpl
 
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strName);
-		setType(DataType.BYTE_ARRAY_TYPE);
+		setType(Data.BYTE_ARRAY);
 
 		allocate(new byte[0]);
 	}
@@ -251,7 +251,7 @@ public class ByteArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strName);
 		
-		setType(DataType.BYTE_ARRAY_TYPE);
+		setType(Data.BYTE_ARRAY);
 		
 		if(bysValue==null)
 		{
@@ -263,7 +263,7 @@ public class ByteArrayField extends ArrayFieldImpl
 	ByteArrayField(String strName,ByteBuffer buffer){
 		super(strName);		
 		
-		setType(DataType.BYTE_ARRAY_TYPE);
+		setType(Data.BYTE_ARRAY);
 		
 		this.buffer=buffer;
 	}

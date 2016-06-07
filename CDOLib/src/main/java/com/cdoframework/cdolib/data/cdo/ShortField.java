@@ -127,7 +127,7 @@ public class ShortField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.SHORT_TYPE);
+		setType(Data.SHORT);
 
 		setValue((short)0);
 	}
@@ -138,7 +138,7 @@ public class ShortField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.SHORT_TYPE);
+		setType(Data.SHORT);
 		
 		setValue(shValue);
 	}
@@ -146,7 +146,7 @@ public class ShortField extends ValueFieldImpl
 	public ShortField(short shValue)
 	{
 		
-		setType(DataType.SHORT_TYPE);
+		setType(Data.SHORT);
 		
 		setValue(shValue);
 	}
@@ -157,7 +157,7 @@ public class ShortField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.SHORT_TYPE);
+		setType(Data.SHORT);
 		
 		this.buffer=buffer;
 	}

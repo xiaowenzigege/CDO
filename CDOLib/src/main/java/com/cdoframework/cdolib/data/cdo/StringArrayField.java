@@ -62,8 +62,7 @@ public class StringArrayField extends ArrayFieldImpl
 				strsValue[i]="";
 			}
 		}
-		this.strsValue=strsValue;	
-		allocate(this.strsValue);
+		this.strsValue=strsValue;			
 	}
 	public String[] getValue()
 	{
@@ -171,7 +170,8 @@ public class StringArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){				
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){	
+		allocate(this.strsValue);
 		fieldMap.put(prefixField+this.getName(), buffer);
 	}	
 	
@@ -286,7 +286,7 @@ public class StringArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.STRING_ARRAY_TYPE);
+		setType(Data.STRING_ARRAY);
 		
 		this.strsValue	=new String[0];
 		setValue(this.strsValue);
@@ -298,7 +298,7 @@ public class StringArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.STRING_ARRAY_TYPE);
+		setType(Data.STRING_ARRAY);
 		
 		if(strsValue==null)
 		{
@@ -316,7 +316,7 @@ public class StringArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.STRING_ARRAY_TYPE);
+		setType(Data.STRING_ARRAY);
 		
 		this.buffer=buffer;
 		

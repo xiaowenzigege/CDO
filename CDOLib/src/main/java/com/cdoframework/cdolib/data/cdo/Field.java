@@ -59,8 +59,8 @@ public interface Field extends DataType
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 	public static final String CDO_Field_Max_Level="$Level"; 
-	public void setType(int nType);
-	public int getType();
+	public void setType(DataType.Data data);
+	public DataType.Data getType();
 	public void setName(String strName);
 	public String getName();
 	

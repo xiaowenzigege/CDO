@@ -142,7 +142,7 @@ public class TimeField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.TIME_TYPE);
+		setType(Data.TIME);
 		
 		allocate(defaultWhiteSpace);
 	}
@@ -153,7 +153,7 @@ public class TimeField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.TIME_TYPE);
+		setType(Data.TIME);
 
 		if(strValue==null)
 		{
@@ -168,7 +168,7 @@ public class TimeField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.TIME_TYPE);
+		setType(Data.TIME);
 
 		this.buffer=buffer;
 	}

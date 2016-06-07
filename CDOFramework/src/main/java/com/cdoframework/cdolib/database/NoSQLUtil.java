@@ -377,7 +377,7 @@ public class NoSQLUtil
 //			ObjectExt objectExt = cdos[0].getObjectAt(0);
 			 Field  cdoField= cdos[0].iterator().next().getValue();
 //			 ObjectExt objectExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
-			JsonUtil4NoSQL.setCDOValue(cdoRequest, cdoField.getType(), key, cdoField.getObjectValue());
+			JsonUtil4NoSQL.setCDOValue(cdoRequest, cdoField.getType().getDataType(), key, cdoField.getObjectValue());
 		} 
 		else
 		{
@@ -812,7 +812,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(fieldName, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue()));
+			basicDBObject.put(fieldName, Utility.parseObjectValue(valueObject.getType().getDataType(), valueObject.getObjectValue()));
 			break;
 		case VALUE_1:// !=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -820,7 +820,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.NE, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue())));
+			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.NE, Utility.parseObjectValue(valueObject.getType().getDataType(), valueObject.getObjectValue())));
 			break;
 		case VALUE_2:// >
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType,fieldName, isValueRequired);
@@ -828,7 +828,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.GT, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue())));
+			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.GT, Utility.parseObjectValue(valueObject.getType().getDataType(), valueObject.getObjectValue())));
 			break;
 		case VALUE_3:// >=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType,fieldName, isValueRequired);
@@ -836,7 +836,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.GTE, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue())));
+			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.GTE, Utility.parseObjectValue(valueObject.getType().getDataType(), valueObject.getObjectValue())));
 			break;
 		case VALUE_4:// <
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -844,7 +844,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.LT, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue())));
+			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.LT, Utility.parseObjectValue(valueObject.getType().getDataType(), valueObject.getObjectValue())));
 			break;
 		case VALUE_5:// <=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -852,7 +852,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.LTE,Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue())));
+			basicDBObject.put(fieldName, new BasicDBObject(QueryOperators.LTE,Utility.parseObjectValue(valueObject.getType().getDataType(), valueObject.getObjectValue())));
 			break;
 		case VALUE_6:// ISNULL
 			basicDBObject.put(fieldName, new BasicDBObject(INoSQLDataEngine.FIND_TYPE, INoSQLDataEngine.TYPE_NULL));
@@ -947,7 +947,7 @@ public class NoSQLUtil
 		CriteriaTypeOperatorType operatType = creteriaType.getOperator();
 		// 值对象
 		Field valueObject = null;
-		// 根据操作符来判断生成查询条件,有的条件不需要关心value和type
+		// 根据操作符来判断生成查询条件,有的条件不需要关心value和type		
 		switch (operatType)
 		{
 		case VALUE_0:// =
@@ -958,7 +958,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(QueryOperators.NE, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue()));
+			basicDBObject.put(QueryOperators.NE, Utility.parseObjectValue(valueObject.getType().getDataType(), valueObject.getObjectValue()));
 			break;
 		case VALUE_2:// >
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -966,7 +966,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(QueryOperators.GT, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue()));
+			basicDBObject.put(QueryOperators.GT, Utility.parseObjectValue(valueObject.getType().getDataType(), valueObject.getObjectValue()));
 			break;
 		case VALUE_3:// >=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -974,7 +974,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(QueryOperators.GTE, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue()));
+			basicDBObject.put(QueryOperators.GTE, Utility.parseObjectValue(valueObject.getType().getDataType(), valueObject.getObjectValue()));
 			break;
 		case VALUE_4:// <
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -982,7 +982,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(QueryOperators.LT, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue()));
+			basicDBObject.put(QueryOperators.LT, Utility.parseObjectValue(valueObject.getType().getDataType(), valueObject.getObjectValue()));
 			break;
 		case VALUE_5:// <=
 			valueObject = parseCreteriaTypeValue(cdoRequest, creteriaType, fieldName, isValueRequired);
@@ -990,7 +990,7 @@ public class NoSQLUtil
 			{
 				break;
 			}
-			basicDBObject.put(QueryOperators.LTE, Utility.parseObjectValue(valueObject.getType(), valueObject.getObjectValue()));
+			basicDBObject.put(QueryOperators.LTE, Utility.parseObjectValue(valueObject.getType().getDataType(), valueObject.getObjectValue()));
 			break;
 		case VALUE_6:// ISNULL
 			throw new RuntimeException(" Creteria Operator Type ISNULL is not unSupported for multi-criteria");
@@ -1057,7 +1057,7 @@ public class NoSQLUtil
 			if (cdoRequest.exists(strKey))
 			{
 				Field obj = cdoRequest.getObject(strKey);
-				return obj.getType();
+				return obj.getType().getDataType();
 			}
 			else
 			{
@@ -1267,7 +1267,7 @@ public class NoSQLUtil
 					}
 					else
 					{
-						setVarDBObject(basicDBObject, fieldName, cdoRequest.getObject(key).getType(), cdoRequest, key);
+						setVarDBObject(basicDBObject, fieldName, cdoRequest.getObject(key).getType().getDataType(), cdoRequest, key);
 					}
 				}
 				else
@@ -1396,7 +1396,7 @@ public class NoSQLUtil
 //				ObjectExt objExt=new ObjectExt(cdoField.getType(), cdoField.getObjectValue());
 				if (nType == DataType.NONE_TYPE)
 				{
-					nType = cdoField.getType();
+					nType = cdoField.getType().getDataType();
 				}
 				setVarDBObject(basicDBObject, strFieldName, nType, cdoField);
 			}
@@ -1782,7 +1782,7 @@ public class NoSQLUtil
 				if (nType == DataType.NONE_TYPE)
 				{
 //					nType = objExt.getType();
-					nType=cdoField.getType();
+					nType=cdoField.getType().getDataType();
 				}
 				setVarDBObject(subObject, strFieldName, nType, cdoField);
 			}
@@ -1882,7 +1882,7 @@ public class NoSQLUtil
 		{
 			Entry<String, Field> entry=it.next();
 			fieldName = entry.getKey();
-			cdoFieldType = entry.getValue().getType();
+			cdoFieldType = entry.getValue().getType().getDataType();
 			setVarDBObject(basicDBObject, fieldName, cdoFieldType, cdo, fieldName);
 		}		
 	}

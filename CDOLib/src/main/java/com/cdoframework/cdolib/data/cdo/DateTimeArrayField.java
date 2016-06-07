@@ -63,13 +63,13 @@ public class DateTimeArrayField extends ArrayFieldImpl
 
 	public String[] getValue()
 	{
-		return DateBufferUtil.getDateArrayValue(buffer, dataIndex, databuffer);
+		return DataBufferUtil.getDateArrayValue(buffer, dataIndex, databuffer);
 	}
 
 	public String getValueAt(int nIndex)
 	{
 		checkArrayIndex(nIndex);
-		return DateBufferUtil.getDateArrayValueAt(nIndex, buffer, dataIndex, databuffer);
+		return DataBufferUtil.getDateArrayValueAt(nIndex, buffer, dataIndex, databuffer);
 	}
 
 	public void setValueAt(int nIndex,String strValue)
@@ -114,7 +114,7 @@ public class DateTimeArrayField extends ArrayFieldImpl
 
 	private void allocate(String[] strsValue){
 
-		buffer=DateBufferUtil.allocate(strsValue.length, DataType.DATETIME_ARRAY_TYPE, buffer, dataIndex, databuffer);
+		buffer=DataBufferUtil.allocate(strsValue.length, DataType.DATETIME_ARRAY_TYPE, buffer, dataIndex, databuffer);
 		//设置起始位置  
 		buffer.position(dataIndex);
 		for(int i=0;i<strsValue.length;i++){
@@ -208,7 +208,7 @@ public class DateTimeArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.DATETIME_ARRAY_TYPE);
+		setType(Data.DATETIME_ARRAY);
 		
 		setValue(new String[0]);
 	}
@@ -219,7 +219,7 @@ public class DateTimeArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.DATETIME_ARRAY_TYPE);
+		setType(Data.DATETIME_ARRAY);
 		
 		if(strsValue==null)
 		{
@@ -233,7 +233,7 @@ public class DateTimeArrayField extends ArrayFieldImpl
 	 {
 			super(strFieldName);
 			
-			setType(DataType.DATETIME_ARRAY_TYPE);
+			setType(Data.DATETIME_ARRAY);
 			
 			this.buffer=buffer;
 	}

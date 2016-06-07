@@ -123,7 +123,7 @@ public class LongField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.LONG_TYPE);
+		setType(Data.LONG);
 		
 	
 		setValue(0);
@@ -132,7 +132,7 @@ public class LongField extends ValueFieldImpl
 	public LongField(long lValue)
 	{
 		
-		setType(DataType.LONG_TYPE);
+		setType(Data.LONG);
 		
 
 		setValue(lValue);
@@ -144,7 +144,7 @@ public class LongField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.LONG_TYPE);
+		setType(Data.LONG);
 		
 		setValue(lValue);
 	}
@@ -155,7 +155,7 @@ public class LongField extends ValueFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.LONG_TYPE);
+		setType(Data.LONG);
 		
 		this.buffer=buffer;
 	}

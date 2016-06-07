@@ -39,6 +39,8 @@ package com.cdoframework.cdolib.base;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 
+import org.omg.CORBA.INTERNAL;
+
 /**
  * Type为Object的实际类型的定义字符串，比如Byte,byte[],Date,Date[]
  * 其中Date,Time,DateTime实际为特定格式的String，但是Type不是String
@@ -85,4 +87,56 @@ public interface DataType extends Serializable
 	SimpleDateFormat DATETIME_FORMAT	=new SimpleDateFormat (DATETIME_FORMAT_STRING);
 	SimpleDateFormat DATE_FORMAT		=new SimpleDateFormat (DATE_FORMAT_STRING);
 	SimpleDateFormat TIME_FORMAT		=new SimpleDateFormat (TIME_FORMAT_STRING);	
+	
+	//新增的写法
+	public enum Data{
+		NONE(NONE_TYPE,"none"),
+		BOOLEAN(BOOLEAN_TYPE,"boolean"),
+		BYTE(BYTE_TYPE,"byte"),
+		SHORT(SHORT_TYPE,"short"),
+		INTEGER(INTEGER_TYPE,"integer"),
+		LONG(LONG_TYPE,"long"),
+		FLOAT(FLOAT_TYPE,"float"),
+		DOUBLE(DOUBLE_TYPE,"double"),
+		STRING(STRING_TYPE,"string"),
+		DATE(DATE_TYPE,"date"),
+		TIME(TIME_TYPE,"time"),
+		DATETIME(DATETIME_TYPE,"dateTime"),
+		
+		CDO(CDO_TYPE,"cdo"),
+		FILE(FILE_TYPE,"file"),
+		
+		BOOLEAN_ARRAY(BOOLEAN_ARRAY_TYPE,"boolean array "),
+		BYTE_ARRAY(BYTE_ARRAY_TYPE,"byte array "),
+		SHORT_ARRAY(SHORT_ARRAY_TYPE,"short array "),
+		INTEGER_ARRAY(INTEGER_ARRAY_TYPE,"integer array "),
+		LONG_ARRAY(LONG_ARRAY_TYPE,"long array "),
+		FLOAT_ARRAY(FLOAT_ARRAY_TYPE,"float array "),
+		DOUBLE_ARRAY(DOUBLE_ARRAY_TYPE,"double array "),
+		STRING_ARRAY(STRING_ARRAY_TYPE,"string"),
+		DATE_ARRAY(DATE_ARRAY_TYPE,"date array "),
+		TIME_ARRAY(TIME_ARRAY_TYPE,"time array "),
+		DATETIME_ARRAY(DATETIME_ARRAY_TYPE,"dateTime array "),
+		CDO_ARRAY(CDO_ARRAY_TYPE,"cdo array ");		
+		
+	     private int dataType;
+	     private String fieldType;
+	     private Data(int dataType,String fieldType){
+	         this.dataType = dataType;
+	         this.fieldType = fieldType;
+	     }
+		public int getDataType() {
+			return dataType;
+		}
+		public void setDataType(int dataType) {
+			this.dataType = dataType;
+		}
+		public String getFieldType() {
+			return fieldType;
+		}
+		public void setFieldType(String fieldType) {
+			this.fieldType = fieldType;
+		}
+	    
+	}
 }

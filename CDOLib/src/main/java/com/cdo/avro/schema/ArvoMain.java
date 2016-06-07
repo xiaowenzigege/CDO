@@ -101,14 +101,14 @@ public class ArvoMain {
 		long startTime=System.nanoTime();	
 		
 		LinkedHashMap<CharSequence,ByteBuffer> fieldMap=new LinkedHashMap<CharSequence,ByteBuffer>();
-		int level=cdo.toAvroFieldMap(fieldMap);
+//		int level=cdo.toAvroFieldMap(fieldMap);
 		
 		System.out.println("toMap nan s ="+(System.nanoTime()-startTime));
 		startTime=System.nanoTime();	
 		
 		AvroCDO arvoCDO=new  AvroCDO();
 		arvoCDO.setFields(fieldMap);
-		arvoCDO.setLevel(level);
+//		arvoCDO.setLevel(level);
 		
 		System.out.println("new AvroCDO nan s ="+(System.nanoTime()-startTime));
 		startTime=System.nanoTime();

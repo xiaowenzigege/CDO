@@ -87,7 +87,7 @@ public class BusinessClient implements IBusinessClient{
 		    		 while(it.hasNext()){
 		    			 Map.Entry<String,Field> entry=it.next();
 		    			 Field objExt=entry.getValue();
-		    			 if(objExt.getType()==DataType.FILE_TYPE){
+		    			 if(objExt.getType().getDataType()==DataType.FILE_TYPE){
 		    				 uploadFiles.put(entry.getKey(),((FileField)entry.getValue()).getValue());
 		    				 //设置普通参表示有文件上传
 		    				 headers.put(Constants.CDO.HTTP_CDO_UPLOADFILE_KEY, "true");

@@ -107,7 +107,7 @@ public class ShortArrayField extends ArrayFieldImpl
 	}
 
 	private ByteBuffer allocate(short[] shsValue){
-		buffer=DateBufferUtil.allocate(shsValue.length, DataType.SHORT_ARRAY_TYPE, buffer, dataIndex, databuffer);
+		buffer=DataBufferUtil.allocate(shsValue.length, DataType.SHORT_ARRAY_TYPE, buffer, dataIndex, databuffer);
 		//设置起始位置  
 		buffer.position(dataIndex);
 		for(int i=0;i<shsValue.length;i++){
@@ -205,7 +205,7 @@ public class ShortArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.SHORT_ARRAY_TYPE);
+		setType(Data.SHORT_ARRAY);
 
 		setValue(new short[0]);
 	}
@@ -216,7 +216,7 @@ public class ShortArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.SHORT_ARRAY_TYPE);
+		setType(Data.SHORT_ARRAY);
 		
 		if(shsValue==null)
 		{
@@ -231,7 +231,7 @@ public class ShortArrayField extends ArrayFieldImpl
 		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
 		super(strFieldName);
 		
-		setType(DataType.SHORT_ARRAY_TYPE);
+		setType(Data.SHORT_ARRAY);
 		
 		this.buffer=buffer;
 	}

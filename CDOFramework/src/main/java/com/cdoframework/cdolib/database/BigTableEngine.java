@@ -139,7 +139,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 			{
 				continue;
 			}
-			int nType=object.getType();
+			int nType=object.getType().getDataType();
 			Object objValue=object.getObjectValue();
 			switch(nType)
 			{
@@ -2222,7 +2222,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 					objExt=dataAccess.dataEngine.executeQueryFieldExt(dataAccess.conn,strSQL,cdoRequest);
 					if(objExt!=null)
 					{
-						switch(objExt.getType())
+						switch(objExt.getType().getDataType())
 						{
 							case DataType.BYTE_TYPE:
 								nCount+=(Byte)objExt.getObjectValue();
@@ -2545,7 +2545,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				{
 					continue;
 				}
-				int nType=objFieldValue.getType();
+				int nType=objFieldValue.getType().getDataType();
 				Object objValue=objFieldValue.getObjectValue();
 
 				String strOutputId=selectField.getOutputId();
