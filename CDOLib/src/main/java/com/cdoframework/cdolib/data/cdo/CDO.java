@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.ShortBuffer;
+import java.nio.channels.FileChannel.MapMode;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -24,9 +27,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.crypto.spec.PSource;
+
 import nanoxml.XMLElement;
 
 import org.apache.log4j.Logger;
+import org.omg.CORBA.INV_FLAG;
 
 import com.cdo.avro.protocol.AvroCDO;
 import com.cdoframework.cdolib.base.DataType;
@@ -1781,6 +1787,7 @@ public class CDO implements Serializable
 		cdo.setDateTimeArrayValue("dateTimeValues", new String[]{"2012-05-01 20:00:00","2013-05-01 21:00:00","2014-05-01 22:00:00"});
 		System.out.println(cdo.getBooleanValue("bvalue"));
 		System.out.println(cdo.getBooleanValue("bvalue"));
+	
 		for(int i=0;i<5;i++){
 			System.out.println(cdo.getBooleanValue("bvalue"));
 			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
@@ -1832,51 +1839,36 @@ public class CDO implements Serializable
 			
 			
 		}
-//		CDO cdoResponse=new CDO();
-//		cdoResponse.setIntegerValue("ncount", 5);
-//		CDO[] cdosList=new CDO[5];
-//		for(int i=0;i<cdosList.length;i++)
-//		{			
-//			cdosList[i]=new CDO();
+	      String str = "helloWorld";  
+	        ByteBuffer buff  = ByteBuffer.wrap(str.getBytes());  
+	        System.out.println("position:"+buff.position()+"\t limit:"+buff.limit());  
+	        //读取两个字节  
+	        buff.get();  
+	        buff.get();  
+	        System.out.println("get position:"+ buff.position()+"\t limit:"+buff.limit()); 
+	        buff.position(4);
+	        buff.mark();
+	        System.out.println("mark position:"+buff.position()+"\t limit:"+buff.limit());
+	        buff.get();
+	        System.out.println("mark get position:"+buff.position()+"\t limit:"+buff.limit());
+//	        buff.reset();
+//	        System.out.println("reset position:"+buff.position()+"\t limit:"+buff.limit());
+//	        buff.flip();  
+//	        System.out.println("flip position:"+buff.position()+"\t limit:"+buff.limit());
+//	        buff.rewind();
+	        ByteBuffer b1=buff.duplicate();
+	        b1.position(1);
+	        b1.put((byte)'z');
+	        System.out.println("get position:"+ buff.position()+"\t limit:"+buff.limit()); 
+	        buff.slice();
+//	        System.out.println("get :"+buff.get());
+//	        java.nio.channels.FileChannel inc;
+//	        MappedByteBuffer mapBuffer;
+////	        inc.map(MapMode., position, size)
+//	        java.nio.channels.SocketChannel channel;
+//	        channel.w
+	        
 
-//			CDO[] cdo1=new CDO[2];
-//			for(int j=0;j<cdo1.length;j++){
-//				cdo1[j]=new CDO();
-//				cdo1[j].setStringValue("strName2","张三"+i);
-//				cdo1[j].setDateValue("dBirthday2","2000-01-01");
-//			}
-//			cdosList[i].setCDOArrayValue("cdoArr", cdo1);
-//			cdosList[i].setBooleanValue("booleanValue", true);
-//			cdosList[i].setStringValue("strValue", "cdosList张"+i);
-//			cdosList[i].setIntegerArrayValue("nsCDOList"+i, new int[]{1,2,3});
-//			CDO subcdo=new CDO();
-//			subcdo.setStringArrayValue("xx", new String[]{"ss","x"});
-//			subcdo.setIntegerArrayValue("nsCDOList"+i, new int[]{1,2,3});
-//			cdosList[i].setCDOValue("subCDO", subcdo);
-			
-//		}
-//		cdoResponse.setCDOArrayValue("cdosList", cdosList);
-//
-//		CDO cdo2=CDO.fromXML(cdo.toXML());
-//		CDO cdoReturn=new CDO();
-//		cdoReturn.setIntegerValue("nCode",0);
-//		cdoReturn.setStringValue("strText","测试");
-//		cdoReturn.setStringValue("strInfo","测试");
-//		cdo.setCDOArrayValue("cdosList", cdosList);
-//		cdo.setCDOValue("cdoReturn",cdoReturn);
-//		cdo.setCDOValue("cdoResponse", cdoResponse);
-//		cdo.setStringArrayValue("cdoResponse.str",  new String[]{"xxx","yyy"});
-//	
-//		for(int i=0;i<100;i++){
-//			long startTime=System.nanoTime();
-//			cdo.toAvro();
-//			System.out.println("avr ns="+(System.nanoTime()-startTime));
-//		}
-//		for(int i=0;i<100;i++){
-//			long startTime=System.nanoTime();
-//			cdo.toXML();
-//			System.out.println("xml ns="+(System.nanoTime()-startTime));
-//		}
 	}
 
 	
