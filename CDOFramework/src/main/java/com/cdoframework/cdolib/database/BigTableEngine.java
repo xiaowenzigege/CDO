@@ -2483,7 +2483,6 @@ public class BigTableEngine// extends ParallelTaskProcessor
 					cdoRequest.setBooleanValue("$$nRecordCountId$$", true);
 				}
 				int nRecordCount=this.executeQueryRecord(hmDataGroup,dataService,hmDataAccessUsed,trans,strSQL,cdoRequest,cdoRecord);
-//				String strRecordCountId=selectRecord.getRecordCountId();
 				if(strRecordCountId.length()>0)
 				{// 输出受影响的记录数
 					strRecordCountId=strRecordCountId.substring(1,strRecordCountId.length()-1);
@@ -2814,7 +2813,6 @@ public class BigTableEngine// extends ParallelTaskProcessor
 			}
 
 			// 处理事务
-//			Hashtable<String,Integer> htTableIdSelected=new Hashtable<String,Integer>();//TODO 这个东西是干什么的?
 			int nResult=handleBlock(hmDataGroup,dataService,hmDataAccessUsed,trans,block,cdoRequest,cdoResponse,ret);
 			if(nResult!=2)
 			{// Break或自然执行完毕退出

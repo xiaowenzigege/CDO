@@ -11,15 +11,9 @@ package com.cdoframework.cdolib.data.cdo;
 
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.ShortBuffer;
-import java.nio.channels.FileChannel.MapMode;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -27,12 +21,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.crypto.spec.PSource;
 
 import nanoxml.XMLElement;
 
 import org.apache.log4j.Logger;
-import org.omg.CORBA.INV_FLAG;
 
 import com.cdo.avro.protocol.AvroCDO;
 import com.cdoframework.cdolib.base.DataType;
@@ -1839,28 +1831,40 @@ public class CDO implements Serializable
 			
 			
 		}
-	      String str = "helloWorld";  
-	        ByteBuffer buff  = ByteBuffer.wrap(str.getBytes());  
-	        System.out.println("position:"+buff.position()+"\t limit:"+buff.limit());  
-	        //读取两个字节  
-	        buff.get();  
-	        buff.get();  
-	        System.out.println("get position:"+ buff.position()+"\t limit:"+buff.limit()); 
-	        buff.position(4);
-	        buff.mark();
-	        System.out.println("mark position:"+buff.position()+"\t limit:"+buff.limit());
-	        buff.get();
-	        System.out.println("mark get position:"+buff.position()+"\t limit:"+buff.limit());
+		
+		ByteBuffer buffer=ByteBuffer.allocate(7);
+		buffer.put((byte)1);
+		buffer.putShort((short)2);
+		buffer.putShort((short)3);
+		buffer.putShort((short)4);
+		buffer.flip();
+		buffer.position(1);
+		buffer.limit(buffer.capacity());
+		System.out.println(buffer.capacity());
+//		System.out.println(((buffer.slice()).asShortBuffer().array().length));
+		
+//	      String str = "helloWorld";  
+//	        ByteBuffer buff  = ByteBuffer.wrap(str.getBytes());  
+//	        System.out.println("position:"+buff.position()+"\t limit:"+buff.limit());  
+//	        //读取两个字节  
+//	        buff.get();  
+//	        buff.get();  
+//	        System.out.println("get position:"+ buff.position()+"\t limit:"+buff.limit()); 
+//	        buff.position(4);
+//	        buff.mark();
+//	        System.out.println("mark position:"+buff.position()+"\t limit:"+buff.limit());
+//	        buff.get();
+//	        System.out.println("mark get position:"+buff.position()+"\t limit:"+buff.limit());
 //	        buff.reset();
 //	        System.out.println("reset position:"+buff.position()+"\t limit:"+buff.limit());
 //	        buff.flip();  
 //	        System.out.println("flip position:"+buff.position()+"\t limit:"+buff.limit());
 //	        buff.rewind();
-	        ByteBuffer b1=buff.duplicate();
-	        b1.position(1);
-	        b1.put((byte)'z');
-	        System.out.println("get position:"+ buff.position()+"\t limit:"+buff.limit()); 
-	        buff.slice();
+//	        ByteBuffer b1=buff.duplicate();
+//	        b1.position(1);
+//	        b1.put((byte)'z');
+//	        System.out.println("get position:"+ buff.position()+"\t limit:"+buff.limit()); 
+//	        buff.slice();
 //	        System.out.println("get :"+buff.get());
 //	        java.nio.channels.FileChannel inc;
 //	        MappedByteBuffer mapBuffer;

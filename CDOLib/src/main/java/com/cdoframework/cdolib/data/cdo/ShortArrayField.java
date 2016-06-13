@@ -39,7 +39,7 @@ public class ShortArrayField extends ArrayFieldImpl
 	private static final long serialVersionUID = 2227539383025705302L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	private ByteBuffer buffer;
-	private final int dataIndex=3;//数据保存的起始位置
+	private final int dataIndex=1;//数据保存的起始位置
 	private final int databuffer=2;//数据占用字节
 	public void setValue(short[] shsValue)
 	{
@@ -50,10 +50,8 @@ public class ShortArrayField extends ArrayFieldImpl
 		allocate(shsValue);
 	}
 	public short[] getValue()
-	{
-		
-		buffer.position(1);
-		int len=buffer.getShort();
+	{				
+		int len=getLength();
 		short[] result=new short[len];
 		buffer.position(dataIndex);
 		for(int i=0;i<result.length;i++){			
@@ -82,8 +80,7 @@ public class ShortArrayField extends ArrayFieldImpl
 	
 	public int getLength()
 	{
-		buffer.position(1);
-		return buffer.getShort();
+		return (buffer.capacity()-dataIndex)/databuffer;
 	}
 
 	public Object getObjectValue()

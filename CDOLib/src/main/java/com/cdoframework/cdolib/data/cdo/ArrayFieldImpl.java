@@ -44,7 +44,7 @@ public abstract class ArrayFieldImpl extends ValueFieldImpl implements ArrayFiel
 	 * 
 	 */
 	private static final long serialVersionUID = -4217710643711672017L;	
-	
+
 	public ArrayFieldImpl()
 	{
 

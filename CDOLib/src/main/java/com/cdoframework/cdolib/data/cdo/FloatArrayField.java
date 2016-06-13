@@ -34,7 +34,7 @@ public class FloatArrayField extends ArrayFieldImpl
 	private static final long serialVersionUID = -9036771599110221502L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	private ByteBuffer buffer;
-	private final int dataIndex=3;//数据保存的起始位置
+	private final int dataIndex=1;//数据保存的起始位置
 	private final int databuffer=4;//数据占用字节
 	
 	public void setValue(float[] fValue)
@@ -48,9 +48,8 @@ public class FloatArrayField extends ArrayFieldImpl
 	public float[] getValue()
 	{
 		buffer.position(1);
-		int len=buffer.getShort();
+		int len=getLength();
 		float[] result=new float[len];
-		buffer.position(dataIndex);
 		for(int i=0;i<result.length;i++){			
 			result[i]=buffer.getFloat();
 		}
@@ -77,8 +76,7 @@ public class FloatArrayField extends ArrayFieldImpl
 	
 	public int getLength()
 	{
-		buffer.position(1);
-		return buffer.getShort();
+		return (buffer.capacity()-dataIndex)/databuffer;
 	}
 	
 	public Object getObjectValue()

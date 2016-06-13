@@ -34,7 +34,7 @@ public class ByteArrayField extends ArrayFieldImpl
 	private static final long serialVersionUID = 1390757657933478538L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------	
 	private ByteBuffer buffer=null;	
-	private final int dataIndex=5;//数据保存的起始位置
+	private final int dataIndex=1;//数据保存的起始位置
 	private final int databuffer=1;//数据占用字节
 	
 	public void setValue(byte[] bysValue)
@@ -48,7 +48,7 @@ public class ByteArrayField extends ArrayFieldImpl
 	public byte[] getValue()
 	{
 		buffer.position(1);
-		int len=buffer.getInt();
+		int len=getLength();
 		byte[] bsValue=new byte[len];
 		buffer.position(dataIndex);
 		buffer.limit(buffer.capacity());		
@@ -73,9 +73,8 @@ public class ByteArrayField extends ArrayFieldImpl
 	}
 	
 	public int getLength()
-	{
-		buffer.position(1);
-		return buffer.getInt();
+	{		
+		return (buffer.capacity()-dataIndex)/databuffer;
 	}
 	
 	public Object getObjectValue()
@@ -96,8 +95,7 @@ public class ByteArrayField extends ArrayFieldImpl
 	private void allocateBuffer(byte[] bsValue){
 		int len=dataIndex+bsValue.length*databuffer;
 		buffer=ByteBuffer.allocate(len);
-		buffer.put((byte)DataType.BYTE_ARRAY_TYPE);
-		buffer.putInt(bsValue.length);
+		buffer.put((byte)DataType.BYTE_ARRAY_TYPE);		
 	}
 	
 	private void allocate(byte[] bsValue){
@@ -105,14 +103,12 @@ public class ByteArrayField extends ArrayFieldImpl
 			allocateBuffer(bsValue);
 		}else{
 			buffer.position(1);
-			int len=buffer.getInt();
+			int len=getLength();
 			if(len<bsValue.length){
 				//最新数组大于原来数组, 重新分配长度
 				allocateBuffer(bsValue);
 			}else if(len>bsValue.length){
 				//最新数组小于原来数组  截取原长度的一部分 作为本次数据存放,不需要重新分配内存
-				buffer.position(1);
-				buffer.putInt(bsValue.length);
 				len=dataIndex+bsValue.length*databuffer;
 				buffer.position(0);
 				buffer.limit(len);

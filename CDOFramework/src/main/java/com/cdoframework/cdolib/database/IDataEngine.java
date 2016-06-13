@@ -167,7 +167,7 @@ public interface IDataEngine
 	 * @return
 	 * @throws Exception
 	 */
-	public Object executeQueryField(Connection conn,String strSQL,CDO cdoRequest) throws SQLException,IOException;
+	public Field executeQueryField(Connection conn,String strSQL,CDO cdoRequest) throws SQLException,IOException;
 
 	/**
 	 * 通过一个传入的数据库连接查询并输出第一条记录的第一个字段(含类型)

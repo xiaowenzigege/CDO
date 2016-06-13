@@ -37,7 +37,7 @@ public class BooleanArrayField extends ArrayFieldImpl
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	private ByteBuffer buffer=null;
 	
-	private final int dataIndex=3;//数据保存的起始位置
+	private final int dataIndex=1;//数据保存的起始位置
 	private final int databuffer=1;//数据占用字节
 	public void setValue(boolean[] bsValue)
 	{
@@ -51,7 +51,7 @@ public class BooleanArrayField extends ArrayFieldImpl
 	public boolean[] getValue()
 	{
 		buffer.position(1);
-		int len=buffer.getShort();
+		int len=getLength();		
 		boolean[] bsValue=new boolean[len];
 		for(int i=0;i<bsValue.length;i++){
 			byte b=buffer.get();
@@ -88,8 +88,7 @@ public class BooleanArrayField extends ArrayFieldImpl
 
 	public int getLength()
 	{
-		buffer.position(1);
-		return buffer.getShort();
+		return (buffer.capacity()-dataIndex)/databuffer;
 	}
 	
 	public Object getObjectValue()

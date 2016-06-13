@@ -3,7 +3,6 @@ package com.cdoframework.cdolib.data.cdo;
 import java.nio.ByteBuffer;
 
 import com.cdoframework.cdolib.base.DataType;
-import com.cdoframework.cdolib.base.ObjectExt;
 
 public class DataBufferUtil {
 
@@ -12,11 +11,10 @@ public class DataBufferUtil {
 		int len=dataIndex+arrlen*databuffer;
 		buffer=ByteBuffer.allocate(len);
 		buffer.put((byte)dataType);
-		buffer.putShort((short)arrlen);
 		return buffer;
 	}
 	/**
-	 * 分配数组内存
+	 * 分配 数据占固定长度 的数组   内存
 	 * @param strsValue 数组
 	 * @param dataType 字段类型
 	 * @param buffer  
@@ -28,14 +26,12 @@ public class DataBufferUtil {
 			buffer=allocateBuffer(arrlen, dataType, buffer, dataIndex, databuffer);
 		}else{
 			buffer.position(1);
-			int len=buffer.getShort();
+			int len=(buffer.capacity()-1)/databuffer;
 			if(len<arrlen){
 				//最新数组大于原来数组, 重新分配长度
 				buffer=allocateBuffer(arrlen, dataType, buffer, dataIndex, databuffer);
 			}else if(len>arrlen){
 				//最新数组小于原来数组  截取原长度的一部分 作为本次数据存放,不需要重新分配内存
-				buffer.position(1);
-				buffer.putShort((short)arrlen);
 				len=dataIndex+arrlen*databuffer;
 				buffer.position(0);
 				buffer.limit(len);
@@ -55,7 +51,8 @@ public class DataBufferUtil {
 	static String[] getDateArrayValue(ByteBuffer buffer,int dataIndex,int databuffer)
 	{
 		buffer.position(1);
-		int len=buffer.getShort();
+//		int len=buffer.getShort();
+		int len=(buffer.capacity()-dataIndex)/databuffer;
 		String[] strsValue=new String[len];
 		byte[] bsValue=new byte[databuffer];
 		int index;
@@ -65,7 +62,6 @@ public class DataBufferUtil {
 			buffer.limit(index+databuffer);
 			(buffer.slice()).get(bsValue);
 			strsValue[i]=new String(bsValue).trim();
-//			buffer.clear();
 		}
 		return strsValue;		
 	}

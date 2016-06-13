@@ -525,7 +525,7 @@ public class ServiceBus implements IServiceBus
 			if(strTransName2.startsWith("GET") || strTransName2.startsWith("FIND") || strTransName2.startsWith("RETRIEVE")){
 				return;
 			}
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new StringBuilder(50);
 			sb.append("End handle ").append(" ServiceName=").append(strServiceName).append(" transName=").append(strTransName).append("\r\n");
 			if(retResult==null){
 				sb.append(" result is null ");

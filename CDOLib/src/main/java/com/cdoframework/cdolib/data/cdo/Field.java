@@ -60,7 +60,7 @@ public interface Field extends DataType
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 	public static final String CDO_Field_Max_Level="$Level"; 
 	public void setType(DataType.Data data);
-	public DataType.Data getType();
+	public DataType.Data getType();	
 	public void setName(String strName);
 	public String getName();
 	
@@ -95,12 +95,12 @@ public interface Field extends DataType
 		 * dateTime 19字节 格式(2012-10-15 20:12:10)
 		 * Time 8个字节   格式(20:12:10)
 		 * string utf8实际占用的字节长度
-	   II 类型-数组长度--数据-数据-数据-数据-数据-数据	   
-	      byte,boolean,short,int,long,float,double,date,dataTime,Time数组序列化 
-	                    第一个字节  字段类型参数
-	      A  byte数组  的 数组长度    使用 int型表示 占4个字节  最多为 (Integer.MAX_VALUE)         
-	      B  其余[boolean,short,...Time] 数组长度  为short型  占2个字节,数组最多为 (Short.MAX_VALUE) 	       
+	  
+	   II 类型-数据-数据-数据-数据-数据-数据	   
+	      byte Array,boolean Array,short Array,int Array,long Array,float Array,double Array,date Array,dataTime Array,Time Array数组序列化 
+	                    第一个字节  字段类型参数	       
 	                    数组中的每个数据 所占字节参考 I
+	                    
 	   III string数组类型-数组长度-数据长度-数据内容-数据长度-数据内容....--数据长度--数据内容-.....
 	                       第一个字节  字段类型参数    
 	                        数组长度     占2个字节 为short型,数组最多为 (Short.MAX_VALUE)

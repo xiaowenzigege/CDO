@@ -184,8 +184,7 @@ public class Service implements IService
 			logger.error("有同步事务,执行失败 "+strServiceName+"."+strTransName);
 			return ret;
 		}
-		
-	
+			
 		//处理缓存cache
 		ret = null;
 		try{

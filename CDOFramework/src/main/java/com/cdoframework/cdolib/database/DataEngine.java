@@ -15,11 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
-
-
-
-
-
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.log4j.Logger;
 
@@ -58,7 +53,6 @@ import com.cdoframework.cdolib.database.xsd.Update;
 import com.cdoframework.cdolib.database.xsd.types.IfTypeType;
 import com.cdoframework.cdolib.database.xsd.types.SQLIfTypeType;
 import com.cdoframework.cdolib.database.xsd.types.SQLTransTransFlagType;
-import com.cdoframework.cdolib.database.xsd.types.SetVarTypeType;
 
 /**
  * @author Frank
@@ -75,15 +69,6 @@ public class DataEngine implements IDataEngine
 	// 静态对象,所有static在此声明并初始化------------------------------------------------------------------------
 	public final int RETURN_SYSTEMERROR=-1;
 
-	// 定义数据库驱动程序名称
-	// protected static final String
-	// DRIVER_SQLSERVER="net.sourceforge.jtds.jdbc.Driver";
-	// protected static final String DRIVER_ORACLE
-	// ="oracle.jdbc.driver.OracleDriver";
-	// protected static final String DRIVER_DB2
-	// ="com.ibm.db2.jdbc.app.DB2Driver";
-	// protected static final String DRIVER_MYSQL ="com.mysql.jdbc.Driver";
-
 	// 定义数据库类型
 	public static final String SQLSERVER="SQLServer";
 	public static final String ORACLE="Oracle";
@@ -93,7 +78,6 @@ public class DataEngine implements IDataEngine
 	// 内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
 	protected BasicDataSource ds;   
 	protected String strSystemCharset;
-	private HashMap<String,ArrayList<PreparedStatement>> hmStatement;
 	private HashMap<String,AnalyzedSQL> hmAnalyzedSQL;
 
 	// 属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
@@ -1807,7 +1791,7 @@ public class DataEngine implements IDataEngine
 	 * @return
 	 * @throws Exception
 	 */
-	public Object executeQueryField(Connection conn,String strSQL,CDO cdoRequest) throws SQLException,IOException
+	public Field executeQueryField(Connection conn,String strSQL,CDO cdoRequest) throws SQLException,IOException
 	{
 		// 准备JDBC语句
 		PreparedStatement ps=prepareStatement(conn,strSQL,cdoRequest);
@@ -1827,7 +1811,8 @@ public class DataEngine implements IDataEngine
 			int[] nsScale=new int[1];
 			for(int i=0;i<strsFieldName.length;i++)
 			{
-				strsFieldName[i]=meta.getColumnName(i+1);
+//				strsFieldName[i]=meta.getColumnName(i+1);
+				strsFieldName[i]=meta.getColumnLabel(i+1);
 				nsFieldType[i]=meta.getColumnType(i+1);
 				nsPrecision[i]=meta.getPrecision(i+1);
 				nsScale[i]=meta.getScale(i+1);
@@ -1889,7 +1874,8 @@ public class DataEngine implements IDataEngine
 			int[] nsScale=new int[1];
 			for(int i=0;i<strsFieldName.length;i++)
 			{
-				strsFieldName[i]=meta.getColumnName(i+1);
+//				strsFieldName[i]=meta.getColumnName(i+1);
+				strsFieldName[i]=meta.getColumnLabel(i+1);
 				nsFieldType[i]=meta.getColumnType(i+1);
 				nsPrecision[i]=meta.getPrecision(i+1);
 				nsScale[i]=meta.getScale(i+1);
@@ -2222,7 +2208,6 @@ public class DataEngine implements IDataEngine
 		try
 		{
 			// 执行查询
-////System.out.println("Update "+conn.toString());
 			int nCount=ps.executeUpdate();
 
 			return nCount;
@@ -2433,17 +2418,7 @@ public class DataEngine implements IDataEngine
 		nMaxConnectionCount=100;
 		lTimeout=60000L;
 
-		hmStatement		=new HashMap<String,ArrayList<PreparedStatement>>(100);
 		hmAnalyzedSQL	=new HashMap<String,AnalyzedSQL>(100);
 	}
-
-//	public static void main(String[] args)
-//	{
-//		CDO cdoRequest=new CDO();
-////		cdoRequest.setStringValue("strName","Frank");
-//		
-//		DataEngine dataEngine=new DataEngine();
-//		dataEngine.checkCondition("{strName}","IS","NULL",0,"string",cdoRequest);
-//	}
 	
 }
