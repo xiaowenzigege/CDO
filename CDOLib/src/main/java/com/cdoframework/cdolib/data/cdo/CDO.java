@@ -11,7 +11,6 @@ package com.cdoframework.cdolib.data.cdo;
 
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -49,7 +48,7 @@ public class CDO implements Serializable
 	
 	private static final Logger logger = Logger.getLogger(CDO.class);
 
-	private  int fileCount;//CDO里是否设置了文件，若设置了文件 则在网络传输需要特别处理 ,仅对最外层cdo有文件类型的进行处理
+	int fileCount;//CDO里是否设置了文件，若设置了文件 则在网络传输需要特别处理 ,仅对最外层cdo有文件类型的进行处理
 	//内部类,所有内部类在此声明----------------------------------------------------------------------------------
 	final class FieldId
 	{
@@ -141,409 +140,7 @@ public class CDO implements Serializable
 		return fieldId;
 	}
 
-	//序列化方法-------------------------------------------------------------------------------------------------
-
-	protected void fromXML(XMLElement nodeCDO,boolean isRootNode)
-	{
-		Iterator enumNodes=nodeCDO.enumerateChildren();
-
-		while(enumNodes.hasNext())
-		{
-			XMLElement node=(XMLElement)enumNodes.next();
-
-			String strTag=node.getName();
-			if(strTag.equals("BF"))//BooleanField
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				boolean bValue=false;
-				if(strValue.equalsIgnoreCase("true"))
-				{
-					bValue=true;
-				}
-				putItem(strName,new BooleanField(strName,bValue));
-			}
-			else if(strTag.equals("BYF"))//ByteField
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");				
-				putItem(strName,new ByteField(strName,Byte.parseByte(strValue)));
-			}
-			else if(strTag.equals("SF"))//ShortField
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				putItem(strName,new ShortField(strName, Short.parseShort(strValue)));
-			}
-			else if(strTag.equals("NF"))//IntegerField
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				putItem(strName,new IntegerField(strName, Integer.parseInt(strValue)));
-			}
-			else if(strTag.equals("LF"))//LongField
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				putItem(strName,new LongField(strName, Long.parseLong(strValue)));
-			}
-			else if(strTag.equals("FF"))//FloatField
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				putItem(strName,new FloatField(strName, Float.parseFloat(strValue)));
-			}
-			else if(strTag.equals("DBLF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				putItem(strName,new DoubleField(strName, Double.parseDouble(strValue)));
-			}
-			else if(strTag.equals("STRF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				putItem(strName,new StringField(strName, strValue));
-			}
-			else if(strTag.equals("DF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				putItem(strName,new DateField(strName, strValue));
-			}
-			else if(strTag.equals("TF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				putItem(strName,new TimeField(strName, strValue));
-			}
-			else if(strTag.equals("DTF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				putItem(strName,new DateTimeField(strName, strValue));
-			}
-			else if(strTag.equals("CDOF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				CDO cdoValue	=new CDO();
-				cdoValue.fromXML((XMLElement)node.getChildren().get(0),false);
-				putItem(strName,new CDOField(strName, cdoValue));
-			}else if(strTag.equals("FILE"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				putItem(strName,new FileField(strName, new File(strValue)));
-			   //仅对最顶级CDO里的file 做字节流传输,嵌套里的文件在网络传输中不处理  忽略掉
-				if(isRootNode)
-					fileCount++;
-			}
-			else if(strTag.equals("BAF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				String[] strValueArr=null;
-				if(strValue.length()==0)
-				{
-					strValueArr=new String[0];
-				}
-				else
-				{
-					strValueArr=strValue.split(",");
-				}
-				boolean[] bsValue=new boolean[strValueArr.length];
-				for(int i=0;i<strValueArr.length;i++)
-				{
-					if(strValueArr[i].equalsIgnoreCase("true"))
-					{
-						bsValue[i]=true;	
-					}
-				}
-				putItem(strName,new BooleanArrayField(strName, bsValue));
-			}
-			else if(strTag.equals("BYAF"))
-			{//				
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				String[] strValueArr=null;
-				if(strValue.length()==0)
-				{
-					strValueArr=new String[0];
-				}
-				else
-				{
-					strValueArr=strValue.split(",");
-				}
-				//bytes数据比较多，采用分成四等份，循环1/4 即可完成原来遍历所有数据处理。
-				byte[] bysValue=new byte[strValueArr.length];
-				int length=bysValue.length;				
-				int mid=length/2;
-				int quarter=mid/2;
-				int j=quarter+1;
-				int m=mid+1;
-				int quarter3=mid+quarter;
-				int n=mid+quarter+1;
-							
-				for(int i=0;i<=quarter ;i++){
-					try{
-						bysValue[i]=Byte.parseByte(strValueArr[i]);				
-						if(j<=mid){
-							bysValue[j]=Byte.parseByte(strValueArr[j]);
-							j++;
-						}
-						if(m<=quarter3){
-							bysValue[m]=Byte.parseByte(strValueArr[m]);
-							m++;
-						}
-						if(n<length){
-							bysValue[n]=Byte.parseByte(strValueArr[n]);
-							n++;
-						}				
-					}catch(Exception ex)
-					{
-						throw new RuntimeException("Parse xml error: unexpected short value "+strValueArr[i]+" under "+strTag);
-					}					
-				}			
-				putItem(strName,new ByteArrayField(strName, bysValue));
-			}
-			else if(strTag.equals("SAF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				String[] strValueArr=null;
-				if(strValue.length()==0)
-				{
-					strValueArr=new String[0];
-				}
-				else
-				{
-					strValueArr=strValue.split(",");
-				}
-				short[] shsValue=new short[strValueArr.length];
-				for(int i=0;i<strValueArr.length;i++)
-				{
-					try{
-						shsValue[i]=Short.parseShort(strValueArr[i]);
-					}catch(Exception ex)
-					{
-						throw new RuntimeException("Parse xml error: unexpected short value "+strValueArr[i]+" under "+strTag);
-					}
-				}			
-				putItem(strName,new ShortArrayField(strName,shsValue));
-			}
-			else if(strTag.equals("NAF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				String[] strValueArr=null;
-				if(strValue.length()==0)
-				{
-					strValueArr=new String[0];
-				}
-				else
-				{
-					strValueArr=strValue.split(",");
-				}
-				int[] nsValue=new int[strValueArr.length];
-				for(int i=0;i<strValueArr.length;i++)
-				{
-					try{
-						nsValue[i]=Integer.parseInt(strValueArr[i]);
-					}catch(Exception ex)
-					{
-						throw new RuntimeException("Parse xml error: unexpected int value "+strValueArr[i]+" under "+strTag);
-					}
-				}			
-				putItem(strName,new IntegerArrayField(strName, nsValue));
-			}
-			else if(strTag.equals("LAF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				String[] strValueArr=null;
-				if(strValue.length()==0)
-				{
-					strValueArr=new String[0];
-				}
-				else
-				{
-					strValueArr=strValue.split(",");
-				}
-				long[] lsValue=new long[strValueArr.length];
-				for(int i=0;i<strValueArr.length;i++)
-				{
-					try{
-						lsValue[i]=Long.parseLong(strValueArr[i]);
-					}catch(Exception ex)
-					{
-						throw new RuntimeException("Parse xml error: unexpected long value "+strValueArr[i]+" under "+strTag);
-					}
-				}			
-				putItem(strName,new LongArrayField(strName, lsValue));
-			}
-			else if(strTag.equals("FAF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				String[] strValueArr=null;
-				if(strValue.length()==0)
-				{
-					strValueArr=new String[0];
-				}
-				else
-				{
-					strValueArr=strValue.split(",");
-				}
-				float[] fsValue=new float[strValueArr.length];
-				for(int i=0;i<strValueArr.length;i++)
-				{
-					try{
-						fsValue[i]=Float.parseFloat(strValueArr[i]);
-					}catch(Exception ex)
-					{
-						throw new RuntimeException("Parse xml error: unexpected float value "+strValueArr[i]+" under "+strTag);
-					}
-				}			
-				putItem(strName,new FloatArrayField(strName,fsValue));
-				
-			}
-			else if(strTag.equals("DBLAF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				String[] strValueArr=null;
-				if(strValue.length()==0)
-				{
-					strValueArr=new String[0];
-				}
-				else
-				{
-					strValueArr=strValue.split(",");
-				}
-				double[] dblsValue=new double[strValueArr.length];
-				for(int i=0;i<strValueArr.length;i++)
-				{
-					try{
-						dblsValue[i]=Double.parseDouble(strValueArr[i]);
-					}catch(Exception ex)
-					{
-						throw new RuntimeException("Parse xml error: unexpected float value "+strValueArr[i]+" under "+strTag);
-					}
-				}			
-				putItem(strName,new DoubleArrayField(strName, dblsValue));
-			}
-			else if(strTag.equals("STRAF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				Iterator enumItems	=node.enumerateChildren();
-
-				String[] strsValue=new String[node.countChildren()];
-				int nIndex=0;
-				while(enumItems.hasNext())
-				{
-					XMLElement subNode=(XMLElement)enumItems.next();
-					String strSubNodeTag=subNode.getName();
-					if(strSubNodeTag.equals("STR")==false)
-					{
-						throw new RuntimeException("Parse xml error: unexpected Tag name "+strSubNodeTag+" under "+strTag);
-					}
-					strsValue[nIndex]=subNode.getContent();
-					nIndex++;
-				}
-				putItem(strName,new StringArrayField(strName, strsValue));
-			}
-			else if(strTag.equals("DAF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				String[] strValueArr=null;
-				if(strValue.length()==0)
-				{
-					strValueArr=new String[0];
-				}
-				else
-				{
-					strValueArr=strValue.split(",");
-				}
-				putItem(strName,new DateArrayField(strName, strValueArr));
-			}
-			else if(strTag.equals("TAF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				String[] strsValue=null;
-				if(strValue.length()==0)
-				{
-					strsValue=new String[0];
-				}
-				else
-				{
-					strsValue=strValue.split(",");
-				}
-				putItem(strName,new TimeArrayField(strName, strsValue));
-			}
-			else if(strTag.equals("DTAF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				String strValue=node.getStringAttribute("V");
-				String[] strsValue=null;
-				if(strValue.length()==0)
-				{
-					strsValue=new String[0];
-				}
-				else
-				{
-					strsValue=strValue.split(",");
-				}
-				putItem(strName,new DateTimeArrayField(strName, strsValue) );
-			}
-			else if(strTag.equals("CDOAF"))
-			{
-				String strName	=node.getStringAttribute("N");
-				Iterator enumItems	=node.enumerateChildren();
-
-				CDO[] cdosValue=new CDO[node.countChildren()];
-				int nIndex=0;
-				while(enumItems.hasNext())
-				{
-					XMLElement subNode=(XMLElement)enumItems.next();
-					String strSubNodeTag=subNode.getName();
-					if(strSubNodeTag.equals("CDO")==false)
-					{
-						throw new RuntimeException("Parse xml error: unexpected Tag name "+strSubNodeTag+" under "+strTag);
-					}
-					CDO cdoValue=new CDO();
-					cdoValue.fromXML(subNode,false);
-					cdosValue[nIndex]=cdoValue;
-					nIndex++;
-				}
-				putItem(strName,new CDOArrayField(strName, cdosValue));
-			}
-			else
-			{
-				throw new RuntimeException("Parse xml error: unexpected Tag name ["+strTag+"]");
-			}
-		}
-	}
-
-	public static CDO fromXML(String strXML)
-	{
-		XMLElement xmlNode=new XMLElement();
-		xmlNode.parseString(strXML);
-
-		CDO cdo=new CDO();
-		cdo.fromXML(xmlNode,true);
-
-		return cdo;
-	}
-
-	public static void xmlToCDO(String strXML,CDO cdoOutPut)
-	{
-		XMLElement xmlNode=new XMLElement();
-		xmlNode.parseString(strXML);
-		cdoOutPut.fromXML(xmlNode,true);		
-	}	
-	
+	//---------------------- 序列化方法    cdo2xml  cdo2Avro------------------------//
 	/**
 	 * 转换成avro
 	 * @return
@@ -622,6 +219,7 @@ public class CDO implements Serializable
 		}
 	}
 	
+	 
 	public String toXMLLog()
 	{
 		StringBuilder strbXML=new StringBuilder(500);
@@ -635,6 +233,7 @@ public class CDO implements Serializable
 		strbXML.append("</CDO>");				
 		return strbXML.toString();
 	}
+	
 	
 	public String toXMLWithIndent(){
 		StringBuilder strbXML=new StringBuilder(500);
@@ -650,7 +249,7 @@ public class CDO implements Serializable
 		return strbXML.toString();
 	}
 	
-	protected void toXMLWithIndent(String strIndent,StringBuilder strbXML){
+	void toXMLWithIndent(String strIndent,StringBuilder strbXML){
 		strbXML.append(strIndent).append("<CDO>\r\n");		
 		Entry<String, Field> entry=null;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
@@ -660,11 +259,145 @@ public class CDO implements Serializable
 		strbXML.append(strIndent).append("</CDO>\r\n");
 	}
 
-
-	//操作方法---------------------------------------------------------------------------------------------------
-	protected void setField(String strName,Field field)
+	/**
+	 * 把CDO对象转换成JSON格式的字符串
+	 * 
+	 * @param cdo
+	 * @return JSON格式的字符串
+	 * 
+	 */
+	public String toJSON()
 	{
-		putItem(strName,field);		
+		StringBuffer str_JSON=new StringBuffer("{");
+		
+		Entry<String, Field> entry=null;
+		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
+			entry=it.next();
+			str_JSON.append(entry.getValue().toJSON());
+		}
+		
+		// ugly 方法去掉最后一个","
+		int _lastComma=str_JSON.lastIndexOf(",");
+		int _length=str_JSON.length();
+		if(_lastComma==_length-1)
+		{
+			str_JSON.replace(_lastComma,_lastComma+1,"");
+		}
+
+		str_JSON.append("}");
+		return str_JSON.toString();
+	}
+
+	public String toJSONString()
+	{
+		StringBuffer str_JSON=new StringBuffer("{");
+		
+		Entry<String, Field> entry=null;
+		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
+			entry=it.next();
+			str_JSON.append(entry.getValue().toJSONString());
+		}
+		// ugly 方法去掉最后一个","
+		int _lastComma=str_JSON.lastIndexOf(",");
+		int _length=str_JSON.length();
+		if(_lastComma==_length-1)
+		{
+			str_JSON.replace(_lastComma,_lastComma+1,"");
+		}
+
+		str_JSON.append("}");
+		return str_JSON.toString();
+	}
+	
+
+//-----------------------------xml2CDO 反序列化方法    avro2CDO 参看AvroCDODeserialize-----------------------------------------------//
+	
+	public static CDO fromXML(String strXML)
+	{
+		CDO cdo=new CDO();
+		xmlToCDO(strXML,cdo);			
+		return cdo;
+	}
+
+
+    public void copyFrom(CDO cdoSource)
+    {
+    	xmlToCDO(cdoSource.toXML(),this);
+    }
+    
+    
+    public void copyFrom(String strCDOXML)
+    {
+		xmlToCDO(strCDOXML,this);
+    }
+
+    
+	public static void xmlToCDO(String strXML,CDO cdoOutPut)
+	{
+		XMLElement xmlNode=new XMLElement();
+		xmlNode.parseString(strXML);
+		
+		XmlCDODeserialize.xml2CDO(cdoOutPut, xmlNode, true);
+	}	
+	
+	
+    public CDO clone()
+    {
+    	return CDO.fromXML(this.toXML());
+    }	
+	
+    
+    /**
+     * 根据key,获取Field
+     * @param fieldId
+     * @param cdoRoot
+     * @return
+     */
+    private Field getObject(FieldId fieldId,CDO cdoRoot)
+	{
+    	if(fieldId.nType==FieldId.SIMPLE)
+    	{//简单类型    		
+    		return this.hmItem.get(fieldId.strFieldId);
+    	}
+
+    	if(fieldId.nType==FieldId.MULTI_LEVEL)
+    	{//多级FieldId
+    		FieldId fieldIdMain=this.parseFieldId(fieldId.strMainFieldId);
+    		if(fieldIdMain==null)
+    		{
+    			throw new RuntimeException("Invalid FieldId "+fieldId.strMainFieldId);
+    		}
+    		if(fieldIdMain.nType==FieldId.ARRAY_ELEMENT)
+    		{
+    			Field objExt=this.getObject(this.parseFieldId(fieldIdMain.strMainFieldId),cdoRoot);
+    			if(objExt==null)
+    			{
+    				return null;
+    			}
+    			int nIndex=this.getIndexValue(fieldIdMain.strIndexFieldId,cdoRoot);
+//    			return ((CDO)objExt.getValueAt(nIndex)).getObject(fieldId.strFieldId);
+    			return (((CDOArrayField)objExt).getValueAt(nIndex)).getObject(fieldId.strFieldId);
+    		}
+    		Field cdoMainField=getObject(fieldIdMain,cdoRoot);
+    		if(cdoMainField==null)
+    		{
+    			return null;
+    		}
+    		if(cdoMainField.getType().getDataType()>=DataType.BOOLEAN_ARRAY_TYPE && fieldId.strFieldId.equalsIgnoreCase("length")==true)
+    		{//是数组类型
+//    			return new ObjectExt(DataType.INTEGER_TYPE,cdoMainField.getLength());
+    			return new IntegerField(((ArrayField)cdoMainField).getLength());
+    		}
+//    		return ((CDO)cdoMainField.getValue()).hmItem.get(fieldId.strFieldId);
+    		return (((CDOField)cdoMainField).getValue()).hmItem.get(fieldId.strFieldId);
+    	}
+
+    	//数组元素
+		int nIndex=this.getIndexValue(fieldId.strIndexFieldId,cdoRoot);
+		FieldId fieldIdMain=this.parseFieldId(fieldId.strMainFieldId);
+		Field objExt=this.getObject(fieldIdMain,cdoRoot);	
+//		return objExt.getValueAtExt(nIndex);
+		return getValueAtExt(objExt,nIndex);
 	}
 
     //根据带路径的FieldId获取对应的Value
@@ -702,56 +435,13 @@ public class CDO implements Serializable
 		}
 		
 		return nIndex;
-    }
-    
-    //自定义方法
-    protected Field getObject(FieldId fieldId,CDO cdoRoot)
-	{
-    	if(fieldId.nType==FieldId.SIMPLE)
-    	{//简单类型    		
-    		return this.hmItem.get(fieldId.strFieldId);
-    	}
-
-    	if(fieldId.nType==FieldId.MULTI_LEVEL)
-    	{//多级FieldId
-    		FieldId fieldIdMain=this.parseFieldId(fieldId.strMainFieldId);
-    		if(fieldIdMain==null)
-    		{
-    			throw new RuntimeException("Invalid FieldId "+fieldId.strMainFieldId);
-    		}
-    		if(fieldIdMain.nType==FieldId.ARRAY_ELEMENT)
-    		{
-    			Field objExt=this.getObject(this.parseFieldId(fieldIdMain.strMainFieldId),cdoRoot);
-    			if(objExt==null)
-    			{
-    				return null;
-    			}
-    			int nIndex=this.getIndexValue(fieldIdMain.strIndexFieldId,cdoRoot);
-//    			return ((CDO)objExt.getValueAt(nIndex)).getObject(fieldId.strFieldId);
-    			(((CDOArrayField)objExt).getValueAt(nIndex)).getObject(fieldId.strFieldId);
-    		}
-    		Field cdoMainField=getObject(fieldIdMain,cdoRoot);
-    		if(cdoMainField==null)
-    		{
-    			return null;
-    		}
-    		if(cdoMainField.getType().getDataType()>=DataType.BOOLEAN_ARRAY_TYPE && fieldId.strFieldId.equalsIgnoreCase("length")==true)
-    		{//是数组类型
-//    			return new ObjectExt(DataType.INTEGER_TYPE,cdoMainField.getLength());
-    			return new IntegerField(((ArrayField)cdoMainField).getLength());
-    		}
-//    		return ((CDO)cdoMainField.getValue()).hmItem.get(fieldId.strFieldId);
-    		return (((CDOField)cdoMainField).getValue()).hmItem.get(fieldId.strFieldId);
-    	}
-
-    	//数组元素
-		int nIndex=this.getIndexValue(fieldId.strIndexFieldId,cdoRoot);
-		FieldId fieldIdMain=this.parseFieldId(fieldId.strMainFieldId);
-		Field objExt=this.getObject(fieldIdMain,cdoRoot);	
-//		return objExt.getValueAtExt(nIndex);
-		return getValueAtExt(objExt,nIndex);
-	}
-
+    } 
+    /**
+     *  获取数组 指定index的值
+     * @param field
+     * @param nIndex
+     * @return
+     */
     private Field getValueAtExt(Field field,int nIndex)
 	{
 		switch(field.getType().getDataType())
@@ -805,9 +495,14 @@ public class CDO implements Serializable
 				return new CDOField(((CDOArrayField)field).getValueAt(nIndex));
 			}
 		}
-		throw new RuntimeException("Type cast failed");	
+		throw new RuntimeException(field.getType().getFieldType()+" Type cast failed");	
 	}
     
+    /**
+     * 根据 strFieldId 获取Field
+     * @param strFieldId 
+     * @return
+     */
     public Field getObject(String strFieldId)
     {
     	Field objExt=this.hmItem.get(strFieldId);
@@ -833,23 +528,18 @@ public class CDO implements Serializable
     	return objExt;
     }
 
-    public Field getChild(String strFieldId)
-    {
-    	Field objExt=this.hmItem.get(strFieldId);
-    	if(objExt==null)
-    	{
-			throw new RuntimeException("Invalid FieldId "+strFieldId);
-    	}
-    	return objExt;
-	}
-    
-
+    /**
+     * 根据 strFieldId 获取Field的value值
+     * @param strFieldId
+     * @return
+     */
     public Object getObjectValue(String strFieldId)
     {
     	Field objExt=this.getObject(strFieldId);
     	return objExt.getObjectValue();
 	}
 
+    //----------获取指定类型Field 的value------------------------//
     public boolean getBooleanValue(String strFieldId)
     {
     	BooleanField objExt=(BooleanField)this.getObject(strFieldId);
@@ -999,94 +689,9 @@ public class CDO implements Serializable
     	return objExt.getValue();
     	
     }
-
-	 void setObjectValue(FieldId fieldId,int nType,Object objValue,Field field,CDO cdoRoot)
-	{
-    	if(fieldId.nType==FieldId.SIMPLE)
-    	{
-//    		this.putItem(fieldId.strFieldId,new ObjectExt(nType,objValue));
-    		this.putItem(fieldId.strFieldId,field);
-    	}
-    	else if(fieldId.nType==FieldId.MULTI_LEVEL)
-    	{
-    		CDO cdoMain=this.getCDOValue(fieldId.strMainFieldId);    	
-//    		cdoMain.setField(fieldId.strFieldId,new ObjectExt(nType,objValue));
-    		cdoMain.setField(fieldId.strFieldId,field);
-    	}
-    	else
-    	{//Array Element    		
-    		FieldId fieldIdMain=this.parseFieldId(fieldId.strMainFieldId);
-    		if(fieldIdMain==null)
-    		{
-    			throw new RuntimeException("Invalid FieldId "+fieldId.strFieldId);
-    		}
-    		
-    		Field arrField= null;
-    		int nIndex =-1;
-			arrField=this.getObject(fieldIdMain,this);
-	    	if(arrField==null)
-	    	{
-				throw new RuntimeException("FieldId "+fieldId.strMainFieldId+" not exist");
-	    	}
-			nIndex=this.getIndexValue(fieldId.strIndexFieldId,cdoRoot);	
-
-    		switch(arrField.getType().getDataType())
-    		{
-    			case DataType.BOOLEAN_ARRAY_TYPE:
-    			{
-    				((BooleanArrayField)arrField).setValueAt(nIndex,(Boolean)objValue);
-    				break;
-    			}
-    			case DataType.BYTE_ARRAY_TYPE:
-    			{
-    				((ByteArrayField)arrField).setValueAt(nIndex,(Byte)objValue);
-    				break;
-    			}
-    			case DataType.SHORT_ARRAY_TYPE:
-    			{
-    				((ShortArrayField)arrField).setValueAt(nIndex,(Short)objValue);
-    				break;
-    			}
-    			case DataType.INTEGER_ARRAY_TYPE:
-    			{
-    				((IntegerArrayField)arrField).setValueAt(nIndex,(Integer)objValue);
-    				break;
-    			}
-    			case DataType.LONG_ARRAY_TYPE:
-    			{
-    				((LongArrayField)arrField).setValueAt(nIndex,(Long)objValue);
-    				break;
-    			}
-    			case DataType.STRING_ARRAY_TYPE:
-    			{
-    				((StringArrayField)arrField).setValueAt(nIndex,(String)objValue);
-    				break;
-    			}
-    			case DataType.DATE_ARRAY_TYPE:
-    			{
-    				((DateArrayField)arrField).setValueAt(nIndex,(String)objValue);
-    				break;
-    			}
-    			case DataType.TIME_ARRAY_TYPE:
-    			{
-    				((TimeArrayField)arrField).setValueAt(nIndex,(String)objValue);
-    				break;
-    			}
-    			case DataType.DATETIME_ARRAY_TYPE:
-    			{
-    				((DateTimeArrayField)arrField).setValueAt(nIndex,(String)objValue);
-    				break;
-    			}
-    			case DataType.CDO_ARRAY_TYPE:
-    			{
-    				((CDOArrayField)arrField).setValueAt(nIndex,(CDO)objValue);
-    				break;
-    			}
-    			
-    		}
-    	}
-	}
-
+    
+    //----------设置 指定类型Field的name和value------------------------//
+   
     public void setBooleanValue(String strFieldId,boolean bValue)
     {
     	
@@ -1120,7 +725,8 @@ public class CDO implements Serializable
     	if(fieldId==null)
     	{
 			throw new RuntimeException("Invalid FieldId "+strFieldId);
-    	}
+    	}    	
+    	
     	Field field=new ShortField(fieldId.strFieldId,shValue);
 		this.setObjectValue(fieldId,DataType.SHORT_TYPE,shValue,field,this);
     }
@@ -1509,7 +1115,102 @@ public class CDO implements Serializable
     }
     
     /**
-     * 检查一个字段是否存在的时候不应该抛出异常，改方法是对原来方法的改写
+     *  构造结构，保存数值到指定位置
+     * @param fieldId
+     * @param nType
+     * @param objValue
+     * @param field
+     * @param cdoRoot
+     */
+   void setObjectValue(FieldId fieldId,int nType,Object objValue,Field field,CDO cdoRoot)
+	{
+   	if(fieldId.nType==FieldId.SIMPLE)
+   	{
+//   	this.putItem(fieldId.strFieldId,new ObjectExt(nType,objValue));
+   		this.putItem(fieldId.strFieldId,field);
+   	}
+   	else if(fieldId.nType==FieldId.MULTI_LEVEL)
+   	{
+   		CDO cdoMain=this.getCDOValue(fieldId.strMainFieldId);    	
+//   	cdoMain.setField(fieldId.strFieldId,new ObjectExt(nType,objValue));
+   		cdoMain.putItem(fieldId.strFieldId, field);
+   	}
+   	else
+   	{//Array Element    		
+   		FieldId fieldIdMain=this.parseFieldId(fieldId.strMainFieldId);
+   		if(fieldIdMain==null)
+   		{
+   			throw new RuntimeException("Invalid FieldId "+fieldId.strFieldId);
+   		}
+   		
+   		Field arrField= null;
+   		int nIndex =-1;
+		arrField=this.getObject(fieldIdMain,this);
+	    if(arrField==null)
+	    {
+			throw new RuntimeException("FieldId "+fieldId.strMainFieldId+" not exist");
+	    }
+		nIndex=this.getIndexValue(fieldId.strIndexFieldId,cdoRoot);	
+		
+   		switch(arrField.getType().getDataType())
+   		{
+   			case DataType.BOOLEAN_ARRAY_TYPE:
+   			{
+   				((BooleanArrayField)arrField).setValueAt(nIndex,(Boolean)objValue);
+   				break;
+   			}
+   			case DataType.BYTE_ARRAY_TYPE:
+   			{
+   				((ByteArrayField)arrField).setValueAt(nIndex,(Byte)objValue);
+   				break;
+   			}
+   			case DataType.SHORT_ARRAY_TYPE:
+   			{
+   				((ShortArrayField)arrField).setValueAt(nIndex,(Short)objValue);
+   				break;
+   			}
+   			case DataType.INTEGER_ARRAY_TYPE:
+   			{
+   				((IntegerArrayField)arrField).setValueAt(nIndex,(Integer)objValue);
+   				break;
+   			}
+   			case DataType.LONG_ARRAY_TYPE:
+   			{
+   				((LongArrayField)arrField).setValueAt(nIndex,(Long)objValue);
+   				break;
+   			}
+   			case DataType.STRING_ARRAY_TYPE:
+   			{
+   				((StringArrayField)arrField).setValueAt(nIndex,(String)objValue);
+   				break;
+   			}
+   			case DataType.DATE_ARRAY_TYPE:
+   			{
+   				((DateArrayField)arrField).setValueAt(nIndex,(String)objValue);
+   				break;
+   			}
+   			case DataType.TIME_ARRAY_TYPE:
+   			{
+   				((TimeArrayField)arrField).setValueAt(nIndex,(String)objValue);
+   				break;
+   			}
+   			case DataType.DATETIME_ARRAY_TYPE:
+   			{
+   				((DateTimeArrayField)arrField).setValueAt(nIndex,(String)objValue);
+   				break;
+   			}
+   			case DataType.CDO_ARRAY_TYPE:
+   			{
+   				((CDOArrayField)arrField).setValueAt(nIndex,(CDO)objValue);
+   				break;
+   			}
+   			
+   		}
+   	}
+	}
+    
+    /**
+     * 检查一个字段是否存在
      * 
      * @param strFieldId
      * @return
@@ -1605,28 +1306,6 @@ public class CDO implements Serializable
     	return this.getObject(strFieldId);
     }
     
-    public void copyFrom(CDO cdoSource)
-    {
-		XMLElement xmlNode=new XMLElement();
-		xmlNode.parseString(cdoSource.toXML());
-
-		this.fromXML(xmlNode,true);
-    }
-    
-    public void copyFrom(String strCDOXML)
-    {
-		XMLElement xmlNode=new XMLElement();
-		xmlNode.parseString(strCDOXML);
-
-		this.fromXML(xmlNode,true);
-    }
-
-    public CDO clone()
-    {
-    	String strXML=this.toXML();
-    	return CDO.fromXML(strXML);
-    }
-    
     
     public void setObjectExt(String strFieldId, Field field) throws RuntimeException
     {
@@ -1669,10 +1348,6 @@ public class CDO implements Serializable
     }	
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
-	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------
-
-	//事件定义,所有在本类中定义并调用，由派生类实现或重载的事件类方法(一般为on...ed)在此定义---------------------
-
 	//构造函数,所有构造函数在此定义------------------------------------------------------------------------------
 
 	public CDO(){
@@ -1681,55 +1356,8 @@ public class CDO implements Serializable
 	}
 	
 	/**
-	 * 把CDO对象转换成JSON格式的字符串
-	 * 
-	 * @param cdo
-	 * @return JSON格式的字符串
-	 * 
+	 * toString 采用类似 JSON格式
 	 */
-	public String toJSON()
-	{
-		StringBuffer str_JSON=new StringBuffer("{");
-		
-		Entry<String, Field> entry=null;
-		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
-			entry=it.next();
-			str_JSON.append(entry.getValue().toJSON());
-		}
-		
-		// ugly 方法去掉最后一个","
-		int _lastComma=str_JSON.lastIndexOf(",");
-		int _length=str_JSON.length();
-		if(_lastComma==_length-1)
-		{
-			str_JSON.replace(_lastComma,_lastComma+1,"");
-		}
-
-		str_JSON.append("}");
-		return str_JSON.toString();
-	}
-
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer("{");
-		
-		Entry<String, Field> entry=null;
-		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
-			entry=it.next();
-			str_JSON.append(entry.getValue().toJSONString());
-		}
-		// ugly 方法去掉最后一个","
-		int _lastComma=str_JSON.lastIndexOf(",");
-		int _length=str_JSON.length();
-		if(_lastComma==_length-1)
-		{
-			str_JSON.replace(_lastComma,_lastComma+1,"");
-		}
-
-		str_JSON.append("}");
-		return str_JSON.toString();
-	}
-	
 	public String toString()
 	{
 		StringBuffer str_String=new StringBuffer("{");
@@ -1747,133 +1375,6 @@ public class CDO implements Serializable
 		}
 		str_String.append("}");
 		return str_String.toString();
-	}
-	
-	
-	public static void main(String[] args) throws IOException
-	{
-		CDO cdo = new CDO();
-
-		
-		cdo.setByteValue("byte", (byte)2);
-		cdo.setByteArrayValue("bytes", new byte[]{1,2,3});
-		cdo.setBooleanValue("bvalue", true);
-		cdo.setBooleanArrayValue("bsValue", new boolean[]{false,true,true,false});
-		cdo.setShortValue("short", (short)100);
-		cdo.setShortArrayValue("shorts", new short[]{100,200,300});
-		cdo.setIntegerValue("int", 300);
-		cdo.setIntegerArrayValue("ints", new int[]{400,500,600});
-		cdo.setLongValue("long", 7000);
-		cdo.setLongArrayValue("longs", new long[]{9000,10000});
-		cdo.setFloatValue("float", 3.0f);
-		cdo.setFloatArrayValue("floats", new float[]{1.0f,2.0f,3.0f});
-		cdo.setDoubleValue("double", 5.0);
-		cdo.setDoubleArrayValue("doubles", new double[]{6.0,7.0,8.0});
-		cdo.setStringValue("str", "张三");
-		cdo.setStringArrayValue("strvalues", new String[]{ "张3", "张4", "张5"});
-		cdo.setDateValue("date", "2016-05-01");
-		cdo.setDateArrayValue("date1", new String[]{"2012-05-01","2013-05-01","2014-05-01"});
-		cdo.setTimeValue("time", "20:00:00");
-		cdo.setTimeArrayValue("times", new String[]{"17:00:00","18:00:00","20:00:00"});
-		cdo.setDateTimeValue("dateTime", "2012-05-01 20:00:00");
-		cdo.setDateTimeArrayValue("dateTimeValues", new String[]{"2012-05-01 20:00:00","2013-05-01 21:00:00","2014-05-01 22:00:00"});
-		System.out.println(cdo.getBooleanValue("bvalue"));
-		System.out.println(cdo.getBooleanValue("bvalue"));
-	
-		for(int i=0;i<5;i++){
-			System.out.println(cdo.getBooleanValue("bvalue"));
-			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
-			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
-		    ((BooleanArrayField)cdo.getField("bsValue")).setValueAt(3, true);
-			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
-			
-			System.out.println(((DateArrayField)cdo.getField("date1")).getValueAt(1));
-			System.out.println(((DateArrayField)cdo.getField("date1")).getValueAt(1));
-			System.out.println(((DateArrayField)cdo.getField("date1")).getValue()[2]);
-			System.out.println(((DateArrayField)cdo.getField("date1")).getValue()[2]);
-			System.out.println(((DateArrayField)cdo.getField("date1")).getLength());
-			System.out.println(((DateArrayField)cdo.getField("date1")).getLength());	
-			
-			System.out.println(((TimeArrayField)cdo.getField("times")).getValueAt(1));
-			System.out.println(((TimeArrayField)cdo.getField("times")).getValueAt(1));
-			System.out.println(((TimeArrayField)cdo.getField("times")).getValue()[0]);
-			System.out.println(((TimeArrayField)cdo.getField("times")).getValue()[0]);
-			System.out.println(((TimeArrayField)cdo.getField("times")).getLength());
-			System.out.println(((TimeArrayField)cdo.getField("times")).getLength());
-			
-			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValueAt(1));
-			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValueAt(1));
-			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValue()[0]);
-			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValue()[0]);
-			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getLength());
-			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getLength());
-			
-			System.out.println(((ShortArrayField)cdo.getField("shorts")).getValueAt(1));
-			System.out.println(((ShortArrayField)cdo.getField("shorts")).getValueAt(1));
-			System.out.println(((ShortArrayField)cdo.getField("shorts")).getLength());
-			System.out.println(((ShortArrayField)cdo.getField("shorts")).getLength());			
-			System.out.println(((ShortArrayField)cdo.getField("shorts")).getValue()[0]);
-			System.out.println(((ShortArrayField)cdo.getField("shorts")).getValue()[0]);
-
-			System.out.println(((IntegerArrayField)cdo.getField("ints")).getValueAt(1));
-			System.out.println(((IntegerArrayField)cdo.getField("ints")).getValueAt(1));
-			System.out.println(((IntegerArrayField)cdo.getField("ints")).getLength());
-			System.out.println(((IntegerArrayField)cdo.getField("ints")).getLength());			
-			System.out.println(((IntegerArrayField)cdo.getField("ints")).getValue()[0]);
-			System.out.println(((IntegerArrayField)cdo.getField("ints")).getValue()[0]);
-			
-			System.out.println(((LongArrayField)cdo.getField("longs")).getValueAt(1));
-			System.out.println(((LongArrayField)cdo.getField("longs")).getValueAt(1));
-			System.out.println(((LongArrayField)cdo.getField("longs")).getLength());
-			System.out.println(((LongArrayField)cdo.getField("longs")).getLength());			
-			System.out.println(((LongArrayField)cdo.getField("longs")).getValue()[0]);
-			System.out.println(((LongArrayField)cdo.getField("longs")).getValue()[0]);
-			
-			
-		}
-		
-		ByteBuffer buffer=ByteBuffer.allocate(7);
-		buffer.put((byte)1);
-		buffer.putShort((short)2);
-		buffer.putShort((short)3);
-		buffer.putShort((short)4);
-		buffer.flip();
-		buffer.position(1);
-		buffer.limit(buffer.capacity());
-		System.out.println(buffer.capacity());
-//		System.out.println(((buffer.slice()).asShortBuffer().array().length));
-		
-//	      String str = "helloWorld";  
-//	        ByteBuffer buff  = ByteBuffer.wrap(str.getBytes());  
-//	        System.out.println("position:"+buff.position()+"\t limit:"+buff.limit());  
-//	        //读取两个字节  
-//	        buff.get();  
-//	        buff.get();  
-//	        System.out.println("get position:"+ buff.position()+"\t limit:"+buff.limit()); 
-//	        buff.position(4);
-//	        buff.mark();
-//	        System.out.println("mark position:"+buff.position()+"\t limit:"+buff.limit());
-//	        buff.get();
-//	        System.out.println("mark get position:"+buff.position()+"\t limit:"+buff.limit());
-//	        buff.reset();
-//	        System.out.println("reset position:"+buff.position()+"\t limit:"+buff.limit());
-//	        buff.flip();  
-//	        System.out.println("flip position:"+buff.position()+"\t limit:"+buff.limit());
-//	        buff.rewind();
-//	        ByteBuffer b1=buff.duplicate();
-//	        b1.position(1);
-//	        b1.put((byte)'z');
-//	        System.out.println("get position:"+ buff.position()+"\t limit:"+buff.limit()); 
-//	        buff.slice();
-//	        System.out.println("get :"+buff.get());
-//	        java.nio.channels.FileChannel inc;
-//	        MappedByteBuffer mapBuffer;
-////	        inc.map(MapMode., position, size)
-//	        java.nio.channels.SocketChannel channel;
-//	        channel.w
-	        
-
-	}
-
+	}	
 	
 }

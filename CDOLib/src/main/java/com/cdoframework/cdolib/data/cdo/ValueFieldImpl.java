@@ -1,5 +1,5 @@
 /**
- * www.cdoforum.com 2007版权所有
+ *
  *
  * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/Field.java,v 1.3 2008/03/22 13:32:54 Frank Exp $
  *
@@ -12,8 +12,6 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 /**
  * @author Frank
