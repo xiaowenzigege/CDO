@@ -366,7 +366,7 @@ public class DataBufferUtil {
 		}
 		switch(field.getType().getDataType())
 		{
-			case DataType.DATE_TYPE:
+			case DataType.TIME_TYPE:
 			{
 				return objValue.toString();
 			}

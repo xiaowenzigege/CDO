@@ -35,6 +35,9 @@ import org.apache.avro.ipc.specific.SpecificRequestor;
 import org.apache.avro.ipc.specific.SpecificResponder;
 import org.apache.avro.util.Utf8;
 
+import com.cdo.avro.serialize.AvroCDODeserialize;
+import com.cdoframework.cdolib.data.cdo.CDO;
+
 /**
  * Start a server, attach a client, and send a message.
  */
@@ -42,30 +45,43 @@ public class AvroRPCExample {
 	
     public static class CDORpcProtocol implements CDOProtocol {
 		@Override
-		public AvroCDO send(AvroCDO CDORequest) throws AvroRemoteException {
-			// TODO Auto-generated method stub
-//			CDORequest.getFields()
-			System.out.println("receive level="+CDORequest.getLevel());
-			Map<CharSequence,ByteBuffer> map=CDORequest.getFields();
-			for(Iterator<Map.Entry<CharSequence, ByteBuffer>> iterator=map.entrySet().iterator();iterator.hasNext();){
-				Entry<CharSequence, ByteBuffer> entry=iterator.next();
-				System.out.println("receive map key="+entry.getKey());
-				System.out.println("receive map value ="+entry.getValue().getInt());
-			} 
-			//TODO 处理 
-			
-			AvroCDO cdoDataRes=new AvroCDO();
-			
-	        map=new LinkedHashMap<CharSequence,ByteBuffer>();
-	        ByteBuffer buffer=ByteBuffer.allocate(4);
-	        buffer.putInt(8);
-	        buffer.flip();
-	        map.put("resKey", buffer);
-	        cdoDataRes.setLevel(2);
-	        cdoDataRes.setFields(map);
-	        
+		public AvroCDO send(AvroCDO avroCDOReq) throws AvroRemoteException {
+			AvroCDODeserialize deserialize=new AvroCDODeserialize();
+			CDO cdoRequest=deserialize.parseFrom(avroCDOReq);			
+			CDO cdoOutput=new CDO();
+			//
+			/**
+			 *
+			 *处理事务
+			CDO cdoResponse=new CDO();
+			Retrun ret=this.serviceBus.handTrans(cdoRequest,cdoResponse);			
+			if(ret==null){
+				cdoOutput=setOutCDO(cdoOutput," Request method not found:strTransName="+strTransName);				
+			}else{
+				
+				CDO cdoReturn=new CDO();
+				cdoReturn.setIntegerValue("nCode",ret.getCode());
+				cdoReturn.setStringValue("strText",ret.getText());
+				cdoReturn.setStringValue("strInfo",ret.getInfo());
+
+				cdoOutput.setCDOValue("cdoReturn",cdoReturn);
+				cdoOutput.setCDOValue("cdoResponse", cdoResponse);
+			}
+			**/
 	
-			return cdoDataRes;
+			return cdoOutput.toAvro();
+		}
+		
+		
+		private CDO setOutCDO(CDO cdoOutput,String message){
+			
+			CDO cdoReturn=new CDO();
+			cdoReturn.setIntegerValue("nCode",-1);
+			cdoReturn.setStringValue("strText",message);
+			cdoReturn.setStringValue("strInfo",message);
+			cdoOutput.setCDOValue("cdoReturn",cdoReturn);
+			cdoOutput.setCDOValue("cdoResponse",new CDO());
+			return cdoOutput;
 		}
 
     }
@@ -78,8 +94,7 @@ public class AvroRPCExample {
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println("Starting server");
-        // usually this would be another app, but for simplicity
+    	
         startServer();
         System.out.println("Server started");
 

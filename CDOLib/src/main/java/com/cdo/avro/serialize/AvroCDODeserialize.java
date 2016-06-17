@@ -16,9 +16,9 @@ import com.cdoframework.cdolib.data.cdo.CDOBuffer;
 
 public class AvroCDODeserialize extends CDOBuffer{
 	
+
 	
-	
-	public  CDO fromAvro(AvroCDO avro){		
+	public  CDO parseFrom(AvroCDO avro){		
 		CDO cdo=new CDO();
 		avro2CDO(cdo,avro.getFields(),avro.getLevel());					
 		return cdo;

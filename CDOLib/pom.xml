@@ -34,8 +34,7 @@
 		  <artifactId>dom4j</artifactId>
 		  <version>1.6.1</version>
 		</dependency>	
-		<!-- avro rpc -->
-			
+		<!-- avro rpc -->			
 		<dependency>
 		  <groupId>org.apache.avro</groupId>
 		  <artifactId>avro</artifactId>
