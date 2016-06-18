@@ -51,7 +51,6 @@ public class DataBufferUtil {
 	static String[] getDateArrayValue(ByteBuffer buffer,int dataIndex,int databuffer)
 	{
 		buffer.position(1);
-//		int len=buffer.getShort();
 		int len=(buffer.capacity()-dataIndex)/databuffer;
 		String[] strsValue=new String[len];
 		byte[] bsValue=new byte[databuffer];
@@ -63,6 +62,7 @@ public class DataBufferUtil {
 			(buffer.slice()).get(bsValue);
 			strsValue[i]=new String(bsValue).trim();
 		}
+		buffer.clear();
 		return strsValue;		
 	}
 	/**
@@ -81,6 +81,7 @@ public class DataBufferUtil {
 		buffer.position(pos);
 		buffer.limit(pos+databuffer);
 		(buffer.slice()).get(bsValue);
+		buffer.clear();
 		return new String(bsValue).trim();
 	}
 	

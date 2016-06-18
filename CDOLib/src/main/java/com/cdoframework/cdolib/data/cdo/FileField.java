@@ -11,7 +11,7 @@ import com.cdoframework.cdolib.util.Function;
  * @author KenelLiu
  *
  */
-public class FileField extends ValueFieldImpl
+public class FileField extends FieldImpl
 {
 
 	//内部类,所有内部类在此声明----------------------------------------------------------------------------------
@@ -20,14 +20,7 @@ public class FileField extends ValueFieldImpl
 
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 6572572742412689563L;
-	/**
-	 * 
-	 */
-
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	private File fileValue;
 	

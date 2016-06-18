@@ -10,14 +10,16 @@ package com.cdoframework.cdolib.data.cdo;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
+import com.google.protobuf.ByteString;
 
 /**
  * @author Frank
  * modify by @author KenelLiu 
  */
-public class ByteField extends ValueFieldImpl
+public class ByteField extends FieldImpl
 {
 
 	//内部类,所有内部类在此声明----------------------------------------------------------------------------------
@@ -41,20 +43,27 @@ public class ByteField extends ValueFieldImpl
 		return this.byValue;
 	}
 
+	private void allocate(){
+		int len=1+1;//字段类型所占字节+数据所占字节
+		buffer=ByteBuffer.allocate(len);
+		buffer.put((byte)DataType.BYTE_TYPE);
+		buffer.put(this.byValue);
+		buffer.flip();
+	}
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
-		int len=1+1;//字段类型所占字节+数据所占字节
-		ByteBuffer buffer=ByteBuffer.allocate(len);
-		buffer.put((byte)DataType.BYTE_TYPE);
-		buffer.put(this.byValue);
-		buffer.flip();	
-		
-		fieldMap.put(prefixField+this.getName(), buffer);
+		allocate();		
+		super.toAvro(prefixField, fieldMap);
 	}	
+	
+	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
+		allocate();	
+		super.toProto(prefixField, cdoProto);
+	}
 	
 	public void toXML(StringBuilder strbXML)
 	{		

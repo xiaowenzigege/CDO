@@ -1,4 +1,4 @@
-package com.cdo.avro.schema;
+package com.cdo.avro.handle;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -24,6 +24,7 @@ import org.apache.avro.specific.SpecificDatumWriter;
 
 import com.cdo.avro.protocol.AvroCDO;
 import com.cdoframework.cdolib.data.cdo.BooleanArrayField;
+import com.cdoframework.cdolib.data.cdo.ByteArrayField;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.DateArrayField;
 import com.cdoframework.cdolib.data.cdo.DateTimeArrayField;
@@ -34,7 +35,7 @@ import com.cdoframework.cdolib.data.cdo.TimeArrayField;
 
 
 
-public class ArvoMain {
+public class ExampleArvoMain {
 	 private static  String schemaDescription =
 	         "{ \n" +
 	            " \"namespace\": \"example.avro\", \n" +
@@ -223,13 +224,28 @@ public class ArvoMain {
 		cdo.setCDOValue("cdo2", cdo2);
 		cdo.setIntegerValue("cdo2.is", 1);
 		cdo.setIntegerValue("ints[0]", 200);
-		System.out.println(cdo.toXMLWithIndent());
+//		System.out.println(cdo.toXMLWithIndent());
 		for(int i=0;i<5;i++){
+			System.out.println(cdo.getDoubleValue("double"));
+			System.out.println(cdo.getDoubleValue("double"));
+			System.out.println(((ByteArrayField)cdo.getField("bytes")).getValue());
+			System.out.println(((ByteArrayField)cdo.getField("bytes")).getValue());
+		    ((ByteArrayField)cdo.getField("bytes")).setValueAt(2, (byte)2);
+		    ((ByteArrayField)cdo.getField("bytes")).setValueAt(0, (byte)2);
+		    ((ByteArrayField)cdo.getField("bytes")).setValueAt(1, (byte)2);
+			System.out.println(((ByteArrayField)cdo.getField("bytes")).getValue());
+			System.out.println(((ByteArrayField)cdo.getField("bytes")).getValueAt(0));
+			System.out.println(((ByteArrayField)cdo.getField("bytes")).getValueAt(1));
+			System.out.println(((ByteArrayField)cdo.getField("bytes")).getValueAt(2));
+			
 			System.out.println(cdo.getBooleanValue("bvalue"));
 			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
 			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
 		    ((BooleanArrayField)cdo.getField("bsValue")).setValueAt(3, true);
 			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
+			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValueAt(0));
+			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValueAt(1));
+			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValueAt(2));
 			
 			System.out.println(((DateArrayField)cdo.getField("date1")).getValueAt(1));
 			System.out.println(((DateArrayField)cdo.getField("date1")).getValueAt(1));
@@ -246,7 +262,7 @@ public class ArvoMain {
 			System.out.println(((TimeArrayField)cdo.getField("times")).getLength());
 			
 			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValueAt(1));
-			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValueAt(1));
+			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValueAt(0));
 			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValue()[0]);
 			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValue()[0]);
 			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getLength());
@@ -275,7 +291,9 @@ public class ArvoMain {
 			
 			
 		}
-		
+		AvroCDO avro=cdo.toAvro();
+		System.out.println(AvroCDOParse.AvroParse.parse(avro).toXMLWithIndent());
+
 		
 	}
 }

@@ -1,5 +1,5 @@
 {"namespace": "com.cdo.avro.protocol",
- "protocol": "CDOProtocol",
+ "protocol": "AvroCDOProtocol",
  "doc":"avro cdo rpc ",
   
  "types": [

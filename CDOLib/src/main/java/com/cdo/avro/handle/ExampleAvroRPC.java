@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.cdo.avro.protocol;
+package com.cdo.avro.handle;
 
 
 import java.io.IOException;
@@ -35,19 +35,20 @@ import org.apache.avro.ipc.specific.SpecificRequestor;
 import org.apache.avro.ipc.specific.SpecificResponder;
 import org.apache.avro.util.Utf8;
 
-import com.cdo.avro.serialize.AvroCDODeserialize;
+import com.cdo.avro.protocol.AvroCDO;
+import com.cdo.avro.protocol.AvroCDOProtocol;
 import com.cdoframework.cdolib.data.cdo.CDO;
 
 /**
  * Start a server, attach a client, and send a message.
  */
-public class AvroRPCExample {
+public class ExampleAvroRPC {
 	
-    public static class CDORpcProtocol implements CDOProtocol {
+    public static class CDORpcProtocol implements AvroCDOProtocol {
 		@Override
 		public AvroCDO send(AvroCDO avroCDOReq) throws AvroRemoteException {
-			AvroCDODeserialize deserialize=new AvroCDODeserialize();
-			CDO cdoRequest=deserialize.parseFrom(avroCDOReq);			
+
+			CDO cdoRequest=AvroCDOParse.AvroParse.parse(avroCDOReq);			
 			CDO cdoOutput=new CDO();
 			//
 			/**
@@ -89,7 +90,7 @@ public class AvroRPCExample {
     private static Server server;
 
     private static void startServer() throws IOException {
-        server = new NettyServer(new SpecificResponder(CDOProtocol.class, new CDORpcProtocol()), new InetSocketAddress(65111));
+        server = new NettyServer(new SpecificResponder(AvroCDOProtocol.class, new CDORpcProtocol()), new InetSocketAddress(65111));
         // the server implements the Mail protocol (MailImpl)
     }
 
@@ -100,7 +101,7 @@ public class AvroRPCExample {
 
         NettyTransceiver client = new NettyTransceiver(new InetSocketAddress(65111));
         // client code - attach to the server and send a message
-        CDOProtocol proxy = (CDOProtocol) SpecificRequestor.getClient(CDOProtocol.class, client);
+        AvroCDOProtocol proxy = (AvroCDOProtocol) SpecificRequestor.getClient(AvroCDOProtocol.class, client);
         System.out.println("Client built, got proxy");
 
         // fill in the Message record and send it

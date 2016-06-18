@@ -31,11 +31,14 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+import com.cdo.google.protocol.GoogleCDO;
+import com.google.protobuf.ByteString;
+
 
 /**
  * @author Frank
  */
-public class FieldImpl implements Field
+public abstract class FieldImpl implements Field
 {
 
 
@@ -43,13 +46,13 @@ public class FieldImpl implements Field
 
 	//静态对象,所有static在此声明并初始化------------------------------------------------------------------------
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1324693182949266208L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	private Data nType;
+	private String strName;
+	protected ByteBuffer buffer=null;
+	
 	public void setType(Data nType)
 	{
 		this.nType=nType;
@@ -59,7 +62,6 @@ public class FieldImpl implements Field
 		return nType;
 	}
 
-	private String strName;
 	public void setName(String strName)
 	{
 		this.strName=strName;
@@ -99,29 +101,7 @@ public class FieldImpl implements Field
 		strName=strFieldName;
 	}
 
-	// 添加转化成JSON的格式
-	public  String toJSON()
-	{
-		return null;
-	}
-
-	public  String toJSONString()
-	{
-		return null;
-	}	
-	public  Object getObjectValue()
-	{
-		return null;
-	}
-	@Override
-	public void toXML(StringBuilder strbXML) {
-
-		
-	}
-	@Override
-	public void toXMLWithIndent(int nIndentSize, StringBuilder strbXML) {		
-		
-	}
+	
 	@Override
 	public void toXMLLog(StringBuilder strbXML) {
 		toXML(strbXML);		
@@ -134,7 +114,7 @@ public class FieldImpl implements Field
 	
 	@Override
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
-		
+		fieldMap.put(prefixField+this.getName(), buffer);		
 	}
 	
 	@Override
@@ -142,10 +122,23 @@ public class FieldImpl implements Field
 		toAvro(prefixField, fieldMap);
 		return 0;
 	}
+	
 	@Override
-	public Buffer getBuffer() {
-		// TODO Auto-generated method stub
-		return null;
+	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
+		GoogleCDO.CDOProto.Entry.Builder entry=GoogleCDO.CDOProto.Entry.newBuilder();
+		entry.setName(prefixField+this.getName());
+		entry.setValue(ByteString.copyFrom(buffer));
+		cdoProto.addFields(entry);
+	}
+	
+	@Override
+	public int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){
+		toProto(prefixField, cdoProto);
+		return 0;
+	}	
+	@Override
+	public Buffer getBuffer() {		
+		return buffer;
 	}
 	
 }

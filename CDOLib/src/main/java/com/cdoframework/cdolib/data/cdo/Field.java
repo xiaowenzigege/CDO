@@ -32,6 +32,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.DataType;
 
 /**
@@ -78,7 +79,7 @@ public interface Field extends DataType
 	 * [CDOField,CDOArrayField]字段  由CDO构成，CDO保存的数据是由 以下基础数据字段组成
 	 * 即对基础字段序列化即可
 	 * 
-	 * 数据存储采用buffer 字节存储。以便使用avro 字节序列化,反序列化
+	 * 数据存储采用buffer 字节存储。以便使用apache avro,google proto 字节序列化,反序列化
 	 * I 类型-数据
 	 * 	 boolean,short,int,long,float,double,date,dataTime,Time,String 序列化
 	 *   第一个字节  字段类型参数	
@@ -114,13 +115,9 @@ public interface Field extends DataType
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap);
 	
 	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel);
-	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
-	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------
-
-	//事件定义,所有在本类中定义并调用，由派生类实现或重载的事件类方法(一般为on...ed)在此定义---------------------
-
-	//构造函数,所有构造函数在此定义------------------------------------------------------------------------------
-	// 添加转化成JSON的格式
-
+	
+	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto);
+	
+	public int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel);
 }

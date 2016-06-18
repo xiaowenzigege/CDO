@@ -8,14 +8,12 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
 /**
  * @author Frank
  * modify by @author KenelLiu 
  */
-public abstract class ArrayFieldImpl extends ValueFieldImpl implements ArrayField
+public abstract class ArrayFieldImpl extends FieldImpl implements ArrayField
 {
 
 	//内部类,所有内部类在此声明----------------------------------------------------------------------------------

@@ -1,16 +1,3 @@
-/**
- * www.cdoforum.com 2007版权所有
- *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/BooleanArrayField.java,v 1.1 2008/03/22 13:32:54 Frank Exp $
- *
- * $Log: BooleanArrayField.java,v $
- * Revision 1.1  2008/03/22 13:32:54  Frank
- * *** empty log message ***
-
- *
- *
- */
-
 package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.Buffer;
@@ -34,11 +21,10 @@ public class BooleanArrayField extends ArrayFieldImpl
 
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
 	private static final long serialVersionUID = -4963315441783800310L;
-	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
-	private ByteBuffer buffer=null;
-	
+	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------	
 	private final int dataIndex=1;//数据保存的起始位置
 	private final int databuffer=1;//数据占用字节
+	
 	public void setValue(boolean[] bsValue)
 	{
 		if(bsValue==null)
@@ -59,7 +45,8 @@ public class BooleanArrayField extends ArrayFieldImpl
 				bsValue[i]=true;
 			else
 				bsValue[i]=false;
-		}		
+		}	
+		buffer.clear();
 		return bsValue;
 	}
 
@@ -68,7 +55,8 @@ public class BooleanArrayField extends ArrayFieldImpl
 		checkArrayIndex(nIndex);
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
-		byte b=buffer.get();		
+		byte b=buffer.get();
+		buffer.clear();
 		if(b==1)
 			return true;
 		return false;
@@ -83,7 +71,7 @@ public class BooleanArrayField extends ArrayFieldImpl
 			buffer.put((byte)1);
 		else
 			buffer.put((byte)0);
-		
+		buffer.clear();
 	}
 
 	public int getLength()
@@ -124,10 +112,6 @@ public class BooleanArrayField extends ArrayFieldImpl
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 
-	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){		
-		fieldMap.put(prefixField+this.getName(), buffer);		
-	}	
-	
 	public void toXML(StringBuilder strbXML)
 	{
 		strbXML.append("<BAF N=\"").append(this.getName()).append("\"");

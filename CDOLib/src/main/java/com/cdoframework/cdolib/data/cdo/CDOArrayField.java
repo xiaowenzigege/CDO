@@ -10,6 +10,7 @@ package com.cdoframework.cdolib.data.cdo;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 
@@ -101,6 +102,29 @@ public class CDOArrayField extends ArrayFieldImpl
 		}
 		return maxLevel;
 	}
+	@Override
+	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
+		for(int i=0;i<this.cdosValue.length;i=i+1){
+			String prefix=prefixField+this.getName()+"["+i+"].";
+			this.cdosValue[i].toProto(prefix,cdoProto);
+		}
+	}
+	
+	@Override
+	public int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){
+		int curLevel=1;
+		if(prefixField.length()>0){
+			curLevel=(prefixField.split("\\.").length+1);
+		}							
+		maxLevel=maxLevel>curLevel?maxLevel:curLevel;				
+		for(int i=0;i<this.cdosValue.length;i=i+1){
+			String prefix=prefixField+this.getName()+"["+i+"].";
+			curLevel=this.cdosValue[i].toProto(prefix,cdoProto,maxLevel);
+			if(curLevel>maxLevel)
+				maxLevel=curLevel;
+		}
+		return maxLevel;
+	}		
 	
 	public void toXML(StringBuilder strbXML)
 	{

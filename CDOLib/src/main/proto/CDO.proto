@@ -1,0 +1,13 @@
+syntax = "proto3";
+option java_package = "com.cdo.google.protocol";
+option java_outer_classname ="GoogleCDO";
+option optimize_for = SPEED;
+
+message CDOProto{
+    message Entry {
+         string name  = 1;
+         bytes value = 2;
+    }
+    int32 level=1;
+    repeated Entry fields = 2;
+}

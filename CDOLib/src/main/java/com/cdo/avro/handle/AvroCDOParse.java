@@ -1,4 +1,4 @@
-package com.cdo.avro.serialize;
+package com.cdo.avro.handle;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -9,16 +9,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+
+
 import com.cdo.avro.protocol.AvroCDO;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.CDOBuffer;
 
-public class AvroCDODeserialize extends CDOBuffer{
+public class AvroCDOParse extends CDOBuffer{
+	
+    public static AvroCDOParse AvroParse;
+    static{
+    	AvroParse=new AvroCDOParse();
+   }
+	private AvroCDOParse(){}
 	
 
 	
-	public  CDO parseFrom(AvroCDO avro){		
+	public  CDO parse(AvroCDO avro){		
 		CDO cdo=new CDO();
 		avro2CDO(cdo,avro.getFields(),avro.getLevel());					
 		return cdo;
@@ -198,7 +206,7 @@ public class AvroCDODeserialize extends CDOBuffer{
 				setDateTimeValue(cdo, key, buffer);
 				break;	
 			default:
-				throw new java.lang.RuntimeException("unsport object type! key="+key+",type="+dataType);
+				throw new java.lang.RuntimeException("unsupport object type! key="+key+",type="+dataType);
 		}
 		
 	}

@@ -13,13 +13,16 @@ package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
+
+import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.Utility;
+import com.google.protobuf.ByteString;
 
 /**
  * @author Frank
  * modify by @author KenelLiu 
  */
-public class CDOField extends ValueFieldImpl
+public class CDOField extends FieldImpl
 {
 
 	//内部类,所有内部类在此声明----------------------------------------------------------------------------------
@@ -62,6 +65,23 @@ public class CDOField extends ValueFieldImpl
 		maxLevel=maxLevel>curLevel?maxLevel:curLevel;				
 		String prefix=prefixField+this.getName()+".";
 		return this.cdoValue.toAvro(prefix,fieldMap,maxLevel);
+	}	
+	
+	@Override
+	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
+		String prefix=prefixField+this.getName()+".";
+		this.cdoValue.toProto(prefix,cdoProto);	
+	}
+	
+	@Override
+	public int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){		
+		int curLevel=1;
+		if(prefixField.length()>0){
+			curLevel=(prefixField.split("\\.").length+1);
+		}			
+		maxLevel=maxLevel>curLevel?maxLevel:curLevel;				
+		String prefix=prefixField+this.getName()+".";
+		return this.cdoValue.toProto(prefix,cdoProto,maxLevel);
 	}	
 	
 	public void toXML(StringBuilder strbXML)

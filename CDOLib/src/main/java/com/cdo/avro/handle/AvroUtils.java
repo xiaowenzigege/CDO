@@ -1,4 +1,4 @@
-package com.cdo.avro.schema;
+package com.cdo.avro.handle;
 
 import java.io.File;
 import java.io.FileInputStream;

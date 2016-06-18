@@ -17,6 +17,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Map;
 
+import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.util.Function;
@@ -44,7 +45,6 @@ public class StringArrayField extends ArrayFieldImpl
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	private String[] strsValue;
 	
-	private ByteBuffer buffer;
 	private final int dataIndex=3;//数据保存的起始位置
 	private int databuffer=0;//数据占用字节   随字符串UTF8长度 而改变
 	private int preDataBuffer=0;//数据未改变之前 所占用字节
@@ -171,10 +171,13 @@ public class StringArrayField extends ArrayFieldImpl
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){	
-		allocate(this.strsValue);
-		fieldMap.put(prefixField+this.getName(), buffer);
+		allocate(this.strsValue);		
+		super.toAvro(prefixField, fieldMap);
 	}	
-	
+	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
+		allocate(this.strsValue);
+		super.toProto(prefixField, cdoProto);
+	}
 	public void toXML(StringBuilder strbXML)
 	{	
 		strbXML.append("<STRAF N=\"").append(this.getName()).append("\">");

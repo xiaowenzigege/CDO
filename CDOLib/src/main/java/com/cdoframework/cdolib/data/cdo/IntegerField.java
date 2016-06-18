@@ -19,7 +19,7 @@ import com.cdoframework.cdolib.base.Utility;
  * @author Frank
  * modify by @author KenelLiu 
  */
-public class IntegerField extends ValueFieldImpl
+public class IntegerField extends FieldImpl
 {
 
 	//内部类,所有内部类在此声明----------------------------------------------------------------------------------
@@ -28,12 +28,8 @@ public class IntegerField extends ValueFieldImpl
 
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -4743998197912167653L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
-	private ByteBuffer buffer;
 	private final int dataIndex=1;//数据保存的起始位置
 	private final int databuffer=4;//数据占用字节
 	
@@ -44,7 +40,9 @@ public class IntegerField extends ValueFieldImpl
 	public int getValue()
 	{
 		buffer.position(dataIndex);
-		return buffer.getInt();
+		int v=buffer.getInt();
+		buffer.clear();		
+		return v;
 	}
 	
 	public Object getObjectValue()
@@ -73,9 +71,6 @@ public class IntegerField extends ValueFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){		
-		fieldMap.put(prefixField+this.getName(), buffer);
-	}	
 	
 	public void toXML(StringBuilder strbXML)
 	{

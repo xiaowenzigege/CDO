@@ -21,11 +21,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 
+
 import nanoxml.XMLElement;
 
 import org.apache.log4j.Logger;
 
 import com.cdo.avro.protocol.AvroCDO;
+import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 /**
@@ -187,7 +189,46 @@ public class CDO implements Serializable
 		}
 	}
 	
-
+	public GoogleCDO.CDOProto toProto(){
+		GoogleCDO.CDOProto.Builder cdoProto=GoogleCDO.CDOProto.newBuilder();
+		String prefixField="";	
+		int maxLevel=toProto(prefixField,cdoProto,0);
+		cdoProto.setLevel(maxLevel);		
+		return cdoProto.build();
+	}
+	
+	
+	/**
+	 * 供 CDOField,CDOArrayField 调用,返回最大层级
+	 * @param prefixField
+	 * @param fieldMap
+	 * @param maxLevel
+	 * @return
+	 */
+	int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){
+		Entry<String, Field> entry=null;
+		int curLevel=0;
+		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
+			entry=it.next();
+			curLevel=entry.getValue().toProto(prefixField,cdoProto,maxLevel);
+			if(curLevel>maxLevel)
+				maxLevel=curLevel;
+		}
+		return maxLevel;
+	}	
+	
+	/**
+	 * 供非CDOField  CDOArrayField 基础字段调用，输出数据
+	 * @param prefixField
+	 * @param fieldMap
+	 */
+	 void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
+		Entry<String, Field> entry=null;
+		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
+			entry=it.next();
+			entry.getValue().toProto(prefixField, cdoProto);
+		}
+	}	
 	
 	public String toXML()
 	{

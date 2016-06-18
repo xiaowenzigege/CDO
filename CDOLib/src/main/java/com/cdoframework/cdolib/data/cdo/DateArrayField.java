@@ -34,8 +34,6 @@ public class DateArrayField extends ArrayFieldImpl
 	 */
 	private static final long serialVersionUID = -6305770982050527951L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
-	
-	private ByteBuffer buffer;
 	private final int dataIndex=1;//数据保存的起始位置
 	private final int databuffer=DATE_FORMAT_STRING.length();//数据占用字节
 	private static String defaultWhiteSpace="";
@@ -88,7 +86,8 @@ public class DateArrayField extends ArrayFieldImpl
 		}		
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
-		buffer.put(strValue.getBytes());		
+		buffer.put(strValue.getBytes());
+		buffer.clear();
 	}
 	
 	public int getLength()
@@ -126,9 +125,6 @@ public class DateArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){		
-		fieldMap.put(prefixField+this.getName(), buffer);
-	}	
 	
 	public void toXML(StringBuilder strbXML)
 	{
