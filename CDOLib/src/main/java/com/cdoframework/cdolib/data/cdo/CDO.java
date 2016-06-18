@@ -142,7 +142,7 @@ public class CDO implements Serializable
 		return fieldId;
 	}
 
-	//---------------------- 序列化方法    cdo2xml  cdo2Avro------------------------//
+	//---------------------- 序列化方法    cdo2xml  cdo2Avro cdo2proto------------------------//
 	/**
 	 * 转换成avro
 	 * @return
@@ -230,6 +230,7 @@ public class CDO implements Serializable
 		}
 	}	
 	
+	 
 	public String toXML()
 	{
 		StringBuilder strbXML=new StringBuilder(500);
@@ -378,7 +379,7 @@ public class CDO implements Serializable
 		XMLElement xmlNode=new XMLElement();
 		xmlNode.parseString(strXML);
 		
-		XmlCDODeserialize.xml2CDO(cdoOutPut, xmlNode, true);
+		XmlCDOParse.xml2CDO(cdoOutPut, xmlNode, true);
 	}	
 	
 	

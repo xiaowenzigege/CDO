@@ -11,7 +11,7 @@ import com.cdoframework.cdolib.data.cdo.CDO;
  * @author KenelLiu
  *
  */
-public class XmlCDODeserialize {
+public class XmlCDOParse {
 	
 	
 	static void xml2CDO(CDO cdo,XMLElement nodeCDO,boolean isRootNode)

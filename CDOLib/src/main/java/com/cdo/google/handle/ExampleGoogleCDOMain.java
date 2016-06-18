@@ -7,7 +7,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-public class GoogleCDOMain {
+public class ExampleGoogleCDOMain {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
