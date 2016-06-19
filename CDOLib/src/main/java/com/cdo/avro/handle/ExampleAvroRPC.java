@@ -48,7 +48,8 @@ public class ExampleAvroRPC {
 		@Override
 		public AvroCDO send(AvroCDO avroCDOReq) throws AvroRemoteException {
 
-			CDO cdoRequest=AvroCDOParse.AvroParse.parse(avroCDOReq);			
+			CDO cdoRequest=AvroCDOParse.AvroParse.parse(avroCDOReq);	
+			System.out.println(cdoRequest.toXMLWithIndent());
 			CDO cdoOutput=new CDO();
 			//
 			/**
@@ -104,18 +105,10 @@ public class ExampleAvroRPC {
         AvroCDOProtocol proxy = (AvroCDOProtocol) SpecificRequestor.getClient(AvroCDOProtocol.class, client);
         System.out.println("Client built, got proxy");
 
-        // fill in the Message record and send it
-        Map<CharSequence,ByteBuffer> map=new LinkedHashMap<CharSequence,ByteBuffer>();
-        ByteBuffer buffer=ByteBuffer.allocate(4);
-        buffer.putInt(5);
-        buffer.flip();
-        map.put("key", buffer);
         long startTime=System.nanoTime();
-        AvroCDO cdoDataReq=new AvroCDO();
-        cdoDataReq.setLevel(1);
-        cdoDataReq.setFields(map);
-        System.out.println("create avro object ns="+(System.nanoTime()-startTime));
-        System.out.println("Calling proxy.send with message:  " + cdoDataReq.getFields());      
+        AvroCDO cdoDataReq=ExampleArvoMain.testCDO();
+
+        System.out.println("create avro object ns="+(System.nanoTime()-startTime));     
         AvroCDO cdoDataRes=proxy.send(cdoDataReq);
     	for(Iterator<Map.Entry<CharSequence, ByteBuffer>> iterator=cdoDataRes.getFields().entrySet().iterator();iterator.hasNext();){
     			Entry<CharSequence, ByteBuffer> entry=iterator.next();

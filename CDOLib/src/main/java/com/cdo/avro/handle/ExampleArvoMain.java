@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileStream;
@@ -23,6 +25,7 @@ import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 
 import com.cdo.avro.protocol.AvroCDO;
+import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.data.cdo.BooleanArrayField;
 import com.cdoframework.cdolib.data.cdo.ByteArrayField;
 import com.cdoframework.cdolib.data.cdo.CDO;
@@ -192,10 +195,8 @@ public class ExampleArvoMain {
 		System.out.println("Handshake  read deserialize  data ns==="+(System.nanoTime()-startTime));
 	}
 	
-	private static void testCDO(){
-	CDO cdo = new CDO();
-
-		
+	 static AvroCDO testCDO(){
+	    CDO cdo = new CDO();		
 		cdo.setByteValue("byte", (byte)2);
 		cdo.setByteArrayValue("bytes", new byte[]{1,2,3});
 		cdo.setBooleanValue("bvalue", true);
@@ -220,10 +221,10 @@ public class ExampleArvoMain {
 		cdo.setDateTimeArrayValue("dateTimeValues", new String[]{"2012-05-01 20:00:00","2013-05-01 21:00:00","2014-05-01 22:00:00"});
 		System.out.println(cdo.getBooleanValue("bvalue"));
 		System.out.println(cdo.getBooleanValue("bvalue"));
-		CDO cdo2=new CDO();
-		cdo.setCDOValue("cdo2", cdo2);
-		cdo.setIntegerValue("cdo2.is", 1);
-		cdo.setIntegerValue("ints[0]", 200);
+//		CDO cdo2=new CDO();
+//		cdo.setCDOValue("cdo2", cdo2);
+//		cdo.setIntegerValue("cdo2.is", 1);
+//		cdo.setIntegerValue("ints[0]", 200);
 //		System.out.println(cdo.toXMLWithIndent());
 		for(int i=0;i<5;i++){
 			System.out.println(cdo.getDoubleValue("double"));
@@ -291,9 +292,25 @@ public class ExampleArvoMain {
 			
 			
 		}
-		AvroCDO avro=cdo.toAvro();
-		System.out.println(AvroCDOParse.AvroParse.parse(avro).toXMLWithIndent());
-
+		CDO cdo1=cdo.clone();
+//		cdo=new CDO();
+//		cdo1.setByteValue("byte", (byte)3);	
 		
+		
+//		CDO cdo2=cdo.clone();
+//		cdo.setByteValue("byte", (byte)4);
+//		cdo.setCDOValue("cdo", cdo2);
+		CDO cdoResponse=new CDO();
+		cdoResponse.setCDOArrayValue("cdosList", new CDO[]{cdo1,cdo1});
+		cdo.setCDOValue("cdoResponse", cdoResponse);
+		CDO cdoReturn=new CDO();
+		cdoReturn.setIntegerValue("nCode",0);
+		cdoReturn.setStringValue("text", "成功");
+		cdo.setCDOArrayValue("cdosReturn", new CDO[]{cdoReturn,cdoReturn});
+		cdo.setCDOValue("cdoR", cdoReturn);
+		
+		System.out.println("cdo"+cdo.toXMLWithIndent());
+
+		return cdo.toAvro();
 	}
 }

@@ -98,7 +98,7 @@ public class StringArrayField extends ArrayFieldImpl
 		int len=dataIndex+databuffer;
 		buffer=ByteBuffer.allocate(len);
 		buffer.put((byte)DataType.STRING_ARRAY_TYPE);
-		buffer.putShort((short)strsValue.length);
+		buffer.putShort((short)strsValue.length);	
 	}
 	
 	private void allocate(String[] strsValue){
@@ -163,7 +163,8 @@ public class StringArrayField extends ArrayFieldImpl
 			 //移位
 			 buffer.limit(buffer.capacity());
 			 index=pos+contentLen;			
-		 }		
+		 }	
+		 buffer.clear();
 	}	
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 

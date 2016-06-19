@@ -1,4 +1,4 @@
-package com.cdo.avro.handle;
+package com.cdo.google.handle;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -12,35 +12,37 @@ import java.util.Map.Entry;
 
 
 
+
 import com.cdo.avro.protocol.AvroCDO;
+import com.cdo.google.protocol.GoogleCDO;
 import com.cdo.parse.CDOParse;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.CDOBuffer;
 
-public class AvroCDOParse extends CDOParse{
+public class CDOProtoParse extends CDOParse{
 	
-    public static AvroCDOParse AvroParse;
+    public static CDOProtoParse ProtoParse;
     static{
-    	AvroParse=new AvroCDOParse();
+    	ProtoParse=new CDOProtoParse();
    }
-	private AvroCDOParse(){}
+	private CDOProtoParse(){}
 	
 
 	
-	public  CDO parse(AvroCDO avro){		
+	public  CDO parse(GoogleCDO.CDOProto proto){		
 		CDO cdo=new CDO();
-		avro2CDO(cdo,avro.getFields(),avro.getLevel());					
+		proto2CDO(cdo,proto.getFieldsList(),proto.getLevel());					
 		return cdo;
 	} 
 	
-	private  void avro2CDO(CDO cdo,Map<CharSequence,ByteBuffer> fieldsMap,int level){
+	private  void proto2CDO(CDO cdo,List<GoogleCDO.CDOProto.Entry> fieldList,int level){
 		 Map<String,CDO> mapCDO=new LinkedHashMap<String, CDO>();
 		 //将最右边的基础字段合并到   cdo上
-		 for(Iterator<Map.Entry<CharSequence,ByteBuffer>> iterator=fieldsMap.entrySet().iterator();iterator.hasNext();){
-			 Entry<CharSequence, ByteBuffer> entry=iterator.next();
-			 String key=entry.getKey().toString();
-			 ByteBuffer buffer=entry.getValue();
+		 for(int i=0;i<fieldList.size();i++){
+			 GoogleCDO.CDOProto.Entry entry=fieldList.get(i);
+			 String key=entry.getName();
+			 ByteBuffer buffer = ByteBuffer.wrap(entry.getValue().toByteArray());
 			 
 			 int index=key.lastIndexOf(".");
 			 if(index==-1){//.表示层级概念
@@ -54,7 +56,8 @@ public class AvroCDOParse extends CDOParse{
 				 }
 				 setCDOValue(cdoValue, fieldKey, buffer);	
 				 mapCDO.put(mapKey, cdoValue);
-			 }			 
+			 }
+			 
 		 }
 		 //将属于同一数组的CDO依次从右向左 进行合并
 		 Map<String, CDO> retMapCDO=mergeRightCDO(mapCDO, level); 
