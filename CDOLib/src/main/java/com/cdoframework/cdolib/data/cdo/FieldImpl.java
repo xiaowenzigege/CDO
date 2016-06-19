@@ -51,7 +51,7 @@ public abstract class FieldImpl implements Field
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	private Data nType;
 	private String strName;
-	protected ByteBuffer buffer=null;
+	protected ByteBuffer buffer=null;//需要谨慎操作，仅在内部字段里使用
 	
 	public void setType(Data nType)
 	{
@@ -128,6 +128,7 @@ public abstract class FieldImpl implements Field
 		GoogleCDO.CDOProto.Entry.Builder entry=GoogleCDO.CDOProto.Entry.newBuilder();
 		entry.setName(prefixField+this.getName());
 		entry.setValue(ByteString.copyFrom(buffer));
+		buffer.flip();
 		cdoProto.addFields(entry);
 	}
 	

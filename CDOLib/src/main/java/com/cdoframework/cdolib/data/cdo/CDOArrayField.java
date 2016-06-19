@@ -102,6 +102,7 @@ public class CDOArrayField extends ArrayFieldImpl
 		}
 		return maxLevel;
 	}
+	
 	@Override
 	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
 		for(int i=0;i<this.cdosValue.length;i=i+1){

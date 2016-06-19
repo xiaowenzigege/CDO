@@ -1,4 +1,4 @@
-package com.cdo.avro.handle;
+package com.cdo.example;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -219,6 +219,7 @@ public class ExampleArvoMain {
 		cdo.setTimeArrayValue("times", new String[]{"17:00:00","18:00:00","20:00:00"});
 		cdo.setDateTimeValue("dateTime", "2012-05-01 20:00:00");
 		cdo.setDateTimeArrayValue("dateTimeValues", new String[]{"2012-05-01 20:00:00","2013-05-01 21:00:00","2014-05-01 22:00:00"});
+		
 		System.out.println(cdo.getBooleanValue("bvalue"));
 		System.out.println(cdo.getBooleanValue("bvalue"));
 //		CDO cdo2=new CDO();

@@ -43,7 +43,7 @@ public class CDOProtoParse extends CDOParse{
 			 GoogleCDO.CDOProto.Entry entry=fieldList.get(i);
 			 String key=entry.getName();
 			 ByteBuffer buffer = ByteBuffer.wrap(entry.getValue().toByteArray());
-			 
+			 buffer.clear();	
 			 int index=key.lastIndexOf(".");
 			 if(index==-1){//.表示层级概念
 				setCDOValue(cdo, key, buffer);
