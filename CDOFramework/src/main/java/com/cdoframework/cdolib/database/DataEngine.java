@@ -2396,6 +2396,7 @@ public class DataEngine implements IDataEngine
 
 	public void onSQLStatement(String strSQL)
 	{
+		
 	}
 
 	// 构造函数,所有构造函数在此定义------------------------------------------------------------------------------

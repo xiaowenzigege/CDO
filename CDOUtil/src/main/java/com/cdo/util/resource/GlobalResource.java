@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import org.apache.log4j.Logger;
 
 import com.cdo.util.resource.BundleConfig;
+import com.cdoframework.cdolib.base.Return;
 
 /**
  * 
@@ -25,6 +26,36 @@ public class GlobalResource{
       if (logger.isInfoEnabled())
         logger.info(e.getMessage());
     }
+  }
+  
+  public static void bundleInitCDOEnv() throws IOException{
+	  	String strCDOConfig=System.getProperty("CDO_CONFIG_FILE");	//文件全路径
+		if(strCDOConfig==null || strCDOConfig.equals(""))
+		{
+			logger.error("vm启动参数  未正确设置:CDO_CONFIG_FILE");
+			return;
+		}
+		StringBuilder sb=new StringBuilder();
+		char ch;
+		for(int i=0;i<strCDOConfig.length();i++){
+			ch=strCDOConfig.charAt(i);
+			if(ch=='{'){
+				if(i>0 && strCDOConfig.charAt(i-1)=='$'){
+					sb=new StringBuilder();
+				}
+			}else if(ch=='}'){
+				if(sb!=null){
+					String value=System.getProperty(sb.toString());
+					if(value!=null && !value.equals(""))
+						strCDOConfig=strCDOConfig.replace("${"+sb.toString()+"}",value);
+				}					
+				sb=null;
+			}else{
+				if(sb!=null)
+					sb.append(ch);
+			}
+		}
+		GlobalResource.bundleLocalCDOEnv(strCDOConfig);
   }
   /**
    *  vm 启动时，获取 cdo框架所需文件所在的位置，由启动时设定其文件位置

@@ -24,6 +24,7 @@ import org.apache.avro.ipc.HandshakeRequest;
 import org.apache.avro.specific.SpecificDatumReader;
 import org.apache.avro.specific.SpecificDatumWriter;
 
+import com.cdo.avro.handle.AvroUtils;
 import com.cdo.avro.protocol.AvroCDO;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.data.cdo.BooleanArrayField;
@@ -82,86 +83,72 @@ public class ExampleArvoMain {
 	                      " {\"name\": \"specialData\", \"type\": \"int\"} ]\n" +
 	          "}";
 
-	       
+	   	private static String readFile(InputStream inputStream) throws IOException{
+	 	  	BufferedReader in=new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));
+	  	  	StringBuilder message = new StringBuilder();   
+	  	    String line = null;  
+	  	    while ((line = in.readLine()) != null) {   
+	  	    	message.append(line+"\n");   
+	  	          } 
+	  	    return message.toString();
+		}
+	   	
+	   	private static void mergeSchema(){
+//			schemaDescription=readFile(new FileInputStream("E:/CDO/CDO/CDOLib/src/main/avro/CDONameValuePair.avsc"));
+			AvroUtils.parseSchema(schemaDescription);
+//			schemaDescriptionExt=readFile(new FileInputStream("E:/CDO/CDO/CDOLib/src/main/avro/ArrayCDONameValuePair.avsc"));
+			Schema extended = AvroUtils.parseSchema(schemaDescriptionExt);
+			System.out.println(extended.toString(true));
+	   	}
 	public static void main(String[] args) {
 		try{
-//			schemaDescription=readFile(new FileInputStream("E:/CDO/CDO/CDOLib/src/main/avro/CDONameValuePair.avsc"));
-//			AvroUtils.parseSchema(schemaDescription);
-//			schemaDescriptionExt=readFile(new FileInputStream("E:/CDO/CDO/CDOLib/src/main/avro/ArrayCDONameValuePair.avsc"));
-//			Schema extended = AvroUtils.parseSchema(schemaDescriptionExt);
-//			System.out.println(extended.toString(true));
-
-		
-			testCDO();
+			//mergeSchema();
+			testHandshake();
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
 	}
 
-	private static String readFile(InputStream inputStream) throws IOException{
- 	  	BufferedReader in=new BufferedReader(new InputStreamReader(inputStream,"UTF-8"));
-  	  	StringBuilder message = new StringBuilder();   
-  	    String line = null;  
-  	    while ((line = in.readLine()) != null) {   
-  	    	message.append(line+"\n");   
-  	          } 
-  	    return message.toString();
-	}
+
 	private static void  testAvro(CDO cdo) throws IOException{
 		
-		long startTime=System.nanoTime();	
-		
-		LinkedHashMap<CharSequence,ByteBuffer> fieldMap=new LinkedHashMap<CharSequence,ByteBuffer>();
-//		int level=cdo.toAvroFieldMap(fieldMap);
-		
-		System.out.println("toMap nan s ="+(System.nanoTime()-startTime));
-		startTime=System.nanoTime();	
-		
-		AvroCDO arvoCDO=new  AvroCDO();
-		arvoCDO.setFields(fieldMap);
-//		arvoCDO.setLevel(level);
-		
+		long startTime=System.nanoTime();						
+		AvroCDO arvoCDO=ExampleCDO.getCDO().toAvro();		
 		System.out.println("new AvroCDO nan s ="+(System.nanoTime()-startTime));
-		startTime=System.nanoTime();
+		
+		startTime=System.nanoTime();		
 		
 		ByteArrayOutputStream out=new ByteArrayOutputStream();
 	    DatumWriter<AvroCDO> writer=new SpecificDatumWriter<AvroCDO>(AvroCDO.class);    
 	    DataFileWriter<AvroCDO> dataFileWriter = new DataFileWriter<AvroCDO>(writer); 		          
-	    dataFileWriter.create(arvoCDO.getSchema(),out);
-	    
-	    System.out.println("create avro write serialize shcema ns==="+(System.nanoTime()-startTime));
+	    dataFileWriter.create(arvoCDO.getSchema(),out);	    	    
+	    System.out.println("avro serialize shcema ns==="+(System.nanoTime()-startTime));
+
 	    startTime=System.nanoTime();
 	    
 	    dataFileWriter.append(arvoCDO);
 		dataFileWriter.close();
 		out.close();
-		
 		System.out.println("avro write serialize  data ns==="+(System.nanoTime()-startTime));
+		
 		startTime=System.nanoTime();
 		
 		ByteArrayInputStream in=new ByteArrayInputStream(out.toByteArray());
 	    DatumReader<AvroCDO> reader=new SpecificDatumReader<AvroCDO>(AvroCDO.class);	    	   
 		DataFileStream<AvroCDO> dataFileReader = new DataFileStream<AvroCDO>(in,reader);
-	
 		System.out.println("create avro reader deserialize shcema ns==="+(System.nanoTime()-startTime));	  
-	    startTime=System.nanoTime();
-	    
+	    startTime=System.nanoTime();	    
 		arvoCDO= null;
 	    while (dataFileReader.hasNext()) {
 	    	   arvoCDO = dataFileReader.next();	            
-	    }	
-	    
+	    }		    
 		System.out.println("avro  read deserialize  data ns==="+(System.nanoTime()-startTime));
 	}
+	
 	private static void  testHandshake() throws IOException{
 		
-		long startTime=System.nanoTime();	
-		
-		
+		long startTime=System.nanoTime();					
 		HandshakeRequest request=new HandshakeRequest();
-//		arvoCDO.setFields(fieldMap);
-//		arvoCDO.setLevel(level);
-		
 		System.out.println("new Handshake nan s ="+(System.nanoTime()-startTime));
 		startTime=System.nanoTime();
 		
@@ -194,124 +181,5 @@ public class ExampleArvoMain {
 	    
 		System.out.println("Handshake  read deserialize  data ns==="+(System.nanoTime()-startTime));
 	}
-	
-	 static AvroCDO testCDO(){
-	    CDO cdo = new CDO();		
-		cdo.setByteValue("byte", (byte)2);
-		cdo.setByteArrayValue("bytes", new byte[]{1,2,3});
-		cdo.setBooleanValue("bvalue", true);
-		cdo.setBooleanArrayValue("bsValue", new boolean[]{false,true,true,false});
-		cdo.setShortValue("short", (short)100);
-		cdo.setShortArrayValue("shorts", new short[]{100,200,300});
-		cdo.setIntegerValue("int", 300);
-		cdo.setIntegerArrayValue("ints", new int[]{400,500,600});
-		cdo.setLongValue("long", 7000);
-		cdo.setLongArrayValue("longs", new long[]{9000,10000});
-		cdo.setFloatValue("float", 3.0f);
-		cdo.setFloatArrayValue("floats", new float[]{1.0f,2.0f,3.0f});
-		cdo.setDoubleValue("double", 5.0);
-		cdo.setDoubleArrayValue("doubles", new double[]{6.0,7.0,8.0});
-		cdo.setStringValue("str", "张三");
-		cdo.setStringArrayValue("strvalues", new String[]{ "张3", "张4", "张5"});
-		cdo.setDateValue("date", "2016-05-01");
-		cdo.setDateArrayValue("date1", new String[]{"2012-05-01","2013-05-01","2014-05-01"});
-		cdo.setTimeValue("time", "20:00:00");
-		cdo.setTimeArrayValue("times", new String[]{"17:00:00","18:00:00","20:00:00"});
-		cdo.setDateTimeValue("dateTime", "2012-05-01 20:00:00");
-		cdo.setDateTimeArrayValue("dateTimeValues", new String[]{"2012-05-01 20:00:00","2013-05-01 21:00:00","2014-05-01 22:00:00"});
-		
-		System.out.println(cdo.getBooleanValue("bvalue"));
-		System.out.println(cdo.getBooleanValue("bvalue"));
-//		CDO cdo2=new CDO();
-//		cdo.setCDOValue("cdo2", cdo2);
-//		cdo.setIntegerValue("cdo2.is", 1);
-//		cdo.setIntegerValue("ints[0]", 200);
-//		System.out.println(cdo.toXMLWithIndent());
-		for(int i=0;i<5;i++){
-			System.out.println(cdo.getDoubleValue("double"));
-			System.out.println(cdo.getDoubleValue("double"));
-			System.out.println(((ByteArrayField)cdo.getField("bytes")).getValue());
-			System.out.println(((ByteArrayField)cdo.getField("bytes")).getValue());
-		    ((ByteArrayField)cdo.getField("bytes")).setValueAt(2, (byte)2);
-		    ((ByteArrayField)cdo.getField("bytes")).setValueAt(0, (byte)2);
-		    ((ByteArrayField)cdo.getField("bytes")).setValueAt(1, (byte)2);
-			System.out.println(((ByteArrayField)cdo.getField("bytes")).getValue());
-			System.out.println(((ByteArrayField)cdo.getField("bytes")).getValueAt(0));
-			System.out.println(((ByteArrayField)cdo.getField("bytes")).getValueAt(1));
-			System.out.println(((ByteArrayField)cdo.getField("bytes")).getValueAt(2));
-			
-			System.out.println(cdo.getBooleanValue("bvalue"));
-			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
-			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
-		    ((BooleanArrayField)cdo.getField("bsValue")).setValueAt(3, true);
-			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
-			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValueAt(0));
-			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValueAt(1));
-			System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValueAt(2));
-			
-			System.out.println(((DateArrayField)cdo.getField("date1")).getValueAt(1));
-			System.out.println(((DateArrayField)cdo.getField("date1")).getValueAt(1));
-			System.out.println(((DateArrayField)cdo.getField("date1")).getValue()[2]);
-			System.out.println(((DateArrayField)cdo.getField("date1")).getValue()[2]);
-			System.out.println(((DateArrayField)cdo.getField("date1")).getLength());
-			System.out.println(((DateArrayField)cdo.getField("date1")).getLength());	
-			
-			System.out.println(((TimeArrayField)cdo.getField("times")).getValueAt(1));
-			System.out.println(((TimeArrayField)cdo.getField("times")).getValueAt(1));
-			System.out.println(((TimeArrayField)cdo.getField("times")).getValue()[0]);
-			System.out.println(((TimeArrayField)cdo.getField("times")).getValue()[0]);
-			System.out.println(((TimeArrayField)cdo.getField("times")).getLength());
-			System.out.println(((TimeArrayField)cdo.getField("times")).getLength());
-			
-			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValueAt(1));
-			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValueAt(0));
-			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValue()[0]);
-			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValue()[0]);
-			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getLength());
-			System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getLength());
-			
-			System.out.println(((ShortArrayField)cdo.getField("shorts")).getValueAt(1));
-			System.out.println(((ShortArrayField)cdo.getField("shorts")).getValueAt(1));
-			System.out.println(((ShortArrayField)cdo.getField("shorts")).getLength());
-			System.out.println(((ShortArrayField)cdo.getField("shorts")).getLength());			
-			System.out.println(((ShortArrayField)cdo.getField("shorts")).getValue()[0]);
-			System.out.println(((ShortArrayField)cdo.getField("shorts")).getValue()[0]);
 
-			System.out.println(((IntegerArrayField)cdo.getField("ints")).getValueAt(1));
-			System.out.println(((IntegerArrayField)cdo.getField("ints")).getValueAt(1));
-			System.out.println(((IntegerArrayField)cdo.getField("ints")).getLength());
-			System.out.println(((IntegerArrayField)cdo.getField("ints")).getLength());			
-			System.out.println(((IntegerArrayField)cdo.getField("ints")).getValue()[0]);
-			System.out.println(((IntegerArrayField)cdo.getField("ints")).getValue()[0]);
-			
-			System.out.println(((LongArrayField)cdo.getField("longs")).getValueAt(1));
-			System.out.println(((LongArrayField)cdo.getField("longs")).getValueAt(1));
-			System.out.println(((LongArrayField)cdo.getField("longs")).getLength());
-			System.out.println(((LongArrayField)cdo.getField("longs")).getLength());			
-			System.out.println(((LongArrayField)cdo.getField("longs")).getValue()[0]);
-			System.out.println(((LongArrayField)cdo.getField("longs")).getValue()[0]);
-			
-			
-		}
-		CDO cdo1=cdo.clone();
-//		cdo=new CDO();
-//		cdo1.setByteValue("byte", (byte)3);	
-		
-		
-//		CDO cdo2=cdo.clone();
-//		cdo.setByteValue("byte", (byte)4);
-//		cdo.setCDOValue("cdo", cdo2);
-		CDO cdoResponse=new CDO();
-		cdoResponse.setCDOArrayValue("cdosList", new CDO[]{cdo1,cdo1});
-		cdo.setCDOValue("cdoResponse", cdoResponse);
-		CDO cdoReturn=new CDO();
-		cdoReturn.setIntegerValue("nCode",0);
-		cdoReturn.setStringValue("text", "成功");
-		cdo.setCDOArrayValue("cdosReturn", new CDO[]{cdoReturn,cdoReturn});
-		cdo.setCDOValue("cdoR", cdoReturn);
-		
-		System.out.println("cdo"+cdo.toXMLWithIndent());
-
-		return cdo.toAvro();
-	}
 }

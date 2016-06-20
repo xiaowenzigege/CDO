@@ -20,13 +20,13 @@ import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.CDOBuffer;
 
-public class CDOProtoParse extends CDOParse{
+public class ProtoCDOParse extends CDOParse{
 	
-    public static CDOProtoParse ProtoParse;
+    public static ProtoCDOParse ProtoParse;
     static{
-    	ProtoParse=new CDOProtoParse();
+    	ProtoParse=new ProtoCDOParse();
    }
-	private CDOProtoParse(){}
+	private ProtoCDOParse(){}
 	
 
 	

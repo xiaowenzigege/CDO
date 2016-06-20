@@ -15,7 +15,18 @@ import com.cdoframework.cdolib.data.cdo.CDOBuffer;
 
 public class CDOParse extends CDOBuffer {
 	 /**
-     * 从右向左合并 ,最左边的cdo数组不进行合并处理，需要在外进行处理
+     * 
+     * 递归调用  依次从右向左合并  相同名称cdo数组 
+     * 每次调用，处理同一层级上的cdo
+     * 注：
+     *   最外层cdo数组不进行合并处理,需要在调用方进行合并处理才正确。
+     *  列如：
+     *  @see {@linkplain com.cdo.google.handle.ProtoCDOParse#proto2CDO(CDO,List,int)}
+     *  @see {@link com.cdo.avro.handle.AvroCDOParse#avro2CDO(CDO,Map,int)}}
+     *  数组处理 cdoarr[0].cdo1[0]  cdoarr[0].cdo1[1]  处理成 cdoarr[0].setCDOArrayValue("cod1",cdo1数组)
+     *  数组处理 cdoarr[1].cdo2[0]  cdoarr[0].cdo2[1]  处理成 cdoarr[1].setCDOArrayValue("cod2",cdo1数组)
+     *  但不会合并最外层的数组
+     *    即 cdoarr[0], cdoarr[1] 不会进行合并.
      * avro2CDO proto2CDO
      * @param mapCDO
      * @param level
@@ -24,7 +35,7 @@ public class CDOParse extends CDOBuffer {
 	protected  Map<String,CDO> mergeRightCDO(Map<String,CDO>  mapCDO,int level){
 		 Map<String,CDO> childMap=new LinkedHashMap<String, CDO>();
 		 Map<String, List<CDO>> arrMap=new HashMap<String, List<CDO>>();//合并CDO数组
-		 Map<String, String> arrFieldMap=new HashMap<String, String>();
+		 Map<String, String> arrFieldMap=new HashMap<String, String>();//cdo数组对应的名称
 		 String preKey="";
 		 String curKey="";
 		 int start=0;
@@ -37,9 +48,8 @@ public class CDOParse extends CDOBuffer {
 			 //从右向左进行合并	
 			 if(level==length){				
 				 int index=key.lastIndexOf(".");
-				 String fieldKey="";//在map中的字段名称
-				 String realkey="";//在cdo中key 字符名称 
-				 int arrIndex=0;//是否是cdo数组
+				 String fieldKey="";//字段名称
+				 String realkey="";//字符名称 				
 				 if(index>0){
 					  fieldKey=key.substring(index+1);				 
 					  realkey=key.substring(0,index);	
@@ -53,7 +63,7 @@ public class CDOParse extends CDOBuffer {
 					 cdoMerge=new CDO();
 				 }	 
 				 //是否是cdo数组
-				 arrIndex=fieldKey.lastIndexOf("[");
+				 int arrIndex=fieldKey.lastIndexOf("[");//是否是cdo数组
 				 if(arrIndex>0 && index>0){
 					 if(start==0){
 						 preKey=realkey; 

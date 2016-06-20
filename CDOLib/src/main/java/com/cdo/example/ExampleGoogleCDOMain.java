@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.cdo.google.handle.CDOProtoParse;
+import com.cdo.google.handle.ProtoCDOParse;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.google.protobuf.ByteString;
@@ -18,9 +18,9 @@ public class ExampleGoogleCDOMain {
 	public static void main(String[] args) {
 		GoogleCDO.CDOProto proto=ExampleCDO.getCDO().toProto();
 
-		CDO cdo=CDOProtoParse.ProtoParse.parse(proto);
+		CDO cdo=ProtoCDOParse.ProtoParse.parse(proto);
 		System.out.println("proto xml="+cdo.toXMLWithIndent());
-
+		GoogleCDO.CDOProto.getDefaultInstance();
 	}
 
 }

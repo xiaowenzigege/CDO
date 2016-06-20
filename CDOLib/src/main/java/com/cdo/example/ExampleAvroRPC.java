@@ -115,10 +115,12 @@ public class ExampleAvroRPC {
     			Entry<CharSequence, ByteBuffer> entry=iterator.next();
     			System.out.println("res map key="+entry.getKey());
     			System.out.println("res map value ="+entry.getValue().getInt());
-    	}         		
+    	}
+//    	server.join();
         // cleanup
         client.close();
         server.close();
     }
 	
+    
 }

@@ -18,7 +18,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>cdo</groupId>
-			<artifactId>cdoUtil</artifactId>
+			<artifactId>cdoframework</artifactId>
 			<version>${project.cdo.version}</version>			
 		</dependency>
 		<dependency>
