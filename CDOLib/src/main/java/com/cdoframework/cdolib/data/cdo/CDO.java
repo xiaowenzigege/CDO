@@ -361,13 +361,6 @@ public class CDO implements Serializable
 		return cdo;
 	}
 
-
-    public void copyFrom(CDO cdoSource)
-    {
-    	xmlToCDO(cdoSource.toXML(),this);
-    }
-    
-    
     public void copyFrom(String strCDOXML)
     {
 		xmlToCDO(strCDOXML,this);
@@ -385,10 +378,24 @@ public class CDO implements Serializable
 	
     public CDO clone()
     {
-    	return CDO.fromXML(this.toXML());
+    	CDO cdo=new CDO();
+    	copy(this,cdo);
+    	return cdo;
     }	
 	
+    public void copyFrom(CDO cdoSource)
+    {
+    	copy(cdoSource, this);
+    }
     
+    private void copy(CDO src,CDO dst){
+    	for(Iterator<Map.Entry<String,Field>> iterator=src.iterator();iterator.hasNext();){
+    		Entry<String,Field> entry=iterator.next();
+    		DataBufferUtil.setField(dst, entry.getKey(), entry.getValue());    		
+    	}
+    }
+    
+   
     /**
      * 根据key,获取Field
      * @param fieldId

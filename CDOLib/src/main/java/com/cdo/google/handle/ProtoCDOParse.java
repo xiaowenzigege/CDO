@@ -8,17 +8,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-
-
-
-
-import com.cdo.avro.protocol.AvroCDO;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdo.parse.CDOParse;
-import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.data.cdo.CDOBuffer;
 
 public class ProtoCDOParse extends CDOParse{
 	

@@ -1,4 +1,4 @@
-package com.cdoframework.web.servlet;
+package com.cdo.business.web.servlet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

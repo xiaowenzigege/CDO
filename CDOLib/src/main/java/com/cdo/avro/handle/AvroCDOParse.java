@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 
 
 
+
 import com.cdo.avro.protocol.AvroCDO;
 import com.cdo.parse.CDOParse;
 import com.cdoframework.cdolib.base.DataType;
@@ -24,7 +25,8 @@ public class AvroCDOParse extends CDOParse{
     static{
     	AvroParse=new AvroCDOParse();
    }
-	private AvroCDOParse(){}
+	public AvroCDOParse(){		
+	}
 	
 
 	
@@ -33,7 +35,7 @@ public class AvroCDOParse extends CDOParse{
 		avro2CDO(cdo,avro.getFields(),avro.getLevel());					
 		return cdo;
 	} 
-	
+
 	private  void avro2CDO(CDO cdo,Map<CharSequence,ByteBuffer> fieldsMap,int level){
 		 Map<String,CDO> mapCDO=new LinkedHashMap<String, CDO>();
 		 //将最右边的基础字段合并到   cdo上
@@ -85,4 +87,6 @@ public class AvroCDOParse extends CDOParse{
 		 }
 	}
    
+
+	
 }

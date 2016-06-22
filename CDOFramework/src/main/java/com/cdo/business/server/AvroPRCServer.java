@@ -1,17 +1,11 @@
-package com.cdoframework.ipc;
+package com.cdo.business.server;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.avro.AvroRemoteException;
 import org.apache.avro.ipc.NettyServer;
-import org.apache.avro.ipc.NettyTransceiver;
 import org.apache.avro.ipc.Server;
-import org.apache.avro.ipc.specific.SpecificRequestor;
 import org.apache.avro.ipc.specific.SpecificResponder;
 import org.apache.log4j.Logger;
 
@@ -19,8 +13,6 @@ import com.cdo.avro.handle.AvroCDOParse;
 import com.cdo.avro.protocol.AvroCDO;
 import com.cdo.avro.protocol.AvroCDOProtocol;
 import com.cdo.business.BusinessService;
-import com.cdo.example.ExampleCDO;
-import com.cdo.example.ExampleAvroRPC.CDORpcProtocol;
 import com.cdo.util.resource.GlobalResource;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
@@ -33,7 +25,7 @@ public class AvroPRCServer {
 	
 	public static class CDORpcProtocol implements AvroCDOProtocol {
 		@Override
-		public AvroCDO send(AvroCDO avroCDOReq) throws AvroRemoteException {
+		public AvroCDO handleTrans(AvroCDO avroCDOReq) throws AvroRemoteException {
 			CDO cdoOutput=new CDO();
 			try{
 				CDO cdoRequest=AvroCDOParse.AvroParse.parse(avroCDOReq);	
@@ -41,10 +33,10 @@ public class AvroPRCServer {
 				BusinessService serviceBus = BusinessService.getInstance();	
 				Return ret=serviceBus.handleTrans(cdoRequest, cdoResponse);
 				if(ret==null){
-					String strServiceName=cdoRequest.exists(ITransService.SERVICENAME_KEY)?cdoRequest.getStringValue(ITransService.SERVICENAME_KEY):"";
-					String strTransName=cdoRequest.exists(ITransService.TRANSNAME_KEY)?cdoRequest.getStringValue(ITransService.TRANSNAME_KEY):"";					
-					setOutCDO(cdoOutput," ret is null,Request method not found:strServiceName="+strServiceName+",strTransName="+strTransName);	
-					logger.error("ret is null,Request method not found:strServiceName="+strServiceName+",strTransName="+strTransName);
+					String strServiceName=cdoRequest.exists(ITransService.SERVICENAME_KEY)?cdoRequest.getStringValue(ITransService.SERVICENAME_KEY):"null";
+					String strTransName=cdoRequest.exists(ITransService.TRANSNAME_KEY)?cdoRequest.getStringValue(ITransService.TRANSNAME_KEY):"null";					
+					setOutCDO(cdoOutput," ret is null,Request method :strServiceName="+strServiceName+",strTransName="+strTransName);	
+					logger.error("ret is null,Request method:strServiceName="+strServiceName+",strTransName="+strTransName);
 				}else{
 					CDO cdoReturn=new CDO();
 					cdoReturn.setIntegerValue("nCode",ret.getCode());
@@ -56,7 +48,8 @@ public class AvroPRCServer {
 					
 				}
 			}catch(Throwable ex){
-				logger.error(ex.getMessage(), ex);				
+				logger.error(ex.getMessage(), ex);	
+				setOutCDO(cdoOutput,"服务端处理异常:"+ex.getMessage());
 			} 	
 			return cdoOutput.toAvro();
 		}
@@ -77,40 +70,23 @@ public class AvroPRCServer {
     }
 	
 	private static Server server;
-    private static void startServer() throws IOException {
+    private static void startServer(){
     	int port=GlobalResource.cdoConfig.getInt("netty.server.port");
         server = new NettyServer(new SpecificResponder(AvroCDOProtocol.class, new CDORpcProtocol()), new InetSocketAddress(port));
         
     }
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
 		try{
-			GlobalResource.bundleInitCDOEnv();			
+			GlobalResource.bundleInitCDOEnv();	
+			startService();
+	        startServer();
+	        logger.info("AvroPRC Server started......");
+	        server.join();
 		}catch(Exception ex){
 			logger.error(ex.getMessage(),ex);
 			System.exit(-1);
 			return;
-		}	
-        startServer();
-        logger.info("AvroPRC Server started......");
-        startService();
-        handle();       
-    }
-    /**
-     * TODO 需要重新写
-     * @param server
-     */
-    public static void handle(){
-    	try {
-			server.join();
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			try {
-				Thread.currentThread().sleep(Long.MAX_VALUE);
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		}
+		}	 
     }
     
     private static void startService(){

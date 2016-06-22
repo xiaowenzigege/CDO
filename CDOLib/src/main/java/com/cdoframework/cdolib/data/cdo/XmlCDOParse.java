@@ -383,9 +383,8 @@ public class XmlCDOParse {
 					{
 						throw new RuntimeException("Parse xml error: unexpected Tag name "+strSubNodeTag+" under "+strTag);
 					}
-					CDO cdoValue=new CDO();
-					xml2CDO(cdoValue,subNode,false);
-					cdosValue[nIndex]=cdoValue;
+					cdosValue[nIndex]=new CDO();
+					xml2CDO(cdosValue[nIndex],subNode,false);					
 					nIndex++;
 				}
 				cdo.putItem(strName,new CDOArrayField(strName, cdosValue));

@@ -47,7 +47,7 @@ public class ExampleAvroRPC {
 	
     public static class CDORpcProtocol implements AvroCDOProtocol {
 		@Override
-		public AvroCDO send(AvroCDO avroCDOReq) throws AvroRemoteException {
+		public AvroCDO handleTrans(AvroCDO avroCDOReq) throws AvroRemoteException {
 
 			CDO cdoRequest=AvroCDOParse.AvroParse.parse(avroCDOReq);	
 			System.out.println("avro xml="+cdoRequest.toXMLWithIndent());
@@ -97,7 +97,7 @@ public class ExampleAvroRPC {
     }
 
     public static void main(String[] args) throws IOException {
-    	
+        AvroCDO cdoDataReq=ExampleCDO.getCDO().toAvro();
         startServer();
         System.out.println("Server started");
 
@@ -107,10 +107,10 @@ public class ExampleAvroRPC {
         System.out.println("Client built, got proxy");
 
         long startTime=System.nanoTime();
-        AvroCDO cdoDataReq=ExampleCDO.getCDO().toAvro();
+    
 
         System.out.println("create avro object ns="+(System.nanoTime()-startTime));     
-        AvroCDO cdoDataRes=proxy.send(cdoDataReq);
+        AvroCDO cdoDataRes=proxy.handleTrans(cdoDataReq);
     	for(Iterator<Map.Entry<CharSequence, ByteBuffer>> iterator=cdoDataRes.getFields().entrySet().iterator();iterator.hasNext();){
     			Entry<CharSequence, ByteBuffer> entry=iterator.next();
     			System.out.println("res map key="+entry.getKey());

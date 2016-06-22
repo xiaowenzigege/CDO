@@ -108,7 +108,7 @@ public class ExampleCDO {
 			cdoReurn.setStringArrayValue("strvalues", new String[]{ "李3", "李4", "李5"});
 			cdo.setCDOValue("cdoReturn", cdoReurn);
 			cdo.setCDOArrayValue("cdoReturnArr", new CDO[]{cdoReurn});
-			
+			cdo.clone();
 			CDO cdoResponse=new CDO();
 			CDO  cdo2=cdoReurn.clone();
 			cdo2.setStringArrayValue("strvalues", new String[]{ "刘3", "刘4", "刘5"});
@@ -120,6 +120,7 @@ public class ExampleCDO {
 			
 			cdo.setCDOValue("cdoResponse", cdoResponse);
 			System.out.println("xml="+cdo.toXMLWithIndent());
+			cdo.clone();
 			return cdo;
 	}
 }

@@ -1,6 +1,11 @@
 package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.ByteBuffer;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import nanoxml.XMLElement;
 
 import com.cdoframework.cdolib.base.DataType;
 
@@ -397,4 +402,105 @@ public class DataBufferUtil {
 		throw new RuntimeException(field.getType().getFieldType()+" cannot be cast to dateTime,field name="+field.getName());
 	}
 	
+	 static void setField(CDO cdo,String strFieldId,Field field)
+	    {
+	  
+			switch(field.getType().getDataType())
+			{
+				case DataType.BOOLEAN_TYPE:			
+					cdo.setBooleanValue(strFieldId, ((BooleanField)field).getValue());
+					break;
+				case DataType.BYTE_TYPE:
+					cdo.setByteValue(strFieldId, ((ByteField)field).getValue());
+					break;
+				case DataType.SHORT_TYPE:
+					cdo.setShortValue(strFieldId, ((ShortField)field).getValue());
+					break;
+				case DataType.INTEGER_TYPE:
+					cdo.setIntegerValue(strFieldId, ((IntegerField)field).getValue());
+					break;
+				case DataType.LONG_TYPE:
+					cdo.setLongValue(strFieldId, ((LongField)field).getValue());
+					break;
+				case DataType.FLOAT_TYPE:
+					cdo.setFloatValue(strFieldId, ((FloatField)field).getValue());
+					break;
+				case DataType.DOUBLE_TYPE:
+					cdo.setDoubleValue(strFieldId, ((DoubleField)field).getValue());
+					break;
+				case DataType.STRING_TYPE:
+					cdo.setStringValue(strFieldId, ((StringField)field).getValue());
+					break;
+				case DataType.DATE_TYPE:
+					cdo.setDateValue(strFieldId, ((DateField)field).getValue());
+					break;
+				case DataType.TIME_TYPE:
+					cdo.setTimeValue(strFieldId, ((TimeField)field).getValue());
+					break;
+				case DataType.DATETIME_TYPE:
+					cdo.setDateTimeValue(strFieldId, ((DateTimeField)field).getValue());
+				break;
+				case DataType.CDO_TYPE:
+					{
+						CDO dst=new CDO();
+						CDO src=((CDOField)field).getValue();
+				    	for(Iterator<Map.Entry<String,Field>> iterator=src.iterator();iterator.hasNext();){
+				    		Entry<String,Field> entry=iterator.next();			    		
+				    		setField(dst, entry.getKey(), entry.getValue());
+				    	}					
+						cdo.setCDOValue(strFieldId, dst);
+					}
+					break;
+				case DataType.FILE_TYPE:
+					cdo.setFileValue(strFieldId, ((FileField)field).getValue());
+					break;
+				case DataType.BOOLEAN_ARRAY_TYPE:
+					cdo.setBooleanArrayValue(strFieldId, ((BooleanArrayField)field).getValue());
+					break;
+				case DataType.BYTE_ARRAY_TYPE:
+					cdo.setByteArrayValue(strFieldId, ((ByteArrayField)field).getValue());
+					break;
+				case DataType.SHORT_ARRAY_TYPE:
+					cdo.setShortArrayValue(strFieldId, ((ShortArrayField)field).getValue());
+					break;
+				case DataType.INTEGER_ARRAY_TYPE:
+					cdo.setIntegerArrayValue(strFieldId, ((IntegerArrayField)field).getValue());
+					break;
+				case DataType.LONG_ARRAY_TYPE:
+					cdo.setLongArrayValue(strFieldId, ((LongArrayField)field).getValue());
+					break;
+				case DataType.FLOAT_ARRAY_TYPE:
+					cdo.setFloatArrayValue(strFieldId, ((FloatArrayField)field).getValue());
+					break;
+				case DataType.DOUBLE_ARRAY_TYPE:
+					cdo.setDoubleArrayValue(strFieldId, ((DoubleArrayField)field).getValue());
+					break;
+				case DataType.STRING_ARRAY_TYPE:
+					cdo.setStringArrayValue(strFieldId, ((StringArrayField)field).getValue());
+					break;
+				case DataType.DATE_ARRAY_TYPE:
+					cdo.setDateArrayValue(strFieldId, ((DateArrayField)field).getValue());
+					break;
+				case DataType.TIME_ARRAY_TYPE:
+					cdo.setTimeArrayValue(strFieldId, ((TimeArrayField)field).getValue());
+					break;
+				case DataType.DATETIME_ARRAY_TYPE:
+					cdo.setDateTimeArrayValue(strFieldId, ((DateTimeArrayField)field).getValue());
+					break;
+				case DataType.CDO_ARRAY_TYPE:					
+					{
+						CDO[] src=((CDOArrayField)field).getValue();
+						CDO[] dst=new CDO[src.length];
+						for(int i=0;i<src.length;i++){	
+							dst[i]=new CDO();
+					    	for(Iterator<Map.Entry<String,Field>> iterator=src[i].iterator();iterator.hasNext();){
+					    		Entry<String,Field> entry=iterator.next();		    		
+					    		setField(dst[i], entry.getKey(), entry.getValue());
+					    	}								
+						}																		
+						cdo.setCDOArrayValue(strFieldId, dst);
+					}					
+					break;
+			}
+	    }   
 }

@@ -11,7 +11,7 @@
      }
  ],
  "messages": {
-     "send": {
+     "handleTrans": {
          "request": [{"name": "avroCDOReq", "type": "AvroCDO"}],
          "response":"AvroCDO"
      }

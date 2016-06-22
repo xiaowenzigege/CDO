@@ -14,6 +14,12 @@ import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.CDOBuffer;
 
 public class CDOParse extends CDOBuffer {
+	
+	
+	
+	protected  Map<String,CDO> mergeRightCDO(Map<String,CDO>  mapCDO,int level){
+	   return mergeRightCDO(mapCDO, level, 0);
+	}
 	 /**
      * 
      * 递归调用  依次从右向左合并  相同名称cdo数组 
@@ -32,7 +38,7 @@ public class CDOParse extends CDOBuffer {
      * @param level
      * @return
      */
-	protected  Map<String,CDO> mergeRightCDO(Map<String,CDO>  mapCDO,int level){
+	protected  Map<String,CDO> mergeRightCDO(Map<String,CDO>  mapCDO,int level,int breakLevel){
 		 Map<String,CDO> childMap=new LinkedHashMap<String, CDO>();
 		 Map<String, List<CDO>> arrMap=new HashMap<String, List<CDO>>();//合并CDO数组
 		 Map<String, String> arrFieldMap=new HashMap<String, String>();//cdo数组对应的名称
@@ -102,7 +108,7 @@ public class CDOParse extends CDOBuffer {
 			 }
 			 mapIndex++;
 		 }		
-		 if(level>0){
+		 if(level>breakLevel){
 			  return mergeRightCDO(childMap, (level-1));
 		 }
 		 return childMap;

@@ -7,21 +7,21 @@
     <description>businessCenter</description>    
     <listener>
         <listener-class>
-            com.cdoframework.web.WebApplicationListener
+            com.cdo.business.web.WebApplicationListener
         </listener-class>
     </listener>
     
     <servlet>
         <servlet-name>cdo_web_servlet</servlet-name>
-        <servlet-class>com.cdoframework.web.servlet.CDOWebBusiness</servlet-class>      
+        <servlet-class>com.cdo.business.web.servlet.CDOWebBusiness</servlet-class>      
     </servlet>
     <servlet>
         <servlet-name>cdo_json_servlet</servlet-name>
-        <servlet-class>com.cdoframework.web.servlet.CDOJSONBusiness</servlet-class>
+        <servlet-class>com.cdo.business.web.servlet.CDOJSONBusiness</servlet-class>
     </servlet>
 	<servlet>
 	    <servlet-name>cdo_service_check</servlet-name>
-	    <servlet-class>com.cdoframework.web.servlet.CDO_Service_Check</servlet-class>
+	    <servlet-class>com.cdo.business.web.servlet.CDO_Service_Check</servlet-class>
 	</servlet>    
     
     <servlet-mapping>
@@ -45,7 +45,7 @@
 
     <filter>
         <filter-name>encodingFilter</filter-name>
-        <filter-class>com.cdoframework.cdolib.web.CharacterEncodingFilter</filter-class>
+        <filter-class>com.cdo.business.web.filter.CharacterEncodingFilter</filter-class>
         <init-param>
             <param-name>encoding</param-name>
             <param-value>utf-8</param-value>
