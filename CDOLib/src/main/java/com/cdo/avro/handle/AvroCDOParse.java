@@ -9,23 +9,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
-
-
-
 import com.cdo.avro.protocol.AvroCDO;
-import com.cdo.parse.CDOParse;
-import com.cdoframework.cdolib.base.DataType;
+import com.cdo.parse.CDOBufferParse;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.data.cdo.CDOBuffer;
 
-public class AvroCDOParse extends CDOParse{
+public class AvroCDOParse extends CDOBufferParse{
 	
     public static AvroCDOParse AvroParse;
     static{
     	AvroParse=new AvroCDOParse();
    }
-	public AvroCDOParse(){		
+	protected AvroCDOParse(){		
 	}
 	
 

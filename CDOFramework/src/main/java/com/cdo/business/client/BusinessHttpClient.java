@@ -59,7 +59,7 @@ public class BusinessHttpClient implements IBusinessClient{
 		String strCDOXml = "";
 		CDOHTTPResponse httpRes=null;
 		try {
-			HttpClient httpClient = null;
+			CDOHTTPClient httpClient = null;
 			String strRequest = cdoRequest.toXML();
 			String strTransName = cdoRequest.getStringValue("strTransName");
 			boolean isPost=false;
@@ -72,7 +72,7 @@ public class BusinessHttpClient implements IBusinessClient{
 			//编码后长度超过300
 			if (isPost||strURL.length() >= 300) {
 				//超过Get 长度，采用post处理
-				httpClient = new HttpClient(this.strUrl);
+				httpClient = new CDOHTTPClient(this.strUrl);
 				//普通参数
 				Map<String,String> paramMap = new HashMap<String,String>();
 				paramMap.put("strTransName", cdoRequest.getStringValue("strTransName"));
@@ -101,16 +101,17 @@ public class BusinessHttpClient implements IBusinessClient{
 					logger.info("\r\n  send Post strUrl="+this.strUrl+",param="+cdoRequest.toXMLLog());
 								
 			} else {
-				httpClient = new HttpClient(strURL);
+				httpClient = new CDOHTTPClient(strURL);
 				httpClient.setMethod(HttpClient.METHOD_GET);
 				
 				if (logger.isInfoEnabled())
 					logger.info("\r\n Get strUrl= " + strURL);
 				
 			}
-			//响应			
-			httpRes=httpClient.execute(cdoResponse);
-					
+			//设置返回值 
+			httpClient.setCdoResponse(cdoResponse);
+			//响应	
+			httpRes=httpClient.execute();					
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
 			return Return.valueOf(-1, " http response :" + httpRes+ ";Send Http Request ERROR:" + ex.getMessage());
@@ -122,12 +123,10 @@ public class BusinessHttpClient implements IBusinessClient{
 		}
 		try {		
 			strCDOXml =httpRes.getResponseText();			
-			if (strCDOXml != null && !strCDOXml.trim().equals("")) {				            
-			    
-				CDO tmpCDO = CDO.fromXML(strCDOXml);
-				cdoResponse.copyFrom(tmpCDO.getCDOValue("cdoResponse"));
+			if (strCDOXml != null && !strCDOXml.trim().equals("")) {				            			    
+				CDO cdoReturn=new CDO();
+				XmlCDOHTTPParse.xmlToCDO(strCDOXml, cdoReturn, cdoResponse);								
 				httpRes.copyFile2CDO(cdoResponse);
-				CDO cdoReturn = tmpCDO.getCDOValue("cdoReturn");					
 			    return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));			
 		  }
 		} catch (Exception ex) {

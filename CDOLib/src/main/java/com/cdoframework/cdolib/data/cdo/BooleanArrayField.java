@@ -10,7 +10,8 @@ import com.cdoframework.cdolib.base.Utility;
 /**
  * @author Frank
  * 重新构造，全部采用 buffer进行管理
- * modify by @author KenelLiu 
+ * @author KenelLiu
+ *  
  */
 public class BooleanArrayField extends ArrayFieldImpl
 {

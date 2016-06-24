@@ -1,0 +1,111 @@
+一：服务器端说明
+1：服务器地址 http://yum.staff.woyo.com 
+2:服务器环境：2.6.18-164.el5 x86_64 centos5.4
+3：yum源版本：centos5.
+二：客户端设置
+1：备份yum源文件
+Cp /etc/yum.repos.d/Centos-Base.repo  /etc/yum.repos.d/Centos-Base.repo.bak
+
+2:修改Centos-Base.repo配置文件如下：
+只修改【BASE】
+[base]
+name=CentOS-$releasever - Base
+mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os
+#baseurl=http://mirror.centos.org/centos/$releasever/os/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
+
+修改后：
+[base]
+name=CentOS-$releasever - Base
+#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os
+baseurl=http://yum.staff.woyo.com/
+gpgcheck=1
+#gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
+gpgkey=http://yum.staff.woyo.com/RPM-GPG-KEY-CentOS-5
+
+3:设置DNS
+Echo  “nameserver 192.168.0.31” >> /etc/resolv.conf
+
+
+
+
+
+
+vim /etc/yum.com
+把
+bigtracker_url这行给删除，这是默认源地址
+
+把下面的代理给加上
+proxy=http://192.168.0.101:3128/
+
+
+
+
+
+
+
+[base]
+name=CentOS-$releasever - Base - 163.com
+baseurl=http://mirrors.163.com/centos/$releasever/os/$basearch/
+#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5
+
+#released updates 
+[updates]
+name=CentOS-$releasever - Updates - 163.com
+baseurl=http://mirrors.163.com/centos/$releasever/updates/$basearch/
+#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5
+
+#packages used/produced in the build but not released
+[addons]
+name=CentOS-$releasever - Addons - 163.com
+baseurl=http://mirrors.163.com/centos/$releasever/addons/$basearch/
+#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=addons
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5
+
+#additional packages that may be useful
+[extras]
+name=CentOS-$releasever - Extras - 163.com
+baseurl=http://mirrors.163.com/centos/$releasever/extras/$basearch/
+#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras
+gpgcheck=1
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5
+
+#additional packages that extend functionality of existing packages
+[centosplus]
+name=CentOS-$releasever - Plus - 163.com
+baseurl=http://mirrors.163.com/centos/$releasever/centosplus/$basearch/
+#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=centosplus
+gpgcheck=1
+enabled=0
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5
+
+#contrib - packages by Centos Users
+[contrib]
+name=CentOS-$releasever - Contrib - 163.com
+baseurl=http://mirrors.163.com/centos/$releasever/contrib/$basearch/
+#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=contrib
+gpgcheck=1
+enabled=0
+gpgkey=http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-5
+                                                                        
+yum clean all  重新加载配置文件
+yum list	查看下载源
+
+
+
+
+vim /etc/yum.repos.d/rhel-debuginfo.repo
+[reel-debuginfo]
+name=Red Hat Entreprise Linux $releasever - $basearch -Debug
+baseurl=file:///mnt/iso/Server
+enabled=1
+gpgcheck=0
+
+yum clean all
+yum list

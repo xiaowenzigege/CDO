@@ -97,8 +97,12 @@ public class ExampleAvroRPC {
     }
 
     public static void main(String[] args) throws IOException {
+    	
         AvroCDO cdoDataReq=ExampleCDO.getCDO().toAvro();
         startServer();
+        System.out.println("sss="+("0;a".substring(2)));
+        StringBuilder sbBuilder=new StringBuilder("abc;");
+        System.out.println("sss1="+sbBuilder.deleteCharAt(sbBuilder.length()-1));
         System.out.println("Server started");
 
         NettyTransceiver client = new NettyTransceiver(new InetSocketAddress(65111));

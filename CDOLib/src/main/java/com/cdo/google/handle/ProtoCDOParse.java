@@ -9,16 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import com.cdo.google.protocol.GoogleCDO;
-import com.cdo.parse.CDOParse;
+import com.cdo.parse.CDOBufferParse;
 import com.cdoframework.cdolib.data.cdo.CDO;
 
-public class ProtoCDOParse extends CDOParse{
+public class ProtoCDOParse extends CDOBufferParse{
 	
     public static ProtoCDOParse ProtoParse;
     static{
     	ProtoParse=new ProtoCDOParse();
    }
-	private ProtoCDOParse(){}
+	protected ProtoCDOParse(){}
 	
 
 	

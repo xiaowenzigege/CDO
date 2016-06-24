@@ -14,7 +14,7 @@ import com.cdoframework.cdolib.data.cdo.CDO;
 public class XmlCDOParse {
 	
 	
-	static void xml2CDO(CDO cdo,XMLElement nodeCDO,boolean isRootNode)
+	protected static void xml2CDO(CDO cdo,XMLElement nodeCDO,boolean isRootNode)
 	{
 		Iterator enumNodes=nodeCDO.enumerateChildren();
 

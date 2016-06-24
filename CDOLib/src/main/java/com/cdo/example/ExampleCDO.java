@@ -104,23 +104,22 @@ public class ExampleCDO {
 				
 			}
 			
-			CDO cdoReurn=cdo.clone();
-			cdoReurn.setStringArrayValue("strvalues", new String[]{ "李3", "李4", "李5"});
-			cdo.setCDOValue("cdoReturn", cdoReurn);
-			cdo.setCDOArrayValue("cdoReturnArr", new CDO[]{cdoReurn});
-			cdo.clone();
-			CDO cdoResponse=new CDO();
-			CDO  cdo2=cdoReurn.clone();
-			cdo2.setStringArrayValue("strvalues", new String[]{ "刘3", "刘4", "刘5"});
-			CDO cdox=new CDO();
-			cdox.setBooleanValue("b", true);
-			cdo2.setCDOValue("innerCDO", cdox);
-			cdoResponse.setIntegerValue("nCount", 30);
-			cdoResponse.setCDOArrayValue("cdosList", new CDO[]{cdo2,cdo2});
 			
-			cdo.setCDOValue("cdoResponse", cdoResponse);
-			System.out.println("xml="+cdo.toXMLWithIndent());
-			cdo.clone();
-			return cdo;
+			CDO cdoOut=new CDO();
+			
+			CDO cdoReturn=new CDO();
+			cdoReturn.setIntegerValue("nCode",0);
+			cdoReturn.setStringValue("strText","测试成功");
+			cdoReturn.setStringValue("strInfo","测试成功");
+			
+			CDO cdoResponse=new CDO();			
+			cdoResponse.setIntegerValue("nCount", 30);
+			cdoResponse.setCDOArrayValue("cdosList", new CDO[]{cdo.clone(),cdo.clone()});			
+			cdoResponse.setStringValue("aa", "ab");
+			
+			cdoOut.setCDOValue("cdoResponse",cdoResponse );
+			cdoOut.setCDOValue("cdoReturn", cdoReturn);
+			System.out.println("xml="+cdoOut.toXMLWithIndent());			
+			return cdoOut;
 	}
 }

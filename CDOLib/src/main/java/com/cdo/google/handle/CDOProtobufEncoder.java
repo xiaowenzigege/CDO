@@ -35,11 +35,10 @@ public class CDOProtobufEncoder extends MessageToByteEncoder<MessageLite>{
 		    for(int i=1;i<=Proto.PROTOCOL_CDO_HEADER.length();i++){
 		    	header[i]=(byte)Proto.PROTOCOL_CDO_HEADER.charAt(i-1);		    
 		    }
-		    //长度			
-		    header[protoLen+1]= (byte) (bodyLength & 0xff);
-	        header[protoLen+2] =(byte) ((bodyLength >> 8) & 0xff);
-	        header[protoLen+3] =(byte) ((bodyLength >> 16) & 0xff);
-	        header[protoLen+4] =(byte) ((bodyLength >> 24) & 0xff);
+		    //设置字节表示 内容长度
+		    for(int i=0;i<4;i++){
+		    	header[protoLen+(i+1)]=	(byte)((bodyLength>>(i*8))&0xff);
+		    }
 	        return header;
 	}
 }

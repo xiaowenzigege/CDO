@@ -8,6 +8,12 @@ import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.servicebus.IServiceBus;
 import com.cdoframework.cdolib.servicebus.ServiceBus;
+
+/**
+ * 创建业务处理的实例
+ * 在一个jvm里  只有一个serviceBus 实例，初始化框架所有配置，读取业务开发插件
+ * @author KenelLiu
+ */
 public class BusinessService
 {
 	//静态对象,所有static在此声明并初始化------------------------------------------------------------------------
@@ -61,7 +67,7 @@ public class BusinessService
 		String strBusResource=GlobalResource.cdoConfig.getString("servicebusResource.path");	
 		String strFrameworkResource=GlobalResource.cdoConfig.getString("frameworkResource.path");	
 		if(strBusResource==null || strBusResource.equals("")){
-			return Return.valueOf(-1, "init Environment failed! parameter servicebusResource.path 未配置");
+			return Return.valueOf(-1, "init Environment failed! parameter[servicebusResource.path,frameworkResource.path] is not found");
 		}		
 		return start(strBusResource,"pluginsConfig.xml","bigTableConfig.xml",strFrameworkResource,"UTF-8");
 	}

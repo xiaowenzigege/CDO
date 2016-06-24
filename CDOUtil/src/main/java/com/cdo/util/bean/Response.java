@@ -15,15 +15,12 @@ import com.cdo.util.exception.ResponseException;
  */
 public class Response implements Serializable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2137058860119989585L;
 
 	protected int statusCode;
 	//返回字符串
 	protected String responseText;
-	//返回二进制数组  对文件下载传输有用
+	//返回二进制数组 
 	protected byte[] responseBytes=new byte[0];
 	protected Header[] allHeaders;
 	public int getStatusCode() {
@@ -39,7 +36,6 @@ public class Response implements Serializable {
 	public String getResponseText(String charset) throws ResponseException{
 		if(responseBytes==null)
 			return null;
-
 		try{
 			if(charset==null)
 				responseText=new String(responseBytes); 
@@ -128,6 +124,5 @@ public class Response implements Serializable {
 		} catch (Exception e) {
 			return "statusCode="+statusCode+",responseText=发生异常:"+e.getMessage()+",header=["+sbBuilder+"]";
 		}
-	}	
-	
+	}		
 }

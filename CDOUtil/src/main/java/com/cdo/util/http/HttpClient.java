@@ -141,28 +141,17 @@ public class HttpClient {
 	}
 
 	public CDOHTTPResponse execute(){
-		return execute(null);
+		HTTPResponse handler=new HTTPResponse();
+		return handleResponse(handler);
 	}
 	
-	public CDOHTTPResponse execute(CDO cdoResponse){	
-		HTTPResponse handler=new HTTPResponse();
-		if(cdoResponse!=null && cdoResponse instanceof OutStreamCDO){
-			OutStreamCDO streamCDO=(OutStreamCDO)cdoResponse;
-			if(streamCDO.getOutputStream()!=null){
-				handler.setOutputStream(streamCDO.getOutputStream());
-				handler.setAutoCloseStream(streamCDO.isAutoCloseStream());
-			}			
-		}
-		CDOHTTPResponse httpResponse=handleResponse(handler);
-		return httpResponse;
-	}
 	/**
 	 * 执行Http Request,并得到响应
 	 * @param handler
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	private  <T>T handleResponse(ResponseHandler<T> handler) {
+	protected  <T>T handleResponse(ResponseHandler<T> handler) {
 		Object response = null;
 		try {
 			setRequestParam();			
@@ -252,7 +241,7 @@ public class HttpClient {
 
 
 	
-	class HTTPResponse implements ResponseHandler<CDOHTTPResponse>{
+	protected class HTTPResponse implements ResponseHandler<CDOHTTPResponse>{
 		private OutputStream outStream;
 		private boolean autoCloseStream=true;
 		public HTTPResponse(){

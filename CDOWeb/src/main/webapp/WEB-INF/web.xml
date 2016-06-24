@@ -7,7 +7,7 @@
     <description>businessCenter</description>    
     <listener>
         <listener-class>
-            com.cdo.business.web.WebApplicationListener
+            com.cdo.business.web.WebBusinessListener
         </listener-class>
     </listener>
     

@@ -114,6 +114,7 @@ public class ExampleArvoMain {
 		
 		long startTime=System.nanoTime();						
 		AvroCDO arvoCDO=ExampleCDO.getCDO().toAvro();		
+		System.out.println("sss="+("0;a".substring(2)));
 		System.out.println("new AvroCDO nan s ="+(System.nanoTime()-startTime));
 		
 		startTime=System.nanoTime();		
