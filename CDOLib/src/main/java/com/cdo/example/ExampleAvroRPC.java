@@ -50,7 +50,7 @@ public class ExampleAvroRPC {
 		public AvroCDO handleTrans(AvroCDO avroCDOReq) throws AvroRemoteException {
 
 			CDO cdoRequest=AvroCDOParse.AvroParse.parse(avroCDOReq);	
-			System.out.println("avro xml="+cdoRequest.toXMLWithIndent());
+//			System.out.println("avro xml="+cdoRequest.toXMLWithIndent());
 			CDO cdoOutput=new CDO();
 			//
 			/**

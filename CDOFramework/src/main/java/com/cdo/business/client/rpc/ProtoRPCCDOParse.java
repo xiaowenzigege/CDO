@@ -1,4 +1,4 @@
-package com.cdo.business.client;
+package com.cdo.business.client.rpc;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

@@ -9,7 +9,6 @@ public interface IBusinessClient {
 	public String getUrl();
 
 	public void setUrl(String url);
-			
-	
+				
 	public Return handleTrans(CDO cdoRequest, CDO cdoResponse);
 }

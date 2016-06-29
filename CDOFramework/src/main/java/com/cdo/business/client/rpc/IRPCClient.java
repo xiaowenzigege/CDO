@@ -1,4 +1,4 @@
-package com.cdo.business.client;
+package com.cdo.business.client.rpc;
 
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;

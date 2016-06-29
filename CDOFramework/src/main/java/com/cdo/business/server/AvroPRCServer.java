@@ -1,6 +1,5 @@
 package com.cdo.business.server;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import org.apache.avro.AvroRemoteException;
@@ -20,7 +19,7 @@ import com.cdoframework.cdolib.servicebus.ITransService;
 
 public class AvroPRCServer {
 	private static Logger logger=Logger.getLogger(AvroPRCServer.class);
-	
+	private static BusinessService serviceBus;
 	
 	
 	public static class CDORpcProtocol implements AvroCDOProtocol {
@@ -30,7 +29,7 @@ public class AvroPRCServer {
 			try{
 				CDO cdoRequest=AvroCDOParse.AvroParse.parse(avroCDOReq);	
 				CDO cdoResponse=new CDO();
-				BusinessService serviceBus = BusinessService.getInstance();	
+				serviceBus = BusinessService.getInstance();	
 				Return ret=serviceBus.handleTrans(cdoRequest, cdoResponse);
 				if(ret==null){
 					String strServiceName=cdoRequest.exists(ITransService.SERVICENAME_KEY)?cdoRequest.getStringValue(ITransService.SERVICENAME_KEY):"null";
@@ -78,8 +77,8 @@ public class AvroPRCServer {
     public static void main(String[] args){
 		try{
 			GlobalResource.bundleInitCDOEnv();	
-			startService();
-	        startServer();
+			startServer();
+			startService();				        
 	        logger.info("AvroPRC Server started......");
 	        server.join();
 		}catch(Exception ex){

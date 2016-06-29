@@ -1,5 +1,7 @@
 package com.cdo.example;
 
+import java.net.InetAddress;
+
 import com.cdoframework.cdolib.data.cdo.BooleanArrayField;
 import com.cdoframework.cdolib.data.cdo.ByteArrayField;
 import com.cdoframework.cdolib.data.cdo.CDO;
@@ -119,7 +121,41 @@ public class ExampleCDO {
 			
 			cdoOut.setCDOValue("cdoResponse",cdoResponse );
 			cdoOut.setCDOValue("cdoReturn", cdoReturn);
-			System.out.println("xml="+cdoOut.toXMLWithIndent());			
+			System.out.println("xml="+cdoOut.toXMLWithIndent());	
+			InetAddress ia=null;
+			try {
+				ia=ia.getLocalHost();
+				
+				
+				String localname=ia.getHostName();
+				for (InetAddress it : InetAddress.getAllByName(localname)) {
+
+					System.out.println(ipv4OrIpv6(it));
+
+				}
+				String localip=ia.getHostAddress();
+				System.out.println("本机名称是："+ localname);
+				System.out.println("本机的ip是 ："+localip);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			return cdoOut;
 	}
+	
+	private static String ipv4OrIpv6(InetAddress ita) {
+
+		String[] itn = ita.toString().split("/");
+
+		String str = itn[1];
+
+		if (str.length() > 16) {
+
+			return "IPv6\t" + ita.toString();
+
+		}
+
+		return "IPv4\t" + ita.toString();
+
+		}
 }

@@ -1,9 +1,8 @@
-package com.cdo.business.client;
+package com.cdo.business.client.rpc;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import org.apache.avro.AvroRemoteException;
 import org.apache.avro.ipc.NettyTransceiver;
 import org.apache.avro.ipc.specific.SpecificRequestor;
 import org.apache.log4j.Logger;
@@ -14,7 +13,12 @@ import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.servicebus.ITransService;
 
-public class AvroPRCClient {
+/**
+ * 
+ * @author KenelLiu
+ *
+ */
+public class AvroPRCClient implements IRPCClient{
 	private final static Logger logger=Logger.getLogger(AvroPRCClient.class);
 	static NettyTransceiver client=null; 
 	static AvroCDOProtocol proxy=null; 
@@ -30,10 +34,12 @@ public class AvroPRCClient {
       
 	}
 	
-	private void openConnection(){
-		
-	}
-	
+	/**
+	 * @see {@link com.cdo.business.server.AvroPRCServer.CDORpcProtocol#handleTrans(AvroCDO)}
+	 * @param cdoRequest
+	 * @param cdoResponse
+	 * @return
+	 */
 	public Return handleTrans(CDO cdoRequest, CDO cdoResponse){		
 	  try {		  
 		  	if(cdoRequest.getSerialFileCount()>0){
@@ -49,7 +55,6 @@ public class AvroPRCClient {
 			String strTransName=cdoRequest.exists(ITransService.TRANSNAME_KEY)?cdoRequest.getStringValue(ITransService.TRANSNAME_KEY):"null";					
 			logger.error("Request method :strServiceName="+strServiceName+",strTransName="+strTransName+",error="+e.getMessage(),e);
 			return new Return(-1,e.getMessage(),e.getMessage());
-		}	
-	  
+		}		  
 	}
 }
