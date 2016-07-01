@@ -10,4 +10,5 @@ message CDOProto{
     }
     int32 level=1;
     repeated Entry fields = 2;
+    bytes clientId=3;
 }

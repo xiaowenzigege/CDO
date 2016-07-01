@@ -20,12 +20,11 @@ public class ProtoClientInitializer extends ChannelInitializer<SocketChannel> {
         ChannelPipeline p = ch.pipeline();
         if (sslCtx != null) {
             p.addLast(sslCtx.newHandler(ch.alloc(), ProtoPRCClient.HOST, ProtoPRCClient.PORT));
-        }
-
+        }            
         p.addLast("decoder",new CDOProtobufDecoder());        
         p.addLast("encoder",new CDOProtobufEncoder());
 
-        p.addLast(new ProtoClientHandle());
+        p.addLast(new ProtoClientHandler());
     }
 
 }

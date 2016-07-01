@@ -1,5 +1,7 @@
 package com.cdo.business.server;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.log4j.Logger;
 
 import com.cdo.business.BusinessService;
@@ -7,11 +9,11 @@ import com.cdo.util.resource.GlobalResource;
 import com.cdoframework.cdolib.base.Return;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.logging.LogLevel;
-import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -30,19 +32,25 @@ public class ProtoRPCServer {
             sslCtx = null;
         }
 
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup = new NioEventLoopGroup(2);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(4);
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
+//             .option(ChannelOption.TCP_NODELAY, true)       
+             .childOption(ChannelOption.SO_KEEPALIVE, true)
              .channel(NioServerSocketChannel.class)
-             .handler(new LoggingHandler(LogLevel.INFO))
              .childHandler(new ProtoServerInitializer(sslCtx));
-
-            GlobalResource.bundleInitCDOEnv();	
-            int port=GlobalResource.cdoConfig.getInt("netty.server.port");
-            startService();
-            b.bind(port).sync().channel().closeFuture().sync();
+            
+//            GlobalResource.bundleInitCDOEnv();	
+//            int port=GlobalResource.cdoConfig.getInt("netty.server.port");
+//            startService();
+            int port=8090;
+//            b.bind(port).sync().channel().closeFuture().sync();
+//            b.bind(port).sync().channel().closeFuture().sync();;
+            ChannelFuture f= b.bind(port).sync();
+            f.channel().closeFuture().sync();
+           
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();

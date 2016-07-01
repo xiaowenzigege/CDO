@@ -21,9 +21,9 @@ public class ProtoServerInitializer extends ChannelInitializer<SocketChannel> {
         if (sslCtx != null) {
             p.addLast(sslCtx.newHandler(ch.alloc()));
         }
-        p.addLast("decoder",new CDOProtobufDecoder());        
         p.addLast("encoder",new CDOProtobufEncoder());
-        p.addLast(new ProtoServerHandle());
+        p.addLast("decoder",new CDOProtobufDecoder());           
+        p.addLast(new ProtoServerHandler());
     }
 
 }
