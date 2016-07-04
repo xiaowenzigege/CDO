@@ -3,6 +3,7 @@ package com.cdo.business.client.rpc;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -49,7 +50,7 @@ public class ProtoPRCClient implements IRPCClient{
             Channel  channel= b.connect(HOST, PORT).sync().channel();
             // Get the handler instance to initiate the request.
             handle = channel.pipeline().get(ProtoClientHandler.class);
-//            test();
+            test();
         	channel.closeFuture().sync();
         } finally {
             group.shutdownGracefully();
@@ -65,12 +66,9 @@ public class ProtoPRCClient implements IRPCClient{
 	  try {		  
 		  	if(cdoRequest.getSerialFileCount()>0){
 		  		return Return.valueOf(-1, "proto is unsupported file type");
-		  	}
-		  	
+		  	}		  	
 		  	CDO cdoReturn=new CDO();
 			GoogleCDO.CDOProto proto=handle.handleTrans(cdoRequest);
-			if(true)
-				return null;
 			ProtoRPCCDOParse.ProtoRPCParse.parse(proto, cdoResponse, cdoReturn);			
 		    return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));		
 		} catch (Throwable e) {
@@ -81,5 +79,37 @@ public class ProtoPRCClient implements IRPCClient{
 		}		  
 	}
 	
-	
+	  public  static void test(){
+			ProtoPRCClient client=new ProtoPRCClient();
+			CDO cdoReq=ExampleCDO.getCDO();
+			
+			CDO cdoReq2=ExampleCDO.getCDO();
+			cdoReq2.setStringValue("wait", "wait");
+			CDOThread t2=client.new CDOThread(cdoReq2);	
+			new Thread(t2).start();
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			CDOThread t1=client.new CDOThread(cdoReq);	
+			new Thread(t1).start();
+
+		}
+		private class CDOThread implements Runnable{
+
+			private CDO cdoReq;
+			public CDOThread(CDO cdoReq){
+				this.cdoReq=cdoReq;			
+			}
+			@Override
+			public void run() {
+				CDO cdoResponse=new CDO();
+				Return return1=handleTrans(cdoReq, cdoResponse);
+				System.out.println(""+cdoResponse.toString());
+			}
+			
+		}	
 }

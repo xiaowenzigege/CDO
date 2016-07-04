@@ -35,7 +35,7 @@ public class ProtoServerHandler extends SimpleChannelInboundHandler<MessageLite>
     }	
     /**
      * 防止   单一机器的长连接   发生阻塞,事务采用线程池处理,长连接channel仅用于数据传输，
-     * 不能在上面处理事务
+     * 不能在上面处理事务,根据是内部长连接还是外部长连接，需要调节连接池的数量。
      */
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, MessageLite msg)

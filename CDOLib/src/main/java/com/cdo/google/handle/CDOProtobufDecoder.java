@@ -32,8 +32,6 @@ public class CDOProtobufDecoder extends ByteToMessageDecoder {
 	             in.resetReaderIndex();
 	            return;
 	        }			
-		    if(log.isDebugEnabled())
-		    	log.debug("CDO PROTOCOL parse ... ...");
 			ByteBuf bodyByteBuf = in.readBytes(len);
 		    byte[] array;
 	        int offset;	        

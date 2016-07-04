@@ -7,15 +7,13 @@ import io.netty.handler.codec.MessageToByteEncoder;
 
 import com.cdo.google.protocol.GoogleCDO;
 import com.google.protobuf.MessageLite;
-public class CDOProtobufEncoder extends MessageToByteEncoder<GoogleCDO.CDOProto>{
+public class CDOProtobufEncoder extends MessageToByteEncoder<MessageLite>{
 	
 	 private static Logger log=Logger.getLogger(CDOProtobufEncoder.class);
 	@Override
-	protected void encode(ChannelHandlerContext ctx, GoogleCDO.CDOProto msg,
+	protected void encode(ChannelHandlerContext ctx, MessageLite msg,
 			ByteBuf out) throws Exception {		
 		if(msg instanceof GoogleCDO.CDOProto){
-			if(log.isDebugEnabled())
-				log.debug("GoogleCDO.CDOProto encode ... ...");
 			byte[] body=msg.toByteArray();
 			byte[] header=encodeCDOHeader(msg, body.length);
 			out.writeBytes(header);
