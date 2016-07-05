@@ -1,6 +1,5 @@
 package com.cdo.business.client.rpc;
 
-import java.util.Hashtable;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 import com.cdo.google.protocol.GoogleCDO;
@@ -14,7 +13,7 @@ public class ProtoClientHandler extends  ChannelInboundHandlerAdapter {
 	private static Logger logger=Logger.getLogger(ProtoClientHandler.class);
 	
     private volatile Channel channel;
-    private CallsLinkedHashMap calls = new CallsLinkedHashMap();
+    private final CallsLinkedHashMap calls = new CallsLinkedHashMap();
     /** A counter for generating call IDs. */
     private static final AtomicInteger callIdCounter = new AtomicInteger();
        
@@ -23,7 +22,8 @@ public class ProtoClientHandler extends  ChannelInboundHandlerAdapter {
     	int callId=callIdCounter.getAndIncrement() & Integer.MAX_VALUE;
         final Call call =new Call(callId);    
     	GoogleCDO.CDOProto proto=cdoRequest.toProto();
-//    	proto.set
+//    	proto.setCallId(callId);
+//		proto.setClientId(ClientId.getClientId());	    	
         channel.writeAndFlush(proto);    
         //获取response 参见netty4.1 官网example
         calls.put(callId, call);
@@ -54,7 +54,7 @@ public class ProtoClientHandler extends  ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {    
     	if(msg instanceof GoogleCDO.CDOProto){    		
     		GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)msg;
-			int callId=proto.getLevel();
+			int callId=0;//proto.getCallId();
 			Call call = calls.get(callId);
 	        calls.remove(callId);
 	        call.setRpcResponse(proto);			

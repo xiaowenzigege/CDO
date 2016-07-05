@@ -13,6 +13,9 @@ public class Call {
 		this.callId=callId;
 		this.sendTime=System.currentTimeMillis();
 	}
+	public int getCallId(){
+		return this.callId;
+	}
 	public synchronized boolean done(){
 		return this.done;
 	}

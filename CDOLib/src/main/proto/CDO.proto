@@ -8,8 +8,9 @@ message CDOProto{
          string name  = 1;
          bytes value = 2;
     }
-    int32 level=1;
+    sint32 level=1;
     repeated Entry fields = 2;
-    bytes clientId=3;
-    int   callId=4; 
+    bytes clientId=3;// Globally unique client ID 
+    sint32 callId=4;// a sequence number that is sent back in response
+    // clientId + callId uniquely identifies a request
 }

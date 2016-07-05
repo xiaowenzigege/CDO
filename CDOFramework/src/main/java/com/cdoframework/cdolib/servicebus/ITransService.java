@@ -57,9 +57,7 @@ public interface ITransService extends IServiceObject
 {
 	String	SERVICENAME_KEY="strServiceName";
 	String	TRANSNAME_KEY="strTransName";
-	String  CALL_ID="strTransCallId";
-	
-	
+		
 	/**
 	 * 初始化服务对象操作
 	 * @return 初始化结果

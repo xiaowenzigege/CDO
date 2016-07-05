@@ -13,7 +13,8 @@ import com.cdoframework.cdolib.servicebus.ITransService;
 
 public class CallsLinkedHashMap {
 	private LinkedHashMap<Integer, Call> calls=new LinkedHashMap<Integer, Call>();
-	private long hourMillis=2*60*60*1000;
+	private final long hourMillis=60*1000;
+	private final int  maxTimeOut=2*60;
 	public void put(Integer callId,Call call){
 		calls.put(callId, call);	
 		setTimeOut();
@@ -32,7 +33,7 @@ public class CallsLinkedHashMap {
 		List<Integer> callIdList=new ArrayList<Integer>();
 		while(it.hasNext()){
 			Map.Entry<Integer,Call> entry =it.next(); 
-			if(((entry.getValue().getSendTime()-System.currentTimeMillis())/hourMillis)>1){
+			if(((System.currentTimeMillis()-entry.getValue().getSendTime())/hourMillis)>maxTimeOut){
 				callIdList.add(entry.getKey());
 			}else{				
 				break;
@@ -45,17 +46,17 @@ public class CallsLinkedHashMap {
 			calls.remove(callId);
 			
 			CDO cdoOutput=new CDO();
-			setOutCDO(cdoOutput, "等待超过2小时 未获取到响应,设置超时.", callId);
+			setOutCDO(cdoOutput, "等待超过"+maxTimeOut+"分钟  未获取到响应,客户端设置超时.");
 			GoogleCDO.CDOProto proto=cdoOutput.toProto();
+//			proto.setCallId(callId);
 	        call.setRpcResponse(proto);	
     	
     	} 		
 	}
 	
-	private void setOutCDO(CDO cdoOutput,String message,int callId){
+	private void setOutCDO(CDO cdoOutput,String message){
 		
 		CDO cdoReturn=new CDO();
-		cdoReturn.setIntegerValue(ITransService.CALL_ID, callId);
 		cdoReturn.setIntegerValue("nCode",-1);
 		cdoReturn.setStringValue("strText",message);
 		cdoReturn.setStringValue("strInfo",message);

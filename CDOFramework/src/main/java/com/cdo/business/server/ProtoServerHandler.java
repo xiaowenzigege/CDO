@@ -42,7 +42,8 @@ public class ProtoServerHandler extends SimpleChannelInboundHandler<MessageLite>
 			throws Exception {		
 		if(msg instanceof GoogleCDO.CDOProto){			
 			GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)msg;
-			nettyChannelMap.put(ClientId.toString((""+proto.getLevel()).getBytes()),(SocketChannel)ctx.channel());
+			String clientId="";//ClientId.toString(proto.getClientId());
+			nettyChannelMap.put(clientId,(SocketChannel)ctx.channel());
 			Task task=new Task(proto);
 			executor.submit(task);
 		}
@@ -55,22 +56,20 @@ public class ProtoServerHandler extends SimpleChannelInboundHandler<MessageLite>
 		}
 		@Override
 		public void run() {				
-			GoogleCDO.CDOProto retCDOProto=handleTrans(this.proto);	
-			String key=ClientId.toString((""+proto.getLevel()).getBytes());
-			SocketChannel channel=nettyChannelMap.get(key);
-			channel.writeAndFlush(retCDOProto);
-			nettyChannelMap.remove(key);
-			
+			GoogleCDO.CDOProto retProto=handleTrans(this.proto);
+			String clientId="";//ClientId.toString(proto.getClientId());
+			SocketChannel channel=nettyChannelMap.get(clientId);
+//			retProto.setCallId(proto.getCallId());
+			channel.writeAndFlush(retProto);
+			nettyChannelMap.remove(clientId);			
 		}
 		
 		private GoogleCDO.CDOProto handleTrans(GoogleCDO.CDOProto proto){
 			
 			CDO cdoOutput=new CDO();
-			int callId=0;
 			try{
 				CDO cdoRequest=ProtoCDOParse.ProtoParse.parse(proto);
-				callId=cdoRequest.getIntegerValue(ITransService.CALL_ID);
-				
+
 				CDO cdoResponse=cdoRequest.clone();
 				System.out.println("server req="+cdoRequest);
 				cdoResponse.setStringValue("response", "response");
@@ -82,7 +81,7 @@ public class ProtoServerHandler extends SimpleChannelInboundHandler<MessageLite>
 				if(ret==null){
 					String strServiceName=cdoRequest.exists(ITransService.SERVICENAME_KEY)?cdoRequest.getStringValue(ITransService.SERVICENAME_KEY):"null";
 					String strTransName=cdoRequest.exists(ITransService.TRANSNAME_KEY)?cdoRequest.getStringValue(ITransService.TRANSNAME_KEY):"null";					
-					setOutCDO(cdoOutput," ret is null,Request method :strServiceName="+strServiceName+",strTransName="+strTransName,callId);	
+					setOutCDO(cdoOutput," ret is null,Request method :strServiceName="+strServiceName+",strTransName="+strTransName);	
 					logger.error("ret is null,Request method:strServiceName="+strServiceName+",strTransName="+strTransName);
 				}else{
 					CDO cdoReturn=new CDO();
@@ -96,15 +95,14 @@ public class ProtoServerHandler extends SimpleChannelInboundHandler<MessageLite>
 				}
 			}catch(Throwable ex){
 				logger.error(ex.getMessage(), ex);	
-				setOutCDO(cdoOutput,"服务端处理异常:"+ex.getMessage(),callId);
+				setOutCDO(cdoOutput,"服务端处理异常:"+ex.getMessage());
 			} 	
 			return cdoOutput.toProto();
 		}
 		
-		private void setOutCDO(CDO cdoOutput,String message,int callId){
+		private void setOutCDO(CDO cdoOutput,String message){
 			
 			CDO cdoReturn=new CDO();
-			cdoReturn.setIntegerValue(ITransService.CALL_ID, callId);
 			cdoReturn.setIntegerValue("nCode",-1);
 			cdoReturn.setStringValue("strText",message);
 			cdoReturn.setStringValue("strInfo",message);

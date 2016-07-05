@@ -40,7 +40,7 @@ public class URLUtil{
     StringBuffer rtn = new StringBuffer();
     BufferedReader in = null;
     try {
-      in = new BufferedReader(new InputStreamReader(is));
+      in = new BufferedReader(new InputStreamReader(is,"UTF-8"));
       String line;
       while ((line = in.readLine()) != null){
         rtn.append(line);
