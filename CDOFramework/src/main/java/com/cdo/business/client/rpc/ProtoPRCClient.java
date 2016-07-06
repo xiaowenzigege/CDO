@@ -1,11 +1,22 @@
 package com.cdo.business.client.rpc;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
@@ -13,9 +24,10 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
 import org.apache.log4j.Logger;
 
-import com.cdo.avro.protocol.AvroCDO;
-import com.cdo.example.ExampleCDO;
+import com.cdo.google.handle.CDOProtobufDecoder;
+import com.cdo.google.handle.CDOProtobufEncoder;
 import com.cdo.google.protocol.GoogleCDO;
+import com.cdo.util.resource.GlobalResource;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.servicebus.ITransService;
@@ -27,35 +39,130 @@ import com.cdoframework.cdolib.servicebus.ITransService;
  */
 public class ProtoPRCClient implements IRPCClient{
 	private final static Logger logger=Logger.getLogger(ProtoPRCClient.class);
+	
+	private static final Map<String, ProtoPRCClient> clients=new HashMap<String, ProtoPRCClient>();
 	static final boolean SSL = System.getProperty("ssl") != null;
-    static final String HOST = System.getProperty("host", "127.0.0.1");
-    static final int PORT = Integer.parseInt(System.getProperty("port", "8090"));
-    static  ProtoClientHandler handle; 
+	private volatile EventLoopGroup workerGroup;
+	private volatile Bootstrap bootstrap;
+	private volatile boolean closed = false;
+	private final String remoteHost;
+	private final int remotePort;  
+
+	private final int retryTime=5;//若断开，每隔多长时间重试一次 单位为秒
+	private  int totalRetryCount=0;//0表示无限次每隔retryTime时间的重试一次  大于0在表示重试 达到多次后，不再重试
+	private  int retryCount=1;
+    ProtoClientHandler handle; 
     
-    public static void main(String[] args) throws Exception {
-        final SslContext sslCtx;
-        if (SSL) {
-            sslCtx = SslContextBuilder.forClient()
-                .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-        } else {
-            sslCtx = null;
-        }
-        EventLoopGroup group = new NioEventLoopGroup();
-        try {
-            Bootstrap b = new Bootstrap();
-            b.group(group)
-             .channel(NioSocketChannel.class)
-             .handler(new ProtoClientInitializer(sslCtx));
-            // Make a new connection.
-            Channel  channel= b.connect(HOST, PORT).sync().channel();
-            // Get the handler instance to initiate the request.
-            handle = channel.pipeline().get(ProtoClientHandler.class);
-            test();
-        	channel.closeFuture().sync();
-        } finally {
-            group.shutdownGracefully();
-        }
+    private String clientKey;
+    
+    static {
+    	//TODO 建立连接多个服务端的connection
+    	String[] address=GlobalResource.cdoConfig.getString("netty.client.conections").split(";");
+    	for(int i=0;i<address.length;i++){
+    		int index=address[i].lastIndexOf(":");
+    		String hostName=address[i].substring(0, index);
+    		int port=Integer.parseInt(address[i].substring(index+1));
+    		ProtoPRCClient client=new ProtoPRCClient(hostName,port);
+    		client.init();
+    	}
+    	
     }
+    
+	public ProtoPRCClient(String remoteHost, int remotePort) {
+		    this.remoteHost = remoteHost;
+		    this.remotePort = remotePort;
+		    this.clientKey=remoteHost+":"+remotePort;
+	}
+	public void init(){
+	    final SslContext sslCtx;        
+	    try {
+	            if (SSL) {
+	                sslCtx = SslContextBuilder.forClient()
+	                    .trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+	            } else {
+	                sslCtx = null;
+	            }    
+	    	    closed = false;
+	    	    workerGroup = new NioEventLoopGroup();
+	    	    bootstrap = new Bootstrap();
+	    	    bootstrap.group(workerGroup);
+	    	    bootstrap.channel(NioSocketChannel.class);
+	    	    bootstrap.handler(new ChannelInitializer<SocketChannel>(){
+					@Override
+					protected void initChannel(SocketChannel ch) throws Exception {
+				        ChannelPipeline p = ch.pipeline();
+				        if (sslCtx != null) {
+				            p.addLast(sslCtx.newHandler(ch.alloc(),remoteHost,remotePort));
+				        } 
+				        p.addLast(new ChannelInboundHandlerAdapter() {
+					          @Override
+					          public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+					            super.channelInactive(ctx);	
+					            //断开后  删除  到某台服务器连接
+					            clients.remove(clientKey);
+					            ctx.channel().eventLoop().schedule(new Runnable() {								
+									@Override
+									public void run() {
+										doConnect();								
+									}
+								}, retryTime, TimeUnit.SECONDS);
+					          }
+					        });			        
+				        p.addLast("decoder",new CDOProtobufDecoder());        
+				        p.addLast("encoder",new CDOProtobufEncoder());
+				        p.addLast(new ProtoClientHandler());				
+					}            	 
+	             });	                     
+	        }catch(Exception ex){
+	        	logger.error(ex.getMessage(), ex);
+	        } 
+	        doConnect();  
+	    }	
+	
+   private void doConnect() {
+	    if (closed) {
+	      return;
+	    }
+	    if(totalRetryCount>0 && retryCount>totalRetryCount){
+	    	return; 
+	    }
+	    final ProtoPRCClient rpcClient=this;
+	    ChannelFuture future = bootstrap.connect(remoteHost,remotePort);
+	    future.addListener(new ChannelFutureListener() {
+	      public void operationComplete(ChannelFuture f) throws Exception {
+	        if (f.isSuccess()) {
+	          logger.info("Started  Client: " + getServerInfo());
+	          handle=f.channel().pipeline().get(ProtoClientHandler.class);
+	          
+	          clients.put(clientKey,rpcClient);
+	        } else {	
+	          if(totalRetryCount>0)retryCount++;//记录重试次数
+	          logger.info("Started Client retry "+retryCount+" times Failed: " + getServerInfo());
+	          f.channel().eventLoop().schedule(new Runnable() {				
+				@Override
+				public void run() {
+					doConnect();					
+				}
+			},retryTime, TimeUnit.SECONDS);
+	        }
+	      }
+	    });
+	  }
+   
+	public void close() {
+		    closed = true;
+		    workerGroup.shutdownGracefully();
+		    System.out.println("Stopped Tcp Client: " + getServerInfo());
+	}	
+
+	private String getServerInfo() {
+		    return String.format("RemoteHost=%s RemotePort=%d",
+		    		remoteHost,
+		    		remotePort);
+		} 	
+	
+
+ 
 	/**
 	 * @see {@link com.cdo.business.server.ProtoRPCServer#handleTrans(CDO,CDO)}
 	 * @param cdoRequest
@@ -77,39 +184,12 @@ public class ProtoPRCClient implements IRPCClient{
 			logger.error("Request method :strServiceName="+strServiceName+",strTransName="+strTransName+",error="+e.getMessage(),e);
 			return new Return(-1,e.getMessage(),e.getMessage());
 		}		  
-	}
+	}	
 	
-	  public  static void test(){
-			ProtoPRCClient client=new ProtoPRCClient();
-			CDO cdoReq=ExampleCDO.getCDO();
-			
-			CDO cdoReq2=ExampleCDO.getCDO();
-			cdoReq2.setStringValue("wait", "wait");
-			CDOThread t2=client.new CDOThread(cdoReq2);	
-			new Thread(t2).start();
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			CDOThread t1=client.new CDOThread(cdoReq);	
-			new Thread(t1).start();
-
-		}
-		private class CDOThread implements Runnable{
-
-			private CDO cdoReq;
-			public CDOThread(CDO cdoReq){
-				this.cdoReq=cdoReq;			
-			}
-			@Override
-			public void run() {
-				CDO cdoResponse=new CDO();
-				Return return1=handleTrans(cdoReq, cdoResponse);
-				System.out.println(""+cdoResponse.toString());
-			}
-			
-		}	
+	
+    public static void main(String[] args){
+    	ProtoPRCClient rClient=new ProtoPRCClient("10.27.122.62",8090);
+    	rClient.init();
+//    	rClient.handleTrans(cdoRequest, cdoResponse)
+    }
 }

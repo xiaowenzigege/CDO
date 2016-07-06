@@ -9,7 +9,6 @@ import java.util.Map;
 
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.servicebus.ITransService;
 
 public class CallsLinkedHashMap {
 	private LinkedHashMap<Integer, Call> calls=new LinkedHashMap<Integer, Call>();
@@ -47,9 +46,9 @@ public class CallsLinkedHashMap {
 			
 			CDO cdoOutput=new CDO();
 			setOutCDO(cdoOutput, "等待超过"+maxTimeOut+"分钟  未获取到响应,客户端设置超时.");
-			GoogleCDO.CDOProto proto=cdoOutput.toProto();
-//			proto.setCallId(callId);
-	        call.setRpcResponse(proto);	
+			GoogleCDO.CDOProto.Builder proto=cdoOutput.toProtoBuilder();
+			proto.setCallId(callId);
+	        call.setRpcResponse(proto.build());	
     	
     	} 		
 	}

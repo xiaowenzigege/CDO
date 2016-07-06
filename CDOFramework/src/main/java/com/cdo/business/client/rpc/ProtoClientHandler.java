@@ -1,12 +1,20 @@
 package com.cdo.business.client.rpc;
 
+import java.net.SocketAddress;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.log4j.Logger;
+
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.data.cdo.CDO;
+import com.google.protobuf.ByteString;
+
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.EventLoop;
 
 
 public class ProtoClientHandler extends  ChannelInboundHandlerAdapter {
@@ -16,15 +24,15 @@ public class ProtoClientHandler extends  ChannelInboundHandlerAdapter {
     private final CallsLinkedHashMap calls = new CallsLinkedHashMap();
     /** A counter for generating call IDs. */
     private static final AtomicInteger callIdCounter = new AtomicInteger();
-       
-    public GoogleCDO.CDOProto handleTrans(CDO cdoRequest) {
+           
+    public GoogleCDO.CDOProto handleTrans(CDO cdoRequest) {    	
     	//发送请求
     	int callId=callIdCounter.getAndIncrement() & Integer.MAX_VALUE;
         final Call call =new Call(callId);    
-    	GoogleCDO.CDOProto proto=cdoRequest.toProto();
-//    	proto.setCallId(callId);
-//		proto.setClientId(ClientId.getClientId());	    	
-        channel.writeAndFlush(proto);    
+    	GoogleCDO.CDOProto.Builder proto=cdoRequest.toProtoBuilder();
+    	proto.setCallId(callId);
+		proto.setClientId(ByteString.copyFrom(ClientId.getClientId()));	    	
+        channel.writeAndFlush(proto.build());    
         //获取response 参见netty4.1 官网example
         calls.put(callId, call);
         boolean interrupted = false;
@@ -54,7 +62,7 @@ public class ProtoClientHandler extends  ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {    
     	if(msg instanceof GoogleCDO.CDOProto){    		
     		GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)msg;
-			int callId=0;//proto.getCallId();
+			int callId=proto.getCallId();
 			Call call = calls.get(callId);
 	        calls.remove(callId);
 	        call.setRpcResponse(proto);			
@@ -68,6 +76,7 @@ public class ProtoClientHandler extends  ChannelInboundHandlerAdapter {
     	logger.error(cause.getMessage(),cause);
     }
     
+
   
 	
 }

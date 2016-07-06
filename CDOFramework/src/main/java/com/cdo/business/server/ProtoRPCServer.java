@@ -1,7 +1,5 @@
 package com.cdo.business.server;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.log4j.Logger;
 
 import com.cdo.business.BusinessService;
@@ -14,6 +12,8 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
@@ -40,23 +40,20 @@ public class ProtoRPCServer {
 //             .option(ChannelOption.TCP_NODELAY, true)       
              .childOption(ChannelOption.SO_KEEPALIVE, true)
              .channel(NioServerSocketChannel.class)
+             .handler(new LoggingHandler(LogLevel.INFO))
              .childHandler(new ProtoServerInitializer(sslCtx));
             
-//            GlobalResource.bundleInitCDOEnv();	
-//            int port=GlobalResource.cdoConfig.getInt("netty.server.port");
+            GlobalResource.bundleInitCDOEnv();	
+            int port=8090;//GlobalResource.cdoConfig.getInt("netty.server.port");
 //            startService();
-            int port=8090;
-//            b.bind(port).sync().channel().closeFuture().sync();
-//            b.bind(port).sync().channel().closeFuture().sync();;
             ChannelFuture f= b.bind(port).sync();
             f.channel().closeFuture().sync();
-           
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
     }
-    
+
     private static void startService(){
 		Return ret = Return.OK;
 		BusinessService app = BusinessService.getInstance();		

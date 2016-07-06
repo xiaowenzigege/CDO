@@ -13,7 +13,7 @@ public final class GoogleCDO {
       com.google.protobuf.MessageOrBuilder {
 
     /**
-     * <code>optional int32 level = 1;</code>
+     * <code>optional sint32 level = 1;</code>
      */
     int getLevel();
 
@@ -40,6 +40,24 @@ public final class GoogleCDO {
      */
     com.cdo.google.protocol.GoogleCDO.CDOProto.EntryOrBuilder getFieldsOrBuilder(
         int index);
+
+    /**
+     * <pre>
+     * Globally unique client ID 
+     * </pre>
+     *
+     * <code>optional bytes clientId = 3;</code>
+     */
+    com.google.protobuf.ByteString getClientId();
+
+    /**
+     * <pre>
+     * a sequence number that is sent back in response
+     * </pre>
+     *
+     * <code>optional sint32 callId = 4;</code>
+     */
+    int getCallId();
   }
   /**
    * Protobuf type {@code CDOProto}
@@ -55,6 +73,8 @@ public final class GoogleCDO {
     private CDOProto() {
       level_ = 0;
       fields_ = java.util.Collections.emptyList();
+      clientId_ = com.google.protobuf.ByteString.EMPTY;
+      callId_ = 0;
     }
 
     @java.lang.Override
@@ -84,7 +104,7 @@ public final class GoogleCDO {
             }
             case 8: {
 
-              level_ = input.readInt32();
+              level_ = input.readSInt32();
               break;
             }
             case 18: {
@@ -93,6 +113,16 @@ public final class GoogleCDO {
                 mutable_bitField0_ |= 0x00000002;
               }
               fields_.add(input.readMessage(com.cdo.google.protocol.GoogleCDO.CDOProto.Entry.parser(), extensionRegistry));
+              break;
+            }
+            case 26: {
+
+              clientId_ = input.readBytes();
+              break;
+            }
+            case 32: {
+
+              callId_ = input.readSInt32();
               break;
             }
           }
@@ -633,7 +663,7 @@ public final class GoogleCDO {
     public static final int LEVEL_FIELD_NUMBER = 1;
     private int level_;
     /**
-     * <code>optional int32 level = 1;</code>
+     * <code>optional sint32 level = 1;</code>
      */
     public int getLevel() {
       return level_;
@@ -674,6 +704,32 @@ public final class GoogleCDO {
       return fields_.get(index);
     }
 
+    public static final int CLIENTID_FIELD_NUMBER = 3;
+    private com.google.protobuf.ByteString clientId_;
+    /**
+     * <pre>
+     * Globally unique client ID 
+     * </pre>
+     *
+     * <code>optional bytes clientId = 3;</code>
+     */
+    public com.google.protobuf.ByteString getClientId() {
+      return clientId_;
+    }
+
+    public static final int CALLID_FIELD_NUMBER = 4;
+    private int callId_;
+    /**
+     * <pre>
+     * a sequence number that is sent back in response
+     * </pre>
+     *
+     * <code>optional sint32 callId = 4;</code>
+     */
+    public int getCallId() {
+      return callId_;
+    }
+
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
@@ -687,10 +743,16 @@ public final class GoogleCDO {
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
       if (level_ != 0) {
-        output.writeInt32(1, level_);
+        output.writeSInt32(1, level_);
       }
       for (int i = 0; i < fields_.size(); i++) {
         output.writeMessage(2, fields_.get(i));
+      }
+      if (!clientId_.isEmpty()) {
+        output.writeBytes(3, clientId_);
+      }
+      if (callId_ != 0) {
+        output.writeSInt32(4, callId_);
       }
     }
 
@@ -701,11 +763,19 @@ public final class GoogleCDO {
       size = 0;
       if (level_ != 0) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(1, level_);
+          .computeSInt32Size(1, level_);
       }
       for (int i = 0; i < fields_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, fields_.get(i));
+      }
+      if (!clientId_.isEmpty()) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(3, clientId_);
+      }
+      if (callId_ != 0) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeSInt32Size(4, callId_);
       }
       memoizedSize = size;
       return size;
@@ -833,6 +903,10 @@ public final class GoogleCDO {
         } else {
           fieldsBuilder_.clear();
         }
+        clientId_ = com.google.protobuf.ByteString.EMPTY;
+
+        callId_ = 0;
+
         return this;
       }
 
@@ -867,6 +941,8 @@ public final class GoogleCDO {
         } else {
           result.fields_ = fieldsBuilder_.build();
         }
+        result.clientId_ = clientId_;
+        result.callId_ = callId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -912,6 +988,12 @@ public final class GoogleCDO {
             }
           }
         }
+        if (other.getClientId() != com.google.protobuf.ByteString.EMPTY) {
+          setClientId(other.getClientId());
+        }
+        if (other.getCallId() != 0) {
+          setCallId(other.getCallId());
+        }
         onChanged();
         return this;
       }
@@ -941,13 +1023,13 @@ public final class GoogleCDO {
 
       private int level_ ;
       /**
-       * <code>optional int32 level = 1;</code>
+       * <code>optional sint32 level = 1;</code>
        */
       public int getLevel() {
         return level_;
       }
       /**
-       * <code>optional int32 level = 1;</code>
+       * <code>optional sint32 level = 1;</code>
        */
       public Builder setLevel(int value) {
         
@@ -956,7 +1038,7 @@ public final class GoogleCDO {
         return this;
       }
       /**
-       * <code>optional int32 level = 1;</code>
+       * <code>optional sint32 level = 1;</code>
        */
       public Builder clearLevel() {
         
@@ -1204,6 +1286,85 @@ public final class GoogleCDO {
         }
         return fieldsBuilder_;
       }
+
+      private com.google.protobuf.ByteString clientId_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <pre>
+       * Globally unique client ID 
+       * </pre>
+       *
+       * <code>optional bytes clientId = 3;</code>
+       */
+      public com.google.protobuf.ByteString getClientId() {
+        return clientId_;
+      }
+      /**
+       * <pre>
+       * Globally unique client ID 
+       * </pre>
+       *
+       * <code>optional bytes clientId = 3;</code>
+       */
+      public Builder setClientId(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        clientId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * Globally unique client ID 
+       * </pre>
+       *
+       * <code>optional bytes clientId = 3;</code>
+       */
+      public Builder clearClientId() {
+        
+        clientId_ = getDefaultInstance().getClientId();
+        onChanged();
+        return this;
+      }
+
+      private int callId_ ;
+      /**
+       * <pre>
+       * a sequence number that is sent back in response
+       * </pre>
+       *
+       * <code>optional sint32 callId = 4;</code>
+       */
+      public int getCallId() {
+        return callId_;
+      }
+      /**
+       * <pre>
+       * a sequence number that is sent back in response
+       * </pre>
+       *
+       * <code>optional sint32 callId = 4;</code>
+       */
+      public Builder setCallId(int value) {
+        
+        callId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * a sequence number that is sent back in response
+       * </pre>
+       *
+       * <code>optional sint32 callId = 4;</code>
+       */
+      public Builder clearCallId() {
+        
+        callId_ = 0;
+        onChanged();
+        return this;
+      }
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return this;
@@ -1272,10 +1433,11 @@ public final class GoogleCDO {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\tCDO.proto\"`\n\010CDOProto\022\r\n\005level\030\001 \001(\005\022\037" +
-      "\n\006fields\030\002 \003(\0132\017.CDOProto.Entry\032$\n\005Entry" +
-      "\022\014\n\004name\030\001 \001(\t\022\r\n\005value\030\002 \001(\014B&\n\027com.cdo" +
-      ".google.protocolB\tGoogleCDOH\001b\006proto3"
+      "\n\tCDO.proto\"\202\001\n\010CDOProto\022\r\n\005level\030\001 \001(\021\022" +
+      "\037\n\006fields\030\002 \003(\0132\017.CDOProto.Entry\022\020\n\010clie" +
+      "ntId\030\003 \001(\014\022\016\n\006callId\030\004 \001(\021\032$\n\005Entry\022\014\n\004n" +
+      "ame\030\001 \001(\t\022\r\n\005value\030\002 \001(\014B&\n\027com.cdo.goog" +
+      "le.protocolB\tGoogleCDOH\001b\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1294,7 +1456,7 @@ public final class GoogleCDO {
     internal_static_CDOProto_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_CDOProto_descriptor,
-        new java.lang.String[] { "Level", "Fields", });
+        new java.lang.String[] { "Level", "Fields", "ClientId", "CallId", });
     internal_static_CDOProto_Entry_descriptor =
       internal_static_CDOProto_descriptor.getNestedTypes().get(0);
     internal_static_CDOProto_Entry_fieldAccessorTable = new

@@ -189,12 +189,12 @@ public class CDO implements Serializable
 		}
 	}
 	
-	public GoogleCDO.CDOProto toProto(){
+	public GoogleCDO.CDOProto.Builder toProtoBuilder(){
 		GoogleCDO.CDOProto.Builder cdoProto=GoogleCDO.CDOProto.newBuilder();
 		String prefixField="";	
 		int maxLevel=toProto(prefixField,cdoProto,0);
 		cdoProto.setLevel(maxLevel);		
-		return cdoProto.build();
+		return cdoProto;
 	}
 	
 	
