@@ -13,6 +13,7 @@ package com.cdoframework.cdolib.data.cdo;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -20,9 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-
-
 
 import nanoxml.XMLElement;
 
@@ -426,7 +424,7 @@ public class CDO implements Serializable
     				return null;
     			}
     			int nIndex=this.getIndexValue(fieldIdMain.strIndexFieldId,cdoRoot);
-//    			return ((CDO)objExt.getValueAt(nIndex)).getObject(fieldId.strFieldId);
+//    			return ((CDO)objExt.getValueAt(nIndex)).getObject(fieldId.strFieldId);    			
     			return (((CDOArrayField)objExt).getValueAt(nIndex)).getObject(fieldId.strFieldId);
     		}
     		Field cdoMainField=getObject(fieldIdMain,cdoRoot);
@@ -544,10 +542,6 @@ public class CDO implements Serializable
 			case DataType.CDO_ARRAY_TYPE:
 			{
 				return new CDOField(((CDOArrayField)field).getValueAt(nIndex));
-			}
-			case DataType.CDO_LIST_TYPE:
-			{
-				return new CDOField(((CDOListField)field).getValueAt(nIndex));
 			}
 		}
 		throw new RuntimeException(field.getType().getFieldType()+" Type cast failed");	
@@ -741,13 +735,13 @@ public class CDO implements Serializable
     public CDO[] getCDOArrayValue(String strFieldId)
     {
     	CDOArrayField objExt=(CDOArrayField)this.getObject(strFieldId);
-    	return objExt.getValue();
+    	return objExt.getValue().toArray(new CDO[objExt.getValue().size()]);
     	
     }
     
-    List<CDO> getCDOListValue(String strFieldId)
+    public List<CDO> getCDOListValue(String strFieldId)
     {
-    	CDOListField objExt=(CDOListField)this.getObject(strFieldId);
+    	CDOArrayField objExt=(CDOArrayField)this.getObject(strFieldId);
     	return objExt.getValue();
     }   
 
@@ -1156,9 +1150,11 @@ public class CDO implements Serializable
     }
 
     public void setCDOArrayValue(String strFieldId,CDO[] cdosValue)
-    {
-    	
-
+    {    	
+    	this.setCDOListValue(strFieldId, Arrays.asList(cdosValue));
+    }
+    
+    public void setCDOListValue(String strFieldId, List<CDO> cdosValue) {
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
     	{
@@ -1173,24 +1169,6 @@ public class CDO implements Serializable
     	{
     		Field field=new CDOArrayField(fieldId.strFieldId,cdosValue); 
     		this.setObjectValue(fieldId,DataType.CDO_ARRAY_TYPE,cdosValue,field,this);
-    	}
-    }
-    
-     void setCDOListValue(String strFieldId, List<CDO> cdosValue) {
-    	FieldId fieldId=this.parseFieldId(strFieldId);
-    	if(fieldId==null)
-    	{
-			throw new RuntimeException("Invalid FieldId "+strFieldId);
-    	}
-    	
-    	if(fieldId.nType==FieldId.ARRAY_ELEMENT)
-    	{
-			throw new RuntimeException("Invalid FieldId "+strFieldId);
-    	}
-    	else
-    	{
-    		Field field=new CDOListField(fieldId.strFieldId,cdosValue); 
-    		this.setObjectValue(fieldId,DataType.CDO_LIST_TYPE,cdosValue,field,this);
     	}		
 	}
   
@@ -1280,16 +1258,11 @@ public class CDO implements Serializable
    				((DateTimeArrayField)arrField).setValueAt(nIndex,(String)objValue);
    				break;
    			}
-   			case DataType.CDO_ARRAY_TYPE:
-   			{
-   				((CDOArrayField)arrField).setValueAt(nIndex,(CDO)objValue);
-   				break;
-   			}
-   			case DataType.CDO_LIST_TYPE:
-   			{
-   				((CDOListField)arrField).setValueAt(nIndex,(CDO)objValue);
-   				break;
-   			}
+	   		case DataType.CDO_ARRAY_TYPE:
+	   		{
+	   				((CDOArrayField)arrField).setValueAt(nIndex,(CDO)objValue);
+	   				break;
+	   		}
    		}
    	}
 	}

@@ -5,11 +5,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
-
+import com.cdoframework.cdolib.data.cdo.CDOArrayField;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.DateTime;
 import com.cdoframework.cdolib.base.Return;
@@ -17,7 +16,6 @@ import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.BooleanArrayField;
 import com.cdoframework.cdolib.data.cdo.BooleanField;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.data.cdo.CDOArrayField;
 import com.cdoframework.cdolib.data.cdo.CDOField;
 import com.cdoframework.cdolib.data.cdo.DateArrayField;
 import com.cdoframework.cdolib.data.cdo.DateField;
@@ -1523,16 +1521,26 @@ public class NoSQLUtil
 			setCDODBObject(subDBObject, cdo);
 			basicDBObject.put(fieldName, subDBObject);
 			break;
+//		case DataType.CDO_ARRAY_TYPE:
+//			CDO[] cdoArr = ((CDOArrayField) objExt).getValue();
+//			BasicDBObject[] subDBObjectArr = new BasicDBObject[cdoArr.length];
+//			for (int i = 0; i < cdoArr.length; i++)
+//			{
+//				subDBObjectArr[i] = new BasicDBObject();
+//				setCDODBObject(subDBObjectArr[i], cdoArr[i]);
+//			}
+//			basicDBObject.put(fieldName, subDBObjectArr);
+//			break;
 		case DataType.CDO_ARRAY_TYPE:
-			CDO[] cdoArr = ((CDOArrayField) objExt).getValue();
-			BasicDBObject[] subDBObjectArr = new BasicDBObject[cdoArr.length];
-			for (int i = 0; i < cdoArr.length; i++)
+			List<CDO> cdoList = ((CDOArrayField)objExt).getValue();
+			BasicDBObject[] subDBObjectList = new BasicDBObject[cdoList.size()];
+			for (int i = 0; i < cdoList.size(); i++)
 			{
-				subDBObjectArr[i] = new BasicDBObject();
-				setCDODBObject(subDBObjectArr[i], cdoArr[i]);
+				subDBObjectList[i] = new BasicDBObject();
+				setCDODBObject(subDBObjectList[i], cdoList.get(i));
 			}
-			basicDBObject.put(fieldName, subDBObjectArr);
-			break;
+			basicDBObject.put(fieldName, subDBObjectList);
+			break;			
 		case DataType.BOOLEAN_TYPE:
 			basicDBObject.put(fieldName, objExt.getObjectValue());
 			break;

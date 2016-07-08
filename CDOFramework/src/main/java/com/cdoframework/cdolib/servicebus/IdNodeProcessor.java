@@ -2,6 +2,7 @@ package com.cdoframework.cdolib.servicebus;
 
 
 import java.sql.Connection;
+import java.util.List;
 
 import com.cdoframework.cdolib.base.CycleList;
 import com.cdoframework.cdolib.base.IdGeneratorFactory;
@@ -44,11 +45,11 @@ public class IdNodeProcessor
 			CDOArrayField cafRecordSet = new CDOArrayField();
 			dataEngine.executeQueryRecordSet(conn,strSelect,cdoRequest,cafRecordSet);
 			
-			CDO[]  cdosObjectIdList =cafRecordSet.getValue();
-			for(int i=0;i<cdosObjectIdList.length;i++)
+			List<CDO> cdosObjectIdList =cafRecordSet.getValue();
+			for(int i=0;i<cdosObjectIdList.size();i++)
 			{
-				String strObjectId = cdosObjectIdList[i].getStringValue("strObjectId");
-				int nNodeId = cdosObjectIdList[i].getIntegerValue("nNodeId");
+				String strObjectId = cdosObjectIdList.get(i).getStringValue("strObjectId");
+				int nNodeId =cdosObjectIdList.get(i).getIntegerValue("nNodeId");
 				IdGeneratorFactory.getInstance().put(strObjectId,nNodeId);
 			}
 		}

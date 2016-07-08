@@ -376,7 +376,7 @@ public class ParseXmlCDO {
 				String strName	=node.getStringAttribute("N");
 				Iterator enumItems	=node.enumerateChildren();
 
-				CDO[] cdosValue=new CDO[node.countChildren()];
+				List<CDO> cdosValue=new ArrayList<CDO>(node.countChildren());
 				int nIndex=0;
 				while(enumItems.hasNext())
 				{
@@ -386,8 +386,9 @@ public class ParseXmlCDO {
 					{
 						throw new RuntimeException("Parse xml error: unexpected Tag name "+strSubNodeTag+" under "+strTag);
 					}
-					cdosValue[nIndex]=new CDO();
-					xml2CDO(cdosValue[nIndex],subNode,false);					
+					CDO tmpCDO=new CDO();
+					xml2CDO(tmpCDO,subNode,false);
+					cdosValue.add(tmpCDO);
 					nIndex++;
 				}
 				cdo.putItem(strName,new CDOArrayField(strName, cdosValue));

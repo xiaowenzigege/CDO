@@ -1995,11 +1995,14 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				{
 					alCDOList=alCDOList.subList(nFromIndex,nToIndex);
 				}
-				CDO[] cdosOutput=new CDO[alCDOList.size()];
-				alCDOList.toArray(cdosOutput);
-				cdoafOutput.setValue(cdosOutput);
+//				CDO[] cdosOutput=new CDO[alCDOList.size()];
+//				alCDOList.toArray(cdosOutput);
+//				cdoafOutput.setValue(cdosOutput);
 				
-				nRecordCount=cdosOutput.length;
+//				nRecordCount=cdosOutput.length;
+				
+				cdoafOutput.setValue(alCDOList);
+				nRecordCount=cdoafOutput.getLength();
 			}
 		}
 		catch(Exception e)
@@ -2640,16 +2643,26 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				String strKeyFieldName=selectRecordSet.getKeyFieldName();
 				if(strKeyFieldName.length()==0)
 				{// RecordSet输出到数组
-					cdoRequest.setCDOArrayValue(strOutputId,cdoArrayField.getValue());
+//					cdoRequest.setCDOArrayValue(strOutputId,cdoArrayField.getValue());
+					cdoRequest.setCDOListValue(strOutputId, cdoArrayField.getValue());
 				}
 				else
 				{// RecordSet输出到HashMap
-					CDO[] cdosRecordSet=cdoArrayField.getValue();
+//					CDO[] cdosRecordSet=cdoArrayField.getValue();
+//					CDO cdoRecordSet=new CDO();
+//					for(int j=0;j<cdosRecordSet.length;j++)
+//					{
+//						cdoRecordSet.setCDOValue(cdosRecordSet[j].getObjectValue(strKeyFieldName).toString(),
+//										cdosRecordSet[j]);
+//					}
+//					cdoRequest.setCDOValue(strOutputId,cdoRecordSet);
+					
+					List<CDO> cdosRecordSet=cdoArrayField.getValue();
 					CDO cdoRecordSet=new CDO();
-					for(int j=0;j<cdosRecordSet.length;j++)
+					for(int j=0;j<cdosRecordSet.size();j++)
 					{
-						cdoRecordSet.setCDOValue(cdosRecordSet[j].getObjectValue(strKeyFieldName).toString(),
-										cdosRecordSet[j]);
+						cdoRecordSet.setCDOValue(cdosRecordSet.get(j).getObjectValue(strKeyFieldName).toString(),
+										cdosRecordSet.get(j));
 					}
 					cdoRequest.setCDOValue(strOutputId,cdoRecordSet);
 				}
@@ -3392,10 +3405,12 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				}
 			}
 			
-			CDO[] cdosOutput=new CDO[alCDOList.size()];
-			alCDOList.toArray(cdosOutput);
-			cdoafOutput.setValue(cdosOutput);
-			nRecordCount=cdosOutput.length;
+//			CDO[] cdosOutput=new CDO[alCDOList.size()];
+//			alCDOList.toArray(cdosOutput);
+//			cdoafOutput.setValue(cdosOutput);
+//			nRecordCount=cdosOutput.length;
+			cdoafOutput.setValue(alCDOList);
+			nRecordCount=cdoafOutput.getLength();
 		}
 		catch(Exception e)
 		{
@@ -3660,10 +3675,13 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				}
 			}
 			
-			CDO[] cdosOutput=new CDO[alCDOList.size()];
-			alCDOList.toArray(cdosOutput);
-			cdoafOutput.setValue(cdosOutput);
-			nRecordCount=cdosOutput.length;
+//			CDO[] cdosOutput=new CDO[alCDOList.size()];
+//			alCDOList.toArray(cdosOutput);
+//			cdoafOutput.setValue(cdosOutput);
+//			nRecordCount=cdosOutput.length;
+			cdoafOutput.setValue(alCDOList);
+			nRecordCount=cdoafOutput.getLength();
+			
 		}
 		catch(Exception e)
 		{

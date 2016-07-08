@@ -43,14 +43,5 @@ public class ProtoRPCCDOParse extends ParseProtoCDO {
 				 parseHierarchicCDO(cdoResponse,buffer,sufKey);
 			 }							 
 		 }
-		for(Iterator<Map.Entry<String,Field>> iterator=cdoResponse.iterator();iterator.hasNext();){
-	    		Entry<String,Field> entry=iterator.next();
-	    		list2array(cdoResponse, entry.getKey(), entry.getValue());    		
-	    } 
-		
-		for(Iterator<Map.Entry<String,Field>> iterator=cdoReturn.iterator();iterator.hasNext();){
-	  		Entry<String,Field> entry=iterator.next();
-	  		list2array(cdoReturn, entry.getKey(), entry.getValue());    		
-		} 
 	}	
 }

@@ -35,10 +35,6 @@ public class ParseProtoCDO extends ParseCDOBuffer{
 			 buffer.clear();	
 			 parseHierarchicCDO(cdo,buffer,key);
 		  }	    	
-		for(Iterator<Map.Entry<String,Field>> iterator=cdo.iterator();iterator.hasNext();){
-	    		Entry<String,Field> entry=iterator.next();
-	    		list2array(cdo, entry.getKey(), entry.getValue());    		
-	    } 
 	}
 	
 }

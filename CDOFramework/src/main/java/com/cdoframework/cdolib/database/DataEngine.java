@@ -13,6 +13,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.dbcp.BasicDataSource;
@@ -1266,18 +1267,27 @@ public class DataEngine implements IDataEngine
 				String strKeyFieldName=selectRecordSet.getKeyFieldName();
 				if(strKeyFieldName.length()==0)
 				{// RecordSet输出到数组
-					cdoRequest.setCDOArrayValue(strOutputId,cdoArrayField.getValue());
+//					cdoRequest.setCDOArrayValue(strOutputId,cdoArrayField.getValue());
+					cdoRequest.setCDOListValue(strOutputId,cdoArrayField.getValue());
 				}
 				else
 				{// RecordSet输出到HashMap
-					CDO[] cdosRecordSet=cdoArrayField.getValue();
+//					CDO[] cdosRecordSet=cdoArrayField.getValue();
+//					CDO cdoRecordSet=new CDO();
+//					for(int j=0;j<cdosRecordSet.length;j++)
+//					{
+//						cdoRecordSet.setCDOValue(cdosRecordSet[j].getObjectValue(strKeyFieldName).toString(),
+//										cdosRecordSet[j]);
+//					}
+//					cdoRequest.setCDOValue(strOutputId,cdoRecordSet);
+					List<CDO> cdosRecordSet=cdoArrayField.getValue();
 					CDO cdoRecordSet=new CDO();
-					for(int j=0;j<cdosRecordSet.length;j++)
+					for(int j=0;j<cdosRecordSet.size();j++)
 					{
-						cdoRecordSet.setCDOValue(cdosRecordSet[j].getObjectValue(strKeyFieldName).toString(),
-										cdosRecordSet[j]);
+						cdoRecordSet.setCDOValue(cdosRecordSet.get(j).getObjectValue(strKeyFieldName).toString(),
+										cdosRecordSet.get(j));
 					}
-					cdoRequest.setCDOValue(strOutputId,cdoRecordSet);
+					cdoRequest.setCDOValue(strOutputId,cdoRecordSet);					
 				}
 			}
 			else if(blockItem.getSelectRecord()!=null)
@@ -2141,10 +2151,8 @@ public class DataEngine implements IDataEngine
 		
 			for(int i=0;i<strsFieldName.length;i++)
 			{
-				/**支持JDBC4**/
+				
 				strsFieldName[i]=meta.getColumnLabel(i+1);
-				/**支持JDBC3**/
-				/**strsFieldName[i]=meta.getColumnName(i+1);**/
 				nsFieldType[i]=meta.getColumnType(i+1);
 				nsPrecision[i]=meta.getPrecision(i+1);
 				nsScale[i]=meta.getScale(i+1);
@@ -2164,17 +2172,18 @@ public class DataEngine implements IDataEngine
 			}
 
 			// 输出记录
-			CDO[] cdosRecord=new CDO[alRecord.size()];
-			for(int i=0;i<cdosRecord.length;i++)
-			{
-				cdosRecord[i]=(CDO)alRecord.get(i);
-			}
-			cafRecordSet.setValue(cdosRecord);
+//			CDO[] cdosRecord=new CDO[alRecord.size()];
+//			for(int i=0;i<cdosRecord.length;i++)
+//			{
+//				cdosRecord[i]=(CDO)alRecord.get(i);
+//			}
+//			cafRecordSet.setValue(cdosRecord);
+			cafRecordSet.setValue(alRecord);
 			
 			//统计总数量查询
 			int nCount=executeCount(conn, strSQL, cdoRequest);
 			if(nCount==0)
-				nCount=cdosRecord.length;
+				nCount=alRecord.size();
 			
 			return nCount;
 		}

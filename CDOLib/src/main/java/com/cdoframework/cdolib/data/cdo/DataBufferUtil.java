@@ -1,7 +1,9 @@
 package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -489,18 +491,18 @@ public class DataBufferUtil {
 					break;
 				case DataType.CDO_ARRAY_TYPE:					
 					{
-						CDO[] src=((CDOArrayField)field).getValue();
-						CDO[] dst=new CDO[src.length];
-						for(int i=0;i<src.length;i++){	
+						List<CDO> src=((CDOArrayField)field).getValue();
+						CDO[] dst=new CDO[src.size()];
+						for(int i=0;i<src.size();i++){	
 							dst[i]=new CDO();
-					    	for(Iterator<Map.Entry<String,Field>> iterator=src[i].iterator();iterator.hasNext();){
+					    	for(Iterator<Map.Entry<String,Field>> iterator=src.get(i).iterator();iterator.hasNext();){
 					    		Entry<String,Field> entry=iterator.next();		    		
 					    		setField(dst[i], entry.getKey(), entry.getValue());
 					    	}								
 						}																		
 						cdo.setCDOArrayValue(strFieldId, dst);
 					}					
-					break;
+					break;				
 			}
 	    }   
 }

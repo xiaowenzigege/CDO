@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import com.cdo.avro.handle.AvroCDOParse;
 import com.cdo.avro.protocol.AvroCDO;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.data.cdo.Field;
 
 public class AvroRPCCDOParse extends AvroCDOParse {
     public static AvroRPCCDOParse AvroRPCParse;
@@ -44,15 +43,6 @@ public class AvroRPCCDOParse extends AvroCDOParse {
 			 }else{					 
 				 parseHierarchicCDO(cdoResponse,buffer,sufKey);
 			 }							 
-		 }
-		for(Iterator<Map.Entry<String,Field>> iterator=cdoResponse.iterator();iterator.hasNext();){
-	    		Entry<String,Field> entry=iterator.next();
-	    		list2array(cdoResponse, entry.getKey(), entry.getValue());    		
-	    } 
-		
-		for(Iterator<Map.Entry<String,Field>> iterator=cdoReturn.iterator();iterator.hasNext();){
-	  		Entry<String,Field> entry=iterator.next();
-	  		list2array(cdoReturn, entry.getKey(), entry.getValue());    		
-		} 	 
+		 } 
 	}
 }

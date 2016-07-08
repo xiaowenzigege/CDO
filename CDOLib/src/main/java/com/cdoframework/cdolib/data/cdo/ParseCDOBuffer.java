@@ -2,10 +2,7 @@ package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import com.cdoframework.cdolib.base.DataType;
 
@@ -60,41 +57,6 @@ public class ParseCDOBuffer extends CDOBuffer {
 			    parseHierarchicCDO(tmpCDO, buffer,sufKey);				
 		 }   
 	   }
-	}
-	/**
-	 * 将list<cdo> 转化成cdoArray数组形式
-	 * @param cdo
-	 * @param strFieldId
-	 * @param field
-	 */
-	protected void list2array(CDO cdo,String strFieldId,Field field){
-		switch(field.getType().getDataType())
-		{
-			case DataType.CDO_LIST_TYPE:
-			    {
-			    	List<CDO>  src=((CDOListField)field).getValue();
-			    	CDO[] dst=new CDO[src.size()];
-					for(int i=0;i<src.size();i++){	
-						dst[i]=src.get(i);
-				    	for(Iterator<Map.Entry<String,Field>> iterator=src.get(i).iterator();iterator.hasNext();){
-				    		Entry<String,Field> entry=iterator.next();		    		
-				    		list2array(dst[i], entry.getKey(), entry.getValue());
-				    	}								
-					}																		
-					cdo.setCDOArrayValue(strFieldId, dst);
-			    }
-			    break;
-			case DataType.CDO_TYPE:
-			{		
-				CDO src=((CDOField)field).getValue();
-		    	for(Iterator<Map.Entry<String,Field>> iterator=src.iterator();iterator.hasNext();){
-		    		Entry<String,Field> entry=iterator.next();			    		
-		    		list2array(src, entry.getKey(), entry.getValue());
-		    	}					
-				cdo.setCDOValue(strFieldId, src);
-			}
-			break;
-		}
 	}
 	
 	
