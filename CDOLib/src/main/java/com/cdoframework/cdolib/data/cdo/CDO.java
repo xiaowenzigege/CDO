@@ -16,9 +16,11 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 
 
 
@@ -372,7 +374,7 @@ public class CDO implements Serializable
 		XMLElement xmlNode=new XMLElement();
 		xmlNode.parseString(strXML);
 		
-		XmlCDOParse.xml2CDO(cdoOutPut, xmlNode, true);
+		ParseXmlCDO.xml2CDO(cdoOutPut, xmlNode, true);
 	}	
 	
 	
@@ -542,6 +544,10 @@ public class CDO implements Serializable
 			case DataType.CDO_ARRAY_TYPE:
 			{
 				return new CDOField(((CDOArrayField)field).getValueAt(nIndex));
+			}
+			case DataType.CDO_LIST_TYPE:
+			{
+				return new CDOField(((CDOListField)field).getValueAt(nIndex));
 			}
 		}
 		throw new RuntimeException(field.getType().getFieldType()+" Type cast failed");	
@@ -738,6 +744,13 @@ public class CDO implements Serializable
     	return objExt.getValue();
     	
     }
+    
+    List<CDO> getCDOListValue(String strFieldId)
+    {
+    	CDOListField objExt=(CDOListField)this.getObject(strFieldId);
+    	return objExt.getValue();
+    }   
+
     
     //----------设置 指定类型Field的name和value------------------------//
    
@@ -1163,6 +1176,25 @@ public class CDO implements Serializable
     	}
     }
     
+     void setCDOListValue(String strFieldId, List<CDO> cdosValue) {
+    	FieldId fieldId=this.parseFieldId(strFieldId);
+    	if(fieldId==null)
+    	{
+			throw new RuntimeException("Invalid FieldId "+strFieldId);
+    	}
+    	
+    	if(fieldId.nType==FieldId.ARRAY_ELEMENT)
+    	{
+			throw new RuntimeException("Invalid FieldId "+strFieldId);
+    	}
+    	else
+    	{
+    		Field field=new CDOListField(fieldId.strFieldId,cdosValue); 
+    		this.setObjectValue(fieldId,DataType.CDO_LIST_TYPE,cdosValue,field,this);
+    	}		
+	}
+  
+    
     /**
      *  构造结构，保存数值到指定位置
      * @param fieldId
@@ -1253,7 +1285,11 @@ public class CDO implements Serializable
    				((CDOArrayField)arrField).setValueAt(nIndex,(CDO)objValue);
    				break;
    			}
-   			
+   			case DataType.CDO_LIST_TYPE:
+   			{
+   				((CDOListField)arrField).setValueAt(nIndex,(CDO)objValue);
+   				break;
+   			}
    		}
    	}
 	}

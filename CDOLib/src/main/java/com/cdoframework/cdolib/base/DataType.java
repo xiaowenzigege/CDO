@@ -64,6 +64,7 @@ public interface DataType extends Serializable
 	int DATETIME_TYPE			=11;
 	int CDO_TYPE				=12;
 	
+	
 	int FILE_TYPE				=50;
 	
 	int BOOLEAN_ARRAY_TYPE		=101;
@@ -78,8 +79,8 @@ public interface DataType extends Serializable
 	int TIME_ARRAY_TYPE			=110;
 	int DATETIME_ARRAY_TYPE		=111;
 	int CDO_ARRAY_TYPE			=112;
-
-		
+	int CDO_LIST_TYPE           =113;
+	
 	String	DATETIME_FORMAT_STRING		="yyyy-MM-dd HH:mm:ss";
 	String	DATE_FORMAT_STRING			="yyyy-MM-dd";
 	String	TIME_FORMAT_STRING			="HH:mm:ss";
@@ -117,8 +118,8 @@ public interface DataType extends Serializable
 		DATE_ARRAY(DATE_ARRAY_TYPE,"date array "),
 		TIME_ARRAY(TIME_ARRAY_TYPE,"time array "),
 		DATETIME_ARRAY(DATETIME_ARRAY_TYPE,"dateTime array "),
-		CDO_ARRAY(CDO_ARRAY_TYPE,"cdo array ");		
-		
+		CDO_ARRAY(CDO_ARRAY_TYPE,"cdo array "),	
+		CDO_LIST(CDO_LIST_TYPE,"cdo list ");		
 	     private int dataType;
 	     private String fieldType;
 	     private Data(int dataType,String fieldType){

@@ -1,7 +1,10 @@
 package com.cdoframework.cdolib.data.cdo;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
 import nanoxml.XMLElement;
 
 import com.cdoframework.cdolib.data.cdo.CDO;
@@ -11,7 +14,7 @@ import com.cdoframework.cdolib.data.cdo.CDO;
  * @author KenelLiu
  *
  */
-public class XmlCDOParse {
+public class ParseXmlCDO {
 	
 	
 	protected static void xml2CDO(CDO cdo,XMLElement nodeCDO,boolean isRootNode)
@@ -388,8 +391,7 @@ public class XmlCDOParse {
 					nIndex++;
 				}
 				cdo.putItem(strName,new CDOArrayField(strName, cdosValue));
-			}
-			else
+			}else
 			{
 				throw new RuntimeException("Parse xml error: unexpected Tag name ["+strTag+"]");
 			}

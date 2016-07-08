@@ -1,0 +1,195 @@
+package com.cdoframework.cdolib.data.cdo;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import com.cdoframework.cdolib.base.DataType;
+
+public class ParseCDOBuffer extends CDOBuffer {
+	
+	
+	/**
+	 *  根据fieldName 中的[.]符号 依次递归调用
+	 * @param cdo
+	 * @param buffer
+	 * @param fieldName
+	 */
+	protected void parseHierarchicCDO(CDO cdo,ByteBuffer buffer,String fieldName){
+		 int index=fieldName.indexOf(".");//.表示层级概念			 		 
+		 if(index==-1){
+			  //到达最底层,设置数据
+			  setCDOValue(cdo, fieldName, buffer);				
+		 }else{
+			 String preKey=fieldName.substring(0,index);
+			 String sufKey=fieldName.substring(index+1);				 
+			 int arrIndex=preKey.lastIndexOf("[");
+			 if(arrIndex==-1){//普通CDO
+				    CDO tmpCDO=null;
+				    String cdoKey=preKey;
+				    if(!cdo.exists(cdoKey)){
+				    	tmpCDO=new CDO();
+				    	cdo.setCDOValue(cdoKey, tmpCDO);
+				    }else{
+				    	tmpCDO=cdo.getCDOValue(cdoKey);
+				    }
+				    parseHierarchicCDO(tmpCDO,buffer,sufKey);
+			 }else{//CDO 数组
+				String cdoKey=preKey.substring(0,arrIndex);
+				//数组下标
+				int cdoIndex=Integer.parseInt(preKey.substring(arrIndex+1, preKey.length()-1));
+				
+				CDO tmpCDO=null;
+			    if(!cdo.exists(cdoKey)){
+			    	tmpCDO=new CDO();
+			    	List<CDO> list=new ArrayList<CDO>();
+			    	list.add(tmpCDO);
+			    	cdo.setCDOListValue(cdoKey, list);
+			    }else{
+			    	List<CDO> list=cdo.getCDOListValue(cdoKey);
+			    	if(cdoIndex>(list.size()-1)){
+			    		tmpCDO=new CDO();
+			    		list.add(tmpCDO);
+			    	}else{
+			    		tmpCDO=list.get(cdoIndex);
+			    	}
+			    }
+			    parseHierarchicCDO(tmpCDO, buffer,sufKey);				
+		 }   
+	   }
+	}
+	/**
+	 * 将list<cdo> 转化成cdoArray数组形式
+	 * @param cdo
+	 * @param strFieldId
+	 * @param field
+	 */
+	protected void list2array(CDO cdo,String strFieldId,Field field){
+		switch(field.getType().getDataType())
+		{
+			case DataType.CDO_LIST_TYPE:
+			    {
+			    	List<CDO>  src=((CDOListField)field).getValue();
+			    	CDO[] dst=new CDO[src.size()];
+					for(int i=0;i<src.size();i++){	
+						dst[i]=src.get(i);
+				    	for(Iterator<Map.Entry<String,Field>> iterator=src.get(i).iterator();iterator.hasNext();){
+				    		Entry<String,Field> entry=iterator.next();		    		
+				    		list2array(dst[i], entry.getKey(), entry.getValue());
+				    	}								
+					}																		
+					cdo.setCDOArrayValue(strFieldId, dst);
+			    }
+			    break;
+			case DataType.CDO_TYPE:
+			{		
+				CDO src=((CDOField)field).getValue();
+		    	for(Iterator<Map.Entry<String,Field>> iterator=src.iterator();iterator.hasNext();){
+		    		Entry<String,Field> entry=iterator.next();			    		
+		    		list2array(src, entry.getKey(), entry.getValue());
+		    	}					
+				cdo.setCDOValue(strFieldId, src);
+			}
+			break;
+		}
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	protected  void setCDOValue(CDO cdo,String key,ByteBuffer buffer){	
+		 int dataType=buffer.get();	
+		 buffer.clear();
+		 if(dataType<DataType.BOOLEAN_ARRAY_TYPE){
+			 //普通类型
+			 setCDOValue(cdo, key, dataType, buffer);
+		 }else{
+			 //数组类型 
+			 setCDOValueArr(cdo, key, dataType, buffer);
+		 }
+		
+	}
+	private  void setCDOValue(CDO cdo,String key,int dataType,ByteBuffer buffer){
+		switch (dataType) {		
+			case DataType.BOOLEAN_TYPE:
+				  setBooleanValue(cdo, key, buffer);
+				break;
+			case DataType.BYTE_TYPE:
+				cdo.setByteValue(key, buffer.get());
+				break;
+			case DataType.SHORT_TYPE:			
+				 setShortValue(cdo, key, buffer);
+				break;
+			case DataType.INTEGER_TYPE:
+				setIntegerValue(cdo, key, buffer);
+				break;
+			case DataType.LONG_TYPE:
+				setLongValue(cdo, key, buffer);
+				break;
+			case DataType.FLOAT_TYPE:
+				setFloatValue(cdo, key, buffer);
+				break;
+			case DataType.DOUBLE_TYPE:
+				setDoubleValue(cdo, key, buffer);
+				break;
+			case DataType.STRING_TYPE:
+				setStringValue(cdo, key, buffer);
+				break;
+			case DataType.DATE_TYPE:
+				setDateValue(cdo, key, buffer);
+				break;
+			case DataType.TIME_TYPE:
+				setTimeValue(cdo, key, buffer);
+				break;	
+			case DataType.DATETIME_TYPE:
+				setDateTimeValue(cdo, key, buffer);
+				break;	
+			default:
+				throw new java.lang.RuntimeException("unsupport object type! key="+key+",type="+dataType);
+		}
+		
+	}
+	
+	
+	private  void setCDOValueArr(CDO cdo,String key,int dataType,ByteBuffer buffer){
+		switch (dataType) {		
+			case DataType.BOOLEAN_ARRAY_TYPE:
+				setBooleanArrayValue(cdo, key, buffer);
+				break;
+			case DataType.BYTE_ARRAY_TYPE:
+				setByteArrayValue(cdo, key, buffer);
+				break;
+			case DataType.SHORT_ARRAY_TYPE:
+				setShortArrayValue(cdo, key, buffer);
+				break;
+			case DataType.INTEGER_ARRAY_TYPE:
+				setIntegerArrayValue(cdo, key, buffer);
+				break;
+			case DataType.LONG_ARRAY_TYPE:
+				setLongArrayValue(cdo, key, buffer);
+				break;
+			case DataType.FLOAT_ARRAY_TYPE:
+				setFloatArrayValue(cdo, key, buffer);
+				break;
+			case DataType.DOUBLE_ARRAY_TYPE:
+				setDoubleArrayValue(cdo, key, buffer);
+				break;
+			case DataType.STRING_ARRAY_TYPE:
+				setStringArrayValue(cdo, key, buffer);
+				break;
+			case DataType.DATE_ARRAY_TYPE:
+				setDateArrayValue(cdo, key, buffer);
+				break;
+			case DataType.TIME_ARRAY_TYPE:
+				setTimeArrayValue(cdo, key, buffer);
+				break;	
+			case DataType.DATETIME_ARRAY_TYPE:
+				setDateTimeArrayValue(cdo, key, buffer);
+				break;	
+			default:
+				throw new java.lang.RuntimeException("unsupport object type! key="+key+",type="+dataType);
+		}		
+	}
+}

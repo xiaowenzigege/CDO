@@ -24,8 +24,10 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
 import org.apache.log4j.Logger;
 
+import com.cdo.example.ExampleCDO;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
+import com.cdo.google.handle.ParseProtoCDO;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdo.util.resource.GlobalResource;
 import com.cdoframework.cdolib.base.Return;
@@ -49,22 +51,22 @@ public class ProtoPRCClient implements IRPCClient{
 	private final int remotePort;  
 
 	private final int retryTime=5;//若断开，每隔多长时间重试一次 单位为秒
-	private  int totalRetryCount=0;//0表示无限次每隔retryTime时间的重试一次  大于0在表示重试 达到多次后，不再重试
-	private  int retryCount=1;
+	private  int totalRetryCount=5;//0表示无限次每隔retryTime时间的重试一次  大于0在表示重试 达到多次后，不再重试
+	private  int retryCount=0;
     ProtoClientHandler handle; 
     
     private String clientKey;
     
     static {
     	//TODO 建立连接多个服务端的connection
-    	String[] address=GlobalResource.cdoConfig.getString("netty.client.conections").split(";");
-    	for(int i=0;i<address.length;i++){
-    		int index=address[i].lastIndexOf(":");
-    		String hostName=address[i].substring(0, index);
-    		int port=Integer.parseInt(address[i].substring(index+1));
-    		ProtoPRCClient client=new ProtoPRCClient(hostName,port);
-    		client.init();
-    	}
+//    	String[] address=GlobalResource.cdoConfig.getString("netty.client.conections").split(";");
+//    	for(int i=0;i<address.length;i++){
+//    		int index=address[i].lastIndexOf(":");
+//    		String hostName=address[i].substring(0, index);
+//    		int port=Integer.parseInt(address[i].substring(index+1));
+//    		ProtoPRCClient client=new ProtoPRCClient(hostName,port);
+//    		client.init();
+//    	}
     	
     }
     
@@ -123,21 +125,21 @@ public class ProtoPRCClient implements IRPCClient{
 	    if (closed) {
 	      return;
 	    }
-	    if(totalRetryCount>0 && retryCount>totalRetryCount){
+	    if(totalRetryCount>0 && retryCount>=totalRetryCount){
+	    	close();
 	    	return; 
 	    }
+	    retryCount++;//记录重试次数
 	    final ProtoPRCClient rpcClient=this;
 	    ChannelFuture future = bootstrap.connect(remoteHost,remotePort);
 	    future.addListener(new ChannelFutureListener() {
 	      public void operationComplete(ChannelFuture f) throws Exception {
 	        if (f.isSuccess()) {
-	          logger.info("Started  Client: " + getServerInfo());
-	          handle=f.channel().pipeline().get(ProtoClientHandler.class);
-	          
+	          logger.info("Started  Client Success connection: " + getServerInfo());
+	          handle=f.channel().pipeline().get(ProtoClientHandler.class);	          
 	          clients.put(clientKey,rpcClient);
-	        } else {	
-	          if(totalRetryCount>0)retryCount++;//记录重试次数
-	          logger.info("Started Client retry "+retryCount+" times Failed: " + getServerInfo());
+	        } else {		       
+	          logger.error("Started Client Failed retry connection ["+retryCount+"] times : " + getServerInfo());
 	          f.channel().eventLoop().schedule(new Runnable() {				
 				@Override
 				public void run() {
@@ -152,7 +154,7 @@ public class ProtoPRCClient implements IRPCClient{
 	public void close() {
 		    closed = true;
 		    workerGroup.shutdownGracefully();
-		    System.out.println("Stopped Tcp Client: " + getServerInfo());
+		    logger.info("Stopped Tcp Client: " + getServerInfo());
 	}	
 
 	private String getServerInfo() {
@@ -188,8 +190,14 @@ public class ProtoPRCClient implements IRPCClient{
 	
 	
     public static void main(String[] args){
-    	ProtoPRCClient rClient=new ProtoPRCClient("10.27.122.62",8090);
-    	rClient.init();
+//    	ProtoPRCClient rClient=new ProtoPRCClient("10.27.122.62",8090);
+//    	rClient.init();
 //    	rClient.handleTrans(cdoRequest, cdoResponse)
+		GoogleCDO.CDOProto.Builder proto=ExampleCDO.getCDO().toProtoBuilder();
+		 CDO cdoResponse=new CDO();
+		CDO cdoReturn=new CDO();
+		ProtoRPCCDOParse.ProtoRPCParse.parse(proto.build(),cdoResponse,cdoReturn);
+		System.out.println("proto cdoResponse xml="+cdoResponse.toXMLWithIndent());
+		System.out.println("proto cdoReturn xml="+cdoReturn.toXMLWithIndent());
     }
 }

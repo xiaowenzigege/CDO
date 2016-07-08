@@ -50,7 +50,7 @@ public class ExampleAvroRPC {
 		public AvroCDO handleTrans(AvroCDO avroCDOReq) throws AvroRemoteException {
 
 			CDO cdoRequest=AvroCDOParse.AvroParse.parse(avroCDOReq);	
-//			System.out.println("avro xml="+cdoRequest.toXMLWithIndent());
+			System.out.println("avro xml="+cdoRequest.toXMLWithIndent());
 			CDO cdoOutput=new CDO();
 			//
 			/**
@@ -98,7 +98,7 @@ public class ExampleAvroRPC {
 
     public static void main(String[] args) throws IOException {
     	
-        AvroCDO cdoDataReq=ExampleCDO.getCDO().toAvro();
+        AvroCDO cdoDataReq=ExampleCDO.getCDO().toAvro();        
         startServer();
         System.out.println("sss="+("0;a".substring(2)));
         StringBuilder sbBuilder=new StringBuilder("abc;");

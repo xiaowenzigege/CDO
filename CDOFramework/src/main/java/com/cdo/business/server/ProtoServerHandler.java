@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.cdo.business.BusinessService;
 import com.cdo.business.client.rpc.ClientId;
-import com.cdo.google.handle.ProtoCDOParse;
+import com.cdo.google.handle.ParseProtoCDO;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
@@ -69,7 +69,7 @@ public class ProtoServerHandler extends SimpleChannelInboundHandler<MessageLite>
 			CDO cdoOutput=new CDO();			
 			try{				
 				CDO cdoResponse=new CDO();
-				CDO cdoRequest=ProtoCDOParse.ProtoParse.parse(proto);				
+				CDO cdoRequest=ParseProtoCDO.ProtoParse.parse(proto);				
 				Return ret=serviceBus.handleTrans(cdoRequest, cdoResponse);
 				if(ret==null){
 					String strServiceName=cdoRequest.exists(ITransService.SERVICENAME_KEY)?cdoRequest.getStringValue(ITransService.SERVICENAME_KEY):"null";

@@ -5,11 +5,11 @@ import java.util.Iterator;
 import nanoxml.XMLElement;
 
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.data.cdo.XmlCDOParse;
+import com.cdoframework.cdolib.data.cdo.ParseXmlCDO;
 
 
 
-public class XmlCDOHTTPParse extends XmlCDOParse {
+public class XmlCDOHTTPParse extends ParseXmlCDO {
 
 	 static void xmlToCDO(String strXML,CDO cdoReturn,CDO cdoResponse)
 	{

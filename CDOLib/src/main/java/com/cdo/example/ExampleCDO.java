@@ -119,8 +119,10 @@ public class ExampleCDO {
 			cdoResponse.setCDOArrayValue("cdosList", new CDO[]{cdo.clone(),cdo.clone()});			
 			cdoResponse.setStringValue("aa", "ab");
 			
-			cdoOut.setCDOValue("cdoResponse",cdoResponse );
+			cdoOut.setCDOValue("cdoResponse",cdoResponse);
 			cdoOut.setCDOValue("cdoReturn", cdoReturn);
+			cdoOut.copyFrom(cdo);
+			cdoOut.setCDOArrayValue("testarr", new CDO[]{cdo.clone()});
 			System.out.println("xml="+cdoOut.toXMLWithIndent());	
 			InetAddress ia=null;
 			try {
