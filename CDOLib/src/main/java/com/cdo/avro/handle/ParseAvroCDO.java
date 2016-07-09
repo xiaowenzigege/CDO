@@ -9,13 +9,13 @@ import com.cdo.avro.protocol.AvroCDO;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.ParseCDOBuffer;
 
-public class AvroCDOParse extends ParseCDOBuffer{
+public class ParseAvroCDO extends ParseCDOBuffer{
 	
-    public static AvroCDOParse AvroParse;
+    public static ParseAvroCDO AvroParse;
     static{
-    	AvroParse=new AvroCDOParse();
+    	AvroParse=new ParseAvroCDO();
    }
-	protected AvroCDOParse(){		
+	protected ParseAvroCDO(){		
 	}
 	
 	public  CDO parse(AvroCDO avro){		

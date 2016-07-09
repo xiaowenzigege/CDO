@@ -35,7 +35,7 @@ import org.apache.avro.ipc.specific.SpecificRequestor;
 import org.apache.avro.ipc.specific.SpecificResponder;
 import org.apache.avro.util.Utf8;
 
-import com.cdo.avro.handle.AvroCDOParse;
+import com.cdo.avro.handle.ParseAvroCDO;
 import com.cdo.avro.protocol.AvroCDO;
 import com.cdo.avro.protocol.AvroCDOProtocol;
 import com.cdoframework.cdolib.data.cdo.CDO;
@@ -49,7 +49,7 @@ public class ExampleAvroRPC {
 		@Override
 		public AvroCDO handleTrans(AvroCDO avroCDOReq) throws AvroRemoteException {
 
-			CDO cdoRequest=AvroCDOParse.AvroParse.parse(avroCDOReq);	
+			CDO cdoRequest=ParseAvroCDO.AvroParse.parse(avroCDOReq);	
 			System.out.println("avro xml="+cdoRequest.toXMLWithIndent());
 			CDO cdoOutput=new CDO();
 			//

@@ -8,10 +8,10 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.ssl.SslContext;
 
-public class ProtoClientInitializer extends ChannelInitializer<SocketChannel> {
+public class RPCClientInitializer extends ChannelInitializer<SocketChannel> {
     private final SslContext sslCtx;
-    private final ProtoPRCClient client;
-    public ProtoClientInitializer(SslContext sslCtx,ProtoPRCClient client) {
+    private final RPCClient client;
+    public RPCClientInitializer(SslContext sslCtx,RPCClient client) {
         this.sslCtx = sslCtx;
         this.client=client;
     }
@@ -25,7 +25,7 @@ public class ProtoClientInitializer extends ChannelInitializer<SocketChannel> {
         p.addLast("decoder",new CDOProtobufDecoder());        
         p.addLast("encoder",new CDOProtobufEncoder());
 
-        p.addLast(new ProtoClientHandler());
+        p.addLast(new RPCClientHandler());
     }
 
 }

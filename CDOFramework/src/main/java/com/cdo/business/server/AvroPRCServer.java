@@ -8,7 +8,7 @@ import org.apache.avro.ipc.Server;
 import org.apache.avro.ipc.specific.SpecificResponder;
 import org.apache.log4j.Logger;
 
-import com.cdo.avro.handle.AvroCDOParse;
+import com.cdo.avro.handle.ParseAvroCDO;
 import com.cdo.avro.protocol.AvroCDO;
 import com.cdo.avro.protocol.AvroCDOProtocol;
 import com.cdo.business.BusinessService;
@@ -27,7 +27,7 @@ public class AvroPRCServer {
 		public AvroCDO handleTrans(AvroCDO avroCDOReq) throws AvroRemoteException {
 			CDO cdoOutput=new CDO();
 			try{
-				CDO cdoRequest=AvroCDOParse.AvroParse.parse(avroCDOReq);	
+				CDO cdoRequest=ParseAvroCDO.AvroParse.parse(avroCDOReq);	
 				CDO cdoResponse=new CDO();
 				serviceBus = BusinessService.getInstance();	
 				Return ret=serviceBus.handleTrans(cdoRequest, cdoResponse);

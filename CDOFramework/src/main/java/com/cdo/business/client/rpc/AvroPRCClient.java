@@ -47,7 +47,7 @@ public class AvroPRCClient implements IRPCClient{
 		  	}
 		  	CDO cdoReturn=new CDO();
 			AvroCDO avroCDORes=proxy.handleTrans(cdoRequest.toAvro());			
-			AvroRPCCDOParse.AvroRPCParse.parse(avroCDORes, cdoResponse, cdoReturn);	
+			ParseRPCAvroCDO.AvroRPCParse.parse(avroCDORes, cdoResponse, cdoReturn);	
 		    return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));		
 		} catch (Throwable e) {
 			// TODO Auto-generated catch block

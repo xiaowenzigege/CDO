@@ -39,10 +39,10 @@ import com.cdoframework.cdolib.servicebus.ITransService;
  * @author KenelLiu
  *
  */
-public class ProtoPRCClient implements IRPCClient{
-	private final static Logger logger=Logger.getLogger(ProtoPRCClient.class);
+public class RPCClient implements IRPCClient{
+	private final static Logger logger=Logger.getLogger(RPCClient.class);
 	
-	private static final Map<String, ProtoPRCClient> clients=new HashMap<String, ProtoPRCClient>();
+	private static final Map<String, RPCClient> clients=new HashMap<String, RPCClient>();
 	static final boolean SSL = System.getProperty("ssl") != null;
 	private volatile EventLoopGroup workerGroup;
 	private volatile Bootstrap bootstrap;
@@ -53,7 +53,7 @@ public class ProtoPRCClient implements IRPCClient{
 	private final int retryTime=5;//若断开，每隔多长时间重试一次 单位为秒
 	private  int totalRetryCount=5;//0表示无限次每隔retryTime时间的重试一次  大于0在表示重试 达到多次后，不再重试
 	private  int retryCount=0;
-    ProtoClientHandler handle; 
+    RPCClientHandler handle; 
     
     private String clientKey;
     
@@ -70,7 +70,7 @@ public class ProtoPRCClient implements IRPCClient{
     	
     }
     
-	public ProtoPRCClient(String remoteHost, int remotePort) {
+	public RPCClient(String remoteHost, int remotePort) {
 		    this.remoteHost = remoteHost;
 		    this.remotePort = remotePort;
 		    this.clientKey=remoteHost+":"+remotePort;
@@ -112,7 +112,7 @@ public class ProtoPRCClient implements IRPCClient{
 					        });			        
 				        p.addLast("decoder",new CDOProtobufDecoder());        
 				        p.addLast("encoder",new CDOProtobufEncoder());
-				        p.addLast(new ProtoClientHandler());				
+				        p.addLast(new RPCClientHandler());				
 					}            	 
 	             });	                     
 	        }catch(Exception ex){
@@ -130,13 +130,13 @@ public class ProtoPRCClient implements IRPCClient{
 	    	return; 
 	    }
 	    retryCount++;//记录重试次数
-	    final ProtoPRCClient rpcClient=this;
+	    final RPCClient rpcClient=this;
 	    ChannelFuture future = bootstrap.connect(remoteHost,remotePort);
 	    future.addListener(new ChannelFutureListener() {
 	      public void operationComplete(ChannelFuture f) throws Exception {
 	        if (f.isSuccess()) {
 	          logger.info("Started  Client Success connection: " + getServerInfo());
-	          handle=f.channel().pipeline().get(ProtoClientHandler.class);	          
+	          handle=f.channel().pipeline().get(RPCClientHandler.class);	          
 	          clients.put(clientKey,rpcClient);
 	        } else {		       
 	          logger.error("Started Client Failed retry connection ["+retryCount+"] times : " + getServerInfo());
@@ -166,7 +166,7 @@ public class ProtoPRCClient implements IRPCClient{
 
  
 	/**
-	 * @see {@link com.cdo.business.server.ProtoRPCServer#handleTrans(CDO,CDO)}
+	 * @see {@link com.cdo.business.server.RPCServer#handleTrans(CDO,CDO)}
 	 * @param cdoRequest
 	 * @param cdoResponse
 	 * @return
@@ -178,7 +178,7 @@ public class ProtoPRCClient implements IRPCClient{
 		  	}		  	
 		  	CDO cdoReturn=new CDO();
 			GoogleCDO.CDOProto proto=handle.handleTrans(cdoRequest);
-			ProtoRPCCDOParse.ProtoRPCParse.parse(proto, cdoResponse, cdoReturn);			
+			ParseRPCProtoCDO.ProtoRPCParse.parse(proto, cdoResponse, cdoReturn);			
 		    return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));		
 		} catch (Throwable e) {
 			String strServiceName=cdoRequest.exists(ITransService.SERVICENAME_KEY)?cdoRequest.getStringValue(ITransService.SERVICENAME_KEY):"null";
@@ -196,7 +196,7 @@ public class ProtoPRCClient implements IRPCClient{
 		GoogleCDO.CDOProto.Builder proto=ExampleCDO.getCDO().toProtoBuilder();
 		 CDO cdoResponse=new CDO();
 		CDO cdoReturn=new CDO();
-		ProtoRPCCDOParse.ProtoRPCParse.parse(proto.build(),cdoResponse,cdoReturn);
+		ParseRPCProtoCDO.ProtoRPCParse.parse(proto.build(),cdoResponse,cdoReturn);
 		System.out.println("proto cdoResponse xml="+cdoResponse.toXMLWithIndent());
 		System.out.println("proto cdoReturn xml="+cdoReturn.toXMLWithIndent());
     }

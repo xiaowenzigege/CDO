@@ -18,9 +18,9 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 
-public class ProtoRPCServer {
+public class RPCServer {
     static final boolean SSL = System.getProperty("ssl") != null;
-	private static Logger logger=Logger.getLogger(ProtoRPCServer.class);
+	private static Logger logger=Logger.getLogger(RPCServer.class);
 	
     public static void main(String[] args) throws Exception {
         // Configure SSL.
@@ -41,7 +41,7 @@ public class ProtoRPCServer {
              .childOption(ChannelOption.SO_KEEPALIVE, true)
              .channel(NioServerSocketChannel.class)
              .handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new ProtoServerInitializer(sslCtx));
+             .childHandler(new RPCServerInitializer(sslCtx));
             
             GlobalResource.bundleInitCDOEnv();	
             int port=8090;//GlobalResource.cdoConfig.getInt("netty.server.port");

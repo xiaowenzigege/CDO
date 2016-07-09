@@ -34,9 +34,9 @@ public class CallsLinkedHashMap {
 			Map.Entry<Integer,Call> entry =it.next(); 
 			if(((System.currentTimeMillis()-entry.getValue().getSendTime())/hourMillis)>maxTimeOut){
 				callIdList.add(entry.getKey());
-			}else{				
-				break;
+				continue;
 			}
+			break;
 		}
 		//删除超时的	
     	for(int i=0;i<callIdList.size();i++){
@@ -48,8 +48,7 @@ public class CallsLinkedHashMap {
 			setOutCDO(cdoOutput, "等待超过"+maxTimeOut+"分钟  未获取到响应,客户端设置超时.");
 			GoogleCDO.CDOProto.Builder proto=cdoOutput.toProtoBuilder();
 			proto.setCallId(callId);
-	        call.setRpcResponse(proto.build());	
-    	
+	        call.setRpcResponse(proto.build());	    	
     	} 		
 	}
 	

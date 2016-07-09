@@ -11,12 +11,12 @@ import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.Field;
 
-public class ProtoRPCCDOParse extends ParseProtoCDO {
-    public static ProtoRPCCDOParse ProtoRPCParse;
+public class ParseRPCProtoCDO extends ParseProtoCDO {
+    public static ParseRPCProtoCDO ProtoRPCParse;
     static{
-    	ProtoRPCParse=new ProtoRPCCDOParse();
+    	ProtoRPCParse=new ParseRPCProtoCDO();
    }
-	private ProtoRPCCDOParse(){}
+	private ParseRPCProtoCDO(){}
 	
 	 void parse(GoogleCDO.CDOProto proto,CDO cdoResponse,CDO cdoReturn){		
 		proto2CDO(proto.getFieldsList(),cdoResponse,cdoReturn);					

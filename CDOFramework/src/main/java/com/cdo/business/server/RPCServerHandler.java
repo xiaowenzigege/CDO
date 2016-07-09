@@ -9,9 +9,9 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 
 import com.cdo.business.BusinessService;
-import com.cdo.business.client.rpc.ClientId;
 import com.cdo.google.handle.ParseProtoCDO;
 import com.cdo.google.protocol.GoogleCDO;
+import com.cdo.util.common.UUidGenerator;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.servicebus.ITransService;
@@ -22,9 +22,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 
-public class ProtoServerHandler extends SimpleChannelInboundHandler<MessageLite> {
+public class RPCServerHandler extends SimpleChannelInboundHandler<MessageLite> {
 
-	private static Logger logger=Logger.getLogger(ProtoServerHandler.class);
+	private static Logger logger=Logger.getLogger(RPCServerHandler.class);
 	private final  BusinessService serviceBus=BusinessService.getInstance();
 	static Map<String,SocketChannel> nettyChannelMap=new ConcurrentHashMap<String, SocketChannel>();
 	private ExecutorService executor =Executors.newFixedThreadPool(20);
@@ -42,7 +42,7 @@ public class ProtoServerHandler extends SimpleChannelInboundHandler<MessageLite>
 			throws Exception {		
 		if(msg instanceof GoogleCDO.CDOProto){			
 			GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)msg;
-			String clientId=ClientId.toString(proto.getClientId().toByteArray());
+			String clientId=UUidGenerator.ClientId.toString(proto.getClientId().toByteArray());
 			nettyChannelMap.put(clientId,(SocketChannel)ctx.channel());
 			Task task=new Task(proto);
 			executor.submit(task);
@@ -57,7 +57,7 @@ public class ProtoServerHandler extends SimpleChannelInboundHandler<MessageLite>
 		@Override
 		public void run() {				
 			GoogleCDO.CDOProto.Builder retProtoBuiler=handleTrans(this.proto);
-			String clientId=ClientId.toString(this.proto.getClientId().toByteArray());
+			String clientId=UUidGenerator.ClientId.toString(this.proto.getClientId().toByteArray());
 			SocketChannel channel=nettyChannelMap.get(clientId);
 			retProtoBuiler.setCallId(proto.getCallId());
 			channel.writeAndFlush(retProtoBuiler.build());

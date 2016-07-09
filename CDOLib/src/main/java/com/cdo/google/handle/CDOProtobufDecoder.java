@@ -17,7 +17,7 @@ public class CDOProtobufDecoder extends ByteToMessageDecoder {
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in,
 			List<Object> out) throws Exception {
 		//魔数(2个字节)+协议标识+协议类型(1个字节)+对象内容长度(4个字节)
-		int headLen=Proto.PROTOCOL_CDO_HEADER_TOTAL_LEN;
+		int headLen=ProtoProtocol.PROTOCOL_CDO_LEN;
 		//CDO 协议头header长度
 		while(in.readableBytes()>headLen){
 			in.markReaderIndex();
@@ -54,20 +54,20 @@ public class CDOProtobufDecoder extends ByteToMessageDecoder {
 		//读取魔数
 		short lowMagic=(short)(in.readByte()&0xff); 
 		short magic=(short)(((short)((in.readByte()&0xff)<<8))+lowMagic);
-		if(magic!=Proto.Type.CDO.getMagic()){			
+		if(magic!=ProtoProtocol.Type.CDO.getMagic()){			
 			return false;
 		}
 		//读取协议标识  比对 
 		StringBuilder sbHeader=new StringBuilder();
-		for(int i=0;i<Proto.PROTOCOL_CDO.length();i++){
+		for(int i=0;i<ProtoProtocol.PROTOCOL_CDO.length();i++){
 			sbHeader.append((char)in.readByte()); 
 		}
-		if(!sbHeader.toString().equals(Proto.PROTOCOL_CDO)){		
+		if(!sbHeader.toString().equals(ProtoProtocol.PROTOCOL_CDO)){		
 			return false;
 		}
 		//读取协议类型
 		byte protoType=in.readByte();
-		if(protoType!=Proto.Type.CDO.getType()){
+		if(protoType!=ProtoProtocol.Type.CDO.getType()){
 			return false;
 		}
 		return true;

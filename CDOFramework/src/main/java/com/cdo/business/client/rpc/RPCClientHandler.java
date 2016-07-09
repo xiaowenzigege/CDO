@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 
 import com.cdo.google.protocol.GoogleCDO;
+import com.cdo.util.common.UUidGenerator;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.google.protobuf.ByteString;
 
@@ -17,8 +18,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.EventLoop;
 
 
-public class ProtoClientHandler extends  ChannelInboundHandlerAdapter {
-	private static Logger logger=Logger.getLogger(ProtoClientHandler.class);
+public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
+	private static Logger logger=Logger.getLogger(RPCClientHandler.class);
 	
     private volatile Channel channel;
     private final CallsLinkedHashMap calls = new CallsLinkedHashMap();
@@ -31,9 +32,8 @@ public class ProtoClientHandler extends  ChannelInboundHandlerAdapter {
         final Call call =new Call(callId);    
     	GoogleCDO.CDOProto.Builder proto=cdoRequest.toProtoBuilder();
     	proto.setCallId(callId);
-		proto.setClientId(ByteString.copyFrom(ClientId.getClientId()));	    	
+		proto.setClientId(ByteString.copyFrom(UUidGenerator.ClientId.getClientId()));	    	
         channel.writeAndFlush(proto.build());    
-        //获取response 参见netty4.1 官网example
         calls.put(callId, call);
         boolean interrupted = false;
         synchronized (call) {

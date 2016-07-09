@@ -5,16 +5,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.cdo.avro.handle.AvroCDOParse;
+import com.cdo.avro.handle.ParseAvroCDO;
 import com.cdo.avro.protocol.AvroCDO;
 import com.cdoframework.cdolib.data.cdo.CDO;
 
-public class AvroRPCCDOParse extends AvroCDOParse {
-    public static AvroRPCCDOParse AvroRPCParse;
+public class ParseRPCAvroCDO extends ParseAvroCDO {
+    public static ParseRPCAvroCDO AvroRPCParse;
     static{
-    	AvroRPCParse=new AvroRPCCDOParse();
+    	AvroRPCParse=new ParseRPCAvroCDO();
    }
-	private  AvroRPCCDOParse(){		
+	private  ParseRPCAvroCDO(){		
 	}
 	
 	 void parse(AvroCDO avro,CDO cdoResponse,CDO cdoReturn){		
