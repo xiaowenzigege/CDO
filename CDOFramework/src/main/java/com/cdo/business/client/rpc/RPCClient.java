@@ -4,6 +4,8 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import io.netty.bootstrap.Bootstrap;
@@ -41,6 +43,7 @@ import com.cdoframework.cdolib.servicebus.ITransService;
  */
 public class RPCClient implements IRPCClient{
 	private final static Logger logger=Logger.getLogger(RPCClient.class);
+	private ExecutorService executor=Executors.newScheduledThreadPool(1);
 	
 	private static final Map<String, RPCClient> clients=new HashMap<String, RPCClient>();
 	static final boolean SSL = System.getProperty("ssl") != null;
@@ -102,12 +105,16 @@ public class RPCClient implements IRPCClient{
 					            super.channelInactive(ctx);	
 					            //断开后  删除  到某台服务器连接
 					            clients.remove(clientKey);
-					            ctx.channel().eventLoop().schedule(new Runnable() {								
-									@Override
-									public void run() {
-										doConnect();								
-									}
-								}, retryTime, TimeUnit.SECONDS);
+					            ctx.channel().close();
+						        executor.execute(new Runnable() {								
+										@Override
+										public void run() {
+											try{
+												TimeUnit.SECONDS.sleep(retryTime);
+											}catch(Exception ex){}										
+											doConnect();								
+										}
+									});	  
 					          }
 					        });			        
 				        p.addLast("decoder",new CDOProtobufDecoder());        
@@ -140,12 +147,16 @@ public class RPCClient implements IRPCClient{
 	          clients.put(clientKey,rpcClient);
 	        } else {		       
 	          logger.error("Started Client Failed retry connection ["+retryCount+"] times : " + getServerInfo());
-	          f.channel().eventLoop().schedule(new Runnable() {				
-				@Override
-				public void run() {
-					doConnect();					
-				}
-			},retryTime, TimeUnit.SECONDS);
+	          f.channel().close();
+	          executor.execute(new Runnable() {								
+					@Override
+					public void run() {
+						try{
+							TimeUnit.SECONDS.sleep(retryTime);
+						}catch(Exception ex){}										
+						doConnect();								
+					}
+				});	          
 	        }
 	      }
 	    });
@@ -190,14 +201,14 @@ public class RPCClient implements IRPCClient{
 	
 	
     public static void main(String[] args){
-//    	ProtoPRCClient rClient=new ProtoPRCClient("10.27.122.62",8090);
-//    	rClient.init();
-//    	rClient.handleTrans(cdoRequest, cdoResponse)
-		GoogleCDO.CDOProto.Builder proto=ExampleCDO.getCDO().toProtoBuilder();
-		 CDO cdoResponse=new CDO();
-		CDO cdoReturn=new CDO();
-		ParseRPCProtoCDO.ProtoRPCParse.parse(proto.build(),cdoResponse,cdoReturn);
-		System.out.println("proto cdoResponse xml="+cdoResponse.toXMLWithIndent());
-		System.out.println("proto cdoReturn xml="+cdoReturn.toXMLWithIndent());
+    	RPCClient rClient=new RPCClient("10.27.122.62",8090);
+    	rClient.init();
+//   	rClient.handleTrans(cdoRequest, cdoResponse)
+//		GoogleCDO.CDOProto.Builder proto=ExampleCDO.getCDO().toProtoBuilder();
+//		 CDO cdoResponse=new CDO();
+//		CDO cdoReturn=new CDO();
+//		ParseRPCProtoCDO.ProtoRPCParse.parse(proto.build(),cdoResponse,cdoReturn);
+//		System.out.println("proto cdoResponse xml="+cdoResponse.toXMLWithIndent());
+//		System.out.println("proto cdoReturn xml="+cdoReturn.toXMLWithIndent());
     }
 }

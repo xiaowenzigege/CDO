@@ -43,7 +43,7 @@ public class RPCServer {
              .handler(new LoggingHandler(LogLevel.INFO))
              .childHandler(new RPCServerInitializer(sslCtx));
             
-            GlobalResource.bundleInitCDOEnv();	
+//            GlobalResource.bundleInitCDOEnv();	
             int port=8090;//GlobalResource.cdoConfig.getInt("netty.server.port");
 //            startService();
             ChannelFuture f= b.bind(port).sync();
