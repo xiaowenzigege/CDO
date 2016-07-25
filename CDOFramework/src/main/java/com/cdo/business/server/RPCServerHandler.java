@@ -9,7 +9,10 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 
 import com.cdo.business.BusinessService;
+import com.cdo.google.handle.CDOMessage;
+import com.cdo.google.handle.Header;
 import com.cdo.google.handle.ParseProtoCDO;
+import com.cdo.google.handle.ProtoProtocol;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdo.util.common.UUidGenerator;
 import com.cdoframework.cdolib.base.Return;
@@ -22,7 +25,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 
-public class RPCServerHandler extends SimpleChannelInboundHandler<MessageLite> {
+public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 
 	private static Logger logger=Logger.getLogger(RPCServerHandler.class);
 	private final  BusinessService serviceBus=BusinessService.getInstance();
@@ -38,14 +41,24 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<MessageLite> {
      * 不能在上面处理事务,根据是内部长连接还是外部长连接，需要调节连接池的数量。
      */
 	@Override
-	protected void channelRead0(ChannelHandlerContext ctx, MessageLite msg)
-			throws Exception {		
-		if(msg instanceof GoogleCDO.CDOProto){			
-			GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)msg;
+	protected void channelRead0(ChannelHandlerContext ctx, CDOMessage msg)
+			throws Exception {	
+		  Header header=msg.getHeader();
+		if(header.getType()==ProtoProtocol.TYPE_CDO){			
+			GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(msg.getBody());
 			String clientId=UUidGenerator.ClientId.toString(proto.getClientId().toByteArray());
 			nettyChannelMap.put(clientId,(SocketChannel)ctx.channel());
 			Task task=new Task(proto);
 			executor.submit(task);
+		}else if(header.getType()==ProtoProtocol.TYPE_HEARTBEAT_REQ){
+			//心跳检查
+			Header resHeader=new Header();
+			resHeader.setType(ProtoProtocol.TYPE_HEARTBEAT_RES);
+			CDOMessage resMessage=new CDOMessage();
+			resMessage.setHeader(resHeader);
+			ctx.writeAndFlush(resMessage);
+		}else{
+			ctx.fireChannelRead(msg);
 		}
 	}
 
@@ -59,8 +72,15 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<MessageLite> {
 			GoogleCDO.CDOProto.Builder retProtoBuiler=handleTrans(this.proto);
 			String clientId=UUidGenerator.ClientId.toString(this.proto.getClientId().toByteArray());
 			SocketChannel channel=nettyChannelMap.get(clientId);
-			retProtoBuiler.setCallId(proto.getCallId());
-			channel.writeAndFlush(retProtoBuiler.build());
+			
+			retProtoBuiler.setCallId(proto.getCallId());			
+			Header resHeader=new Header();
+			resHeader.setType(ProtoProtocol.TYPE_CDO);
+			CDOMessage resMessage=new CDOMessage();
+			resMessage.setHeader(resHeader);
+			resMessage.setBody(retProtoBuiler.build());
+			
+			channel.writeAndFlush(resMessage);			
 			nettyChannelMap.remove(clientId);			
 		}
 		
@@ -70,7 +90,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<MessageLite> {
 			try{				
 				CDO cdoResponse=new CDO();
 				CDO cdoRequest=ParseProtoCDO.ProtoParse.parse(proto);				
-				Return ret=serviceBus.handleTrans(cdoRequest, cdoResponse);
+				Return ret=serviceBus.handleTrans(cdoRequest, cdoResponse);				
 				if(ret==null){
 					String strServiceName=cdoRequest.exists(ITransService.SERVICENAME_KEY)?cdoRequest.getStringValue(ITransService.SERVICENAME_KEY):"null";
 					String strTransName=cdoRequest.exists(ITransService.TRANSNAME_KEY)?cdoRequest.getStringValue(ITransService.TRANSNAME_KEY):"null";					

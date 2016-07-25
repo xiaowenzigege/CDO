@@ -3,7 +3,7 @@ package com.cdo.google.handle;
 public final class Header {
 	private final short crcCode=ProtoProtocol.MAGIC_NUMBER;//cdo协议魔数
 	private byte type; //消息类型
-
+	
 	public byte getType() {
 		return type;
 	}
@@ -14,4 +14,8 @@ public final class Header {
 		return crcCode;
 	}
 	
+	public String toString(){
+		
+		return "Header [ crcCode="+crcCode+",type="+type+"]";
+	}
 }

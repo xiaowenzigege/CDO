@@ -16,61 +16,71 @@ public class CDOProtobufDecoder extends ByteToMessageDecoder {
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in,
 			List<Object> out) throws Exception {
-		//魔数(2个字节)+协议标识+协议类型(1个字节)+对象内容长度(4个字节)
-		int headLen=ProtoProtocol.PROTOCOL_CDO_LEN;
+		//CDO 协议=魔数(2个字节)+消息类型(1个字节)+对象内容长度(4个字节)	
+		int headLen=ProtoProtocol.PROTOCOL_LEN;
 		//CDO 协议头header长度
 		while(in.readableBytes()>headLen){
 			in.markReaderIndex();
+			//读取魔数
+			short lowMagic=(short)(in.readByte()&0xff); 
+			short magic=(short)(((short)((in.readByte()&0xff)<<8))|lowMagic);
+			if(magic!=ProtoProtocol.MAGIC_NUMBER){		
+				in.resetReaderIndex();
+				return; 
+			}
+			byte type=in.readByte();
 			//判断是否是CDO协议
-			if(!checkHeader(in)){
+			if(!checkMsgType(type)){
 				in.resetReaderIndex();
 				return;
 			}
 			//读取包头中 body的长度
 			int len=readBodyLen(in);
-			if (in.readableBytes() <len) {
-	             in.resetReaderIndex();
-	            return;
-	        }			
-			ByteBuf bodyByteBuf = in.readBytes(len);
-		    byte[] array;
-	        int offset;	        
-	        int readableLen= bodyByteBuf.readableBytes();
-	        if (bodyByteBuf.hasArray()) {
-	                array = bodyByteBuf.array();
-	                offset = bodyByteBuf.arrayOffset() + bodyByteBuf.readerIndex();
-	        } else {
-	                array = new byte[readableLen];
-	                bodyByteBuf.getBytes(bodyByteBuf.readerIndex(), array, 0, readableLen);
-	                offset = 0;
-	       }	        
-	        //反序列化
-            MessageLite result= GoogleCDO.CDOProto.getDefaultInstance().getParserForType().parseFrom(array, offset, readableLen);
-            out.add(result);	        
+			
+			CDOMessage message=new CDOMessage();
+			Header header=new Header();
+			header.setType(type);
+			message.setHeader(header);									
+			if(type==ProtoProtocol.TYPE_CDO){
+				if (in.readableBytes() <len) {
+		            in.resetReaderIndex();
+		            return;
+		        }			
+				ByteBuf bodyByteBuf = in.readBytes(len);
+			    byte[] array;
+		        int offset;	        
+		        int readableLen= bodyByteBuf.readableBytes();
+		        if (bodyByteBuf.hasArray()) {
+		                array = bodyByteBuf.array();
+		                offset = bodyByteBuf.arrayOffset() + bodyByteBuf.readerIndex();
+		        } else {
+		                array = new byte[readableLen];
+		                bodyByteBuf.getBytes(bodyByteBuf.readerIndex(), array, 0, readableLen);
+		                offset = 0;
+		       }	        
+		        //反序列化
+	           MessageLite result= GoogleCDO.CDOProto.getDefaultInstance().getParserForType().parseFrom(array, offset, readableLen);
+	           message.setBody(result); 	        
+			} 
+			out.add(message);
 		}
 	}
-	//读取协议头信息，进行检查
-	private boolean checkHeader(ByteBuf in){
+	
+	//进行检查消息类型
+	private boolean checkMsgType(byte type){
 		//读取魔数
-		short lowMagic=(short)(in.readByte()&0xff); 
-		short magic=(short)(((short)((in.readByte()&0xff)<<8))+lowMagic);
-		if(magic!=ProtoProtocol.Type.CDO.getMagic()){			
-			return false;
+		boolean flag=false;
+		switch (type) {
+			case ProtoProtocol.TYPE_CDO:
+			case ProtoProtocol.TYPE_HEARTBEAT_REQ:
+			case ProtoProtocol.TYPE_HEARTBEAT_RES:
+				flag=true;
+				break;
+			default:
+				flag=false;
+				break;
 		}
-		//读取协议标识  比对 
-		StringBuilder sbHeader=new StringBuilder();
-		for(int i=0;i<ProtoProtocol.PROTOCOL_CDO.length();i++){
-			sbHeader.append((char)in.readByte()); 
-		}
-		if(!sbHeader.toString().equals(ProtoProtocol.PROTOCOL_CDO)){		
-			return false;
-		}
-		//读取协议类型
-		byte protoType=in.readByte();
-		if(protoType!=ProtoProtocol.Type.CDO.getType()){
-			return false;
-		}
-		return true;
+		return flag;
 	}
 
 	/**读取4个字节，表示body长度

@@ -18,5 +18,7 @@ public class CDOMessage {
 		this.body = body;
 	}
 	
-	
+	public String toString(){
+		return "Message [header="+header+"]";
+	}
 }

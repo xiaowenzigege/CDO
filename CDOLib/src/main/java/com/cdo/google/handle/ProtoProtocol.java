@@ -3,20 +3,22 @@ package com.cdo.google.handle;
 public interface ProtoProtocol {
 	 final String PROTOCOL_CDO="CDO";
 	 /**
-	  * CDO 协议长度=魔数(2个字节)+协议标识+协议类型(1个字节)+CDO封装 对象内容长度(4个字节)
+	  * CDO 协议=魔数(2个字节)+消息类型(1个字节)+对象内容长度(4个字节)	
 	  */
-	 final int PROTOCOL_CDO_LEN=2+PROTOCOL_CDO.length()+1+4;	
+	 final int   PROTOCOL_LEN=2+1+4;	
 	 final short MAGIC_NUMBER=0xCDF;
+	 
+	 final byte  TYPE_CDO=0x00;
+	 final byte  TYPE_HEARTBEAT_REQ=0x01;
+	 final byte  TYPE_HEARTBEAT_RES=0x02;
 	 public enum Type{
-		 	CDO((short)0xCDF,(byte)0x00,"CDO");
+		 	CDO(TYPE_CDO,"CDO"),HEARTBEAT_REQ(TYPE_HEARTBEAT_REQ,"heartBeat Req"),HEARTBEAT_RES(TYPE_HEARTBEAT_RES,"heartBeat Res");
 			private byte type;
-			private short magic;
-		    private String protoName;
+		    private String msg;
 		    
-		    private Type(short magic,byte type,String protoName){
-		    	this.magic=magic;
+		    private Type(byte type,String msg){		    	
 		        this.type = type;		       
-		        this.protoName = protoName;
+		        this.msg = msg;
 		    }
 
 			public byte getType() {
@@ -26,21 +28,13 @@ public interface ProtoProtocol {
 			public void setType(byte type) {
 				this.type = type;
 			}
-
-			public short getMagic() {
-				return magic;
+			
+			public String getMsg() {
+				return msg;
 			}
 
-			public void setMagic(short magic) {
-				this.magic = magic;
-			}
-
-			public String getProtoName() {
-				return protoName;
-			}
-
-			public void setProtoName(String protoName) {
-				this.protoName = protoName;
+			public void setMsg(String msg) {
+				this.msg = msg;
 			}
 		    
 		}

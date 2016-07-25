@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.sql.rowset.Joinable;
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -23,6 +25,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.netty.handler.timeout.IdleStateHandler;
 
 import org.apache.log4j.Logger;
 
@@ -99,11 +102,13 @@ public class RPCClient implements IRPCClient{
 				        if (sslCtx != null) {
 				            p.addLast(sslCtx.newHandler(ch.alloc(),remoteHost,remotePort));
 				        } 
+				        p.addLast(new IdleStateHandler(20,10,0));
 				        p.addLast(new ChannelInboundHandlerAdapter() {
 					          @Override
 					          public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 					            super.channelInactive(ctx);	
-					            //断开后  删除  到某台服务器连接
+					            //断开后  删除  到某台服务器连接					           
+					            logger.warn("ctx is channelInactive:"+ctx);
 					            clients.remove(clientKey);
 					            ctx.channel().close();
 						        executor.execute(new Runnable() {								
@@ -203,12 +208,10 @@ public class RPCClient implements IRPCClient{
     public static void main(String[] args){
     	RPCClient rClient=new RPCClient("10.27.122.62",8090);
     	rClient.init();
-//   	rClient.handleTrans(cdoRequest, cdoResponse)
-//		GoogleCDO.CDOProto.Builder proto=ExampleCDO.getCDO().toProtoBuilder();
-//		 CDO cdoResponse=new CDO();
-//		CDO cdoReturn=new CDO();
-//		ParseRPCProtoCDO.ProtoRPCParse.parse(proto.build(),cdoResponse,cdoReturn);
-//		System.out.println("proto cdoResponse xml="+cdoResponse.toXMLWithIndent());
-//		System.out.println("proto cdoReturn xml="+cdoReturn.toXMLWithIndent());
+    	CDO cdoRequest=ExampleCDO.getCDO();
+    	CDO cdoResponse=new CDO();
+    	Return ret=rClient.handleTrans(cdoRequest, cdoResponse);
+		System.out.println("proto cdoResponse xml="+cdoResponse.toXMLWithIndent()+",cdo ret="+ret);
+		
     }
 }
