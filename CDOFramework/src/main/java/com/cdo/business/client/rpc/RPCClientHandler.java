@@ -23,6 +23,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 	private static Logger logger=Logger.getLogger(RPCClientHandler.class);
 
     private volatile Channel channel;
+    private ByteString clientId; 
     private final CallsLinkedHashMap calls = new CallsLinkedHashMap();
     /** A counter for generating call IDs. */
     private static final AtomicInteger callIdCounter = new AtomicInteger();
@@ -33,7 +34,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
         final Call call =new Call(callId);    
     	GoogleCDO.CDOProto.Builder proto=cdoRequest.toProtoBuilder();
     	proto.setCallId(callId);
-		proto.setClientId(ByteString.copyFrom(UUidGenerator.ClientId.getClientId()));	
+		proto.setClientId(clientId);	
 		//构造发送message 类型数据
 		Header reqHeader=new Header();
 		reqHeader.setType(ProtoProtocol.TYPE_CDO);
@@ -64,7 +65,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) {
         channel = ctx.channel();
-        //本例无需登陆,注册成功后,定时发送心跳检测。若有登陆情况，则在登陆返回成功时 进行检测
+        clientId=ByteString.copyFrom(UUidGenerator.ClientId.getClientId());
     }
     
     
@@ -93,8 +94,6 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     			if(logger.isInfoEnabled())
     				logger.info("client receive server heart msg:"+msg);
     		}else if(cdoMessage.getHeader().getType()==ProtoProtocol.TYPE_CDO){
-    			if(logger.isInfoEnabled())
-    				logger.info("client receive server CDO:"+msg);
         		GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(cdoMessage.getBody());
     			int callId=proto.getCallId();
     			Call call = calls.get(callId);

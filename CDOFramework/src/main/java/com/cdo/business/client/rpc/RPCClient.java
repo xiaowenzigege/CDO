@@ -34,6 +34,7 @@ import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
 import com.cdo.google.handle.ParseProtoCDO;
 import com.cdo.google.protocol.GoogleCDO;
+import com.cdo.util.common.UUidGenerator;
 import com.cdo.util.resource.GlobalResource;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
@@ -212,6 +213,8 @@ public class RPCClient implements IRPCClient{
     	CDO cdoResponse=new CDO();
     	Return ret=rClient.handleTrans(cdoRequest, cdoResponse);
 		System.out.println("proto cdoResponse xml="+cdoResponse.toXMLWithIndent()+",cdo ret="+ret);
-		
+		for(int i=0;i<100;i++){
+			System.out.println(UUidGenerator.genenator());
+		}
     }
 }
