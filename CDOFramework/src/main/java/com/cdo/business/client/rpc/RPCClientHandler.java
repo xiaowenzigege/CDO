@@ -72,7 +72,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
-            switch (e.state()) {
+            switch (e.state()) {// ping message when there is no outbound traffic for 10 seconds  see RPCClient,RPCServerInitializer         	
                 case WRITER_IDLE:
         			CDOMessage heartBeat=new CDOMessage();
         			Header header=new Header();

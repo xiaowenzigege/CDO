@@ -24,6 +24,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 
 public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 
@@ -125,4 +127,16 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 		
 	}
 	
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent e = (IdleStateEvent) evt;
+            switch (e.state()) {//The connection is closed when there is no inbound traffic  for 60 seconds.see RPCServerInitializer,RPCClient
+                case READER_IDLE:
+                	ctx.close();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 }

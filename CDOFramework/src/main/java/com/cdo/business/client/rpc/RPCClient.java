@@ -103,7 +103,7 @@ public class RPCClient implements IRPCClient{
 				        if (sslCtx != null) {
 				            p.addLast(sslCtx.newHandler(ch.alloc(),remoteHost,remotePort));
 				        } 
-				        p.addLast(new IdleStateHandler(20,10,0));
+				        p.addLast("ideaHandler",new IdleStateHandler(30,10,0));
 				        p.addLast(new ChannelInboundHandlerAdapter() {
 					          @Override
 					          public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -172,6 +172,7 @@ public class RPCClient implements IRPCClient{
 		    closed = true;
 		    workerGroup.shutdownGracefully();
 		    logger.info("Stopped Tcp Client: " + getServerInfo());
+		    System.exit(-1);
 	}	
 
 	private String getServerInfo() {
