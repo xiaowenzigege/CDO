@@ -1,7 +1,9 @@
 package com.cdo.business.server;
 
-
+import java.net.InetSocketAddress;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,39 +20,33 @@ import com.cdo.util.common.UUidGenerator;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.servicebus.ITransService;
-import com.google.protobuf.MessageLite;
-
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 
 public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 
 	private static Logger logger=Logger.getLogger(RPCServerHandler.class);
 	private final  BusinessService serviceBus=BusinessService.getInstance();
-	static Map<String,SocketChannel> nettyChannelMap=new ConcurrentHashMap<String, SocketChannel>();
+	static Map<String,SocketChannel> socketChannelMap=new ConcurrentHashMap<String, SocketChannel>();
 	private ExecutorService executor =Executors.newFixedThreadPool(20);
-    private  Channel channel;
-    @Override
-    public void channelRegistered(ChannelHandlerContext ctx) {
-        channel = ctx.channel();
-    }	
+ 
     /**
-     * 防止   单一机器的长连接   发生阻塞,事务采用线程池处理,长连接channel仅用于数据传输，
+     * 防止   客户机与服务器之间的长连接   发生阻塞,业务数据采用线程池处理,长连接channel仅用于数据传输，
      * 不能在上面处理事务,根据是内部长连接还是外部长连接，需要调节连接池的数量。
      */
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, CDOMessage msg)
 			throws Exception {	
 		  Header header=msg.getHeader();
+
 		if(header.getType()==ProtoProtocol.TYPE_CDO){			
 			GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(msg.getBody());
 			String clientId=UUidGenerator.ClientId.toString(proto.getClientId().toByteArray());
-			nettyChannelMap.put(clientId,(SocketChannel)ctx.channel());
-			Task task=new Task(proto);
+			socketChannelMap.put(clientId,(SocketChannel)ctx.channel());						
+			InetSocketAddress remoteAddress=((SocketChannel)ctx.channel()).remoteAddress();			
+			Task task=new Task(proto,remoteAddress);
 			executor.submit(task);
 		}else if(header.getType()==ProtoProtocol.TYPE_HEARTBEAT_REQ){
 			//心跳检查
@@ -66,15 +62,21 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 
 	private class Task implements Runnable{
 		private GoogleCDO.CDOProto proto;
-		public Task(GoogleCDO.CDOProto proto){
+		private InetSocketAddress remoteInetAddress;
+		public Task(GoogleCDO.CDOProto proto,InetSocketAddress remoteInetAddress){
 			this.proto=proto;
+			this.remoteInetAddress=remoteInetAddress;
 		}
 		@Override
 		public void run() {				
 			GoogleCDO.CDOProto.Builder retProtoBuiler=handleTrans(this.proto);
 			String clientId=UUidGenerator.ClientId.toString(this.proto.getClientId().toByteArray());
-			SocketChannel channel=nettyChannelMap.get(clientId);
+			SocketChannel channel=socketChannelMap.get(clientId);
 			
+			if(channel==null){
+				logger.error("channel is null,clientId="+clientId+",client remoteInetAddress="+remoteInetAddress);
+				return;
+			}
 			retProtoBuiler.setCallId(proto.getCallId());			
 			Header resHeader=new Header();
 			resHeader.setType(ProtoProtocol.TYPE_CDO);
@@ -82,8 +84,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 			resMessage.setHeader(resHeader);
 			resMessage.setBody(retProtoBuiler.build());
 			
-			channel.writeAndFlush(resMessage);			
-			nettyChannelMap.remove(clientId);			
+			channel.writeAndFlush(resMessage);					
 		}
 		
 		private GoogleCDO.CDOProto.Builder handleTrans(GoogleCDO.CDOProto proto){
@@ -127,6 +128,18 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 		
 	}
 	
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {        
+        super.channelInactive(ctx);
+        SocketChannel channel=((SocketChannel)ctx.channel());
+        //该方法用于服务器内部构建的SOA服务，如果对外开放支持长连接服务,重新构建。             
+        for(Iterator<Map.Entry<String, SocketChannel>> it=socketChannelMap.entrySet().iterator();it.hasNext();){
+        	Entry<String, SocketChannel> entry=it.next();
+        	if(entry.getValue().equals(channel)){
+        		socketChannelMap.remove(entry.getKey());        	    
+        		break;
+        	}
+        }
+    }
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;

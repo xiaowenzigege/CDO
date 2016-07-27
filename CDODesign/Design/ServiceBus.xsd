@@ -32,6 +32,8 @@
 <!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
 <!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
 <!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
+<!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
+<!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
 <!-- edited with XMLSpy v2005 sp1 U (http://www.xmlspy.com) by any (Ru-Board) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
 	<xs:element name="DataGroup">
@@ -137,7 +139,7 @@
 								</xs:restriction>
 							</xs:simpleType>
 						</xs:attribute>
-						<xs:attribute name="ServiceURI" type="xs:string"/>
+						<xs:attribute name="ZkId" type="xs:string"/>
 					</xs:complexType>
 				</xs:element>
 				<xs:element name="DataService" minOccurs="0" maxOccurs="unbounded">
@@ -189,7 +191,19 @@
 						<xs:attribute name="Value" type="xs:string" use="required"/>
 					</xs:complexType>
 				</xs:element>
-				<xs:element ref="DataGroup" maxOccurs="unbounded"/>
+				<xs:element ref="DataGroup" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="ZkProducer" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:attribute name="Id" type="xs:string" use="required"/>
+						<xs:attribute name="Connect" type="xs:string" use="required"/>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="ZkConsumer" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:attribute name="Id" type="xs:string" use="required"/>
+						<xs:attribute name="Connect" type="xs:string" use="required"/>
+					</xs:complexType>
+				</xs:element>
 				<xs:element name="NoSQLDB" type="NoSQLDBType" minOccurs="0" maxOccurs="unbounded"/>
 				<xs:element name="ClusterController" minOccurs="0">
 					<xs:complexType>
@@ -212,7 +226,7 @@
 						<xs:attribute name="MaxWaitEventCount" type="xs:int" default="1000"/>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="PluginXMLResource" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="PluginXMLResource" type="xs:string" maxOccurs="unbounded"/>
 			</xs:sequence>
 			<xs:attribute name="DataGroupId" use="required">
 				<xs:simpleType>

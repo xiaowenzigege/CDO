@@ -205,7 +205,8 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				}
 				case DataType.CDO_ARRAY_TYPE:
 				{
-					cdoResponse.setCDOArrayValue(strFieldId,(CDO[])objValue);
+					cdoResponse.setCDOListValue(strFieldId,(List<CDO>)objValue);
+//					cdoResponse.setCDOArrayValue(strFieldId,(CDO[])objValue);
 					break;
 				}
 				default:

@@ -130,7 +130,10 @@ public interface IServiceBus extends com.cdoframework.cdolib.base.IActiveObject
 	public String getParameter(String strName,String strDefaultValue);
 	
 	public String getParameter(String strName);
-	/**提供连接给外部使用**/
+	
+	/**提供数据库连接给外部使用**/
 	public HashMap<String,com.cdoframework.cdolib.base.CycleList<IDataEngine>> getHMDataGroup();
+	
+	
 
 }

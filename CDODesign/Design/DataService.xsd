@@ -3,6 +3,8 @@
 <!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
 <!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
 <!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
+<!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
+<!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
 <!-- edited with XMLSPY v2004 rel. 4 U (http://www.xmlspy.com) by XXXXXX (ORiON) -->
 <!-- edited with XMLSpy v2005 sp1 U (http://www.xmlspy.com) by any (Ru-Board) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
@@ -452,6 +454,7 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
+			<xs:attribute name="ZkId" type="xs:string" use="optional"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="DataService">
@@ -537,7 +540,7 @@
 					<xs:enumeration value="EXISTS"/>
 					<xs:enumeration value="NOTEXISTS"/>
 					<xs:enumeration value="MATCHALL"/>
-					<xs:enumeration value="MATCHRIGHT"/>					
+					<xs:enumeration value="MATCHRIGHT"/>
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:attribute>

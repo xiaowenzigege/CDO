@@ -43,7 +43,8 @@ public class ExampleZookeeperServer {
 	node="/" + groupNode;
 	if(zk.exists(node, false)!=null){
 		 zk.setData(node, "".getBytes("utf-8"), -1);
-	 }	
+	 }
+	
   }
 	
     public void handle() throws InterruptedException {    

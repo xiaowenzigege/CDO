@@ -1,17 +1,13 @@
 package com.cdo.business.client.rpc;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import javax.sql.rowset.Joinable;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,10 +28,7 @@ import org.apache.log4j.Logger;
 import com.cdo.example.ExampleCDO;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
-import com.cdo.google.handle.ParseProtoCDO;
 import com.cdo.google.protocol.GoogleCDO;
-import com.cdo.util.common.UUidGenerator;
-import com.cdo.util.resource.GlobalResource;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.servicebus.ITransService;
@@ -194,6 +187,7 @@ public class RPCClient implements IRPCClient{
 		  	if(cdoRequest.getSerialFileCount()>0){
 		  		return Return.valueOf(-1, "proto is unsupported file type");
 		  	}		  	
+		  	//TODO 选取handle
 		  	CDO cdoReturn=new CDO();
 			GoogleCDO.CDOProto proto=handle.handleTrans(cdoRequest);
 			ParseRPCProtoCDO.ProtoRPCParse.parse(proto, cdoResponse, cdoReturn);			
@@ -212,10 +206,14 @@ public class RPCClient implements IRPCClient{
     	rClient.init();
     	CDO cdoRequest=ExampleCDO.getCDO();
     	CDO cdoResponse=new CDO();
+    	try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	Return ret=rClient.handleTrans(cdoRequest, cdoResponse);
 		System.out.println("proto cdoResponse xml="+cdoResponse.toXMLWithIndent()+",cdo ret="+ret);
-		for(int i=0;i<100;i++){
-			System.out.println(UUidGenerator.genenator());
-		}
+
     }
 }

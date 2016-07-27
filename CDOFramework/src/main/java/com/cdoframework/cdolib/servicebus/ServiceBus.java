@@ -416,13 +416,13 @@ public class ServiceBus implements IServiceBus
 			strTransName=cdoRequest.getStringValue(ITransService.TRANSNAME_KEY);
 		}catch(Exception e){
 			logger.error("handleTrans:"+e.getMessage(),e);
-			return null;
+			return Return.valueOf(-1, "[strServiceName,strTransName] can not be empty", "[strServiceName,strTransName] can not be empty");
 		}
 
 		if(strServiceName==null||strTransName==null ||
 				strServiceName.trim().length()==0|| strTransName.trim().length()==0){
 			logger.error("[strServiceName,strTransName] can not be empty");
-			return null;
+			return Return.valueOf(-1, "[strServiceName,strTransName] can not be empty", "[strServiceName,strTransName] can not be empty");
 		}
 		//-------开始事务---------------//
 		onTransStarted(strServiceName,strTransName,cdoRequest);
