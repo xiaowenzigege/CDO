@@ -21,9 +21,9 @@ public class ServiceConfig implements java.io.Serializable {
     private java.lang.String id;
 
     /**
-     * Field serviceURI.
+     * Field zkId.
      */
-    private java.lang.String serviceURI;
+    private java.lang.String zkId;
 
     public ServiceConfig() {
         super();
@@ -39,12 +39,12 @@ public class ServiceConfig implements java.io.Serializable {
     }
 
     /**
-     * Returns the value of field 'serviceURI'.
+     * Returns the value of field 'zkId'.
      * 
-     * @return the value of field 'ServiceURI'.
+     * @return the value of field 'ZkId'.
      */
-    public java.lang.String getServiceURI() {
-        return this.serviceURI;
+    public java.lang.String getZkId() {
+        return this.zkId;
     }
 
     /**
@@ -99,12 +99,12 @@ public class ServiceConfig implements java.io.Serializable {
     }
 
     /**
-     * Sets the value of field 'serviceURI'.
+     * Sets the value of field 'zkId'.
      * 
-     * @param serviceURI the value of field 'serviceURI'.
+     * @param zkId the value of field 'zkId'.
      */
-    public void setServiceURI(final java.lang.String serviceURI) {
-        this.serviceURI = serviceURI;
+    public void setZkId(final java.lang.String zkId) {
+        this.zkId = zkId;
     }
 
     /**

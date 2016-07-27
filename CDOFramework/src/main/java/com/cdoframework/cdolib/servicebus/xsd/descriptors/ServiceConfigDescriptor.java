@@ -99,8 +99,8 @@ public class ServiceConfigDescriptor extends org.exolab.castor.xml.util.XMLClass
             typeValidator.setWhiteSpace("preserve");
         }
         desc.setValidator(fieldValidator);
-        //-- serviceURI
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.String.class, "serviceURI", "ServiceURI", org.exolab.castor.xml.NodeType.Attribute);
+        //-- zkId
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.String.class, "zkId", "ZkId", org.exolab.castor.xml.NodeType.Attribute);
         desc.setImmutable(true);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             @Override
@@ -108,7 +108,7 @@ public class ServiceConfigDescriptor extends org.exolab.castor.xml.util.XMLClass
                 throws IllegalStateException
             {
                 ServiceConfig target = (ServiceConfig) object;
-                return target.getServiceURI();
+                return target.getZkId();
             }
             @Override
             public void setValue( java.lang.Object object, java.lang.Object value) 
@@ -116,7 +116,7 @@ public class ServiceConfigDescriptor extends org.exolab.castor.xml.util.XMLClass
             {
                 try {
                     ServiceConfig target = (ServiceConfig) object;
-                    target.setServiceURI( (java.lang.String) value);
+                    target.setZkId( (java.lang.String) value);
                 } catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
@@ -132,7 +132,7 @@ public class ServiceConfigDescriptor extends org.exolab.castor.xml.util.XMLClass
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
 
-        //-- validation code for: serviceURI
+        //-- validation code for: zkId
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         { //-- local scope
             org.exolab.castor.xml.validators.StringValidator typeValidator;

@@ -110,7 +110,7 @@ public class ServicePlugin implements IServicePlugin
 		for(int i=0;i<dgs.length;i++)
 		{
 			CycleList<IDataEngine> clDataGroup=new CycleList<IDataEngine>();
-			clDataGroup=dgs[i].init();
+			clDataGroup=dgs[i].init();			
 			this.hmLocalDataGroup.put(dgs[i].getId(),clDataGroup);
 			this.hmAllDataGroup.put(dgs[i].getId(),clDataGroup);
 		}
@@ -162,7 +162,7 @@ public class ServicePlugin implements IServicePlugin
 			service.setBigTableEngine(serviceBus.getBigTableEngine());
 			service.setPublicDataGroup(this.hmAllDataGroup);
 			if(logger.isInfoEnabled()){logger.info("init service: "+ sc.getId());}
-			Return ret = service.init(sc.getId(),sc.getServiceURI(),this,serviceBus);
+			Return ret = service.init(sc.getId(),sc.getZkId(),this,serviceBus);
 			if(ret.getCode()!=0)
 			{
 				//TODO 清除对象

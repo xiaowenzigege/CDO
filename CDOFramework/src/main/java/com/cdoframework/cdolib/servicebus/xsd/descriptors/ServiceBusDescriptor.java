@@ -243,6 +243,102 @@ public class ServiceBusDescriptor extends org.exolab.castor.xml.util.XMLClassDes
         { //-- local scope
         }
         desc.setValidator(fieldValidator);
+        //-- zkProducerList
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(com.cdoframework.cdolib.servicebus.xsd.ZkProducer.class, "zkProducerList", "ZkProducer", org.exolab.castor.xml.NodeType.Element);
+        handler = new org.exolab.castor.xml.XMLFieldHandler() {
+            @Override
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                ServiceBus target = (ServiceBus) object;
+                return target.getZkProducer();
+            }
+            @Override
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    ServiceBus target = (ServiceBus) object;
+                    target.addZkProducer( (com.cdoframework.cdolib.servicebus.xsd.ZkProducer) value);
+                } catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            public void resetValue(Object object) throws IllegalStateException, IllegalArgumentException {
+                try {
+                    ServiceBus target = (ServiceBus) object;
+                    target.removeAllZkProducer();
+                } catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            @Override
+            @SuppressWarnings("unused")
+            public java.lang.Object newInstance(java.lang.Object parent) {
+                return new com.cdoframework.cdolib.servicebus.xsd.ZkProducer();
+            }
+        };
+        desc.setSchemaType("list");
+        desc.setComponentType("com.cdoframework.cdolib.servicebus.xsd.ZkProducer");
+        desc.setHandler(handler);
+        desc.setMultivalued(true);
+        addFieldDescriptor(desc);
+        addSequenceElement(desc);
+
+        //-- validation code for: zkProducerList
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        fieldValidator.setMinOccurs(0);
+        { //-- local scope
+        }
+        desc.setValidator(fieldValidator);
+        //-- zkConsumerList
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(com.cdoframework.cdolib.servicebus.xsd.ZkConsumer.class, "zkConsumerList", "ZkConsumer", org.exolab.castor.xml.NodeType.Element);
+        handler = new org.exolab.castor.xml.XMLFieldHandler() {
+            @Override
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                ServiceBus target = (ServiceBus) object;
+                return target.getZkConsumer();
+            }
+            @Override
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    ServiceBus target = (ServiceBus) object;
+                    target.addZkConsumer( (com.cdoframework.cdolib.servicebus.xsd.ZkConsumer) value);
+                } catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            public void resetValue(Object object) throws IllegalStateException, IllegalArgumentException {
+                try {
+                    ServiceBus target = (ServiceBus) object;
+                    target.removeAllZkConsumer();
+                } catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            @Override
+            @SuppressWarnings("unused")
+            public java.lang.Object newInstance(java.lang.Object parent) {
+                return new com.cdoframework.cdolib.servicebus.xsd.ZkConsumer();
+            }
+        };
+        desc.setSchemaType("list");
+        desc.setComponentType("com.cdoframework.cdolib.servicebus.xsd.ZkConsumer");
+        desc.setHandler(handler);
+        desc.setMultivalued(true);
+        addFieldDescriptor(desc);
+        addSequenceElement(desc);
+
+        //-- validation code for: zkConsumerList
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        fieldValidator.setMinOccurs(0);
+        { //-- local scope
+        }
+        desc.setValidator(fieldValidator);
         //-- noSQLDBList
         desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(com.cdoframework.cdolib.servicebus.xsd.NoSQLDB.class, "noSQLDBList", "NoSQLDB", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {

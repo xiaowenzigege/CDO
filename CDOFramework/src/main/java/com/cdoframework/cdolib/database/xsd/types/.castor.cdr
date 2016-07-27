@@ -1,4 +1,4 @@
-#Tue May 24 13:57:19 CST 2016
+#Wed Jul 27 18:23:17 CST 2016
 com.cdoframework.cdolib.database.xsd.types.SQLIfOperatorType=com.cdoframework.cdolib.database.xsd.types.descriptors.SQLIfOperatorTypeDescriptor
 com.cdoframework.cdolib.database.xsd.types.IfTypeType=com.cdoframework.cdolib.database.xsd.types.descriptors.IfTypeTypeDescriptor
 com.cdoframework.cdolib.database.xsd.types.IfOperatorType=com.cdoframework.cdolib.database.xsd.types.descriptors.IfOperatorTypeDescriptor

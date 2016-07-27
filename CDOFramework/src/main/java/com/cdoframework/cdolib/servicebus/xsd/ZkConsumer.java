@@ -5,7 +5,7 @@
  * $Id$
  */
 
-package com.cdoframework.cdolib.database.xsd;
+package com.cdoframework.cdolib.servicebus.xsd;
 
 /**
  * 
@@ -13,12 +13,38 @@ package com.cdoframework.cdolib.database.xsd;
  * @version $Revision$ $Date$
  */
 @SuppressWarnings("serial")
-public class NoSQLTrans extends NoSQLTransType 
-implements java.io.Serializable
-{
+public class ZkConsumer implements java.io.Serializable {
 
-    public NoSQLTrans() {
+    /**
+     * Field id.
+     */
+    private java.lang.String id;
+
+    /**
+     * Field connect.
+     */
+    private java.lang.String connect;
+
+    public ZkConsumer() {
         super();
+    }
+
+    /**
+     * Returns the value of field 'connect'.
+     * 
+     * @return the value of field 'Connect'.
+     */
+    public java.lang.String getConnect() {
+        return this.connect;
+    }
+
+    /**
+     * Returns the value of field 'id'.
+     * 
+     * @return the value of field 'Id'.
+     */
+    public java.lang.String getId() {
+        return this.id;
     }
 
     /**
@@ -64,6 +90,24 @@ implements java.io.Serializable
     }
 
     /**
+     * Sets the value of field 'connect'.
+     * 
+     * @param connect the value of field 'connect'.
+     */
+    public void setConnect(final java.lang.String connect) {
+        this.connect = connect;
+    }
+
+    /**
+     * Sets the value of field 'id'.
+     * 
+     * @param id the value of field 'id'.
+     */
+    public void setId(final java.lang.String id) {
+        this.id = id;
+    }
+
+    /**
      * Method unmarshal.
      * 
      * @param reader
@@ -72,10 +116,10 @@ implements java.io.Serializable
      * @throws org.exolab.castor.xml.ValidationException if this
      * object is an invalid instance according to the schema
      * @return the unmarshaled
-     * com.cdoframework.cdolib.database.xsd.NoSQLTrans
+     * com.cdoframework.cdolib.servicebus.xsd.ZkConsumer
      */
-    public static com.cdoframework.cdolib.database.xsd.NoSQLTrans unmarshal(final java.io.Reader reader) throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
-        return (com.cdoframework.cdolib.database.xsd.NoSQLTrans) org.exolab.castor.xml.Unmarshaller.unmarshal(com.cdoframework.cdolib.database.xsd.NoSQLTrans.class, reader);
+    public static com.cdoframework.cdolib.servicebus.xsd.ZkConsumer unmarshal(final java.io.Reader reader) throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
+        return (com.cdoframework.cdolib.servicebus.xsd.ZkConsumer) org.exolab.castor.xml.Unmarshaller.unmarshal(com.cdoframework.cdolib.servicebus.xsd.ZkConsumer.class, reader);
     }
 
     /**
@@ -88,23 +132,5 @@ implements java.io.Serializable
         org.exolab.castor.xml.Validator validator = new org.exolab.castor.xml.Validator();
         validator.validate(this);
     }
-    
-    /*
-     * * *********************************************************Manual code  **************************************************************
-    * ************************************************************************************************************************************
-    * ************************************************************************************************************************************
-    */    
-   private DataService dataService;
 
-
-	public DataService getDataService()
-	{
-		return dataService;
-	}
-
-
-	public void setDataService(DataService dataService)
-	{
-		this.dataService=dataService;
-	}
 }

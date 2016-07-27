@@ -18,7 +18,6 @@ import com.cdoframework.cdolib.database.INoSQLDataEngine;
 import com.cdoframework.cdolib.database.TransDefine;
 import com.cdoframework.cdolib.servicebus.IServicePlugin;
 import com.cdoframework.cdolib.servicebus.Service;
-
 /**
  * 
  * 
@@ -186,10 +185,7 @@ public class DataService implements java.io.Serializable {
         org.exolab.castor.xml.Validator validator = new org.exolab.castor.xml.Validator();
         validator.validate(this);
     }
-    
-  
-    
-    
+
     //------------------------------manual code----------------------
     
   //静态对象,所有static在此声明并初始化------------------------------------------------------------------------

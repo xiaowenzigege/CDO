@@ -36,6 +36,11 @@ public class SQLTrans implements java.io.Serializable {
     private java.lang.String bigTableGroupId;
 
     /**
+     * Field zkId.
+     */
+    private java.lang.String zkId;
+
+    /**
      * Field SQLTransChoice.
      */
     private com.cdoframework.cdolib.database.xsd.SQLTransChoice SQLTransChoice;
@@ -115,6 +120,15 @@ public class SQLTrans implements java.io.Serializable {
      */
     public java.lang.String getTransName() {
         return this.transName;
+    }
+
+    /**
+     * Returns the value of field 'zkId'.
+     * 
+     * @return the value of field 'ZkId'.
+     */
+    public java.lang.String getZkId() {
+        return this.zkId;
     }
 
     /**
@@ -224,6 +238,15 @@ public class SQLTrans implements java.io.Serializable {
     }
 
     /**
+     * Sets the value of field 'zkId'.
+     * 
+     * @param zkId the value of field 'zkId'.
+     */
+    public void setZkId(final java.lang.String zkId) {
+        this.zkId = zkId;
+    }
+
+    /**
      * Method unmarshal.
      * 
      * @param reader
@@ -248,15 +271,13 @@ public class SQLTrans implements java.io.Serializable {
         org.exolab.castor.xml.Validator validator = new org.exolab.castor.xml.Validator();
         validator.validate(this);
     }
-
+    
     /**
-     * ************************************************************************************************************************************
-     * ************************************************************************************************************************************
-     * *********************************************************Manual code  **************************************************************
-     * ************************************************************************************************************************************
-     * ************************************************************************************************************************************
-     */    
-    private DataService dataService;
+    * *********************************************************Manual code  **************************************************************
+    * ************************************************************************************************************************************
+    * ************************************************************************************************************************************
+    */    
+   private DataService dataService;
 
 
 	public DataService getDataService()
@@ -268,5 +289,5 @@ public class SQLTrans implements java.io.Serializable {
 	public void setDataService(DataService dataService)
 	{
 		this.dataService=dataService;
-	}    
+	}  
 }

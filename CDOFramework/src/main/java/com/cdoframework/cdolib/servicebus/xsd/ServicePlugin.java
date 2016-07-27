@@ -1122,11 +1122,9 @@ public class ServicePlugin implements java.io.Serializable {
         org.exolab.castor.xml.Validator validator = new org.exolab.castor.xml.Validator();
         validator.validate(this);
     }
-  
-	
-    /**
+  /**
      * *************************************** manual  code *************************************************
-     * 从一个XML字件串解析成BusinessPlugin对象
+     * 
      * @param strXML
      * @return
      */

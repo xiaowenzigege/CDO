@@ -230,6 +230,48 @@ public class SQLTransDescriptor extends org.exolab.castor.xml.util.XMLClassDescr
             typeValidator.setWhiteSpace("preserve");
         }
         desc.setValidator(fieldValidator);
+        //-- zkId
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.String.class, "zkId", "ZkId", org.exolab.castor.xml.NodeType.Attribute);
+        desc.setImmutable(true);
+        handler = new org.exolab.castor.xml.XMLFieldHandler() {
+            @Override
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                SQLTrans target = (SQLTrans) object;
+                return target.getZkId();
+            }
+            @Override
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    SQLTrans target = (SQLTrans) object;
+                    target.setZkId( (java.lang.String) value);
+                } catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            @Override
+            @SuppressWarnings("unused")
+            public java.lang.Object newInstance(java.lang.Object parent) {
+                return null;
+            }
+        };
+        desc.setSchemaType("string");
+        desc.setHandler(handler);
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+
+        //-- validation code for: zkId
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        { //-- local scope
+            org.exolab.castor.xml.validators.StringValidator typeValidator;
+            typeValidator = new org.exolab.castor.xml.validators.StringValidator();
+            fieldValidator.setValidator(typeValidator);
+            typeValidator.setWhiteSpace("preserve");
+        }
+        desc.setValidator(fieldValidator);
         //-- initialize element descriptors
 
         //-- SQLTransChoice

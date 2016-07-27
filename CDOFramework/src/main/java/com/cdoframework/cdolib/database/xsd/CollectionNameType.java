@@ -157,20 +157,20 @@ public class CollectionNameType implements java.io.Serializable {
         org.exolab.castor.xml.Validator validator = new org.exolab.castor.xml.Validator();
         validator.validate(this);
     }
+   
     /**
-     * ************************************************************************************************************************************
-     * ************************************************************************************************************************************
-     * *********************************************************Manual code  **************************************************************
-     * ************************************************************************************************************************************
-     * ************************************************************************************************************************************
-     */
-    private INoSQLDataEngine nosqlDataEngine;
-    public INoSQLDataEngine getNosqlDataEngine()
-    {
-    	return this.nosqlDataEngine;
-    }
-    public void setNoSQLDataEngine(INoSQLDataEngine nosqlDataEngine)
-    {
-    	this.nosqlDataEngine = nosqlDataEngine;
-    }
+    * ************************************************************************************************************************************
+    * *********************************************************Manual code  **************************************************************
+    * ************************************************************************************************************************************
+    * ************************************************************************************************************************************
+    */
+   private INoSQLDataEngine nosqlDataEngine;
+   public INoSQLDataEngine getNosqlDataEngine()
+   {
+   	return this.nosqlDataEngine;
+   }
+   public void setNoSQLDataEngine(INoSQLDataEngine nosqlDataEngine)
+   {
+   	this.nosqlDataEngine = nosqlDataEngine;
+   }
 }

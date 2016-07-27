@@ -40,7 +40,7 @@ public class Service implements IService
 
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 	private String strServiceName;
-	private String strServiceURI;
+	private String ZkProducerId;
 	private BigTableEngine btEngin;
 	private IServicePlugin servicePlugin;
 	private IServiceBus serviceBus;
@@ -55,9 +55,9 @@ public class Service implements IService
 	{
 		return this.strServiceName;
 	}
-	public String getServiceURI()
+	public String getZkProducerId()
 	{
-		return strServiceURI;
+		return ZkProducerId;
 	}
 	public void setBigTableEngine(BigTableEngine btEngin)
 	{
@@ -133,6 +133,9 @@ public class Service implements IService
 		}
 		services.add(service);
 		service.inject(service);
+		if(this.ZkProducerId!=null){//
+			//TODO 将服务注册到zkServer上   供消费端使用
+		}
 	}
 	public TransDefine putTransDefine(String transName,TransDefine transDefine)
 	{
@@ -140,10 +143,10 @@ public class Service implements IService
 		
 	}
 
-	public Return init(String strServiceName,String strURI,IServicePlugin servicePlugin,IServiceBus serviceBus)
+	public Return init(String strServiceName,String ZkProducerId,IServicePlugin servicePlugin,IServiceBus serviceBus)
 	{
 		this.strServiceName = strServiceName;
-		this.strServiceURI = strURI;
+		this.ZkProducerId = ZkProducerId;
 		this.servicePlugin = servicePlugin;
 		this.serviceBus = serviceBus;
 		return Return.OK;
@@ -167,9 +170,6 @@ public class Service implements IService
 	public Return handleTrans(CDO cdoRequest,CDO cdoResponse)
 	{
 		long beginTime = System.currentTimeMillis();
-		if(this.strServiceURI!=null){//
-			//TODO 这种情况,说明本服务不在本机,需要远程调用. 注意在这种情况下,不能启用拦截器,因为对应的远程服务器上会启用
-		}
 		String strTransName = cdoRequest.getStringValue(ITransService.TRANSNAME_KEY);
 		//处理  service事前 同步任务
 		Return ret = null;

@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.log4j.Logger;
+import org.apache.zookeeper.ZooKeeper;
 
 import com.cdoframework.cdolib.base.CycleList;
 import com.cdoframework.cdolib.base.Return;
@@ -34,6 +35,7 @@ import com.cdoframework.cdolib.framework.ClusterController;
 import com.cdoframework.cdolib.servicebus.xsd.DataGroup;
 import com.cdoframework.cdolib.servicebus.xsd.NoSQLDB;
 import com.cdoframework.cdolib.servicebus.xsd.Parameter;
+import com.cdoframework.cdolib.servicebus.xsd.ZkProducer;
 
 /**
  * @author Frank
@@ -218,8 +220,8 @@ public class ServiceBus implements IServiceBus
 			logger.error("When parse DataGroup , caught exception: ",e);
 			return Return.valueOf(-1,"Init ServiceBus Failed: "+e.getLocalizedMessage());
 		}
-		
-
+//		ZkProducer[] zkProducer=serviceBus.getZkProducer();
+//		new ZooKeeper(strFlitersConfigPath, nParameterCount, null);
 		
 		//初始化NoSQL NotSQLDataEngine
 		NoSQLDB[] noSQLDBdefines = serviceBus.getNoSQLDB();
