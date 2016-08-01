@@ -1049,8 +1049,7 @@ public class ServiceBus implements java.io.Serializable {
      * object is an invalid instance according to the schema
      * @return the unmarshaled
      * com.cdoframework.cdolib.servicebus.xsd.ServiceBus
-     */
-    public static com.cdoframework.cdolib.servicebus.xsd.ServiceBus unmarshal(final java.io.Reader reader) throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
+     */    public static com.cdoframework.cdolib.servicebus.xsd.ServiceBus unmarshal(final java.io.Reader reader) throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
         return (com.cdoframework.cdolib.servicebus.xsd.ServiceBus) org.exolab.castor.xml.Unmarshaller.unmarshal(com.cdoframework.cdolib.servicebus.xsd.ServiceBus.class, reader);
     }
 

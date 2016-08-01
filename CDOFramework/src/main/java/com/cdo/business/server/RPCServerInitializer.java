@@ -7,7 +7,10 @@ import com.cdo.google.handle.CDOProtobufEncoder;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslContext;
+import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 
 public class RPCServerInitializer extends ChannelInitializer<SocketChannel> {
@@ -23,10 +26,14 @@ public class RPCServerInitializer extends ChannelInitializer<SocketChannel> {
         if (sslCtx != null) {
             p.addLast(sslCtx.newHandler(ch.alloc()));
         }
+        p.addLast(new HttpServerCodec());     
         p.addLast("encoder",new CDOProtobufEncoder());
         p.addLast("decoder",new CDOProtobufDecoder());  
-        p.addLast("ideaHandler",new IdleStateHandler(60,30,0));
+        p.addLast("ideaHandler",new IdleStateHandler(60,30,0));      
+        
         p.addLast(new RPCServerHandler());
+        p.addLast(new ChunkedWriteHandler());        
+        p.addLast(new HttpServerHandler());
     }
 
 }

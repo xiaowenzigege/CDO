@@ -54,6 +54,7 @@ public class ServiceBus implements IServiceBus
 	private ReentrantReadWriteLock lockSharedData;	
 	private HashMap<String,NoSQLDataEngine> hmNoSQLDataEngine;
 	private HashMap<String,IService> hmService;
+	private HashMap<String, ZooKeeper> hmZkProducer; //保存连接zk的对象，用于
 //	private ArrayList<IService> alService;
 	
 	private HashMap<String,BigTable[]> hmBigTableGroupConfig;
@@ -212,15 +213,15 @@ public class ServiceBus implements IServiceBus
 	
 				this.hmDataGroup.put(dgs[i].getId(),clDataEngine);
 			}
-		}
-		catch(Exception e)
-		{
+		}catch(Exception e){
 			this.hmDataGroup.clear();
 			this.hmDataGroup=null;
 			logger.error("When parse DataGroup , caught exception: ",e);
 			return Return.valueOf(-1,"Init ServiceBus Failed: "+e.getLocalizedMessage());
 		}
-//		ZkProducer[] zkProducer=serviceBus.getZkProducer();
+		
+		ZkProducer[] zkProducer=serviceBus.getZkProducer();
+			
 //		new ZooKeeper(strFlitersConfigPath, nParameterCount, null);
 		
 		//初始化NoSQL NotSQLDataEngine

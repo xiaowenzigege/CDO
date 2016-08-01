@@ -1,7 +1,6 @@
 package com.cdo.business.client.rpc;
 
-import java.net.SocketAddress;
-import java.util.concurrent.TimeUnit;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
@@ -24,9 +23,9 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 
     private volatile Channel channel;
     private ByteString clientId; 
-    private final CallsLinkedHashMap calls = new CallsLinkedHashMap();
+    final CallsLinkedHashMap calls = new CallsLinkedHashMap();
     /** A counter for generating call IDs. */
-    private static final AtomicInteger callIdCounter = new AtomicInteger();
+    static final AtomicInteger callIdCounter = new AtomicInteger();
            
     public GoogleCDO.CDOProto handleTrans(CDO cdoRequest) {    	
     	//CDO请求数据
