@@ -22,7 +22,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -42,12 +41,8 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
 import com.cdo.util.bean.CDOHTTPResponse;
-import com.cdo.util.bean.OutStreamCDO;
-import com.cdo.util.bean.Response;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.resource.GlobalResource;
-import com.cdoframework.cdolib.data.cdo.CDO;
-
 /**
  * 
  * @author KenelLiu
@@ -443,7 +438,7 @@ public class HttpClient {
 	   			    String suffix=fileName.substring(fileName.lastIndexOf("."),fileName.length());
 	   			    String date=new SimpleDateFormat("yyyyMMddHHmmsss").format(new Date());
 	   				String tempPath =tmpDirPath+"/"+fileName.substring(0,fileName.lastIndexOf("."))+"_"+date+suffix;				    				 
-	   			    File tmpFile=new File(tempPath);
+	   			    File tmpFile=new File(tempPath);	   				
 	   			    if(!tmpFile.exists())
 	   			    	tmpFile.createNewFile();
 	   			    FileOutputStream fileOutputStream=null;
@@ -458,19 +453,21 @@ public class HttpClient {
 		}
 		//----------------------输出文件指定的长度 ----------------------//
 		private void outFile(InputStream inStream,long fileLen,OutputStream outputStream) throws IOException{            
-            try{
-	            byte[] tmp =null;
-				long len=fileLen;		
+            try{		
 				int maxSize=Constants.Byte.maxSize*2;		
 				int l;
-				while(len>0){					
-				    int length=len>maxSize?maxSize:(int)len;
+				long total=0;
+				byte[] tmp =null;
+				while(fileLen>total){	
+					long remainLen=fileLen-total;
+				    int length=remainLen>maxSize?maxSize:(int)remainLen;
 				    tmp= new byte[length];
-				    l=inStream.read(tmp);
-				    outputStream.write(tmp, 0, l);				   
-					len=len-maxSize;			
+			        if((l = inStream.read(tmp)) != -1) {			        	
+			        	outputStream.write(tmp,0, l);			            
+			        }
+			        total=total+l;		
 				}  
-				outputStream.flush();
+				outputStream.flush();		       
             }catch(Exception ex){            	
             	throw new IOException(ex.getMessage(),ex);
             }

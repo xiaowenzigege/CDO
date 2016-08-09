@@ -19,7 +19,7 @@ public class AppBusiness {
 		BusinessService app = BusinessService.getInstance();		
 		try
 		{
-			ret =app.start();
+			ret =app.start();			
 			if(ret.getCode()==0 && logger.isInfoEnabled());
 				logger.info("business service started-----------------");
 			if(ret.getCode()==0){	

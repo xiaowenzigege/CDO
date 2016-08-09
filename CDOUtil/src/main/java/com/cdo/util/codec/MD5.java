@@ -65,14 +65,11 @@ public class MD5 {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			byte[] buffer = new byte[2048];
-			int length = -1;
-			long startDate = System.currentTimeMillis();
+			int length = -1;			
 			while ((length = stream.read(buffer)) != -1) {
 				md.update(buffer, 0, length);
 			}
-			byte[] b = md.digest();
-			long endDate = System.currentTimeMillis();
-			logger.info("本次文件HASH共花费" + (endDate - startDate)/1000 + "秒");
+			byte[] b = md.digest();						
 			return byteFileToHex(b);
 		} catch (Exception ex) {
 			ex.printStackTrace();
