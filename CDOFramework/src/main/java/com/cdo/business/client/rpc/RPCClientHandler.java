@@ -41,7 +41,8 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 		reqMessage.setHeader(reqHeader);
 		reqMessage.setBody(proto.build());
 		
-        channel.writeAndFlush(reqMessage);    
+        channel.write(reqMessage); 
+        channel.flush();
         calls.put(callId, call);
         boolean interrupted = false;
         synchronized (call) {

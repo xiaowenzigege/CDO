@@ -26,14 +26,13 @@ public class RPCServerInitializer extends ChannelInitializer<SocketChannel> {
         if (sslCtx != null) {
             p.addLast(sslCtx.newHandler(ch.alloc()));
         }
-        p.addLast(new HttpServerCodec());     
+//        p.addLast(new HttpServerCodec());     
         p.addLast("encoder",new CDOProtobufEncoder());
         p.addLast("decoder",new CDOProtobufDecoder());  
-        p.addLast("ideaHandler",new IdleStateHandler(60,30,0));      
-        
+        p.addLast("ideaHandler",new IdleStateHandler(60,30,0));              
         p.addLast(new RPCServerHandler());
-        p.addLast(new ChunkedWriteHandler());        
-        p.addLast(new HttpServerHandler());
+//        p.addLast(new ChunkedWriteHandler());        
+//        p.addLast(new HttpServerHandler());
     }
 
 }
