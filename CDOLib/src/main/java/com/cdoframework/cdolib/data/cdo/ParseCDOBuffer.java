@@ -108,6 +108,9 @@ public class ParseCDOBuffer extends CDOBuffer {
 			case DataType.DATETIME_TYPE:
 				setDateTimeValue(cdo, key, buffer);
 				break;	
+			case DataType.FILE_TYPE:
+				setFileValue(cdo, key, buffer);
+				break;					
 			default:
 				throw new java.lang.RuntimeException("unsupport object type! key="+key+",type="+dataType);
 		}

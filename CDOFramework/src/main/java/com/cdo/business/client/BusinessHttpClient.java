@@ -125,7 +125,7 @@ public class BusinessHttpClient implements IBusinessClient{
 			strCDOXml =httpRes.getResponseText();			
 			if (strCDOXml != null && !strCDOXml.trim().equals("")) {				            			    
 				CDO cdoReturn=new CDO();
-				XmlCDOHTTPParse.xmlToCDO(strCDOXml, cdoReturn, cdoResponse);								
+				ParseHTTPXmlCDO.xmlToCDO(strCDOXml, cdoReturn, cdoResponse);								
 				httpRes.copyFile2CDO(cdoResponse);
 			    return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));			
 		  }

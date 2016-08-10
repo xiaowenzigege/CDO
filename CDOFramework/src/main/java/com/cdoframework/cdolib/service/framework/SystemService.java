@@ -161,11 +161,9 @@ public class SystemService extends TransService
 				globalConfigurationMap.put(para.getName(),para.getValue());
 				
 			}
-		}
-		
-		//初始化memcache server group
-		MemCacheServerGroup[] memCacheServerGroups = framework.getMemCacheServerGroup();
-		//目前的策略是允许
+		}		
+		//init memcache server group
+		MemCacheServerGroup[] memCacheServerGroups = framework.getMemCacheServerGroup();	
 		Return ret  = this.cacheManager.initMemCacheServer(memCacheServerGroups);
 		if(ret.getCode()!=0)
 		{
@@ -173,7 +171,7 @@ public class SystemService extends TransService
 			return ret;
 		}
 		
-		//初始化URL cache server
+		//init squid URL cache server
 		URLCacheServer[] urlCacheServers = framework.getURLCacheServer();
 		this.cacheManager.intSquidCacheServer(urlCacheServers);
 		CacheHandler.getInstance().setCacher(cacheManager);

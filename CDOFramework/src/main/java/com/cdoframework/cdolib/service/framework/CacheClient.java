@@ -8,6 +8,7 @@ import java.util.concurrent.Future;
 
 import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.MemcachedNode;
+import net.spy.memcached.internal.OperationFuture;
 
 import org.apache.log4j.Logger;
 
@@ -240,30 +241,31 @@ public class CacheClient
 		return false;
 	}
 
-	/**
+	
 	public List<String> getErrorServer()
 	{
 		List<String> lsErrors = new ArrayList<String>();
 		String strKey = "_MALL_TEST_CONNECTION_";
 
-		for(MemcachedClient MC:alCacheClient)
-		{
-			Future<Boolean> fb = MC.set(strKey,Integer.MAX_VALUE,"_MALL_TEST_CONNECTION_");
+		for(MemcachedClient mc : alCacheClient)
+		{			
+			OperationFuture<Boolean> fb = mc.set(strKey,Integer.MAX_VALUE,"_MALL_TEST_CONNECTION_");			
 			try
 			{
 				if(fb!=null && fb.get().equals(Boolean.TRUE))
 				{
-					lsErrors.add("error Server: "+MC.getId());
+					lsErrors.add("error Server: "+mc.toString());
 				}
 			}
 			catch(Exception e)
 			{					
 			}
 			
-		}		
+		}	
+
 		return lsErrors;
 	}
-	**/
+	
 	
 	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------
 

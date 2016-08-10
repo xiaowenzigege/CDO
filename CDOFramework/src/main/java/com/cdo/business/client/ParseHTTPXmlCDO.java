@@ -9,7 +9,7 @@ import com.cdoframework.cdolib.data.cdo.ParseXmlCDO;
 
 
 
-public class XmlCDOHTTPParse extends ParseXmlCDO {
+public class ParseHTTPXmlCDO extends ParseXmlCDO {
 
 	 static void xmlToCDO(String strXML,CDO cdoReturn,CDO cdoResponse)
 	{
@@ -28,7 +28,7 @@ public class XmlCDOHTTPParse extends ParseXmlCDO {
 					xml2CDO(cdoReturn,(XMLElement)node.getChildren().get(0),false);
 				}
 				if(strName.equals("cdoResponse")){
-					xml2CDO(cdoResponse,(XMLElement)node.getChildren().get(0),false);
+					xml2CDO(cdoResponse,(XMLElement)node.getChildren().get(0),true);
 				}
 			}
 		}	

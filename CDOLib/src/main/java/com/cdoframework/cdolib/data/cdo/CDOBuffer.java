@@ -136,6 +136,19 @@ public class CDOBuffer {
     	Field field=new DateTimeField(fieldId.strFieldId,buffer);
 		cdo.setObjectValue(fieldId,DataType.DATETIME_TYPE,null,field,cdo);
     }
+    
+    protected void setFileValue(CDO cdo,String strFieldId,ByteBuffer buffer)
+    {
+    	
+
+    	FieldId fieldId=cdo.parseFieldId(strFieldId);
+    	if(fieldId==null)
+    	{
+			throw new RuntimeException("Invalid FieldId "+strFieldId);
+    	}
+    	Field field=new FileField(fieldId.strFieldId,buffer);
+		cdo.setObjectValue(fieldId,DataType.FILE_TYPE,null,field,cdo);
+    }
 
 
     protected void setBooleanArrayValue(CDO cdo,String strFieldId,ByteBuffer buffer)

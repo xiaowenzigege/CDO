@@ -184,9 +184,9 @@ public class RPCClient implements IRPCClient{
 	 */
 	public Return handleTrans(CDO cdoRequest, CDO cdoResponse){		
 	  try {		  
-		  	if(cdoRequest.getSerialFileCount()>0){
-		  		return Return.valueOf(-1, "proto is unsupported file type");
-		  	}		  	
+//		  	if(cdoRequest.getSerialFileCount()>0){
+//		  		return Return.valueOf(-1, "proto is unsupported file type");
+//		  	}		  	
 		  	//TODO 选取handle
 		  	CDO cdoReturn=new CDO();
 			GoogleCDO.CDOProto proto=handle.handleTrans(cdoRequest);
@@ -207,7 +207,7 @@ public class RPCClient implements IRPCClient{
     	CDO cdoRequest=ExampleCDO.getCDO();
     	CDO cdoResponse=new CDO();
     	try {
-			Thread.sleep(2000);
+			Thread.sleep(3000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

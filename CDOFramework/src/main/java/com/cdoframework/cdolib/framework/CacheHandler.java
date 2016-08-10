@@ -127,10 +127,6 @@ public class CacheHandler implements ICacher
 
 	//构造函数,所有构造函数在此定义------------------------------------------------------------------------------
 
-	public CacheHandler()
-	{
-		// TODO Auto-generated constructor stub
-	}
 
 	public void close()
 	{

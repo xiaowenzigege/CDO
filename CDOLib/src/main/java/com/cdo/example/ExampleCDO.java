@@ -1,5 +1,6 @@
 package com.cdo.example;
 
+import java.io.File;
 import java.net.InetAddress;
 
 import com.cdoframework.cdolib.data.cdo.BooleanArrayField;
@@ -38,7 +39,7 @@ public class ExampleCDO {
 			cdo.setTimeArrayValue("times", new String[]{"17:00:00","18:00:00","20:00:00"});
 			cdo.setDateTimeValue("dateTime", "2012-05-01 20:00:00");
 			cdo.setDateTimeArrayValue("dateTimeValues", new String[]{"2012-05-01 20:00:00","2013-05-01 21:00:00","2014-05-01 22:00:00"});
-			
+			cdo.setFileValue("file", new File("D:/test/test002.xlsx"));
 			for(int i=0;i<5;i++){
 				System.out.println(cdo.getDoubleValue("double"));
 				System.out.println(cdo.getDoubleValue("double"));
