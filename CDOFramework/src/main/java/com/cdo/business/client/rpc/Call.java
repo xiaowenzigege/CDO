@@ -1,13 +1,11 @@
 package com.cdo.business.client.rpc;
 
-import com.cdo.google.protocol.GoogleCDO;
-
 public class Call {
 
 	private int callId;
 	private boolean done;	
 	private long sendTime;
-	private GoogleCDO.CDOProto rpcResponse;
+	private RPCResponse response;
 	
 	public Call(int callId){
 		this.callId=callId;
@@ -24,15 +22,15 @@ public class Call {
         notify();                                
     }
     
-    public synchronized void setRpcResponse(GoogleCDO.CDOProto rpcResponse) {
-        this.rpcResponse = rpcResponse;
+    public synchronized void setRPCResponse(RPCResponse response) {
+        this.response=response;
         callComplete();
     }
       
-    public synchronized GoogleCDO.CDOProto getRpcResponse() {
-        return rpcResponse;
+    public synchronized RPCResponse getRPCResponse() {
+        return response;
      }
-    
+
 	public long getSendTime(){
 		return this.sendTime;
 	}

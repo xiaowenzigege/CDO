@@ -48,7 +48,7 @@ public class CallsLinkedHashMap {
 			setOutCDO(cdoOutput, "等待超过"+maxTimeOut+"分钟  未获取到响应,客户端设置超时.");
 			GoogleCDO.CDOProto.Builder proto=cdoOutput.toProtoBuilder();
 			proto.setCallId(callId);
-	        call.setRpcResponse(proto.build());	    	
+	        call.setRPCResponse(new RPCResponse(proto.build()));	    	
     	} 		
 	}
 	

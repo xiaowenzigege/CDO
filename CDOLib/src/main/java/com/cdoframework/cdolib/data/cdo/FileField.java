@@ -88,22 +88,25 @@ public class FileField extends FieldImpl
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 	public void toXML(StringBuilder strbXML)
 	{
+		String path=this.fileValue==null?" file is null":this.fileValue.getPath();
 		strbXML.append("<FILE N=\"").append(this.getName()).append("\"");
-		strbXML.append(" V=\"").append(Function.FormatTextForXML(this.fileValue.getPath())).append("\"/>");
+		strbXML.append(" V=\"").append(Function.FormatTextForXML(path)).append("\"/>");
 	}
 	
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
+		String path=this.fileValue==null?" file is null":this.fileValue.getPath();
+		
 		String strIndent=Utility.makeSameCharString('\t',nIndentSize);
 		
 		strbXML.append(strIndent).append("<File N=\"").append(this.getName()).append("\"");
-		strbXML.append(" V=\"").append(Function.FormatTextForXML(this.fileValue.getPath())).append("\"/>\r\n");
+		strbXML.append(" V=\"").append(Function.FormatTextForXML(path)).append("\"/>\r\n");
 	}
 	@Override
 	public void toXMLLog(StringBuilder strbXML) {
-	
+		String path=this.fileValue==null?" file is null":this.fileValue.getPath();
 		strbXML.append("<STRF N=\"").append(this.getName()).append("\"");		
-		strbXML.append(" V=\"").append(Function.FormatTextForXML(this.fileValue.getPath())).append("\"/>");
+		strbXML.append(" V=\"").append(Function.FormatTextForXML(path)).append("\"/>");
 		
 	}	
 	public String toJSON()

@@ -1,10 +1,13 @@
 package com.cdo.business.client.rpc;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
 
 
 import io.netty.bootstrap.Bootstrap;
@@ -184,13 +187,15 @@ public class RPCClient implements IRPCClient{
 	 */
 	public Return handleTrans(CDO cdoRequest, CDO cdoResponse){		
 	  try {		  
-//		  	if(cdoRequest.getSerialFileCount()>0){
-//		  		return Return.valueOf(-1, "proto is unsupported file type");
-//		  	}		  	
-		  	//TODO 选取handle
-		  	CDO cdoReturn=new CDO();
-			GoogleCDO.CDOProto proto=handle.handleTrans(cdoRequest);
-			ParseRPCProtoCDO.ProtoRPCParse.parse(proto, cdoResponse, cdoReturn);			
+		  	//发送请求,并得到RPC响应
+			RPCResponse response=handle.handleTrans(cdoRequest);
+			//cdo 内容
+			GoogleCDO.CDOProto proto=response.getCdoProto();
+			CDO cdoReturn=new CDO();
+			//解释google buffer
+			ParseRPCProtoCDO.ProtoRPCParse.parse(proto, cdoResponse, cdoReturn);
+			//设置响应文件
+			RPCFile.setFile2CDO(cdoResponse, response.getListFile());			
 		    return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));		
 		} catch (Throwable e) {
 			String strServiceName=cdoRequest.exists(ITransService.SERVICENAME_KEY)?cdoRequest.getStringValue(ITransService.SERVICENAME_KEY):"null";
@@ -202,7 +207,7 @@ public class RPCClient implements IRPCClient{
 	
 	
     public static void main(String[] args){
-    	RPCClient rClient=new RPCClient("10.27.122.62",8090);
+    	RPCClient rClient=new RPCClient("10.27.122.62",8090);    	
     	rClient.init();
     	CDO cdoRequest=ExampleCDO.getCDO();
     	CDO cdoResponse=new CDO();

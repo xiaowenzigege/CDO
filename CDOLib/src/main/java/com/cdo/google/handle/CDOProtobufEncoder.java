@@ -9,8 +9,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
-import com.cdo.google.protocol.GoogleCDO;
-import com.google.protobuf.MessageLite;
+/**
+ * 	CDO 协议=魔数(2个字节)+消息类型(1个字节)+对象内容长度(3个字节)+文件数量(1个字节)+文件数量*8个字节(每8个字节表示文件长度)
+ * @author KenelLiu
+ *
+ */
 public class CDOProtobufEncoder extends MessageToByteEncoder<CDOMessage>{
 	
 	 private static Logger log=Logger.getLogger(CDOProtobufEncoder.class);
@@ -29,11 +32,22 @@ public class CDOProtobufEncoder extends MessageToByteEncoder<CDOMessage>{
 		    	for(int i=0;i<files.size();i++){
 					int l;	
 					FileInputStream inStream=null;
+					long total=0;
 					try{
-			    		inStream=new FileInputStream(files.get(i));	
-			    		byte[] tmp =new byte[1024];
+			    		inStream=new FileInputStream(files.get(i));
+			    		long fileLen=files.get(i).length();
+		        		long remainLen=fileLen-total;
+		        		int length=remainLen>2048?2048:(int)remainLen;
+			    		byte[] tmp =new byte[length];
 			    		while((l = inStream.read(tmp)) != -1){
-			    			out.writeBytes(tmp);		
+			    			out.writeBytes(tmp);	
+			    			
+			    			total=total+l;
+			    			if(total>=fileLen)
+			    				break;
+			    			remainLen=files.get(i).length()-total;
+			        	    length=remainLen>2048?2048:(int)remainLen;
+				    	    tmp =new byte[length];
 			    		}
 					}catch(Exception ex){
 						log.error("file:"+ex.getMessage(), ex);
@@ -48,9 +62,10 @@ public class CDOProtobufEncoder extends MessageToByteEncoder<CDOMessage>{
 
 	
 	private byte[] encodeCDOHeader(Header msgHeader,int bodyLength,List<File> files){	
-			// CDO 协议=魔数(2个字节)+消息类型(1个字节)+CDO内容长度(3个字节)+文件个数(1个字节)+文件个数*4个字节
+		
 		    int fileCount=files==null?0:files.size();
-		    byte[] header = new byte[ProtoProtocol.PROTOCOL_LEN+4*fileCount];		    
+		    byte[] header = new byte[ProtoProtocol.PROTOCOL_LEN+8*fileCount];	
+		    //cdo魔数
 		    header[0]=(byte)(msgHeader.getCrcCode()&0xff);	
 		    header[1]=(byte)((msgHeader.getCrcCode()>>8)&0xff);
 		    //协议消息类型
@@ -59,13 +74,14 @@ public class CDOProtobufEncoder extends MessageToByteEncoder<CDOMessage>{
 		    //设置3个字节表示  cdo内容长度
 		    for(int i=0;i<3;i++){		    	
 		    	header[++index]=(byte)((bodyLength>>(i*8))&0xff);
-		    }		 
+		    }	
+		    //文件数量
 		    header[++index]=(byte)fileCount;
 		    //设置文件内容长度
 		    if(fileCount>0){
 		    	for(int i=0;i<files.size();i++){
-		    		int filelLen=(int)(files.get(i).length());
-				    for(int k=0;k<4;k++){		    	
+		    		long filelLen=files.get(i).length();
+				    for(int k=0;k<8;k++){		    	
 				    	header[++index]=(byte)((filelLen>>(k*8))&0xff);
 				    }	
 		    	}

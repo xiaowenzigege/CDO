@@ -3,7 +3,7 @@ package com.cdo.google.handle;
 public interface ProtoProtocol {
 	 final String PROTOCOL_CDO="CDO";
 	 /**
-	  * CDO 协议=魔数(2个字节)+消息类型(1个字节)+对象内容长度(3个字节)+文件数量(1个字节)+文件数量*4个字节(每4个字节表示文件长度)	
+	  * CDO 协议=魔数(2个字节)+消息类型(1个字节)+对象内容长度(3个字节)+文件数量(1个字节)+[文件数量*8个字节(每8个字节表示文件长度)]	
 	  */
 	 final int   PROTOCOL_LEN=2+1+3+1;	
 	 final short MAGIC_NUMBER=0xCDF;
