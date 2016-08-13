@@ -1,14 +1,10 @@
 package com.cdo.business.rpc.client;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-
 
 
 import io.netty.bootstrap.Bootstrap;
@@ -209,7 +205,7 @@ public class RPCClient implements IRPCClient{
 	
 	
     public static void main(String[] args){
-    	RPCClient rClient=new RPCClient("10.27.122.62",8090);    	
+    	RPCClient rClient=new RPCClient("127.0.0.1",8080);    	
     	rClient.init();
     	CDO cdoRequest=ExampleCDO.getCDO();
     	CDO cdoResponse=new CDO();

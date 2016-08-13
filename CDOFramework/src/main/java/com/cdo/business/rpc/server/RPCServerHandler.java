@@ -37,11 +37,11 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	private static Logger logger=Logger.getLogger(RPCServerHandler.class);
 	private final  BusinessService serviceBus=BusinessService.getInstance();
 	static Map<String,SocketChannel> socketChannelMap=new ConcurrentHashMap<String, SocketChannel>();
-	private ExecutorService executor =Executors.newFixedThreadPool(20);
+	private ExecutorService executor =Executors.newFixedThreadPool(Math.max(10,(int)(Runtime.getRuntime().availableProcessors()*2.5)));
  
     /**
      * 防止   客户机与服务器之间的长连接   发生阻塞,业务数据采用线程池处理,长连接channel仅用于数据传输，
-     * 不能在上面处理事务,根据是内部长连接还是外部长连接，需要调节连接池的数量。
+     * 多个action通过长连接 发送请求到service端 
      */
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, CDOMessage msg)
@@ -95,7 +95,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 			List<File> files=null;
 	    	try{
 	    		files=RPCFile.readFileFromCDO(cdoResponse);    		
-	    	}catch(Exception ex){
+	    	}catch(Throwable ex){
 			    //文件不存在,返回给错误给客户端
 	    		logger.error(ex.getMessage(), ex);
 				cdoReturn.setIntegerValue("nCode",-1);

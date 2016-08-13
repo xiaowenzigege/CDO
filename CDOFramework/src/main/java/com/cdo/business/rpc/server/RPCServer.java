@@ -31,9 +31,9 @@ public class RPCServer {
         } else {
             sslCtx = null;
         }
-
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        int numMainThread=Math.max(1, Runtime.getRuntime().availableProcessors());
+        EventLoopGroup bossGroup = new NioEventLoopGroup(numMainThread);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(numMainThread*3);
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
@@ -44,7 +44,7 @@ public class RPCServer {
              .childHandler(new RPCServerInitializer(sslCtx));
             
 //            GlobalResource.bundleInitCDOEnv();	
-            int port=8090;//GlobalResource.cdoConfig.getInt("netty.server.port");
+            int port=8080;//GlobalResource.cdoConfig.getInt("netty.server.port");
 //            startService();
             ChannelFuture f= b.bind(port).sync();
             f.channel().closeFuture().sync();

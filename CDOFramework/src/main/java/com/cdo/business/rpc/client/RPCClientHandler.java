@@ -65,8 +65,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 		reqMessage.setFiles(files);
 		
 		
-        channel.write(reqMessage); 
-        channel.flush();
+        channel.writeAndFlush(reqMessage);
         calls.put(callId, call);
         boolean interrupted = false;
         synchronized (call) {
