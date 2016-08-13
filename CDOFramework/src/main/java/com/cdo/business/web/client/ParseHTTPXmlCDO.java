@@ -1,4 +1,4 @@
-package com.cdo.business.client;
+package com.cdo.business.web.client;
 
 import java.util.Iterator;
 

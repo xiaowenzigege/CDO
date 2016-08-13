@@ -211,7 +211,7 @@ public class CDOProtobufDecoder extends ByteToMessageDecoder {
         	if(total>=fileLen){
         	   //文件输出完，关闭流	
 	    	  try{if(outputStream!=null)outputStream.close();}catch(Exception ex){};	    	  
-	    	  //存在下一个文件
+	    	  //继续输出下一个文件
 	    	  if((fileCount-1)>fileIndex){
 	    		  fileIndex++;
 	    		  total=0;

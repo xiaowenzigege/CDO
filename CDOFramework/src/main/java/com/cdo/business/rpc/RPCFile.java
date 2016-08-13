@@ -1,4 +1,4 @@
-package com.cdo.business.client.rpc;
+package com.cdo.business.rpc;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -1,4 +1,4 @@
-package com.cdo.business.client.rpc;
+package com.cdo.business.rpc.client;
 
 import java.nio.ByteBuffer;
 import java.util.Iterator;

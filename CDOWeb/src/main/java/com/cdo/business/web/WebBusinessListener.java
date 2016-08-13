@@ -20,7 +20,7 @@ import com.cdoframework.cdolib.base.Return;
  *  * 
  * 即客户端 请求 http://ip:port/web项目名/handTrans.cdo,执行service服务
  * 请求,返回数据为 CDO封装,客户端请求 调用此接口即可
- * @see {@link com.cdo.business.client.BusinessHttpClient#handleTrans(com.cdoframework.cdolib.data.cdo.CDO, com.cdoframework.cdolib.data.cdo.CDO)}}
+ * @see {@link com.cdo.business.web.client.WebHttpClient#handleTrans(com.cdoframework.cdolib.data.cdo.CDO, com.cdoframework.cdolib.data.cdo.CDO)}}
  * @see web.xml配置
  * @author KenelLiu
  *

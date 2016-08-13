@@ -1,4 +1,4 @@
-package com.cdo.business.client;
+package com.cdo.business.web.client;
 
 import java.io.File;
 import java.net.URLEncoder;
@@ -20,16 +20,16 @@ import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.data.cdo.FileField;
 
-public class BusinessHttpClient implements IBusinessClient{
-	private static Logger logger = Logger.getLogger(BusinessHttpClient.class);
+public class WebHttpClient implements IWebClient{
+	private static Logger logger = Logger.getLogger(WebHttpClient.class);
 
 	private static String strDefaultUrl;	
 	private String strUrl;
 
-	public BusinessHttpClient() {
+	public WebHttpClient() {
 	}
 
-	public BusinessHttpClient(String configValue) {
+	public WebHttpClient(String configValue) {
 		strDefaultUrl = configValue;
 	}
 

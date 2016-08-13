@@ -254,18 +254,18 @@ public class HttpClient {
 			CDOHTTPResponse cdoHttpResponse=new CDOHTTPResponse();
 			cdoHttpResponse.setAllHeaders(response.getAllHeaders());
 			cdoHttpResponse.setStatusCode(response.getStatusLine().getStatusCode());			
-			//----读取响应报头信息	 用于区分一般响应  还是cdo响应---//
+			//----读取响应报头信息	 用于区分普通请求响应  还是cdo响应---//
 			LinkedHashMap<String, FileInfo> linkMap=readHeader(response.getAllHeaders());
 			try{					
 				if(linkMap.size()==1){//仅有 cdo输出				 
 					cdoHttpResponse.setResponseBytes(response.getEntity()==null?null:EntityUtils.toByteArray(response.getEntity()));					
-				}else if(linkMap.size()>1){//--cdo  和文件   混合输出,第一个输出为cdo---//	
+				}else if(linkMap.size()>1){//cdo和下载文件   混合输出,第一个输出为cdo,后续为文件依次输出//	
 					outMixData(response, linkMap, cdoHttpResponse);
 				}else{
-					 //普通http 请求  判断是否为下载文件请求				
+					 //普通http请求     判断响应是否为下载文件请求				
 		    		 Header header = response.getFirstHeader("Content-Disposition"); 					
 		    		 if(header==null){
-		    			 //普通响应文件输出,非文件下载
+		    			 //普通响应数据,非文件下载
 		    			 cdoHttpResponse.setResponseBytes(response.getEntity()==null?null:EntityUtils.toByteArray(response.getEntity()));
 		    		 }else{
 		    			 //文件输出		    			
@@ -411,7 +411,7 @@ public class HttpClient {
 	         } catch (Exception e) {  
 	        	throw new IOException(e.getMessage(),e);
 	         }finally{
-	        	 fileout.close();	        	 
+	        	 if(fileout!=null)try{fileout.close();}catch(Exception ex){}        	 
 	        } 	  
 		}
 		//-------------------输出文件流-----------------------//

@@ -1,16 +1,4 @@
-/**
- * www.cdoforum.com 2007版权所有
- * 
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOWeb/Source/com/cdoframework/cdolib/web/CDOServlet.java,v 1.1 2008/03/05
- * 01:35:45 Frank Exp $
- * 
- * $Log: CDOServlet.java,v $ Revision 1.1 2008/03/05 01:35:45 Frank *** empty log message ***
- * 
- * 
- * Revision 1.1 2007/08/22 06:34:06 Frank *** empty log message ***
- * 
- * 
- */
+
 
 package com.cdoframework.cdolib.web;
 
@@ -179,27 +167,7 @@ public abstract class CDOServlet extends HttpServlet
 	}
 	// 事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------
 
-	/**
-	 * 安全输出http响应
-	 * @param response
-	 * @param strOutput
-	
-	private void outputReponse(HttpServletResponse response, String strOutput) {
-		response.setContentType("text/xml;charset=utf-8");
-		PrintWriter out=null;
-		try {
-			out=response.getWriter();			
-			out.write(strOutput);
-			out.flush();
-		} catch (Exception e) {
-			log.error("wirte response errr", e);
-		}finally{
-			if(out != null){
-				out.close();		
-			}
-		}
-	}
- */
+ 
 	/**
 	 * 安全输出http响应
 	 * @param response

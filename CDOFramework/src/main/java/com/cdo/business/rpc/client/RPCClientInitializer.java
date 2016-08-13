@@ -1,4 +1,4 @@
-package com.cdo.business.client.rpc;
+package com.cdo.business.rpc.client;
 
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;

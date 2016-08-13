@@ -1,4 +1,4 @@
-package com.cdo.business.client;
+package com.cdo.business.web.client;
 
 import com.cdo.util.bean.CDOHTTPResponse;
 import com.cdo.util.bean.OutStreamCDO;

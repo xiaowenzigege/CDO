@@ -1,4 +1,4 @@
-package com.cdo.business.client.cache;
+package com.cdo.business.cache.client;
 
 import org.apache.log4j.Logger;
 
@@ -17,19 +17,21 @@ import com.cdoframework.cdolib.service.framework.xsd.MemCacheServerGroup;
 
 /**
  * 在 action 层 调用配置文件初始化后
- * 在 action 层 使用缓存
+ * 在 action 层 使用缓存 ，这儿仅是获取cache
+ * 
+ * service端  使用框架 调用缓存即可
  * @author KenelLiu
  *
  */
-public class BusinessClientCache
+public class ClientCache
 {
-  private static Logger logger = Logger.getLogger(BusinessClientCache.class);
+  private static Logger logger = Logger.getLogger(ClientCache.class);
 
   private CacheManager cacheManager = new CacheManager();
 
   private FilterManager filterManager = new FilterManager();
 
-  private static BusinessClientCache clientCache = null;
+  private static ClientCache clientCache = null;
 
   private void init()
   {
@@ -118,10 +120,10 @@ public class BusinessClientCache
     FilterHandler.getInstance().setFilter(this.filterManager);
   }
 
-  public static BusinessClientCache getInstance() {
+  public static ClientCache getInstance() {
     if (clientCache == null) {
-      synchronized (BusinessClientCache.class) {
-        clientCache = new BusinessClientCache();
+      synchronized (ClientCache.class) {
+        clientCache = new ClientCache();
         clientCache.init();
       }
     }

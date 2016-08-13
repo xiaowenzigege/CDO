@@ -12,7 +12,12 @@ import com.cdoframework.cdolib.util.Function;
 /**
  * 
  * @author KenelLiu
- *
+ *  仅保存一下文件名，在跨jvm RPC调用中，cdo 对象会得到文件类型，文件为空
+ *  通过后续操作将的二进制传输文件，输出到调用的服务器上，赋值后，即可得到文件。
+ *  对使用用户，过程是透明的，只需在ＣＤＯ使用setFile,getFile就可获取文件。
+ *  １　采用ＨＴＴＰ　ＩＮＶＯＫＥ　则使用ＨＴＴＰ传输文件
+ *  ２　采用ＲＰＣ　　ＩＮＶＯＫＥ　则使用自定义ＣＤＯ协议传输　　本质是基于ＴＣＰ协议传输。
+　 *  　　　ＣＤＯ协议传输基于ｎｅｔｔｙ长连接　已处理了　半包　拆包　粘包问题
  */
 public class FileField extends FieldImpl
 {
@@ -34,6 +39,7 @@ public class FileField extends FieldImpl
 	public void setValue(File fileValue)
 	{
 		this.fileValue=fileValue;
+		
 		if(fileValue!=null)
 			allocate(fileValue.getName());
 		else

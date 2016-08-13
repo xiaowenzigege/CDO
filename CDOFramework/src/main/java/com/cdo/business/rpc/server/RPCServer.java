@@ -1,4 +1,4 @@
-package com.cdo.business.server;
+package com.cdo.business.rpc.server;
 
 import org.apache.log4j.Logger;
 

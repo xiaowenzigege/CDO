@@ -568,15 +568,7 @@ public class ServiceBus implements IServiceBus
 	 * 服务检测信息集合
 	 */
 	public Map<Error, String> errorMap;
-
-	/**
-	 * @author:董超
-	 * @author:lishiguang 重构
-	 * @type: 追加
-	 * @date: 2010-10-27
-	 * @function: 验证serviceBus总线数据库连接池和各插件connection是否正常、getCategory
-	 *            connection是否正常、mongodb和-memcache
-	 */
+	
 	public boolean testServerState() throws RuntimeException {
 
 		errorMap = new HashMap<Error, String>();
@@ -589,10 +581,6 @@ public class ServiceBus implements IServiceBus
 		if (!validateMongodb())
 			return false;
 
-		// 验证 getCategory
-		if (!validateGetCategory())
-			return false;
-
 		// 验证总线mysql
 		if (!validateMysql())
 			return false;
@@ -600,11 +588,9 @@ public class ServiceBus implements IServiceBus
 		return true;
 	}
 
-	/**
-	 * @author shiguang.li 2011-8-9 下午05:13:54
-	 */
+
 	public enum Error {
-		memcache, mongodb, getcategory, mysql, non;
+		memcache, mongodb, mysql, non;
 	}
 
 	/**
@@ -636,8 +622,7 @@ public class ServiceBus implements IServiceBus
 				// 遍历hmDataGroup MAP
 				for (String key : this.hmDataGroup.keySet()) {
 					// 取得hmDataGroup value
-					com.cdoframework.cdolib.base.CycleList<IDataEngine> cycleList = this.hmDataGroup
-							.get(key);
+					com.cdoframework.cdolib.base.CycleList<IDataEngine> cycleList = this.hmDataGroup.get(key);
 					// 正确性验证，防止报空指针
 					if (null != cycleList) {
 						// 取得IDataEngine
@@ -699,38 +684,13 @@ public class ServiceBus implements IServiceBus
 				return false;
 			}
 		}catch(Exception e){
-			errorMap.put(Error.getcategory, e.getMessage());
+			errorMap.put(Error.mysql, e.getMessage());
 			return false;
 		}
 		return true;
 	}
 
-	/**
-	 * 验证 获取类目信息是否成功
-	 * 
-	 * @return
-	 */
-	private boolean validateGetCategory() {
-		try {
-			final String SCENE_COUNTER = "counter";
-			CDO cdoRequest = new CDO();
-			CDO cdoResponse = new CDO();
-			cdoRequest.setStringValue("strServiceName", "CategoryService");
-			cdoRequest.setStringValue("strTransName", "getChildCategoryCount");
-			cdoRequest.setStringValue("strScene", SCENE_COUNTER);
-			cdoRequest.setLongValue("lCategoryId", 0);
-			Return ret = this.handleTrans(cdoRequest, cdoResponse);
-			// 结果为0正常
-			if (ret != null && ret.getCode() != 0) {
-				errorMap.put(Error.getcategory, ret.getText());
-				return false;
-			}
-		} catch (Exception e) {
-			errorMap.put(Error.getcategory, e.getMessage());
-			return false;
-		}
-		return true;
-	}
+
 
 	/**
 	 * 验证mongodb 是否正常
@@ -751,7 +711,7 @@ public class ServiceBus implements IServiceBus
 				}
 			}
 		} catch (Exception e) {
-			errorMap.put(Error.getcategory, e.getMessage());
+			errorMap.put(Error.mongodb, e.getMessage());
 			return false;
 		}
 		return true;
@@ -780,7 +740,7 @@ public class ServiceBus implements IServiceBus
 			}
 		}catch(Exception e){
 			logger.error("testServerState:" + e.getMessage(), e);
-			errorMap.put(Error.getcategory, e.getMessage());
+			errorMap.put(Error.memcache, e.getMessage());
 			return false;
 		}
 		return true;
