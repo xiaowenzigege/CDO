@@ -40,18 +40,25 @@
 			<version>5.5.23</version>
 			<scope>compile</scope>
 		</dependency>					
-		<!-- 支持第三RSA加解密  可指定长度   性能优于 sun rsa  因原生sun rsa 至少要512 -->
+		<!-- 支持第三RSA加解密  可指定长度   性能优于 sun rsa  因原生sun rsa 至少要5k12 -->
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk16</artifactId>
 			<version>1.46</version>
 		</dependency>
-		<!-- sftp over ssh -->
+		<!-- sftp over ssh-->
 		<dependency>
 			<groupId>com.jcraft</groupId>
 			<artifactId>jsch</artifactId>
 			<version>0.1.53</version>
 		</dependency>
+		<!-- scp 		 
+		<dependency>
+		    <groupId>ch.ethz.ganymed</groupId>
+		    <artifactId>ganymed-ssh2</artifactId>
+		    <version>262</version>
+		</dependency>
+		-->		
 		<!-- ftp -->
 		<dependency>
 			<groupId>commons-net</groupId>

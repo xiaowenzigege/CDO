@@ -177,7 +177,7 @@ public class CDOProtobufDecoder extends ByteToMessageDecoder {
 		  String suffix=".tmp";
 		  String date=new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date(System.nanoTime()));
 		  String tempPath =tmpDirPath+"/"+date+suffix;				    				 
-		  File tmpFile=new File("d:/test/"+date+suffix);			  
+		  File tmpFile=new File(tempPath);			  
 		  if(!tmpFile.exists())
 		    	tmpFile.createNewFile();
 		  return tmpFile;				 
