@@ -1,8 +1,11 @@
 package com.cdo.business.rpc.server;
 
+import java.util.Collections;
+
 import org.apache.log4j.Logger;
 
 import com.cdo.business.BusinessService;
+import com.cdo.business.rpc.client.RPCClient;
 import com.cdo.util.resource.GlobalResource;
 import com.cdoframework.cdolib.base.Return;
 
@@ -21,7 +24,51 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 public class RPCServer {
     static final boolean SSL = System.getProperty("ssl") != null;
 	private static Logger logger=Logger.getLogger(RPCServer.class);
+	static EventLoopGroup bossGroup=null;
+	static EventLoopGroup workerGroup=null;
+	static BusinessService app=null;
+	public void start(){
+        final SslContext sslCtx;
+
+        int numMainThread=Math.max(1, Runtime.getRuntime().availableProcessors());
+        bossGroup = new NioEventLoopGroup(numMainThread);
+        workerGroup = new NioEventLoopGroup(numMainThread*3);
+        try {
+            if (SSL) {
+                SelfSignedCertificate ssc = new SelfSignedCertificate();
+                sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+            } else {
+                sslCtx = null;
+            }            
+            ServerBootstrap b = new ServerBootstrap();
+            b.group(bossGroup, workerGroup)
+//             .option(ChannelOption.TCP_NODELAY, true)       
+             .childOption(ChannelOption.SO_KEEPALIVE, true)
+             .channel(NioServerSocketChannel.class)
+             .handler(new LoggingHandler(LogLevel.INFO))
+             .childHandler(new RPCServerInitializer(sslCtx));
+            
+//            GlobalResource.bundleInitCDOEnv();	
+            int port=8080;//GlobalResource.cdoConfig.getInt("netty.server.port");
+//            startService();
+            ChannelFuture f= b.bind(port).sync();
+            f.channel().closeFuture().sync();
+         }catch(Throwable ex){
+        	 logger.fatal("RPCServer start fatal :"+ex.getMessage(),ex);
+        	 System.exit(1);
+         }
+	}
 	
+
+	
+	public static void stop(){
+		if(app!=null)
+			app.stop();
+		if(bossGroup!=null){
+			bossGroup.shutdownGracefully();
+			workerGroup.shutdownGracefully();
+		}
+	}
     public static void main(String[] args) throws Exception {
         // Configure SSL.
         final SslContext sslCtx;
@@ -48,6 +95,7 @@ public class RPCServer {
 //            startService();
             ChannelFuture f= b.bind(port).sync();
             f.channel().closeFuture().sync();
+            
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
@@ -55,17 +103,15 @@ public class RPCServer {
     }
 
     private static void startService(){
-		Return ret = Return.OK;
-		BusinessService app = BusinessService.getInstance();		
-		try
-		{
+    	Return ret =null;
+		app = BusinessService.getInstance();		
+		try{
 			ret = app.start();
 		}catch(Throwable e){
 			ret	=Return.valueOf(-1,e.getLocalizedMessage());
 			logger.error(e.getMessage(),e);
 		}
-		if(ret.getCode()!=0)
-		{
+		if(ret.getCode()!=0){
 			logger.fatal(ret.getText());
 			logger.fatal("||*****************************************||\r\n||*****************************************||\r\n||  started faild and will exit            ||\r\n||*****************************************||\r\n||*****************************************||");
 			System.exit(-1);

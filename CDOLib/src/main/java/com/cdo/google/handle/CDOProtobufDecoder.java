@@ -131,6 +131,7 @@ public class CDOProtobufDecoder extends ByteToMessageDecoder {
 			case ProtoProtocol.TYPE_CDO:
 			case ProtoProtocol.TYPE_HEARTBEAT_REQ:
 			case ProtoProtocol.TYPE_HEARTBEAT_RES:
+			case ProtoProtocol.TYPE_STOPLOCALServer:	
 				flag=true;
 				break;
 			default:

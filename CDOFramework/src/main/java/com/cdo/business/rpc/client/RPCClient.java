@@ -51,13 +51,13 @@ public class RPCClient implements IRPCClient{
 	private final String remoteHost;
 	private final int remotePort;  
 
-	private final int retryTime=5;//若断开，每隔多长时间重试一次 单位为秒
+	private  int retryTime=5;//若断开，每隔多长时间重试一次 单位为秒
 	private  int totalRetryCount=5;//0表示无限次每隔retryTime时间的重试一次  大于0在表示重试 达到多次后，不再重试
 	private  int retryCount=0;
     RPCClientHandler handle; 
     
     private String clientKey;
-    
+    private boolean closedServer=false;
     static {
     	//TODO 建立连接多个服务端的connection
 //    	String[] address=GlobalResource.cdoConfig.getString("netty.client.conections").split(";");
@@ -76,6 +76,19 @@ public class RPCClient implements IRPCClient{
 		    this.remotePort = remotePort;
 		    this.clientKey=remoteHost+":"+remotePort;
 	}
+
+	public RPCClient(String remoteHost, int remotePort,boolean closedServer) {
+	    this.remoteHost = remoteHost;
+	    this.remotePort = remotePort;	    
+	    this.closedServer=closedServer;
+	    if(closedServer){
+	    	this.retryCount=1;
+	    	this.retryTime=3;
+	    }
+	    
+	   
+  }
+	
 	public void init(){
 	    final SslContext sslCtx;        
 	    try {
@@ -145,8 +158,11 @@ public class RPCClient implements IRPCClient{
 	          logger.info("Started  Client Success connection: " + getServerInfo());
 	          handle=f.channel().pipeline().get(RPCClientHandler.class);	          
 	          clients.put(clientKey,rpcClient);
-	        } else {		       
-	          logger.error("Started Client Failed retry connection ["+retryCount+"] times : " + getServerInfo());
+	        } else {
+	           //正常的客户端连接
+	          if(!closedServer)	
+	        	  logger.error("Started Client Failed retry connection ["+retryCount+"] times : " + getServerInfo());
+	          
 	          f.channel().close();
 	          executor.execute(new Runnable() {								
 					@Override
@@ -203,6 +219,9 @@ public class RPCClient implements IRPCClient{
 		}		  
 	}	
 	
+	public void stopLocalServer(){
+		handle.stopLocalServer();
+	}
 	
     public static void main(String[] args){
     	RPCClient rClient=new RPCClient("127.0.0.1",8080);    	

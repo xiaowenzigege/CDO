@@ -15,6 +15,7 @@ import com.cdo.google.protocol.GoogleCDO;
 import com.cdo.util.common.UUidGenerator;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.MessageLite;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -30,6 +31,16 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     /** A counter for generating call IDs. */
     static final AtomicInteger callIdCounter = new AtomicInteger();
     
+    /**
+     * 通过 tcp来关闭server
+     */
+    public void stopLocalServer(){
+		CDOMessage stopServer=new CDOMessage();
+		Header header=new Header();
+		header.setType(ProtoProtocol.TYPE_STOPLOCALServer);	
+		stopServer.setHeader(header);
+		channel.writeAndFlush(stopServer);
+    }
     
     public RPCResponse handleTrans(CDO cdoRequest) {   
     	//是否有文件传输

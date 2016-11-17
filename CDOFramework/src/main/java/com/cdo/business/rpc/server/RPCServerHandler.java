@@ -63,6 +63,8 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 			CDOMessage resMessage=new CDOMessage();
 			resMessage.setHeader(resHeader);
 			ctx.writeAndFlush(resMessage);
+		}else if(header.getType()==ProtoProtocol.TYPE_STOPLOCALServer){
+			RPCServer.stop();
 		}else{
 			ctx.fireChannelRead(msg);
 		}

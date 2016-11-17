@@ -13,8 +13,10 @@ public interface ProtoProtocol {
 	 final byte  TYPE_CDO=0x00;
 	 final byte  TYPE_HEARTBEAT_REQ=0x01;
 	 final byte  TYPE_HEARTBEAT_RES=0x02;
+	 final byte  TYPE_STOPLOCALServer=0x03;
 	 public enum Type{
-		 	CDO(TYPE_CDO,"CDO"),HEARTBEAT_REQ(TYPE_HEARTBEAT_REQ,"heartBeat Req"),HEARTBEAT_RES(TYPE_HEARTBEAT_RES,"heartBeat Res");
+		 	CDO(TYPE_CDO,"CDO"),HEARTBEAT_REQ(TYPE_HEARTBEAT_REQ,"heartBeat Req"),HEARTBEAT_RES(TYPE_HEARTBEAT_RES,"heartBeat Res"),
+		 	STOPLOCALServer(TYPE_STOPLOCALServer,"stop server");
 			private byte type;
 		    private String msg;
 		    
