@@ -1,8 +1,10 @@
 package com.cdo.business.rpc.server;
 
 import java.util.Collections;
+import java.util.logging.LogManager;
 
 import org.apache.log4j.Logger;
+
 
 import com.cdo.business.BusinessService;
 import com.cdo.business.rpc.client.RPCClient;
@@ -27,6 +29,8 @@ public class RPCServer {
 	static EventLoopGroup bossGroup=null;
 	static EventLoopGroup workerGroup=null;
 	static BusinessService app=null;
+    protected Thread shutdownHook = null;
+    
 	public void start(){
         final SslContext sslCtx;
 
@@ -42,15 +46,17 @@ public class RPCServer {
             }            
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
-//             .option(ChannelOption.TCP_NODELAY, true)       
+             .option(ChannelOption.TCP_NODELAY, true)       
              .childOption(ChannelOption.SO_KEEPALIVE, true)
              .channel(NioServerSocketChannel.class)
              .handler(new LoggingHandler(LogLevel.INFO))
              .childHandler(new RPCServerInitializer(sslCtx));
-            
-//            GlobalResource.bundleInitCDOEnv();	
-            int port=8080;//GlobalResource.cdoConfig.getInt("netty.server.port");
+                        	
+            if(GlobalResource.cdoConfig==null)
+            	GlobalResource.bundleInitCDOEnv();
+            int port=GlobalResource.cdoConfig.getInt("netty.server.port");
 //            startService();
+            logger.info("server start success ..........");
             ChannelFuture f= b.bind(port).sync();
             f.channel().closeFuture().sync();
          }catch(Throwable ex){
@@ -60,15 +66,38 @@ public class RPCServer {
 	}
 	
 
+
 	
 	public static void stop(){
 		if(app!=null)
-			app.stop();
+			app.stop();		 
 		if(bossGroup!=null){
 			bossGroup.shutdownGracefully();
 			workerGroup.shutdownGracefully();
 		}
 	}
+	
+	
+	public  void stopLocalServer(){
+		if(app!=null)
+			app.stop();
+		 Runtime.getRuntime().removeShutdownHook(shutdownHook);
+		if(bossGroup!=null){
+			bossGroup.shutdownGracefully();
+			workerGroup.shutdownGracefully();
+		}
+	}
+    protected class ShutdownHook extends Thread {
+        @Override
+        public void run() {
+            try {
+            	  RPCServer.this.stopLocalServer();
+            } catch (Throwable ex) {
+            	logger.error(ex.getMessage(), ex);            
+            }
+        }
+    }
+   
     public static void main(String[] args) throws Exception {
         // Configure SSL.
         final SslContext sslCtx;

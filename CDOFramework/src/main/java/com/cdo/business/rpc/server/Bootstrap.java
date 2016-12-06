@@ -12,6 +12,7 @@ import java.security.PrivilegedAction;
 import org.apache.log4j.Logger;
 
 import com.cdo.business.rpc.client.RPCClient;
+import com.cdo.util.resource.GlobalResource;
 
 
 
@@ -44,7 +45,7 @@ public final class Bootstrap {
                             return new URLClassLoader(urls);
                     }
                 });
-		
+        Thread.currentThread().setContextClassLoader(catalinaLoader);
         Class<?> startupClass =catalinaLoader.loadClass("com.cdo.business.rpc.server.RPCServer");
         catalinaDaemon= startupClass.newInstance();
 	  
@@ -52,14 +53,17 @@ public final class Bootstrap {
     
     public void start(String homePath)
             throws Exception {
-            if( catalinaDaemon==null ) init(homePath);
-
+            if(catalinaDaemon==null ) init(homePath);
             Method method = catalinaDaemon.getClass().getMethod("start", (Class [] )null);
             method.invoke(catalinaDaemon, (Object [])null);
         }
-   
-	public static void stopLocalServer(){
-	 	RPCClient rClient=new RPCClient("127.0.0.1",8080,true); 
+    
+   /**
+    * 通过socket来关闭服务
+    */
+	public  void stop(){
+		int port=GlobalResource.cdoConfig.getInt("netty.server.port");
+	 	RPCClient rClient=new RPCClient("127.0.0.1",port,true); 
 	 	rClient.init();
     	try {
 			Thread.sleep(3000);
@@ -70,16 +74,14 @@ public final class Bootstrap {
 	 	rClient.stopLocalServer();
 	}
 	
-    public void stop()
+    public void stopLocal()
             throws Exception {
             Method method = catalinaDaemon.getClass().getMethod("stop", (Class [] ) null);
             method.invoke(catalinaDaemon, (Object [] ) null);
-
         }
     
     public static void main(String[] args){
-//    	String homePath=args[0];
-    	String homePath="d:/Dev";
+    	String homePath=args[0];    	
         if (daemon == null) {
             // Don't set daemon until init() has completed
             Bootstrap bootstrap = new Bootstrap();
@@ -97,18 +99,19 @@ public final class Bootstrap {
             Thread.currentThread().setContextClassLoader(daemon.catalinaLoader);
         }
         try {
-            String command = "start";
-            if (args.length > 2) {
+            String command = "stop";
+            GlobalResource.bundleInitCDOEnv();          
+            if (args.length > 1) {
                 command = args[args.length - 1];
-            }
+            }         
             if (command.equals("start")) {
-                daemon.start(homePath);
+                daemon.start(homePath);               
             } else if (command.equals("stop")) {
-                daemon.stopLocalServer();
+                daemon.stop();                             
             } else {
                 log.warn("Bootstrap: command \"" + command + "\" does not exist.");
             }
-            System.out.println("-------------");
+           
         } catch (Throwable t) {
         	log.fatal("bootstrap throwable :"+t.getMessage(), t);	
             System.exit(1);

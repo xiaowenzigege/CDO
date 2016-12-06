@@ -77,7 +77,7 @@ public class RPCClient implements IRPCClient{
 		    this.clientKey=remoteHost+":"+remotePort;
 	}
 
-	public RPCClient(String remoteHost, int remotePort,boolean closedServer) {
+	public RPCClient(String remoteHost, int remotePort,boolean closedServer){
 	    this.remoteHost = remoteHost;
 	    this.remotePort = remotePort;	    
 	    this.closedServer=closedServer;
@@ -85,9 +85,7 @@ public class RPCClient implements IRPCClient{
 	    	this.retryCount=1;
 	    	this.retryTime=3;
 	    }
-	    
-	   
-  }
+   }
 	
 	public void init(){
 	    final SslContext sslCtx;        
