@@ -21,6 +21,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.ReferenceCountUtil;
 
 public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 	private static Logger logger=Logger.getLogger(RPCClientHandler.class);
@@ -123,16 +124,21 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {    
     	if(msg instanceof CDOMessage){   
-    		CDOMessage cdoMessage=(CDOMessage)msg;
-    		if(cdoMessage.getHeader().getType()==ProtoProtocol.TYPE_HEARTBEAT_RES){
-    			if(logger.isInfoEnabled())
-    				logger.info("client receive server heart msg:"+msg);
-    		}else if(cdoMessage.getHeader().getType()==ProtoProtocol.TYPE_CDO){
-        		GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(cdoMessage.getBody());
-    			int callId=proto.getCallId();
-    			Call call = calls.get(callId);
-    	        calls.remove(callId);    	        
-    	        call.setRPCResponse(new RPCResponse(proto, cdoMessage.getFiles()));		    			
+    		try{
+    			CDOMessage cdoMessage=(CDOMessage)msg;
+    		
+	    		if(cdoMessage.getHeader().getType()==ProtoProtocol.TYPE_HEARTBEAT_RES){
+	    			if(logger.isInfoEnabled())
+	    				logger.info("client receive server heart msg:"+msg);
+	    		}else if(cdoMessage.getHeader().getType()==ProtoProtocol.TYPE_CDO){
+	        		GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(cdoMessage.getBody());
+	    			int callId=proto.getCallId();
+	    			Call call = calls.get(callId);
+	    	        calls.remove(callId);    	        
+	    	        call.setRPCResponse(new RPCResponse(proto, cdoMessage.getFiles()));		    			
+	    		}
+    		}finally{
+    			ReferenceCountUtil.release(msg);
     		}
     	}else{
     		ctx.fireChannelRead(msg);

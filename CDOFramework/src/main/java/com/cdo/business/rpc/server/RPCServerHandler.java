@@ -31,6 +31,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.ReferenceCountUtil;
 
 public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 
@@ -49,20 +50,28 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 		  Header header=msg.getHeader();
 
 		if(header.getType()==ProtoProtocol.TYPE_CDO){			
-			GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(msg.getBody());
-			List<File> listFile=msg.getFiles();
-			String clientId=UUidGenerator.ClientId.toString(proto.getClientId().toByteArray());
-			socketChannelMap.put(clientId,(SocketChannel)ctx.channel());						
-			InetSocketAddress remoteAddress=((SocketChannel)ctx.channel()).remoteAddress();			
-			Task task=new Task(proto,remoteAddress,listFile);
-			executor.submit(task);
+			try{
+				GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(msg.getBody());
+				List<File> listFile=msg.getFiles();
+				String clientId=UUidGenerator.ClientId.toString(proto.getClientId().toByteArray());
+				socketChannelMap.put(clientId,(SocketChannel)ctx.channel());						
+				InetSocketAddress remoteAddress=((SocketChannel)ctx.channel()).remoteAddress();			
+				Task task=new Task(proto,remoteAddress,listFile);
+				executor.submit(task);
+			}finally{
+				ReferenceCountUtil.release(msg);
+			}
 		}else if(header.getType()==ProtoProtocol.TYPE_HEARTBEAT_REQ){
 			//心跳检查
-			Header resHeader=new Header();
-			resHeader.setType(ProtoProtocol.TYPE_HEARTBEAT_RES);
-			CDOMessage resMessage=new CDOMessage();
-			resMessage.setHeader(resHeader);
-			ctx.writeAndFlush(resMessage);
+		 try{	
+				Header resHeader=new Header();
+				resHeader.setType(ProtoProtocol.TYPE_HEARTBEAT_RES);
+				CDOMessage resMessage=new CDOMessage();
+				resMessage.setHeader(resHeader);
+				ctx.writeAndFlush(resMessage);			
+			}finally{
+				ReferenceCountUtil.release(msg);
+			}
 		}else if(header.getType()==ProtoProtocol.TYPE_STOPLOCALServer){
 			RPCServer.stop();
 		}else{
@@ -82,49 +91,59 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 		@Override
 		public void run() {				
 			
-			CDO cdoOutput=handleTrans(this.proto,this.listFile);	   
-			CDO cdoResponse=cdoOutput.getCDOValue("cdoResponse");
-			CDO cdoReturn=cdoOutput.getCDOValue("cdoReturn"); 
+			CDO cdoResponse=null;
+			CDO cdoReturn=null;
+			CDO cdoOutput=null;
+			try{
+				cdoOutput=handleTrans(this.proto,this.listFile);	   
+				cdoResponse=cdoOutput.getCDOValue("cdoResponse");
+				cdoReturn=cdoOutput.getCDOValue("cdoReturn"); 
+				
+				String clientId=UUidGenerator.ClientId.toString(this.proto.getClientId().toByteArray());
+				SocketChannel channel=socketChannelMap.get(clientId);			
+				if(channel==null){
+					//管道被关闭 或不可用
+					logger.error("channel is null,clientId="+clientId+",client remoteInetAddress="+remoteInetAddress);
+					return;
+				}			
+		    	//响应里存在文件,即下载到客服端.是否有文件传输到客户端
+				List<File> files=null;
+		    	try{
+		    		files=RPCFile.readFileFromCDO(cdoResponse);    		
+		    	}catch(Throwable ex){
+				    //文件不存在,返回给错误给客户端
+		    		logger.error(ex.getMessage(), ex);
+					cdoReturn.setIntegerValue("nCode",-1);
+					cdoReturn.setStringValue("strText","RPCServer "+ex.getMessage());
+					cdoReturn.setStringValue("strInfo","RPCServer "+ex.getMessage());
+		    	}
+		    	
+				GoogleCDO.CDOProto.Builder resProtoBuiler=cdoOutput.toProtoBuilder();
+				resProtoBuiler.setCallId(proto.getCallId());
+				
+				Header resHeader=new Header();
+				resHeader.setType(ProtoProtocol.TYPE_CDO);
+				CDOMessage resMessage=new CDOMessage();
+				resMessage.setHeader(resHeader);
+				resMessage.setBody(resProtoBuiler.build());
+				resMessage.setFiles(files);
 			
-			String clientId=UUidGenerator.ClientId.toString(this.proto.getClientId().toByteArray());
-			SocketChannel channel=socketChannelMap.get(clientId);			
-			if(channel==null){
-				//管道被关闭 或不可用
-				logger.error("channel is null,clientId="+clientId+",client remoteInetAddress="+remoteInetAddress);
-				return;
-			}			
-	    	//响应里存在文件,即下载到客服端.是否有文件传输到客户端
-			List<File> files=null;
-	    	try{
-	    		files=RPCFile.readFileFromCDO(cdoResponse);    		
-	    	}catch(Throwable ex){
-			    //文件不存在,返回给错误给客户端
-	    		logger.error(ex.getMessage(), ex);
-				cdoReturn.setIntegerValue("nCode",-1);
-				cdoReturn.setStringValue("strText","RPCServer "+ex.getMessage());
-				cdoReturn.setStringValue("strInfo","RPCServer "+ex.getMessage());
-	    	}
-	    	
-			GoogleCDO.CDOProto.Builder resProtoBuiler=cdoOutput.toProtoBuilder();
-			resProtoBuiler.setCallId(proto.getCallId());
-			
-			Header resHeader=new Header();
-			resHeader.setType(ProtoProtocol.TYPE_CDO);
-			CDOMessage resMessage=new CDOMessage();
-			resMessage.setHeader(resHeader);
-			resMessage.setBody(resProtoBuiler.build());
-			resMessage.setFiles(files);
-			
-			channel.writeAndFlush(resMessage);					
+				channel.writeAndFlush(resMessage);
+			}finally{
+				CDO.release(cdoResponse);
+				CDO.release(cdoReturn);
+				CDO.release(cdoOutput);
+			}
 		}
 		
 		private CDO handleTrans(GoogleCDO.CDOProto proto,List<File> listFile){
 			
-			CDO cdoOutput=new CDO();			
+			CDO cdoOutput=new CDO();	
+			CDO cdoRequest=null;
 			try{				
 				CDO cdoResponse=new CDO();
 				//解释cdo
-				CDO cdoRequest=ParseProtoCDO.ProtoParse.parse(proto);
+				cdoRequest=ParseProtoCDO.ProtoParse.parse(proto);
 				//将client传过来的文件 设置到cdoRequest里
 				RPCFile.setFile2CDO(cdoRequest, listFile);
 				//处理业务
@@ -146,6 +165,8 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 			}catch(Throwable ex){
 				logger.error(ex.getMessage(), ex);	
 				setOutCDO(cdoOutput,"服务端处理异常:"+ex.getMessage());
+			}finally{
+				CDO.release(cdoRequest);
 			} 	
 			return cdoOutput;
 		}

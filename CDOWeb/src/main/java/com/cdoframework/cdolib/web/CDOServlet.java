@@ -147,7 +147,9 @@ public abstract class CDOServlet extends HttpServlet
 			//TODO 可增加网页类cache  CacheUtil.handleReqCache(request, response, ret);
 			outputReponse(response, strOutput,cdoResponse);
 		}finally{
-			cdoResponse=null;
+			//业务处理完毕 释放CDO
+			CDO.release(cdoRequest);
+			CDO.release(cdoResponse);			
 		}		
 	}
 	private void outPut(HttpServletResponse response,String message) throws IOException{

@@ -1385,9 +1385,23 @@ public class CDO implements Serializable
 		}
 	}
 
+	public void clear(){
+		hmItem.clear();
+	}
 	public Set<String> keySet()
 	{
 		return hmItem.keySet();
+	}
+	
+	private  void release(){
+		hmItem.clear();
+		hmItem=null;		
+	}
+	
+	public static void release(CDO cdo){
+		if(cdo!=null)
+			cdo.release();
+		cdo=null;		
 	}
 	
 	public int size(){
@@ -1403,7 +1417,9 @@ public class CDO implements Serializable
     
     public Iterator<Map.Entry<String,Field>> iterator(){
     	return this.hmItem.entrySet().iterator();
-    }	
+    }
+    
+ 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
 	//构造函数,所有构造函数在此定义------------------------------------------------------------------------------
