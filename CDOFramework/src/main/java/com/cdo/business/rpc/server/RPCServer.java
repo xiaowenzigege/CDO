@@ -1,13 +1,7 @@
 package com.cdo.business.rpc.server;
 
-import java.util.Collections;
-import java.util.logging.LogManager;
-
 import org.apache.log4j.Logger;
-
-
 import com.cdo.business.BusinessService;
-import com.cdo.business.rpc.client.RPCClient;
 import com.cdo.util.resource.GlobalResource;
 import com.cdoframework.cdolib.base.Return;
 
@@ -33,7 +27,6 @@ public class RPCServer {
     
 	public void start(){
         final SslContext sslCtx;
-
         int numMainThread=Math.max(1, Runtime.getRuntime().availableProcessors());
         bossGroup = new NioEventLoopGroup(numMainThread);
         workerGroup = new NioEventLoopGroup(numMainThread*3);
@@ -55,7 +48,7 @@ public class RPCServer {
             if(GlobalResource.cdoConfig==null)
             	GlobalResource.bundleInitCDOEnv();
             int port=GlobalResource.cdoConfig.getInt("netty.server.port");
-//            startService();
+            startService();
             logger.info("server start success ..........");
             ChannelFuture f= b.bind(port).sync();
             f.channel().closeFuture().sync();
@@ -98,39 +91,6 @@ public class RPCServer {
         }
     }
    
-    public static void main(String[] args) throws Exception {
-        // Configure SSL.
-        final SslContext sslCtx;
-        if (SSL) {
-            SelfSignedCertificate ssc = new SelfSignedCertificate();
-            sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
-        } else {
-            sslCtx = null;
-        }
-        int numMainThread=Math.max(1, Runtime.getRuntime().availableProcessors());
-        EventLoopGroup bossGroup = new NioEventLoopGroup(numMainThread);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(numMainThread*3);
-        try {
-            ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup)
-//             .option(ChannelOption.TCP_NODELAY, true)       
-             .childOption(ChannelOption.SO_KEEPALIVE, true)
-             .channel(NioServerSocketChannel.class)
-             .handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new RPCServerInitializer(sslCtx));
-            
-//            GlobalResource.bundleInitCDOEnv();	
-            int port=8080;//GlobalResource.cdoConfig.getInt("netty.server.port");
-//            startService();
-            ChannelFuture f= b.bind(port).sync();
-            f.channel().closeFuture().sync();
-            
-        } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
-        }
-    }
-
     private static void startService(){
     	Return ret =null;
 		app = BusinessService.getInstance();		
@@ -150,4 +110,39 @@ public class RPCServer {
 			logger.info("business started-----------------");
 		}
     }
+    
+    
+    public static void main(String[] args) throws Exception {
+        // Configure SSL.
+        final SslContext sslCtx;
+        if (SSL) {
+            SelfSignedCertificate ssc = new SelfSignedCertificate();
+            sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
+        } else {
+            sslCtx = null;
+        }
+        int numMainThread=Math.max(1, Runtime.getRuntime().availableProcessors());
+        EventLoopGroup bossGroup = new NioEventLoopGroup(numMainThread);
+        EventLoopGroup workerGroup = new NioEventLoopGroup(numMainThread*3);
+        try {
+            ServerBootstrap b = new ServerBootstrap();
+            b.group(bossGroup, workerGroup)
+             .option(ChannelOption.TCP_NODELAY, true)       
+             .childOption(ChannelOption.SO_KEEPALIVE, true)
+             .channel(NioServerSocketChannel.class)
+             .handler(new LoggingHandler(LogLevel.INFO))
+             .childHandler(new RPCServerInitializer(sslCtx));
+            
+            GlobalResource.bundleInitCDOEnv();	
+            int port=8080;
+            startService();
+            ChannelFuture f= b.bind(port).sync();
+            f.channel().closeFuture().sync();
+            
+        } finally {
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
+        }
+    }
+
 }

@@ -38,7 +38,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	private static Logger logger=Logger.getLogger(RPCServerHandler.class);
 	private final  BusinessService serviceBus=BusinessService.getInstance();
 	static Map<String,SocketChannel> socketChannelMap=new ConcurrentHashMap<String, SocketChannel>();
-	private ExecutorService executor =Executors.newFixedThreadPool(Math.max(10,(int)(Runtime.getRuntime().availableProcessors()*2.5)));
+	private ExecutorService executor =Executors.newFixedThreadPool(Math.max(15,(int)(Runtime.getRuntime().availableProcessors()*5)));
  
     /**
      * 防止   客户机与服务器之间的长连接   发生阻塞,业务数据采用线程池处理,长连接channel仅用于数据传输，
@@ -62,13 +62,24 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 				ReferenceCountUtil.release(msg);
 			}
 		}else if(header.getType()==ProtoProtocol.TYPE_HEARTBEAT_REQ){
-			//心跳检查
+			//客户端主动发起 心跳检查，服务端回复心跳
 		 try{	
 				Header resHeader=new Header();
 				resHeader.setType(ProtoProtocol.TYPE_HEARTBEAT_RES);
 				CDOMessage resMessage=new CDOMessage();
 				resMessage.setHeader(resHeader);
-				ctx.writeAndFlush(resMessage);			
+				ctx.writeAndFlush(resMessage);
+				
+			    if(logger.isDebugEnabled())
+	    			logger.debug("server receive client address["+(InetSocketAddress)ctx.channel().remoteAddress()+"] heart msg:"+msg);
+			}finally{
+				ReferenceCountUtil.release(msg);
+			}
+		}else if(header.getType()==ProtoProtocol.TYPE_HEARTBEAT_RES){
+			try{
+				//服务端主动发起心跳检查,客户端回复心跳
+			    if(logger.isInfoEnabled())
+			    			logger.info("server receive client address["+(InetSocketAddress)ctx.channel().remoteAddress()+"] heart msg:"+msg);
 			}finally{
 				ReferenceCountUtil.release(msg);
 			}
@@ -196,6 +207,10 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
         	}
         }
     }
+    /**
+     * 服务端设定  30秒是空闲写时,发起心跳检查,在30秒内未读取到客服端响应,则关闭连接
+     * 心跳检查  使用客户端来检查
+     */
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
@@ -203,6 +218,13 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
                 case READER_IDLE:
                 	ctx.close();
                     break;
+                case WRITER_IDLE:
+//        			CDOMessage heartBeat=new CDOMessage();
+//        			Header header=new Header();
+//        			header.setType(ProtoProtocol.TYPE_HEARTBEAT_REQ);
+//        			heartBeat.setHeader(header);
+//        			ctx.writeAndFlush(heartBeat);
+        			break;
                 default:
                     break;
             }

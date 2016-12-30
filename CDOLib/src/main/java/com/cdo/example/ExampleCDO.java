@@ -39,7 +39,7 @@ public class ExampleCDO {
 //			cdo.setTimeArrayValue("times", new String[]{"17:00:00","18:00:00","20:00:00"});
 //			cdo.setDateTimeValue("dateTime", "2012-05-01 20:00:00");
 //			cdo.setDateTimeArrayValue("dateTimeValues", new String[]{"2012-05-01 20:00:00","2013-05-01 21:00:00","2014-05-01 22:00:00"});
-			cdo.setFileValue("file", new File("D:/test/excel.xlsx"));
+//			cdo.setFileValue("file", new File("D:/test/excel.xlsx"));
 //			cdo.setFileValue("file1", new File("D:/test/test.xlsx"));
 //			for(int i=0;i<5;i++){
 //				System.out.println(cdo.getDoubleValue("double"));

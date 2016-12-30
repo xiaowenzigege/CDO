@@ -8,5 +8,5 @@ import com.cdo.business.client.IClient;
  */
 
 public interface IRPCClient extends IClient{
-		
+
 }

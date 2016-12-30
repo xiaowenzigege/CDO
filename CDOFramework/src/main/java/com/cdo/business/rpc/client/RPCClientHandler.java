@@ -2,6 +2,7 @@ package com.cdo.business.rpc.client;
 
 
 import java.io.File;
+import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -92,7 +93,9 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
           if (interrupted) {
             // set the interrupt flag now that we are done waiting
             Thread.currentThread().interrupt();
-          }    
+          } 
+         ReferenceCountUtil.release(reqMessage);
+         reqMessage=null;
          return call.getRPCResponse();
        }
     }
@@ -103,11 +106,14 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
         clientId=ByteString.copyFrom(UUidGenerator.ClientId.getClientId());
     }
     
-    
+    /**
+     * 客端设定 15秒是空闲写时,发起心跳检查
+     * 服务端在60秒内 read_idea处于空闲状态,则会认为该连接无效，进行关闭
+     */
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
-            switch (e.state()) {// ping message when there is no outbound traffic for 10 seconds  see RPCClient,RPCServerInitializer         	
+            switch (e.state()) {// ping message when there is no outbound traffic for 15 seconds  see RPCClient,RPCServerInitializer         	
                 case WRITER_IDLE:
         			CDOMessage heartBeat=new CDOMessage();
         			Header header=new Header();
@@ -127,16 +133,26 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     		try{
     			CDOMessage cdoMessage=(CDOMessage)msg;
     		
-	    		if(cdoMessage.getHeader().getType()==ProtoProtocol.TYPE_HEARTBEAT_RES){
-	    			if(logger.isInfoEnabled())
-	    				logger.info("client receive server heart msg:"+msg);
-	    		}else if(cdoMessage.getHeader().getType()==ProtoProtocol.TYPE_CDO){
+	           if(cdoMessage.getHeader().getType()==ProtoProtocol.TYPE_CDO){
 	        		GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(cdoMessage.getBody());
 	    			int callId=proto.getCallId();
 	    			Call call = calls.get(callId);
 	    	        calls.remove(callId);    	        
 	    	        call.setRPCResponse(new RPCResponse(proto, cdoMessage.getFiles()));		    			
-	    		}
+	    		}else if(cdoMessage.getHeader().getType()==ProtoProtocol.TYPE_HEARTBEAT_REQ){
+	    			//服务端发起心跳检查,客服端回复心跳
+					Header resHeader=new Header();
+					resHeader.setType(ProtoProtocol.TYPE_HEARTBEAT_RES);
+					CDOMessage resMessage=new CDOMessage();
+					resMessage.setHeader(resHeader);
+					ctx.writeAndFlush(resMessage);
+//					if(logger.isInfoEnabled())
+//			    			logger.info("client response server heartbeat ["+(InetSocketAddress)ctx.channel().remoteAddress()+"] heart msg:"+msg);
+	    		}else if(cdoMessage.getHeader().getType()==ProtoProtocol.TYPE_HEARTBEAT_RES){
+		    		//客户端发起心跳，服务端回复心跳
+		    	  if(logger.isDebugEnabled())
+		    			logger.debug("client receive server["+(InetSocketAddress)ctx.channel().remoteAddress()+"] heart msg:"+msg);
+		       }
     		}finally{
     			ReferenceCountUtil.release(msg);
     		}

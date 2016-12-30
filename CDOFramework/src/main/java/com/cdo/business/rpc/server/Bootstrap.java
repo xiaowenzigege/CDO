@@ -2,7 +2,6 @@ package com.cdo.business.rpc.server;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -23,11 +22,11 @@ public final class Bootstrap {
      */
 	private static Logger log=Logger.getLogger(Bootstrap.class);
 	
-    private static Bootstrap daemon = null;
+	private static Bootstrap daemon = null;
 
-    private Object catalinaDaemon = null;
+	private Object catalinaDaemon = null;
     
-    ClassLoader catalinaLoader = null;
+	 ClassLoader catalinaLoader = null;
     
     public void init(String homePath) throws IOException, Exception{
     	
@@ -63,15 +62,8 @@ public final class Bootstrap {
     */
 	public  void stop(){
 		int port=GlobalResource.cdoConfig.getInt("netty.server.port");
-	 	RPCClient rClient=new RPCClient("127.0.0.1",port,true); 
-	 	rClient.init();
-    	try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	 	rClient.stopLocalServer();
+		RPCClient rClient=new RPCClient(); 
+	 	rClient.stopLocalNettyServer(port);
 	}
 	
     public void stopLocal()
@@ -80,7 +72,7 @@ public final class Bootstrap {
             method.invoke(catalinaDaemon, (Object [] ) null);
         }
     
-    public static void main(String[] args){
+    public static void main(String[] args){ 
     	String homePath=args[0];    	
         if (daemon == null) {
             // Don't set daemon until init() has completed
