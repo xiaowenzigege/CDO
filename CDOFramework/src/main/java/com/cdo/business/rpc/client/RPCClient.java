@@ -12,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 
 
+
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -33,6 +35,8 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.apache.log4j.Logger;
 
 import com.cdo.business.rpc.RPCFile;
+import com.cdo.business.rpc.zk.ZkServerData;
+import com.cdo.business.rpc.zk.ZookeeperClient;
 import com.cdo.example.ExampleCDO;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
@@ -67,7 +71,7 @@ public class RPCClient implements IRPCClient{
     
     private String clientKey;
     private boolean closedServer=false;
-    private volatile static int route=0;
+//    private volatile static int route=0;
 
     static{
     	clients=new HashMap<String, RPCClient>();
@@ -138,7 +142,11 @@ public class RPCClient implements IRPCClient{
 		}
     	handle.stopLocalServer();
    }
-		
+    
+  void init(){
+    	init(0);
+    }
+  
   void init(int workGroup){
 	    final SslContext sslCtx;        
 	    try {
@@ -255,7 +263,8 @@ public class RPCClient implements IRPCClient{
 	 * @return
 	 */
 	public Return handleTrans(CDO cdoRequest, CDO cdoResponse){		
-	  try {				  
+	  try {	
+		  /**
 		  if(clientList.size()==0){
 				return new Return(-1,"rpc client connection is null","rpc client connection is null");				
 		  }
@@ -267,8 +276,20 @@ public class RPCClient implements IRPCClient{
 			  route=0;
 		  else
 			  route++;
-			 
-		   RPCResponse response=clientList.get(0).getValue().getHandle().handleTrans(cdoRequest);
+			  RPCResponse response=rpcClient.getHandle().handleTrans(cdoRequest);
+		 **/
+			if(!cdoRequest.exists(ITransService.SERVICENAME_KEY)){
+				return new Return(-1,"Service Name is null,plealse check strServiceName value");	
+			}
+			String strServiceName=cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);
+			Map<String, ZkServerData>  zkServerMap=ZookeeperClient.getZKServerData();
+			if(zkServerMap==null || zkServerMap.get(strServiceName)==null || zkServerMap.get(strServiceName).getHostList().size()==0){
+				return new Return(-1,"Service["+strServiceName+"] is not registe on zk server");	
+			}
+			List<String> hostList=zkServerMap.get(strServiceName).getHostList();
+			RPCClient rpcClient=RouteManager.getInstance().route(strServiceName, hostList);
+			RPCResponse response=rpcClient.getHandle().handleTrans(cdoRequest);
+		   
 			//cdo 内容
 		   GoogleCDO.CDOProto proto=response.getCdoProto();
 		   CDO cdoReturn=new CDO();
@@ -284,68 +305,9 @@ public class RPCClient implements IRPCClient{
 			return new Return(-1,e.getMessage(),e.getMessage());
 		}		  
 	}	
-    public static void main(String[] args){
-    	
-//    	System.out.println("10:88".split(":").length);
-//    	RPCClient rClient=new RPCClient("127.0.0.1",8080);    	
-//    	rClient.init();
-    	CDO cdoRequest=ExampleCDO.getCDO();
-    	CDO cdoResponse=new CDO();
-//    	
-//    	
-//    	try {
-//			Thread.sleep(3000);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//    	Return ret=rClient.handleTrans(cdoRequest, cdoResponse);
-//		System.out.println("proto cdoResponse xml="+cdoResponse.toXMLWithIndent()+",cdo ret="+ret);
-    	String nettyAddrsses="127.0.0.1:8080";
-    	new RPCClient().connectionNettyServer(nettyAddrsses);
-    
-    	try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	System.out.print(new RPCClient().clientList.size());
-    	try {
-			Thread.sleep(Long.MAX_VALUE);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-//    	System.out.println(RPCClient.clients.size());
-//    	System.out.println(RPCClient.clientList.size());
-//     	Return ret=clientList.get(0).getValue().handleTrans(cdoRequest, cdoResponse);
-//     	System.out.println("proto cdoResponse xml="+cdoResponse.toXMLWithIndent()+",cdo ret="+ret);
-//	 	RPCClient rClient=new RPCClient(); 
-//	 	rClient.stopLocalNettyServer(8080);
-//		HashMap map_Data=new HashMap();  
-//	    map_Data.put("A", "98");  
-//	    map_Data.put("B", "50");  
-//	    map_Data.put("C", "50");  
-//	    map_Data.put("D", "25");  
-//	    map_Data.put("E", "85");  
-//	    System.out.println(map_Data);  
-//	    List<Map.Entry<String, String>> list_Data = new ArrayList<Map.Entry<String, String>>(map_Data.entrySet());  
-//	    Collections.sort(list_Data, new Comparator<Map.Entry<String, String>>()  
-//	      {   
-//	          public int compare(Map.Entry<String, String> o1, Map.Entry<String, String> o2)  
-//	          {  
-//	           if(o2.getValue()!=null&&o1.getValue()!=null&&o2.getValue().compareTo(o1.getValue())>0){  
-//	            return 1;  
-//	           }else{  
-//	            return -1;  
-//	           }  
-//	              
-//	          }  
-//	      });  
-//	    System.out.println(list_Data);  
-//	    for(int i=1;i<10;i++)
-//	    	 System.out.println(10%i);  
-
-    }
+	
+	static Map<String,RPCClient> getClients(){
+		return clients;
+	}
+	
 }

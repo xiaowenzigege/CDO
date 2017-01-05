@@ -20,11 +20,8 @@ import com.cdo.google.handle.ParseProtoCDO;
 import com.cdo.google.handle.ProtoProtocol;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdo.util.common.UUidGenerator;
-import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.data.cdo.Field;
-import com.cdoframework.cdolib.data.cdo.FileField;
 import com.cdoframework.cdolib.servicebus.ITransService;
 
 import io.netty.channel.ChannelHandlerContext;
@@ -78,8 +75,8 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 		}else if(header.getType()==ProtoProtocol.TYPE_HEARTBEAT_RES){
 			try{
 				//服务端主动发起心跳检查,客户端回复心跳
-			    if(logger.isInfoEnabled())
-			    			logger.info("server receive client address["+(InetSocketAddress)ctx.channel().remoteAddress()+"] heart msg:"+msg);
+			    if(logger.isDebugEnabled())
+			    			logger.debug("server receive client address["+(InetSocketAddress)ctx.channel().remoteAddress()+"] heart msg:"+msg);
 			}finally{
 				ReferenceCountUtil.release(msg);
 			}

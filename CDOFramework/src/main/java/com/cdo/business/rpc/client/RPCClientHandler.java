@@ -146,8 +146,8 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 					CDOMessage resMessage=new CDOMessage();
 					resMessage.setHeader(resHeader);
 					ctx.writeAndFlush(resMessage);
-//					if(logger.isInfoEnabled())
-//			    			logger.info("client response server heartbeat ["+(InetSocketAddress)ctx.channel().remoteAddress()+"] heart msg:"+msg);
+					if(logger.isDebugEnabled())
+			    			logger.debug("client response server heartbeat ["+(InetSocketAddress)ctx.channel().remoteAddress()+"] heart msg:"+msg);
 	    		}else if(cdoMessage.getHeader().getType()==ProtoProtocol.TYPE_HEARTBEAT_RES){
 		    		//客户端发起心跳，服务端回复心跳
 		    	  if(logger.isDebugEnabled())

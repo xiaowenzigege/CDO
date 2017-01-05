@@ -8,6 +8,8 @@ package com.cdoframework.cdolib.servicebus;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,6 +22,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.ZooKeeper;
 
+import com.cdo.business.rpc.zk.ZkParameter;
+import com.cdo.business.rpc.zk.ZookeeperServer;
+import com.cdo.util.exception.ZookeeperException;
 import com.cdoframework.cdolib.base.CycleList;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.Utility;
@@ -54,8 +59,10 @@ public class ServiceBus implements IServiceBus
 	private ReentrantReadWriteLock lockSharedData;	
 	private HashMap<String,NoSQLDataEngine> hmNoSQLDataEngine;
 	private HashMap<String,IService> hmService;
-	private HashMap<String, ZooKeeper> hmZkProducer; //保存连接zk的对象，用于
-//	private ArrayList<IService> alService;
+//	private HashMap<String, ZooKeeper> hmZkProducer; //保存连接zk的对象，用于
+	private List<ZkProducer>  zkProducerService;
+	//zkId
+	private Map<String, List<ZkParameter>> zkServiceMap=new HashMap<String, List<ZkParameter>>();
 	
 	private HashMap<String,BigTable[]> hmBigTableGroupConfig;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
@@ -219,11 +226,7 @@ public class ServiceBus implements IServiceBus
 			logger.error("When parse DataGroup , caught exception: ",e);
 			return Return.valueOf(-1,"Init ServiceBus Failed: "+e.getLocalizedMessage());
 		}
-		
-		ZkProducer[] zkProducer=serviceBus.getZkProducer();
-			
-//		new ZooKeeper(strFlitersConfigPath, nParameterCount, null);
-		
+				
 		//初始化NoSQL NotSQLDataEngine
 		NoSQLDB[] noSQLDBdefines = serviceBus.getNoSQLDB();
 		//TODO
@@ -335,6 +338,9 @@ public class ServiceBus implements IServiceBus
 			logger.warn("........Data source is not set.........");
 		}
 		
+		//连接zk 
+		ZkProducer[] zkProducer=serviceBus.getZkProducer();
+		serviceRegZk(zkProducer);
 		return Return.OK;
 	}
 	 	
@@ -766,7 +772,62 @@ public class ServiceBus implements IServiceBus
 //	public ArrayList<IService> getAlService() {
 //		return alService;
 //	}
+	/**
+	 * 将每个插件的servie 按照zkId 进行合并
+	 * @param pluginZkServiceMap
+	 */
+	public  void addZKService(Map<String, List<ZkParameter>> pluginZkServiceMap){		
+		for(Iterator<Map.Entry<String, List<ZkParameter>>> it=pluginZkServiceMap.entrySet().iterator();it.hasNext();){
+			Map.Entry<String,  List<ZkParameter>> entry=it.next();
+			String  zkId=entry.getKey();
+			List<ZkParameter> zkServiceList=null;
+			if(zkServiceMap.containsKey(zkId)){				
+				zkServiceList=zkServiceMap.get(zkId);
+				zkServiceList.addAll(entry.getValue());
+			}else{
+				zkServiceList=entry.getValue();
+			}			
+			zkServiceMap.put(zkId, zkServiceList);			
+		}
+	}
+	
+	private void serviceRegZk(ZkProducer[] zkProducer){
+		if(zkProducer==null || zkProducer.length==0){	
+			zkServiceMap.clear();
+			zkServiceMap=null;
+			return;
+		}	
+		List<ZookeeperServer> zkServerList=new ArrayList<ZookeeperServer>();
+		for(int i=0;i<zkProducer.length;i++){
+			List<ZkParameter> zkList=zkServiceMap.get(zkProducer[i].getId());
+			if(zkList==null || zkList.size()==0){
+				continue;
+			}				
+			ZookeeperServer zkServer=new ZookeeperServer(zkProducer[i].getConnect(),zkList);
+			zkServerList.add(zkServer);
+			zkServiceMap.remove(zkProducer[i].getId());
+		}
+		if(zkServiceMap.size()>0){			
+			String  zkId="";
+			for(Iterator<Map.Entry<String, List<ZkParameter>>> it=zkServiceMap.entrySet().iterator();it.hasNext();){
+				  zkId=zkId+it.next().getKey()+",";
+			}
+			logger.error("zkId ["+zkId.substring(0,zkId.length()-1)+"] is not found");
+			System.exit(-1);
+		}
+		
+		for (ZookeeperServer zookeeperServer : zkServerList) {
+			try {
+				zookeeperServer.connectZookeeper();
+			} catch (ZookeeperException e) {
+				// TODO Auto-generated catch block
+				logger.error(e.getMessage(),e);
+			}
+		}				
+	}
+	
 	public HashMap<String,com.cdoframework.cdolib.base.CycleList<IDataEngine>> getHMDataGroup(){		
 		return hmDataGroup;		
 	}
+
 }

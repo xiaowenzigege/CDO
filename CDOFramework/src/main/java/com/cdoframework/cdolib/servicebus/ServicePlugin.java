@@ -1,10 +1,17 @@
 package com.cdoframework.cdolib.servicebus;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.cdo.business.rpc.zk.ZkParameter;
+import com.cdo.business.rpc.zk.ZookeeperServer;
+import com.cdo.util.exception.ZookeeperException;
 import com.cdoframework.cdolib.base.CycleList;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.Utility;
@@ -20,6 +27,7 @@ import com.cdoframework.cdolib.servicebus.xsd.NoSQLDB;
 import com.cdoframework.cdolib.servicebus.xsd.Parameter;
 import com.cdoframework.cdolib.servicebus.xsd.ServiceConfig;
 import com.cdoframework.cdolib.servicebus.xsd.TransService;
+import com.cdoframework.cdolib.servicebus.xsd.ZkProducer;
 
 /**
  * @author Aaron
@@ -155,7 +163,11 @@ public class ServicePlugin implements IServicePlugin
 			//TODO 清除对象
 			throw new Exception("no server define");
 		}
+		
 		ServiceConfig[] serviceConfigs = pluginDefine.getServiceConfig();
+		//保存每一个plugin.xml插件里的使用 zk 的service
+		Map<String , ZkParameter> zkProducerMap=new HashMap<String,ZkParameter>();
+		
 		for(ServiceConfig sc:serviceConfigs)
 		{
 			Service service = new Service();
@@ -174,8 +186,17 @@ public class ServicePlugin implements IServicePlugin
 			{
 				//TODO 清除对象
 				throw new Exception("duplicate serviceId :" + service.getServiceName());
-			}			
+			}
+			
+			if(sc.getZkId()!=null){
+				ZkParameter zkParameter=new ZkParameter();
+				zkParameter.setZkId(sc.getZkId());
+				zkParameter.setServiceName(service.getServiceName());
+				zkProducerMap.put(sc.getId(), zkParameter);				
+			}
 		}
+		
+		
 		
 		// 初始化DataService
 		int nDataServiceCount=pluginDefine.getDataServiceCount();
@@ -247,7 +268,20 @@ public class ServicePlugin implements IServicePlugin
 				}
 
 				service.addTransService(transServiceObject);
+				
+
+				//保存className
+				ZkParameter zkParameter=zkProducerMap.get(transService.getId());
+				if(zkParameter!=null){
+					zkParameter.setClassName(transService.getClassPath());
+					zkProducerMap.put(transService.getId(), zkParameter);
+				}
 			}
+			
+			//若需要注册到zk
+			if(zkProducerMap.size()>0)
+				mergeZkService(zkProducerMap);
+			
 		}
 		catch(Exception e)
 		{
@@ -296,6 +330,33 @@ public class ServicePlugin implements IServicePlugin
 		}
 	}
 
+	/**
+	 * 处理成每一个zkId 关联了多少个service
+	 * @param zkProducerMap
+	 * @throws ZookeeperException 
+	 */
+	private void  mergeZkService(Map<String , ZkParameter> zkProducerMap) throws ZookeeperException{		
+		//key=zkId
+		Map<String, List<ZkParameter>> pluginZkServiceMap=new HashMap<String, List<ZkParameter>>();
+		List<ZkParameter> zkParameterList=null;
+		for(Iterator<Map.Entry<String, ZkParameter>> it=zkProducerMap.entrySet().iterator();it.hasNext();){
+			Map.Entry<String, ZkParameter> entry=it.next();
+			ZkParameter zkParam=entry.getValue();
+			if(pluginZkServiceMap.containsKey(zkParam.getZkId())){
+				zkParameterList=pluginZkServiceMap.get(zkParam.getZkId());
+			}else{
+				zkParameterList=new ArrayList<ZkParameter>();
+			}
+			zkParameterList.add(zkParam);
+			pluginZkServiceMap.put(zkParam.getZkId(), zkParameterList);			
+		}
+		//设置到serviceBus
+		serviceBus.addZKService(pluginZkServiceMap);
+		pluginZkServiceMap.clear();
+		zkProducerMap.clear();
+		pluginZkServiceMap=null;
+		zkProducerMap=null;
+	}
 
 	// 接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 	public Return handleTrans(CDO cdoRequest,CDO cdoResponse)

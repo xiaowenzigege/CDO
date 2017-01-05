@@ -28,7 +28,7 @@ public class ExampleZookeeperServer {
 	 String node="/" + groupNode;
 	 if(zk.exists(node, false)==null){
 		 System.out.println("znode is not exits, start create"); 
-		 zk.create(node, "".getBytes("utf-8"), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);    
+		 zk.create(node,"".getBytes("utf-8"), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);    
 	 }	 
 	for(int i=0;i<subNodes.length;i++){
 		  node="/" + groupNode + "/" + subNodes[i];

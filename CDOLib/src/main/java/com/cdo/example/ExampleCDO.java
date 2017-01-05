@@ -128,7 +128,7 @@ public class ExampleCDO {
 			System.out.println("xml="+cdoOut.toXMLWithIndent());	
 			InetAddress ia=null;
 			try {
-				ia=ia.getLocalHost();
+				ia=InetAddress.getLocalHost();
 				
 				
 				String localname=ia.getHostName();
