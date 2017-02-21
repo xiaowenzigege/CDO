@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import com.cdo.google.protocol.GoogleCDO;
+import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
+import com.google.protobuf.ByteString;
 
 /**
  * 
@@ -105,7 +107,17 @@ public class CDOArrayField extends ArrayFieldImpl
 		if(prefixField.length()>0){
 			curLevel=(prefixField.split("\\.").length+1);
 		}							
-		maxLevel=maxLevel>curLevel?maxLevel:curLevel;				
+		maxLevel=maxLevel>curLevel?maxLevel:curLevel;
+		if(this.cdosValue.size()==0){
+			//表示无数据								
+			GoogleCDO.CDOProto.Entry.Builder entry=GoogleCDO.CDOProto.Entry.newBuilder();
+			ByteBuffer buffer=ByteBuffer.allocate(2);
+			buffer.put((byte)DataType.EMPTY_CDO_ARRAY_TYPE);
+			entry.setName(prefixField+this.getName()+"[-1].EMPTY");
+			entry.setValue(ByteString.copyFrom(buffer));
+			buffer.flip();
+			cdoProto.addFields(entry);
+		}
 		for(int i=0;i<this.cdosValue.size();i=i+1){
 			String prefix=prefixField+this.getName()+"["+i+"].";
 			curLevel=this.cdosValue.get(i).toProto(prefix,cdoProto,maxLevel);

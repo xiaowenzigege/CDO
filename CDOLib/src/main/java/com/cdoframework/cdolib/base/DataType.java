@@ -67,6 +67,7 @@ public interface DataType extends Serializable
 	
 	int FILE_TYPE				=50;
 	
+	
 	int BOOLEAN_ARRAY_TYPE		=101;
 	int BYTE_ARRAY_TYPE			=102;
 	int SHORT_ARRAY_TYPE		=103;
@@ -79,7 +80,7 @@ public interface DataType extends Serializable
 	int TIME_ARRAY_TYPE			=110;
 	int DATETIME_ARRAY_TYPE		=111;
 	int CDO_ARRAY_TYPE			=112;
-	
+	int EMPTY_CDO_ARRAY_TYPE	=115;  
 	
 	String	DATETIME_FORMAT_STRING		="yyyy-MM-dd HH:mm:ss";
 	String	DATE_FORMAT_STRING			="yyyy-MM-dd";

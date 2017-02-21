@@ -54,7 +54,8 @@ public class ParseCDOBuffer extends CDOBuffer {
 			    		tmpCDO=list.get(cdoIndex);
 			    	}
 			    }
-			    parseHierarchicCDO(tmpCDO, buffer,sufKey);				
+			    if(cdoIndex>-1)//-1  表示 是一个空数组,不需要
+			    	parseHierarchicCDO(tmpCDO, buffer,sufKey);				
 		 }   
 	   }
 	}
