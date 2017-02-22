@@ -41,9 +41,12 @@ public class ParseCDOBuffer extends CDOBuffer {
 				
 				CDO tmpCDO=null;
 			    if(!cdo.exists(cdoKey)){
-			    	tmpCDO=new CDO();
 			    	List<CDO> list=new ArrayList<CDO>();
-			    	list.add(tmpCDO);
+			    	if(cdoIndex>-1){
+			    		//arrIndex=-1  表示 是一个空CDO数组,不需要设置值
+			    		tmpCDO=new CDO();			    	
+			    		list.add(tmpCDO);
+			    	}
 			    	cdo.setCDOListValue(cdoKey, list);
 			    }else{
 			    	List<CDO> list=cdo.getCDOListValue(cdoKey);
@@ -54,7 +57,7 @@ public class ParseCDOBuffer extends CDOBuffer {
 			    		tmpCDO=list.get(cdoIndex);
 			    	}
 			    }
-			    if(cdoIndex>-1)//-1  表示 是一个空数组,不需要
+			    if(cdoIndex>-1)//arrIndex=-1  表示 是一个空CDO数组,不需要设置值
 			    	parseHierarchicCDO(tmpCDO, buffer,sufKey);				
 		 }   
 	   }
