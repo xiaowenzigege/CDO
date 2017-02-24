@@ -243,8 +243,7 @@ public class RPCClient implements IRPCClient{
 	public void close() {
 		    closed = true;
 		    workerGroup.shutdownGracefully();
-		    logger.info("Stopped Tcp Client: " + getServerInfo());
-		    System.exit(-1);
+		    logger.info("Stopped Tcp Client: " + getServerInfo());		    
 	}	
 
 	private String getServerInfo() {
@@ -264,20 +263,6 @@ public class RPCClient implements IRPCClient{
 	 */
 	public Return handleTrans(CDO cdoRequest, CDO cdoResponse){		
 	  try {	
-		  /**
-		  if(clientList.size()==0){
-				return new Return(-1,"rpc client connection is null","rpc client connection is null");				
-		  }
-		  
-		  RPCClient rpcClient=clientList.get(route).getValue();
-		  if(rpcClient==null)
-			  rpcClient=clientList.get(0).getValue();
-		  if(route>=(clientList.size()-1))
-			  route=0;
-		  else
-			  route++;
-			  RPCResponse response=rpcClient.getHandle().handleTrans(cdoRequest);
-		 **/
 			if(!cdoRequest.exists(ITransService.SERVICENAME_KEY)){
 				return new Return(-1,"Service Name is null,plealse check strServiceName value");	
 			}
