@@ -83,7 +83,10 @@ public class ParseCDOBuffer extends CDOBuffer {
 				  setBooleanValue(cdo, key, buffer);
 				break;
 			case DataType.BYTE_TYPE:
-				cdo.setByteValue(key, buffer.get());
+				buffer.position(1);
+				byte b=buffer.get();	
+				buffer.clear();
+				cdo.setByteValue(key, b);
 				break;
 			case DataType.SHORT_TYPE:			
 				 setShortValue(cdo, key, buffer);
