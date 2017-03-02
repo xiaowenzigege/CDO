@@ -127,7 +127,8 @@ public class BigTableEngine// extends ParallelTaskProcessor
 			Field object=null;
 			try
 			{
-				object=cdoRequest.getObject(strValueId);
+				if(cdoRequest.exists(strValueId))
+					object=cdoRequest.getObject(strValueId);
 			}
 			catch(Exception e)
 			{
