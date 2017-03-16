@@ -1,6 +1,5 @@
 package com.cdo.business.rpc.client;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,6 @@ import org.apache.log4j.Logger;
 import com.cdo.business.rpc.RPCFile;
 import com.cdo.business.rpc.zk.ZkServerData;
 import com.cdo.business.rpc.zk.ZookeeperClient;
-import com.cdo.example.ExampleCDO;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
 import com.cdo.google.protocol.GoogleCDO;
@@ -55,7 +53,6 @@ public class RPCClient implements IRPCClient{
 	private ExecutorService executor=Executors.newScheduledThreadPool(1);
 	
 	private static final Map<String, RPCClient> clients;
-	private static List<Map.Entry<String, RPCClient>> clientList=null;
 	static final boolean SSL = System.getProperty("ssl") != null;
 	private volatile EventLoopGroup workerGroup;
 	private volatile Bootstrap bootstrap;
@@ -71,14 +68,13 @@ public class RPCClient implements IRPCClient{
     
     private String clientKey;
     private boolean closedServer=false;
-//    private volatile static int route=0;
 
     static{
     	clients=new HashMap<String, RPCClient>();
     }
     /**
      *  
-     * nettyAddrss=ip:port:totalRetryCount:workgroup
+     * nettyAddrss=ip:port
      */
     public  void connectionNettyServer(String nettyAddress){
 	    if(nettyAddress==null|| nettyAddress.trim().equals(""))
@@ -177,7 +173,7 @@ public class RPCClient implements IRPCClient{
 					            //断开后  删除  到某台服务器连接					           
 					            logger.warn("ctx is channelInactive:"+ctx);
 					            clients.remove(clientKey);
-					            clientList=new ArrayList<Map.Entry<String, RPCClient>>(clients.entrySet());
+//					            clientList=new ArrayList<Map.Entry<String, RPCClient>>(clients.entrySet());
 					            ctx.channel().close();
 						        executor.execute(new Runnable() {								
 										@Override
@@ -219,7 +215,6 @@ public class RPCClient implements IRPCClient{
 	          channel=f.channel();
 	          handle=channel.pipeline().get(RPCClientHandler.class);	
 	          clients.put(clientKey,rpcClient);
-	          clientList=new ArrayList<Map.Entry<String, RPCClient>>(clients.entrySet());	
 	        } else {
 	           //正常的客户端连接
 	          if(!closedServer)	
@@ -269,7 +264,8 @@ public class RPCClient implements IRPCClient{
 			String strServiceName=cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);
 			Map<String, ZkServerData>  zkServerMap=ZookeeperClient.getZKServerData();
 			if(zkServerMap==null || zkServerMap.get(strServiceName)==null || zkServerMap.get(strServiceName).getHostList().size()==0){
-				return new Return(-1,"Service["+strServiceName+"] is not registe on zk server");	
+				logger.warn("Service["+strServiceName+"] not registered on zk server");
+				return new Return(-1,"Service["+strServiceName+"] not registered on zk server");	
 			}
 			List<String> hostList=zkServerMap.get(strServiceName).getHostList();
 			RPCClient rpcClient=RouteManager.getInstance().route(strServiceName, hostList);

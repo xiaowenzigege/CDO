@@ -6,23 +6,22 @@ package com.cdo.google.protocol;
 public final class GoogleCDO {
   private GoogleCDO() {}
   public static void registerAllExtensions(
-      com.google.protobuf.ExtensionRegistryLite registry) {
-  }
-
-  public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
-    registerAllExtensions(
-        (com.google.protobuf.ExtensionRegistryLite) registry);
   }
-  public interface CDOProtoOrBuilder extends
-      // @@protoc_insertion_point(interface_extends:CDOProto)
-      com.google.protobuf.MessageOrBuilder {
+  public interface CDOProtoOrBuilder
+      extends com.google.protobuf.MessageOrBuilder {
 
+    // optional sint32 level = 1;
+    /**
+     * <code>optional sint32 level = 1;</code>
+     */
+    boolean hasLevel();
     /**
      * <code>optional sint32 level = 1;</code>
      */
     int getLevel();
 
+    // repeated .CDOProto.Entry fields = 2;
     /**
      * <code>repeated .CDOProto.Entry fields = 2;</code>
      */
@@ -47,53 +46,78 @@ public final class GoogleCDO {
     com.cdo.google.protocol.GoogleCDO.CDOProto.EntryOrBuilder getFieldsOrBuilder(
         int index);
 
+    // optional bytes clientId = 3;
     /**
+     * <code>optional bytes clientId = 3;</code>
+     *
      * <pre>
      * Globally unique client ID 
      * </pre>
-     *
+     */
+    boolean hasClientId();
+    /**
      * <code>optional bytes clientId = 3;</code>
+     *
+     * <pre>
+     * Globally unique client ID 
+     * </pre>
      */
     com.google.protobuf.ByteString getClientId();
 
+    // optional sint32 callId = 4;
     /**
+     * <code>optional sint32 callId = 4;</code>
+     *
      * <pre>
      * a sequence number that is sent back in response
      * </pre>
-     *
+     */
+    boolean hasCallId();
+    /**
      * <code>optional sint32 callId = 4;</code>
+     *
+     * <pre>
+     * a sequence number that is sent back in response
+     * </pre>
      */
     int getCallId();
   }
   /**
    * Protobuf type {@code CDOProto}
    */
-  public  static final class CDOProto extends
-      com.google.protobuf.GeneratedMessageV3 implements
-      // @@protoc_insertion_point(message_implements:CDOProto)
-      CDOProtoOrBuilder {
+  public static final class CDOProto extends
+      com.google.protobuf.GeneratedMessage
+      implements CDOProtoOrBuilder {
     // Use CDOProto.newBuilder() to construct.
-    private CDOProto(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+    private CDOProto(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
       super(builder);
+      this.unknownFields = builder.getUnknownFields();
     }
-    private CDOProto() {
-      level_ = 0;
-      fields_ = java.util.Collections.emptyList();
-      clientId_ = com.google.protobuf.ByteString.EMPTY;
-      callId_ = 0;
+    private CDOProto(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final CDOProto defaultInstance;
+    public static CDOProto getDefaultInstance() {
+      return defaultInstance;
     }
 
+    public CDOProto getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet
-    getUnknownFields() {
-      return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+        getUnknownFields() {
+      return this.unknownFields;
     }
     private CDOProto(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
+      initFields();
       int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
       try {
         boolean done = false;
         while (!done) {
@@ -103,13 +127,14 @@ public final class GoogleCDO {
               done = true;
               break;
             default: {
-              if (!input.skipField(tag)) {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
                 done = true;
               }
               break;
             }
             case 8: {
-
+              bitField0_ |= 0x00000001;
               level_ = input.readSInt32();
               break;
             }
@@ -118,17 +143,16 @@ public final class GoogleCDO {
                 fields_ = new java.util.ArrayList<com.cdo.google.protocol.GoogleCDO.CDOProto.Entry>();
                 mutable_bitField0_ |= 0x00000002;
               }
-              fields_.add(
-                  input.readMessage(com.cdo.google.protocol.GoogleCDO.CDOProto.Entry.parser(), extensionRegistry));
+              fields_.add(input.readMessage(com.cdo.google.protocol.GoogleCDO.CDOProto.Entry.PARSER, extensionRegistry));
               break;
             }
             case 26: {
-
+              bitField0_ |= 0x00000002;
               clientId_ = input.readBytes();
               break;
             }
             case 32: {
-
+              bitField0_ |= 0x00000004;
               callId_ = input.readSInt32();
               break;
             }
@@ -138,11 +162,12 @@ public final class GoogleCDO {
         throw e.setUnfinishedMessage(this);
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(
-            e).setUnfinishedMessage(this);
+            e.getMessage()).setUnfinishedMessage(this);
       } finally {
         if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
           fields_ = java.util.Collections.unmodifiableList(fields_);
         }
+        this.unknownFields = unknownFields.build();
         makeExtensionsImmutable();
       }
     }
@@ -151,17 +176,36 @@ public final class GoogleCDO {
       return com.cdo.google.protocol.GoogleCDO.internal_static_CDOProto_descriptor;
     }
 
-    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
         internalGetFieldAccessorTable() {
       return com.cdo.google.protocol.GoogleCDO.internal_static_CDOProto_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.cdo.google.protocol.GoogleCDO.CDOProto.class, com.cdo.google.protocol.GoogleCDO.CDOProto.Builder.class);
     }
 
-    public interface EntryOrBuilder extends
-        // @@protoc_insertion_point(interface_extends:CDOProto.Entry)
-        com.google.protobuf.MessageOrBuilder {
+    public static com.google.protobuf.Parser<CDOProto> PARSER =
+        new com.google.protobuf.AbstractParser<CDOProto>() {
+      public CDOProto parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new CDOProto(input, extensionRegistry);
+      }
+    };
 
+    @java.lang.Override
+    public com.google.protobuf.Parser<CDOProto> getParserForType() {
+      return PARSER;
+    }
+
+    public interface EntryOrBuilder
+        extends com.google.protobuf.MessageOrBuilder {
+
+      // optional string name = 1;
+      /**
+       * <code>optional string name = 1;</code>
+       */
+      boolean hasName();
       /**
        * <code>optional string name = 1;</code>
        */
@@ -172,6 +216,11 @@ public final class GoogleCDO {
       com.google.protobuf.ByteString
           getNameBytes();
 
+      // optional bytes value = 2;
+      /**
+       * <code>optional bytes value = 2;</code>
+       */
+      boolean hasValue();
       /**
        * <code>optional bytes value = 2;</code>
        */
@@ -180,30 +229,39 @@ public final class GoogleCDO {
     /**
      * Protobuf type {@code CDOProto.Entry}
      */
-    public  static final class Entry extends
-        com.google.protobuf.GeneratedMessageV3 implements
-        // @@protoc_insertion_point(message_implements:CDOProto.Entry)
-        EntryOrBuilder {
+    public static final class Entry extends
+        com.google.protobuf.GeneratedMessage
+        implements EntryOrBuilder {
       // Use Entry.newBuilder() to construct.
-      private Entry(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
+      private Entry(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
         super(builder);
+        this.unknownFields = builder.getUnknownFields();
       }
-      private Entry() {
-        name_ = "";
-        value_ = com.google.protobuf.ByteString.EMPTY;
+      private Entry(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+      private static final Entry defaultInstance;
+      public static Entry getDefaultInstance() {
+        return defaultInstance;
       }
 
+      public Entry getDefaultInstanceForType() {
+        return defaultInstance;
+      }
+
+      private final com.google.protobuf.UnknownFieldSet unknownFields;
       @java.lang.Override
       public final com.google.protobuf.UnknownFieldSet
-      getUnknownFields() {
-        return com.google.protobuf.UnknownFieldSet.getDefaultInstance();
+          getUnknownFields() {
+        return this.unknownFields;
       }
       private Entry(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws com.google.protobuf.InvalidProtocolBufferException {
-        this();
+        initFields();
         int mutable_bitField0_ = 0;
+        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+            com.google.protobuf.UnknownFieldSet.newBuilder();
         try {
           boolean done = false;
           while (!done) {
@@ -213,19 +271,19 @@ public final class GoogleCDO {
                 done = true;
                 break;
               default: {
-                if (!input.skipField(tag)) {
+                if (!parseUnknownField(input, unknownFields,
+                                       extensionRegistry, tag)) {
                   done = true;
                 }
                 break;
               }
               case 10: {
-                java.lang.String s = input.readStringRequireUtf8();
-
-                name_ = s;
+                bitField0_ |= 0x00000001;
+                name_ = input.readBytes();
                 break;
               }
               case 18: {
-
+                bitField0_ |= 0x00000002;
                 value_ = input.readBytes();
                 break;
               }
@@ -235,8 +293,9 @@ public final class GoogleCDO {
           throw e.setUnfinishedMessage(this);
         } catch (java.io.IOException e) {
           throw new com.google.protobuf.InvalidProtocolBufferException(
-              e).setUnfinishedMessage(this);
+              e.getMessage()).setUnfinishedMessage(this);
         } finally {
+          this.unknownFields = unknownFields.build();
           makeExtensionsImmutable();
         }
       }
@@ -245,15 +304,38 @@ public final class GoogleCDO {
         return com.cdo.google.protocol.GoogleCDO.internal_static_CDOProto_Entry_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return com.cdo.google.protocol.GoogleCDO.internal_static_CDOProto_Entry_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
                 com.cdo.google.protocol.GoogleCDO.CDOProto.Entry.class, com.cdo.google.protocol.GoogleCDO.CDOProto.Entry.Builder.class);
       }
 
+      public static com.google.protobuf.Parser<Entry> PARSER =
+          new com.google.protobuf.AbstractParser<Entry>() {
+        public Entry parsePartialFrom(
+            com.google.protobuf.CodedInputStream input,
+            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+            throws com.google.protobuf.InvalidProtocolBufferException {
+          return new Entry(input, extensionRegistry);
+        }
+      };
+
+      @java.lang.Override
+      public com.google.protobuf.Parser<Entry> getParserForType() {
+        return PARSER;
+      }
+
+      private int bitField0_;
+      // optional string name = 1;
       public static final int NAME_FIELD_NUMBER = 1;
-      private volatile java.lang.Object name_;
+      private java.lang.Object name_;
+      /**
+       * <code>optional string name = 1;</code>
+       */
+      public boolean hasName() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
       /**
        * <code>optional string name = 1;</code>
        */
@@ -265,7 +347,9 @@ public final class GoogleCDO {
           com.google.protobuf.ByteString bs = 
               (com.google.protobuf.ByteString) ref;
           java.lang.String s = bs.toStringUtf8();
-          name_ = s;
+          if (bs.isValidUtf8()) {
+            name_ = s;
+          }
           return s;
         }
       }
@@ -286,8 +370,15 @@ public final class GoogleCDO {
         }
       }
 
+      // optional bytes value = 2;
       public static final int VALUE_FIELD_NUMBER = 2;
       private com.google.protobuf.ByteString value_;
+      /**
+       * <code>optional bytes value = 2;</code>
+       */
+      public boolean hasValue() {
+        return ((bitField0_ & 0x00000002) == 0x00000002);
+      }
       /**
        * <code>optional bytes value = 2;</code>
        */
@@ -295,11 +386,14 @@ public final class GoogleCDO {
         return value_;
       }
 
+      private void initFields() {
+        name_ = "";
+        value_ = com.google.protobuf.ByteString.EMPTY;
+      }
       private byte memoizedIsInitialized = -1;
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
-        if (isInitialized == 1) return true;
-        if (isInitialized == 0) return false;
+        if (isInitialized != -1) return isInitialized == 1;
 
         memoizedIsInitialized = 1;
         return true;
@@ -307,63 +401,40 @@ public final class GoogleCDO {
 
       public void writeTo(com.google.protobuf.CodedOutputStream output)
                           throws java.io.IOException {
-        if (!getNameBytes().isEmpty()) {
-          com.google.protobuf.GeneratedMessageV3.writeString(output, 1, name_);
+        getSerializedSize();
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          output.writeBytes(1, getNameBytes());
         }
-        if (!value_.isEmpty()) {
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
           output.writeBytes(2, value_);
         }
+        getUnknownFields().writeTo(output);
       }
 
+      private int memoizedSerializedSize = -1;
       public int getSerializedSize() {
-        int size = memoizedSize;
+        int size = memoizedSerializedSize;
         if (size != -1) return size;
 
         size = 0;
-        if (!getNameBytes().isEmpty()) {
-          size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, name_);
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          size += com.google.protobuf.CodedOutputStream
+            .computeBytesSize(1, getNameBytes());
         }
-        if (!value_.isEmpty()) {
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
           size += com.google.protobuf.CodedOutputStream
             .computeBytesSize(2, value_);
         }
-        memoizedSize = size;
+        size += getUnknownFields().getSerializedSize();
+        memoizedSerializedSize = size;
         return size;
       }
 
       private static final long serialVersionUID = 0L;
       @java.lang.Override
-      public boolean equals(final java.lang.Object obj) {
-        if (obj == this) {
-         return true;
-        }
-        if (!(obj instanceof com.cdo.google.protocol.GoogleCDO.CDOProto.Entry)) {
-          return super.equals(obj);
-        }
-        com.cdo.google.protocol.GoogleCDO.CDOProto.Entry other = (com.cdo.google.protocol.GoogleCDO.CDOProto.Entry) obj;
-
-        boolean result = true;
-        result = result && getName()
-            .equals(other.getName());
-        result = result && getValue()
-            .equals(other.getValue());
-        return result;
-      }
-
-      @java.lang.Override
-      public int hashCode() {
-        if (memoizedHashCode != 0) {
-          return memoizedHashCode;
-        }
-        int hash = 41;
-        hash = (19 * hash) + getDescriptorForType().hashCode();
-        hash = (37 * hash) + NAME_FIELD_NUMBER;
-        hash = (53 * hash) + getName().hashCode();
-        hash = (37 * hash) + VALUE_FIELD_NUMBER;
-        hash = (53 * hash) + getValue().hashCode();
-        hash = (29 * hash) + unknownFields.hashCode();
-        memoizedHashCode = hash;
-        return hash;
+      protected java.lang.Object writeReplace()
+          throws java.io.ObjectStreamException {
+        return super.writeReplace();
       }
 
       public static com.cdo.google.protocol.GoogleCDO.CDOProto.Entry parseFrom(
@@ -389,57 +460,46 @@ public final class GoogleCDO {
       }
       public static com.cdo.google.protocol.GoogleCDO.CDOProto.Entry parseFrom(java.io.InputStream input)
           throws java.io.IOException {
-        return com.google.protobuf.GeneratedMessageV3
-            .parseWithIOException(PARSER, input);
+        return PARSER.parseFrom(input);
       }
       public static com.cdo.google.protocol.GoogleCDO.CDOProto.Entry parseFrom(
           java.io.InputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        return com.google.protobuf.GeneratedMessageV3
-            .parseWithIOException(PARSER, input, extensionRegistry);
+        return PARSER.parseFrom(input, extensionRegistry);
       }
       public static com.cdo.google.protocol.GoogleCDO.CDOProto.Entry parseDelimitedFrom(java.io.InputStream input)
           throws java.io.IOException {
-        return com.google.protobuf.GeneratedMessageV3
-            .parseDelimitedWithIOException(PARSER, input);
+        return PARSER.parseDelimitedFrom(input);
       }
       public static com.cdo.google.protocol.GoogleCDO.CDOProto.Entry parseDelimitedFrom(
           java.io.InputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        return com.google.protobuf.GeneratedMessageV3
-            .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+        return PARSER.parseDelimitedFrom(input, extensionRegistry);
       }
       public static com.cdo.google.protocol.GoogleCDO.CDOProto.Entry parseFrom(
           com.google.protobuf.CodedInputStream input)
           throws java.io.IOException {
-        return com.google.protobuf.GeneratedMessageV3
-            .parseWithIOException(PARSER, input);
+        return PARSER.parseFrom(input);
       }
       public static com.cdo.google.protocol.GoogleCDO.CDOProto.Entry parseFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        return com.google.protobuf.GeneratedMessageV3
-            .parseWithIOException(PARSER, input, extensionRegistry);
+        return PARSER.parseFrom(input, extensionRegistry);
       }
 
+      public static Builder newBuilder() { return Builder.create(); }
       public Builder newBuilderForType() { return newBuilder(); }
-      public static Builder newBuilder() {
-        return DEFAULT_INSTANCE.toBuilder();
-      }
       public static Builder newBuilder(com.cdo.google.protocol.GoogleCDO.CDOProto.Entry prototype) {
-        return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+        return newBuilder().mergeFrom(prototype);
       }
-      public Builder toBuilder() {
-        return this == DEFAULT_INSTANCE
-            ? new Builder() : new Builder().mergeFrom(this);
-      }
+      public Builder toBuilder() { return newBuilder(this); }
 
       @java.lang.Override
       protected Builder newBuilderForType(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
         Builder builder = new Builder(parent);
         return builder;
       }
@@ -447,15 +507,14 @@ public final class GoogleCDO {
        * Protobuf type {@code CDOProto.Entry}
        */
       public static final class Builder extends
-          com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-          // @@protoc_insertion_point(builder_implements:CDOProto.Entry)
-          com.cdo.google.protocol.GoogleCDO.CDOProto.EntryOrBuilder {
+          com.google.protobuf.GeneratedMessage.Builder<Builder>
+         implements com.cdo.google.protocol.GoogleCDO.CDOProto.EntryOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor
             getDescriptor() {
           return com.cdo.google.protocol.GoogleCDO.internal_static_CDOProto_Entry_descriptor;
         }
 
-        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
             internalGetFieldAccessorTable() {
           return com.cdo.google.protocol.GoogleCDO.internal_static_CDOProto_Entry_fieldAccessorTable
               .ensureFieldAccessorsInitialized(
@@ -468,22 +527,29 @@ public final class GoogleCDO {
         }
 
         private Builder(
-            com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+            com.google.protobuf.GeneratedMessage.BuilderParent parent) {
           super(parent);
           maybeForceBuilderInitialization();
         }
         private void maybeForceBuilderInitialization() {
-          if (com.google.protobuf.GeneratedMessageV3
-                  .alwaysUseFieldBuilders) {
+          if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           }
         }
+        private static Builder create() {
+          return new Builder();
+        }
+
         public Builder clear() {
           super.clear();
           name_ = "";
-
+          bitField0_ = (bitField0_ & ~0x00000001);
           value_ = com.google.protobuf.ByteString.EMPTY;
-
+          bitField0_ = (bitField0_ & ~0x00000002);
           return this;
+        }
+
+        public Builder clone() {
+          return create().mergeFrom(buildPartial());
         }
 
         public com.google.protobuf.Descriptors.Descriptor
@@ -505,38 +571,21 @@ public final class GoogleCDO {
 
         public com.cdo.google.protocol.GoogleCDO.CDOProto.Entry buildPartial() {
           com.cdo.google.protocol.GoogleCDO.CDOProto.Entry result = new com.cdo.google.protocol.GoogleCDO.CDOProto.Entry(this);
+          int from_bitField0_ = bitField0_;
+          int to_bitField0_ = 0;
+          if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+            to_bitField0_ |= 0x00000001;
+          }
           result.name_ = name_;
+          if (((from_bitField0_ & 0x00000002) == 0x00000002)) {
+            to_bitField0_ |= 0x00000002;
+          }
           result.value_ = value_;
+          result.bitField0_ = to_bitField0_;
           onBuilt();
           return result;
         }
 
-        public Builder clone() {
-          return (Builder) super.clone();
-        }
-        public Builder setField(
-            com.google.protobuf.Descriptors.FieldDescriptor field,
-            Object value) {
-          return (Builder) super.setField(field, value);
-        }
-        public Builder clearField(
-            com.google.protobuf.Descriptors.FieldDescriptor field) {
-          return (Builder) super.clearField(field);
-        }
-        public Builder clearOneof(
-            com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-          return (Builder) super.clearOneof(oneof);
-        }
-        public Builder setRepeatedField(
-            com.google.protobuf.Descriptors.FieldDescriptor field,
-            int index, Object value) {
-          return (Builder) super.setRepeatedField(field, index, value);
-        }
-        public Builder addRepeatedField(
-            com.google.protobuf.Descriptors.FieldDescriptor field,
-            Object value) {
-          return (Builder) super.addRepeatedField(field, value);
-        }
         public Builder mergeFrom(com.google.protobuf.Message other) {
           if (other instanceof com.cdo.google.protocol.GoogleCDO.CDOProto.Entry) {
             return mergeFrom((com.cdo.google.protocol.GoogleCDO.CDOProto.Entry)other);
@@ -548,14 +597,15 @@ public final class GoogleCDO {
 
         public Builder mergeFrom(com.cdo.google.protocol.GoogleCDO.CDOProto.Entry other) {
           if (other == com.cdo.google.protocol.GoogleCDO.CDOProto.Entry.getDefaultInstance()) return this;
-          if (!other.getName().isEmpty()) {
+          if (other.hasName()) {
+            bitField0_ |= 0x00000001;
             name_ = other.name_;
             onChanged();
           }
-          if (other.getValue() != com.google.protobuf.ByteString.EMPTY) {
+          if (other.hasValue()) {
             setValue(other.getValue());
           }
-          onChanged();
+          this.mergeUnknownFields(other.getUnknownFields());
           return this;
         }
 
@@ -572,7 +622,7 @@ public final class GoogleCDO {
             parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
           } catch (com.google.protobuf.InvalidProtocolBufferException e) {
             parsedMessage = (com.cdo.google.protocol.GoogleCDO.CDOProto.Entry) e.getUnfinishedMessage();
-            throw e.unwrapIOException();
+            throw e;
           } finally {
             if (parsedMessage != null) {
               mergeFrom(parsedMessage);
@@ -580,17 +630,24 @@ public final class GoogleCDO {
           }
           return this;
         }
+        private int bitField0_;
 
+        // optional string name = 1;
         private java.lang.Object name_ = "";
+        /**
+         * <code>optional string name = 1;</code>
+         */
+        public boolean hasName() {
+          return ((bitField0_ & 0x00000001) == 0x00000001);
+        }
         /**
          * <code>optional string name = 1;</code>
          */
         public java.lang.String getName() {
           java.lang.Object ref = name_;
           if (!(ref instanceof java.lang.String)) {
-            com.google.protobuf.ByteString bs =
-                (com.google.protobuf.ByteString) ref;
-            java.lang.String s = bs.toStringUtf8();
+            java.lang.String s = ((com.google.protobuf.ByteString) ref)
+                .toStringUtf8();
             name_ = s;
             return s;
           } else {
@@ -621,7 +678,7 @@ public final class GoogleCDO {
           if (value == null) {
     throw new NullPointerException();
   }
-  
+  bitField0_ |= 0x00000001;
           name_ = value;
           onChanged();
           return this;
@@ -630,7 +687,7 @@ public final class GoogleCDO {
          * <code>optional string name = 1;</code>
          */
         public Builder clearName() {
-          
+          bitField0_ = (bitField0_ & ~0x00000001);
           name_ = getDefaultInstance().getName();
           onChanged();
           return this;
@@ -643,14 +700,20 @@ public final class GoogleCDO {
           if (value == null) {
     throw new NullPointerException();
   }
-  checkByteStringIsUtf8(value);
-          
+  bitField0_ |= 0x00000001;
           name_ = value;
           onChanged();
           return this;
         }
 
+        // optional bytes value = 2;
         private com.google.protobuf.ByteString value_ = com.google.protobuf.ByteString.EMPTY;
+        /**
+         * <code>optional bytes value = 2;</code>
+         */
+        public boolean hasValue() {
+          return ((bitField0_ & 0x00000002) == 0x00000002);
+        }
         /**
          * <code>optional bytes value = 2;</code>
          */
@@ -664,7 +727,7 @@ public final class GoogleCDO {
           if (value == null) {
     throw new NullPointerException();
   }
-  
+  bitField0_ |= 0x00000002;
           value_ = value;
           onChanged();
           return this;
@@ -673,63 +736,33 @@ public final class GoogleCDO {
          * <code>optional bytes value = 2;</code>
          */
         public Builder clearValue() {
-          
+          bitField0_ = (bitField0_ & ~0x00000002);
           value_ = getDefaultInstance().getValue();
           onChanged();
           return this;
         }
-        public final Builder setUnknownFields(
-            final com.google.protobuf.UnknownFieldSet unknownFields) {
-          return this;
-        }
-
-        public final Builder mergeUnknownFields(
-            final com.google.protobuf.UnknownFieldSet unknownFields) {
-          return this;
-        }
-
 
         // @@protoc_insertion_point(builder_scope:CDOProto.Entry)
       }
 
-      // @@protoc_insertion_point(class_scope:CDOProto.Entry)
-      private static final com.cdo.google.protocol.GoogleCDO.CDOProto.Entry DEFAULT_INSTANCE;
       static {
-        DEFAULT_INSTANCE = new com.cdo.google.protocol.GoogleCDO.CDOProto.Entry();
+        defaultInstance = new Entry(true);
+        defaultInstance.initFields();
       }
 
-      public static com.cdo.google.protocol.GoogleCDO.CDOProto.Entry getDefaultInstance() {
-        return DEFAULT_INSTANCE;
-      }
-
-      private static final com.google.protobuf.Parser<Entry>
-          PARSER = new com.google.protobuf.AbstractParser<Entry>() {
-        public Entry parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-            return new Entry(input, extensionRegistry);
-        }
-      };
-
-      public static com.google.protobuf.Parser<Entry> parser() {
-        return PARSER;
-      }
-
-      @java.lang.Override
-      public com.google.protobuf.Parser<Entry> getParserForType() {
-        return PARSER;
-      }
-
-      public com.cdo.google.protocol.GoogleCDO.CDOProto.Entry getDefaultInstanceForType() {
-        return DEFAULT_INSTANCE;
-      }
-
+      // @@protoc_insertion_point(class_scope:CDOProto.Entry)
     }
 
     private int bitField0_;
+    // optional sint32 level = 1;
     public static final int LEVEL_FIELD_NUMBER = 1;
     private int level_;
+    /**
+     * <code>optional sint32 level = 1;</code>
+     */
+    public boolean hasLevel() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
     /**
      * <code>optional sint32 level = 1;</code>
      */
@@ -737,6 +770,7 @@ public final class GoogleCDO {
       return level_;
     }
 
+    // repeated .CDOProto.Entry fields = 2;
     public static final int FIELDS_FIELD_NUMBER = 2;
     private java.util.List<com.cdo.google.protocol.GoogleCDO.CDOProto.Entry> fields_;
     /**
@@ -772,37 +806,64 @@ public final class GoogleCDO {
       return fields_.get(index);
     }
 
+    // optional bytes clientId = 3;
     public static final int CLIENTID_FIELD_NUMBER = 3;
     private com.google.protobuf.ByteString clientId_;
     /**
+     * <code>optional bytes clientId = 3;</code>
+     *
      * <pre>
      * Globally unique client ID 
      * </pre>
-     *
+     */
+    public boolean hasClientId() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
      * <code>optional bytes clientId = 3;</code>
+     *
+     * <pre>
+     * Globally unique client ID 
+     * </pre>
      */
     public com.google.protobuf.ByteString getClientId() {
       return clientId_;
     }
 
+    // optional sint32 callId = 4;
     public static final int CALLID_FIELD_NUMBER = 4;
     private int callId_;
     /**
+     * <code>optional sint32 callId = 4;</code>
+     *
      * <pre>
      * a sequence number that is sent back in response
      * </pre>
-     *
+     */
+    public boolean hasCallId() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
      * <code>optional sint32 callId = 4;</code>
+     *
+     * <pre>
+     * a sequence number that is sent back in response
+     * </pre>
      */
     public int getCallId() {
       return callId_;
     }
 
+    private void initFields() {
+      level_ = 0;
+      fields_ = java.util.Collections.emptyList();
+      clientId_ = com.google.protobuf.ByteString.EMPTY;
+      callId_ = 0;
+    }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
-      if (isInitialized == 1) return true;
-      if (isInitialized == 0) return false;
+      if (isInitialized != -1) return isInitialized == 1;
 
       memoizedIsInitialized = 1;
       return true;
@@ -810,26 +871,29 @@ public final class GoogleCDO {
 
     public void writeTo(com.google.protobuf.CodedOutputStream output)
                         throws java.io.IOException {
-      if (level_ != 0) {
+      getSerializedSize();
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeSInt32(1, level_);
       }
       for (int i = 0; i < fields_.size(); i++) {
         output.writeMessage(2, fields_.get(i));
       }
-      if (!clientId_.isEmpty()) {
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeBytes(3, clientId_);
       }
-      if (callId_ != 0) {
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
         output.writeSInt32(4, callId_);
       }
+      getUnknownFields().writeTo(output);
     }
 
+    private int memoizedSerializedSize = -1;
     public int getSerializedSize() {
-      int size = memoizedSize;
+      int size = memoizedSerializedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (level_ != 0) {
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
           .computeSInt32Size(1, level_);
       }
@@ -837,61 +901,24 @@ public final class GoogleCDO {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, fields_.get(i));
       }
-      if (!clientId_.isEmpty()) {
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(3, clientId_);
       }
-      if (callId_ != 0) {
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
         size += com.google.protobuf.CodedOutputStream
           .computeSInt32Size(4, callId_);
       }
-      memoizedSize = size;
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
       return size;
     }
 
     private static final long serialVersionUID = 0L;
     @java.lang.Override
-    public boolean equals(final java.lang.Object obj) {
-      if (obj == this) {
-       return true;
-      }
-      if (!(obj instanceof com.cdo.google.protocol.GoogleCDO.CDOProto)) {
-        return super.equals(obj);
-      }
-      com.cdo.google.protocol.GoogleCDO.CDOProto other = (com.cdo.google.protocol.GoogleCDO.CDOProto) obj;
-
-      boolean result = true;
-      result = result && (getLevel()
-          == other.getLevel());
-      result = result && getFieldsList()
-          .equals(other.getFieldsList());
-      result = result && getClientId()
-          .equals(other.getClientId());
-      result = result && (getCallId()
-          == other.getCallId());
-      return result;
-    }
-
-    @java.lang.Override
-    public int hashCode() {
-      if (memoizedHashCode != 0) {
-        return memoizedHashCode;
-      }
-      int hash = 41;
-      hash = (19 * hash) + getDescriptorForType().hashCode();
-      hash = (37 * hash) + LEVEL_FIELD_NUMBER;
-      hash = (53 * hash) + getLevel();
-      if (getFieldsCount() > 0) {
-        hash = (37 * hash) + FIELDS_FIELD_NUMBER;
-        hash = (53 * hash) + getFieldsList().hashCode();
-      }
-      hash = (37 * hash) + CLIENTID_FIELD_NUMBER;
-      hash = (53 * hash) + getClientId().hashCode();
-      hash = (37 * hash) + CALLID_FIELD_NUMBER;
-      hash = (53 * hash) + getCallId();
-      hash = (29 * hash) + unknownFields.hashCode();
-      memoizedHashCode = hash;
-      return hash;
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
     }
 
     public static com.cdo.google.protocol.GoogleCDO.CDOProto parseFrom(
@@ -917,57 +944,46 @@ public final class GoogleCDO {
     }
     public static com.cdo.google.protocol.GoogleCDO.CDOProto parseFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
+      return PARSER.parseFrom(input);
     }
     public static com.cdo.google.protocol.GoogleCDO.CDOProto parseFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
+      return PARSER.parseFrom(input, extensionRegistry);
     }
     public static com.cdo.google.protocol.GoogleCDO.CDOProto parseDelimitedFrom(java.io.InputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input);
+      return PARSER.parseDelimitedFrom(input);
     }
     public static com.cdo.google.protocol.GoogleCDO.CDOProto parseDelimitedFrom(
         java.io.InputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
     }
     public static com.cdo.google.protocol.GoogleCDO.CDOProto parseFrom(
         com.google.protobuf.CodedInputStream input)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input);
+      return PARSER.parseFrom(input);
     }
     public static com.cdo.google.protocol.GoogleCDO.CDOProto parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      return com.google.protobuf.GeneratedMessageV3
-          .parseWithIOException(PARSER, input, extensionRegistry);
+      return PARSER.parseFrom(input, extensionRegistry);
     }
 
+    public static Builder newBuilder() { return Builder.create(); }
     public Builder newBuilderForType() { return newBuilder(); }
-    public static Builder newBuilder() {
-      return DEFAULT_INSTANCE.toBuilder();
-    }
     public static Builder newBuilder(com.cdo.google.protocol.GoogleCDO.CDOProto prototype) {
-      return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
+      return newBuilder().mergeFrom(prototype);
     }
-    public Builder toBuilder() {
-      return this == DEFAULT_INSTANCE
-          ? new Builder() : new Builder().mergeFrom(this);
-    }
+    public Builder toBuilder() { return newBuilder(this); }
 
     @java.lang.Override
     protected Builder newBuilderForType(
-        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -975,15 +991,14 @@ public final class GoogleCDO {
      * Protobuf type {@code CDOProto}
      */
     public static final class Builder extends
-        com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
-        // @@protoc_insertion_point(builder_implements:CDOProto)
-        com.cdo.google.protocol.GoogleCDO.CDOProtoOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements com.cdo.google.protocol.GoogleCDO.CDOProtoOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
           getDescriptor() {
         return com.cdo.google.protocol.GoogleCDO.internal_static_CDOProto_descriptor;
       }
 
-      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
           internalGetFieldAccessorTable() {
         return com.cdo.google.protocol.GoogleCDO.internal_static_CDOProto_fieldAccessorTable
             .ensureFieldAccessorsInitialized(
@@ -996,20 +1011,23 @@ public final class GoogleCDO {
       }
 
       private Builder(
-          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
       private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3
-                .alwaysUseFieldBuilders) {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getFieldsFieldBuilder();
         }
       }
+      private static Builder create() {
+        return new Builder();
+      }
+
       public Builder clear() {
         super.clear();
         level_ = 0;
-
+        bitField0_ = (bitField0_ & ~0x00000001);
         if (fieldsBuilder_ == null) {
           fields_ = java.util.Collections.emptyList();
           bitField0_ = (bitField0_ & ~0x00000002);
@@ -1017,10 +1035,14 @@ public final class GoogleCDO {
           fieldsBuilder_.clear();
         }
         clientId_ = com.google.protobuf.ByteString.EMPTY;
-
+        bitField0_ = (bitField0_ & ~0x00000004);
         callId_ = 0;
-
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
       }
 
       public com.google.protobuf.Descriptors.Descriptor
@@ -1044,6 +1066,9 @@ public final class GoogleCDO {
         com.cdo.google.protocol.GoogleCDO.CDOProto result = new com.cdo.google.protocol.GoogleCDO.CDOProto(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
+        if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
+          to_bitField0_ |= 0x00000001;
+        }
         result.level_ = level_;
         if (fieldsBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002)) {
@@ -1054,39 +1079,19 @@ public final class GoogleCDO {
         } else {
           result.fields_ = fieldsBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000002;
+        }
         result.clientId_ = clientId_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000004;
+        }
         result.callId_ = callId_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
 
-      public Builder clone() {
-        return (Builder) super.clone();
-      }
-      public Builder setField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.setField(field, value);
-      }
-      public Builder clearField(
-          com.google.protobuf.Descriptors.FieldDescriptor field) {
-        return (Builder) super.clearField(field);
-      }
-      public Builder clearOneof(
-          com.google.protobuf.Descriptors.OneofDescriptor oneof) {
-        return (Builder) super.clearOneof(oneof);
-      }
-      public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          int index, Object value) {
-        return (Builder) super.setRepeatedField(field, index, value);
-      }
-      public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field,
-          Object value) {
-        return (Builder) super.addRepeatedField(field, value);
-      }
       public Builder mergeFrom(com.google.protobuf.Message other) {
         if (other instanceof com.cdo.google.protocol.GoogleCDO.CDOProto) {
           return mergeFrom((com.cdo.google.protocol.GoogleCDO.CDOProto)other);
@@ -1098,7 +1103,7 @@ public final class GoogleCDO {
 
       public Builder mergeFrom(com.cdo.google.protocol.GoogleCDO.CDOProto other) {
         if (other == com.cdo.google.protocol.GoogleCDO.CDOProto.getDefaultInstance()) return this;
-        if (other.getLevel() != 0) {
+        if (other.hasLevel()) {
           setLevel(other.getLevel());
         }
         if (fieldsBuilder_ == null) {
@@ -1120,20 +1125,20 @@ public final class GoogleCDO {
               fields_ = other.fields_;
               bitField0_ = (bitField0_ & ~0x00000002);
               fieldsBuilder_ = 
-                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getFieldsFieldBuilder() : null;
             } else {
               fieldsBuilder_.addAllMessages(other.fields_);
             }
           }
         }
-        if (other.getClientId() != com.google.protobuf.ByteString.EMPTY) {
+        if (other.hasClientId()) {
           setClientId(other.getClientId());
         }
-        if (other.getCallId() != 0) {
+        if (other.hasCallId()) {
           setCallId(other.getCallId());
         }
-        onChanged();
+        this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
 
@@ -1150,7 +1155,7 @@ public final class GoogleCDO {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
           parsedMessage = (com.cdo.google.protocol.GoogleCDO.CDOProto) e.getUnfinishedMessage();
-          throw e.unwrapIOException();
+          throw e;
         } finally {
           if (parsedMessage != null) {
             mergeFrom(parsedMessage);
@@ -1160,7 +1165,14 @@ public final class GoogleCDO {
       }
       private int bitField0_;
 
+      // optional sint32 level = 1;
       private int level_ ;
+      /**
+       * <code>optional sint32 level = 1;</code>
+       */
+      public boolean hasLevel() {
+        return ((bitField0_ & 0x00000001) == 0x00000001);
+      }
       /**
        * <code>optional sint32 level = 1;</code>
        */
@@ -1171,7 +1183,7 @@ public final class GoogleCDO {
        * <code>optional sint32 level = 1;</code>
        */
       public Builder setLevel(int value) {
-        
+        bitField0_ |= 0x00000001;
         level_ = value;
         onChanged();
         return this;
@@ -1180,12 +1192,13 @@ public final class GoogleCDO {
        * <code>optional sint32 level = 1;</code>
        */
       public Builder clearLevel() {
-        
+        bitField0_ = (bitField0_ & ~0x00000001);
         level_ = 0;
         onChanged();
         return this;
       }
 
+      // repeated .CDOProto.Entry fields = 2;
       private java.util.List<com.cdo.google.protocol.GoogleCDO.CDOProto.Entry> fields_ =
         java.util.Collections.emptyList();
       private void ensureFieldsIsMutable() {
@@ -1195,7 +1208,7 @@ public final class GoogleCDO {
          }
       }
 
-      private com.google.protobuf.RepeatedFieldBuilderV3<
+      private com.google.protobuf.RepeatedFieldBuilder<
           com.cdo.google.protocol.GoogleCDO.CDOProto.Entry, com.cdo.google.protocol.GoogleCDO.CDOProto.Entry.Builder, com.cdo.google.protocol.GoogleCDO.CDOProto.EntryOrBuilder> fieldsBuilder_;
 
       /**
@@ -1327,8 +1340,7 @@ public final class GoogleCDO {
           java.lang.Iterable<? extends com.cdo.google.protocol.GoogleCDO.CDOProto.Entry> values) {
         if (fieldsBuilder_ == null) {
           ensureFieldsIsMutable();
-          com.google.protobuf.AbstractMessageLite.Builder.addAll(
-              values, fields_);
+          super.addAll(values, fields_);
           onChanged();
         } else {
           fieldsBuilder_.addAllMessages(values);
@@ -1411,11 +1423,11 @@ public final class GoogleCDO {
            getFieldsBuilderList() {
         return getFieldsFieldBuilder().getBuilderList();
       }
-      private com.google.protobuf.RepeatedFieldBuilderV3<
+      private com.google.protobuf.RepeatedFieldBuilder<
           com.cdo.google.protocol.GoogleCDO.CDOProto.Entry, com.cdo.google.protocol.GoogleCDO.CDOProto.Entry.Builder, com.cdo.google.protocol.GoogleCDO.CDOProto.EntryOrBuilder> 
           getFieldsFieldBuilder() {
         if (fieldsBuilder_ == null) {
-          fieldsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+          fieldsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               com.cdo.google.protocol.GoogleCDO.CDOProto.Entry, com.cdo.google.protocol.GoogleCDO.CDOProto.Entry.Builder, com.cdo.google.protocol.GoogleCDO.CDOProto.EntryOrBuilder>(
                   fields_,
                   ((bitField0_ & 0x00000002) == 0x00000002),
@@ -1426,149 +1438,134 @@ public final class GoogleCDO {
         return fieldsBuilder_;
       }
 
+      // optional bytes clientId = 3;
       private com.google.protobuf.ByteString clientId_ = com.google.protobuf.ByteString.EMPTY;
       /**
+       * <code>optional bytes clientId = 3;</code>
+       *
        * <pre>
        * Globally unique client ID 
        * </pre>
-       *
+       */
+      public boolean hasClientId() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
        * <code>optional bytes clientId = 3;</code>
+       *
+       * <pre>
+       * Globally unique client ID 
+       * </pre>
        */
       public com.google.protobuf.ByteString getClientId() {
         return clientId_;
       }
       /**
+       * <code>optional bytes clientId = 3;</code>
+       *
        * <pre>
        * Globally unique client ID 
        * </pre>
-       *
-       * <code>optional bytes clientId = 3;</code>
        */
       public Builder setClientId(com.google.protobuf.ByteString value) {
         if (value == null) {
     throw new NullPointerException();
   }
-  
+  bitField0_ |= 0x00000004;
         clientId_ = value;
         onChanged();
         return this;
       }
       /**
+       * <code>optional bytes clientId = 3;</code>
+       *
        * <pre>
        * Globally unique client ID 
        * </pre>
-       *
-       * <code>optional bytes clientId = 3;</code>
        */
       public Builder clearClientId() {
-        
+        bitField0_ = (bitField0_ & ~0x00000004);
         clientId_ = getDefaultInstance().getClientId();
         onChanged();
         return this;
       }
 
+      // optional sint32 callId = 4;
       private int callId_ ;
       /**
+       * <code>optional sint32 callId = 4;</code>
+       *
        * <pre>
        * a sequence number that is sent back in response
        * </pre>
-       *
+       */
+      public boolean hasCallId() {
+        return ((bitField0_ & 0x00000008) == 0x00000008);
+      }
+      /**
        * <code>optional sint32 callId = 4;</code>
+       *
+       * <pre>
+       * a sequence number that is sent back in response
+       * </pre>
        */
       public int getCallId() {
         return callId_;
       }
       /**
+       * <code>optional sint32 callId = 4;</code>
+       *
        * <pre>
        * a sequence number that is sent back in response
        * </pre>
-       *
-       * <code>optional sint32 callId = 4;</code>
        */
       public Builder setCallId(int value) {
-        
+        bitField0_ |= 0x00000008;
         callId_ = value;
         onChanged();
         return this;
       }
       /**
+       * <code>optional sint32 callId = 4;</code>
+       *
        * <pre>
        * a sequence number that is sent back in response
        * </pre>
-       *
-       * <code>optional sint32 callId = 4;</code>
        */
       public Builder clearCallId() {
-        
+        bitField0_ = (bitField0_ & ~0x00000008);
         callId_ = 0;
         onChanged();
         return this;
       }
-      public final Builder setUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
-
-      public final Builder mergeUnknownFields(
-          final com.google.protobuf.UnknownFieldSet unknownFields) {
-        return this;
-      }
-
 
       // @@protoc_insertion_point(builder_scope:CDOProto)
     }
 
-    // @@protoc_insertion_point(class_scope:CDOProto)
-    private static final com.cdo.google.protocol.GoogleCDO.CDOProto DEFAULT_INSTANCE;
     static {
-      DEFAULT_INSTANCE = new com.cdo.google.protocol.GoogleCDO.CDOProto();
+      defaultInstance = new CDOProto(true);
+      defaultInstance.initFields();
     }
 
-    public static com.cdo.google.protocol.GoogleCDO.CDOProto getDefaultInstance() {
-      return DEFAULT_INSTANCE;
-    }
-
-    private static final com.google.protobuf.Parser<CDOProto>
-        PARSER = new com.google.protobuf.AbstractParser<CDOProto>() {
-      public CDOProto parsePartialFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-          return new CDOProto(input, extensionRegistry);
-      }
-    };
-
-    public static com.google.protobuf.Parser<CDOProto> parser() {
-      return PARSER;
-    }
-
-    @java.lang.Override
-    public com.google.protobuf.Parser<CDOProto> getParserForType() {
-      return PARSER;
-    }
-
-    public com.cdo.google.protocol.GoogleCDO.CDOProto getDefaultInstanceForType() {
-      return DEFAULT_INSTANCE;
-    }
-
+    // @@protoc_insertion_point(class_scope:CDOProto)
   }
 
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_CDOProto_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_CDOProto_fieldAccessorTable;
-  private static final com.google.protobuf.Descriptors.Descriptor
+  private static com.google.protobuf.Descriptors.Descriptor
     internal_static_CDOProto_Entry_descriptor;
-  private static final 
-    com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_CDOProto_Entry_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
     return descriptor;
   }
-  private static  com.google.protobuf.Descriptors.FileDescriptor
+  private static com.google.protobuf.Descriptors.FileDescriptor
       descriptor;
   static {
     java.lang.String[] descriptorData = {
@@ -1576,32 +1573,32 @@ public final class GoogleCDO {
       "\037\n\006fields\030\002 \003(\0132\017.CDOProto.Entry\022\020\n\010clie" +
       "ntId\030\003 \001(\014\022\016\n\006callId\030\004 \001(\021\032$\n\005Entry\022\014\n\004n" +
       "ame\030\001 \001(\t\022\r\n\005value\030\002 \001(\014B&\n\027com.cdo.goog" +
-      "le.protocolB\tGoogleCDOH\001b\006proto3"
+      "le.protocolB\tGoogleCDOH\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
-        new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
-          public com.google.protobuf.ExtensionRegistry assignDescriptors(
-              com.google.protobuf.Descriptors.FileDescriptor root) {
-            descriptor = root;
-            return null;
-          }
-        };
+      new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
+        public com.google.protobuf.ExtensionRegistry assignDescriptors(
+            com.google.protobuf.Descriptors.FileDescriptor root) {
+          descriptor = root;
+          internal_static_CDOProto_descriptor =
+            getDescriptor().getMessageTypes().get(0);
+          internal_static_CDOProto_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_CDOProto_descriptor,
+              new java.lang.String[] { "Level", "Fields", "ClientId", "CallId", });
+          internal_static_CDOProto_Entry_descriptor =
+            internal_static_CDOProto_descriptor.getNestedTypes().get(0);
+          internal_static_CDOProto_Entry_fieldAccessorTable = new
+            com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+              internal_static_CDOProto_Entry_descriptor,
+              new java.lang.String[] { "Name", "Value", });
+          return null;
+        }
+      };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[] {
         }, assigner);
-    internal_static_CDOProto_descriptor =
-      getDescriptor().getMessageTypes().get(0);
-    internal_static_CDOProto_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_CDOProto_descriptor,
-        new java.lang.String[] { "Level", "Fields", "ClientId", "CallId", });
-    internal_static_CDOProto_Entry_descriptor =
-      internal_static_CDOProto_descriptor.getNestedTypes().get(0);
-    internal_static_CDOProto_Entry_fieldAccessorTable = new
-      com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
-        internal_static_CDOProto_Entry_descriptor,
-        new java.lang.String[] { "Name", "Value", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
