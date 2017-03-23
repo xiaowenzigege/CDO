@@ -18,6 +18,7 @@ import com.google.protobuf.MessageLite;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.util.ReferenceCountUtil;
 /**
  * 
  * @author KenelLiu
@@ -36,91 +37,92 @@ public class CDOProtobufDecoder extends ByteToMessageDecoder {
 	 private long total=0;//计算文件长度
 	 
 	 CDOMessage message;
+	 
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in,
 			List<Object> out) throws Exception {
 		
-		if(!finFiles){
-			//文件还未输出完毕，继续读取socket二进制流  输出文件
-			outFile(in, filesLen[fileIndex],fileOutputStream,out);
-			return;
-		}		
-		//读取cdo协议头
-		int headLen=ProtoProtocol.PROTOCOL_LEN;		
-		while(in.readableBytes()>headLen){
-			in.markReaderIndex();
-			//读取魔数
-			short lowMagic=(short)(in.readByte()&0xff); 
-			short magic=(short)(((short)((in.readByte()&0xff)<<8))|lowMagic);
-			if(magic!=ProtoProtocol.MAGIC_NUMBER){		
-				in.resetReaderIndex();				
-				return; 
-			}
-			//读取支持的消息类型
-			byte type=in.readByte();			
-			if(!checkMsgType(type)){
-				in.resetReaderIndex();
+			if(!finFiles){
+				//文件还未输出完毕，继续读取socket二进制流  输出文件
+				outFile(in, filesLen[fileIndex],fileOutputStream,out);
 				return;
-			}			
-			//读取cdo内容长度
-			int len=readBodyLen(in);
-			//读取文件个数
-			fileCount=in.readByte();
-			//读取每个文件内容的长度
-			filesLen=new long[fileCount];
-			filesLen=readFileLen(filesLen, in);
-			//创建对象
-			message=new CDOMessage();
-			Header header=new Header();
-			header.setType(type);
-			message.setHeader(header);	
-			//CDO 消息类型需要特别处理，其余为心跳消息检测
-			if(type==ProtoProtocol.TYPE_CDO){
-				if (in.readableBytes() <len) {
-			           in.resetReaderIndex();
-			           return;
-			     }
-				try{
-					ByteBuf bodyByteBuf = in.readBytes(len);
-				    byte[] array;
-			        int offset;	        
-			        int readableLen= bodyByteBuf.readableBytes();
-			        if (bodyByteBuf.hasArray()) {
-			                array = bodyByteBuf.array();
-			                offset = bodyByteBuf.arrayOffset() + bodyByteBuf.readerIndex();
-			        } else {
-			                array = new byte[readableLen];
-			                bodyByteBuf.getBytes(bodyByteBuf.readerIndex(), array, 0, readableLen);
-			                offset = 0;
-			       }	        
-			        //反序列化
-		           MessageLite result= GoogleCDO.CDOProto.getDefaultInstance().getParserForType().parseFrom(array, offset, readableLen);
-		           message.setBody(result); 
-		           
-		           //存在文件传输,则依次临时输出文件到本地
-		           if(fileCount>0){
-		        	   finFiles=false;//设置标识,表示文件还未处理完毕
-		        	   outFile=getOutFile();
-		        	   fileOutputStream=new FileOutputStream(outFile);
-		        	   List<File> fileList=new ArrayList<File>();
-		        	   fileList.add(outFile);
-		        	   message.setFiles(fileList);
-		        	   //输出文件
-		        	   outFile(in, filesLen[fileIndex],fileOutputStream,out);
-		           }
-				}catch(Throwable ex){
-					log.error("decoder error:"+ex.getMessage(), ex);
-					CDO cdoRequest=new CDO();
-					cdoRequest.setStringValue("decoder  exception", ex.getMessage());
-					message.setBody(cdoRequest.toProtoBuilder().build()); 
+			}		
+			//读取cdo协议头
+			int headLen=ProtoProtocol.PROTOCOL_LEN;		
+			while(in.readableBytes()>headLen){
+				in.markReaderIndex();
+				//读取魔数
+				short lowMagic=(short)(in.readByte()&0xff); 
+				short magic=(short)(((short)((in.readByte()&0xff)<<8))|lowMagic);
+				if(magic!=ProtoProtocol.MAGIC_NUMBER){		
+					in.resetReaderIndex();				
+					return; 
 				}
-			} 		   
-			//无文件传输,数据解释完毕
-		   if(fileCount==0){
-			   out.add(message);
-			   finFiles=true;			  
-		   }
-		}
+				//读取支持的消息类型
+				byte type=in.readByte();			
+				if(!checkMsgType(type)){
+					in.resetReaderIndex();
+					return;
+				}			
+				//读取cdo内容长度
+				int len=readBodyLen(in);
+				//读取文件个数
+				fileCount=in.readByte();
+				//读取每个文件内容的长度
+				filesLen=new long[fileCount];
+				filesLen=readFileLen(filesLen, in);
+				//创建对象
+				message=new CDOMessage();
+				Header header=new Header();
+				header.setType(type);
+				message.setHeader(header);	
+				//CDO 消息类型需要特别处理，其余为心跳消息检测
+				if(type==ProtoProtocol.TYPE_CDO){
+					if (in.readableBytes() <len) {
+				           in.resetReaderIndex();
+				           return;
+				     }										
+					try{		
+						ByteBuf bodyByteBuf= in.readBytes(len);
+					    byte[] array;
+				        int offset;	        
+				        int readableLen= bodyByteBuf.readableBytes();
+				        if (bodyByteBuf.hasArray()) {
+				                array = bodyByteBuf.array();
+				                offset = bodyByteBuf.arrayOffset() + bodyByteBuf.readerIndex();
+				        } else {
+				                array = new byte[readableLen];
+				                bodyByteBuf.getBytes(bodyByteBuf.readerIndex(), array, 0, readableLen);
+				                offset = 0;
+				       }	        
+				        //反序列化
+			           MessageLite result= GoogleCDO.CDOProto.getDefaultInstance().getParserForType().parseFrom(array, offset, readableLen);
+			           message.setBody(result); 
+			           bodyByteBuf.release();
+			           //存在文件传输,则依次临时输出文件到本地
+			           if(fileCount>0){
+			        	   finFiles=false;//设置标识,表示文件还未处理完毕
+			        	   outFile=getOutFile();
+			        	   fileOutputStream=new FileOutputStream(outFile);
+			        	   List<File> fileList=new ArrayList<File>();
+			        	   fileList.add(outFile);
+			        	   message.setFiles(fileList);
+			        	   //输出文件
+			        	   outFile(in, filesLen[fileIndex],fileOutputStream,out);
+			           }
+					}catch(Throwable ex){
+						log.error("decoder error:"+ex.getMessage(), ex);
+						CDO cdoRequest=new CDO();
+						cdoRequest.setStringValue("decoder  exception", ex.getMessage());
+						message.setBody(cdoRequest.toProtoBuilder().build()); 
+					}
+				} 		   
+				//无文件传输,数据解释完毕
+			   if(fileCount==0){
+				   out.add(message);
+				   finFiles=true;			  
+			   }
+			}
 	}
 	
 	//进行检查消息类型

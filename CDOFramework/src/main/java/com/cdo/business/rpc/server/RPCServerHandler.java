@@ -45,7 +45,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	protected void channelRead0(ChannelHandlerContext ctx, CDOMessage msg)
 			throws Exception {	
 		  Header header=msg.getHeader();
-
+		  
 		if(header.getType()==ProtoProtocol.TYPE_CDO){			
 			try{
 				GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(msg.getBody());

@@ -129,6 +129,7 @@ public class RPCServer {
             b.group(bossGroup, workerGroup)
              .option(ChannelOption.TCP_NODELAY, true)       
              .childOption(ChannelOption.SO_KEEPALIVE, true)
+             .childOption(ChannelOption.SO_BACKLOG,10240)
              .channel(NioServerSocketChannel.class)
              .handler(new LoggingHandler(LogLevel.INFO))
              .childHandler(new RPCServerInitializer(sslCtx));

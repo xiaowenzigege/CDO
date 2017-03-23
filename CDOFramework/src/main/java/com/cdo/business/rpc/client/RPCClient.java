@@ -7,12 +7,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-
-
-
-
-
-
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -30,6 +24,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 
 import org.apache.log4j.Logger;
 
@@ -39,6 +34,7 @@ import com.cdo.business.rpc.zk.ZookeeperClient;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
 import com.cdo.google.protocol.GoogleCDO;
+import com.cdo.util.exception.NotEstablishConnectException;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.servicebus.ITransService;
@@ -64,6 +60,8 @@ public class RPCClient implements IRPCClient{
 	private  int retryTime=5;//若断开，每隔多长时间重试一次 单位为秒
 	private  int totalRetryCount=5;//0表示无限次每隔retryTime时间的重试一次  大于0在表示重试 达到多次后，不再重试
 	private  long retryCount=0;
+
+	
     RPCClientHandler handle; 
     
     private String clientKey;
@@ -138,11 +136,13 @@ public class RPCClient implements IRPCClient{
 		}
     	handle.stopLocalServer();
    }
-    
+	
+	
   void init(){
     	init(0);
     }
-  
+
+	
   void init(int workGroup){
 	    final SslContext sslCtx;        
 	    try {
@@ -157,15 +157,17 @@ public class RPCClient implements IRPCClient{
 	    	    bootstrap = new Bootstrap();
 	    	    bootstrap.group(workerGroup);
 	    	    bootstrap.channel(NioSocketChannel.class);	
-//	    	    bootstrap.option(ChannelOption.TCP_NODELAY,false);	    	       
+	    	    
+//	    	    bootstrap.option(ChannelOption.TCP_NODELAY,false);	    	
+	    	    bootstrap.option(ChannelOption.SO_BACKLOG,1024);
+	    	    bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
 	    	    bootstrap.handler(new ChannelInitializer<SocketChannel>(){
 					@Override
 					protected void initChannel(SocketChannel ch) throws Exception {
 				        ChannelPipeline p = ch.pipeline();
 				        if (sslCtx != null) {
 				            p.addLast(sslCtx.newHandler(ch.alloc(),remoteHost,remotePort));
-				        } 
-				        p.addLast("ideaHandler",new IdleStateHandler(30,15,0));
+				        } 				       
 				        p.addLast(new ChannelInboundHandlerAdapter() {
 					          @Override
 					          public void channelInactive(ChannelHandlerContext ctx) throws Exception {
@@ -173,7 +175,6 @@ public class RPCClient implements IRPCClient{
 					            //断开后  删除  到某台服务器连接					           
 					            logger.warn("ctx is channelInactive:"+ctx);
 					            clients.remove(clientKey);
-//					            clientList=new ArrayList<Map.Entry<String, RPCClient>>(clients.entrySet());
 					            ctx.channel().close();
 						        executor.execute(new Runnable() {								
 										@Override
@@ -186,8 +187,9 @@ public class RPCClient implements IRPCClient{
 									});	  
 					          }
 					        });			        
-				        p.addLast("decoder",new CDOProtobufDecoder());        
 				        p.addLast("encoder",new CDOProtobufEncoder());
+				        p.addLast("decoder",new CDOProtobufDecoder());  
+				        p.addLast("ideaHandler",new IdleStateHandler(30,15,0));
 				        p.addLast(new RPCClientHandler());				
 					}            	 
 	             });	                     
@@ -196,7 +198,7 @@ public class RPCClient implements IRPCClient{
 	        } 
 	        doConnect();  
 	    }	
-	
+
    private void doConnect() {
 	    if (closed) {
 	      return;
@@ -256,19 +258,24 @@ public class RPCClient implements IRPCClient{
 	 * @param cdoResponse
 	 * @return
 	 */
-	public Return handleTrans(CDO cdoRequest, CDO cdoResponse){		
+	public Return handleTrans(CDO cdoRequest, CDO cdoResponse){
+		if(!cdoRequest.exists(ITransService.SERVICENAME_KEY)){
+			return new Return(-1,"Service Name is null,plealse check strServiceName value");	
+		}
+		String strServiceName=cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);
+		
 	  try {	
-			if(!cdoRequest.exists(ITransService.SERVICENAME_KEY)){
-				return new Return(-1,"Service Name is null,plealse check strServiceName value");	
+			RPCClient rpcClient=getRpcClient(strServiceName);
+			if(rpcClient.getHandle()==null){
+				int retryCount=1;//重试3次
+				while(retryCount<=3){
+					rpcClient=getRpcClient(strServiceName);
+					if(rpcClient.getHandle()!=null) //创建链接成功，退出重试
+						break;
+					try{Thread.sleep(1000+500*retryCount);}catch(Exception em){}
+					retryCount++;
+				}
 			}
-			String strServiceName=cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);
-			Map<String, ZkServerData>  zkServerMap=ZookeeperClient.getZKServerData();
-			if(zkServerMap==null || zkServerMap.get(strServiceName)==null || zkServerMap.get(strServiceName).getHostList().size()==0){
-				logger.warn("Service["+strServiceName+"] not registered on zk server");
-				return new Return(-1,"Service["+strServiceName+"] not registered on zk server");	
-			}
-			List<String> hostList=zkServerMap.get(strServiceName).getHostList();
-			RPCClient rpcClient=RouteManager.getInstance().route(strServiceName, hostList);
 			RPCResponse response=rpcClient.getHandle().handleTrans(cdoRequest);
 		   
 			//cdo 内容
@@ -278,14 +285,25 @@ public class RPCClient implements IRPCClient{
 		   ParseRPCProtoCDO.ProtoRPCParse.parse(proto, cdoResponse, cdoReturn);
 			//设置响应文件
 		   RPCFile.setFile2CDO(cdoResponse, response.getListFile());			
-		   return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));		
-		} catch (Throwable e) {
-			String strServiceName=cdoRequest.exists(ITransService.SERVICENAME_KEY)?cdoRequest.getStringValue(ITransService.SERVICENAME_KEY):"null";
+		   return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));
+	  	}catch(NotEstablishConnectException ex){
+			logger.warn("Service["+strServiceName+"] not registered on zk server");
+			return new Return(-99,"Service["+strServiceName+"] not registered on zk server");		  
+		} catch (Throwable e) {			
 			String strTransName=cdoRequest.exists(ITransService.TRANSNAME_KEY)?cdoRequest.getStringValue(ITransService.TRANSNAME_KEY):"null";					
 			logger.error("Request method :strServiceName="+strServiceName+",strTransName="+strTransName+",error="+e.getMessage(),e);
 			return new Return(-1,e.getMessage(),e.getMessage());
 		}		  
 	}	
+	private  RPCClient getRpcClient(String strServiceName) throws NotEstablishConnectException{
+		Map<String, ZkServerData>  zkServerMap=ZookeeperClient.getZKServerData();
+		if(zkServerMap==null || zkServerMap.get(strServiceName)==null || zkServerMap.get(strServiceName).getHostList().size()==0){
+			logger.warn("Service["+strServiceName+"] not registered on zk server");
+			throw new NotEstablishConnectException("Service["+strServiceName+"] not registered on zk server");	
+		}			
+		List<String> hostList=zkServerMap.get(strServiceName).getHostList();	
+		return RouteManager.getInstance().route(strServiceName, hostList); 
+	}
 	
 	static Map<String,RPCClient> getClients(){
 		return clients;

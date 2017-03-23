@@ -59,9 +59,9 @@ public class CDOProtobufEncoder extends MessageToByteEncoder<CDOMessage>{
 			    	}								
 				}			
 			}
-		}finally{
-			//释放中间变量bytebuf创建的msg对象，避免泄露内存
+		}finally{			
 			ReferenceCountUtil.release(msg);
+			msg=null;
 		}
 	}
 

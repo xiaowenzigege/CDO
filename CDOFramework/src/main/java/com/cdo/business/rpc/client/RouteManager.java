@@ -40,7 +40,7 @@ public class RouteManager {
 		RPCClient rpClient=new RPCClient(address.split(":")[0],Integer.parseInt(address.split(":")[1]));
 		rpClient.init();
 		int retry=1;
-		while (retry<5) {
+		while ( retry<5) {
 			try {
 				if(retry==1)
 					Thread.sleep(1500);

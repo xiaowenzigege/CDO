@@ -80,6 +80,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 		
         channel.writeAndFlush(reqMessage);
         calls.put(callId, call);
+        
         boolean interrupted = false;
         synchronized (call) {
           while (!call.done()) {
@@ -93,8 +94,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
           if (interrupted) {
             // set the interrupt flag now that we are done waiting
             Thread.currentThread().interrupt();
-          } 
-         ReferenceCountUtil.release(reqMessage);
+          }          
          reqMessage=null;
          return call.getRPCResponse();
        }
@@ -114,12 +114,16 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
             switch (e.state()) {// ping message when there is no outbound traffic for 15 seconds  see RPCClient,RPCServerInitializer         	
-                case WRITER_IDLE:
+                case WRITER_IDLE:                	
         			CDOMessage heartBeat=new CDOMessage();
-        			Header header=new Header();
-        			header.setType(ProtoProtocol.TYPE_HEARTBEAT_REQ);
-        			heartBeat.setHeader(header);
-        			ctx.writeAndFlush(heartBeat);
+        			try{
+	        			Header header=new Header();
+	        			header.setType(ProtoProtocol.TYPE_HEARTBEAT_REQ);
+	        			heartBeat.setHeader(header);
+	        			ctx.writeAndFlush(heartBeat);
+        			}finally{
+        				ReferenceCountUtil.release(heartBeat);        				
+        			}
                     break;
                 default:
                     break;
@@ -153,7 +157,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 		    	  if(logger.isDebugEnabled())
 		    			logger.debug("client receive server["+(InetSocketAddress)ctx.channel().remoteAddress()+"] heart msg:"+msg);
 		       }
-    		}finally{
+    		}finally{    			
     			ReferenceCountUtil.release(msg);
     		}
     	}else{
