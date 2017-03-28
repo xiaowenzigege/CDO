@@ -11,7 +11,6 @@ package com.cdoframework.cdolib.data.cdo;
 
 
 import java.io.File;
-import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,7 +39,7 @@ import com.cdoframework.cdolib.base.Utility;
  * add support file
  
  */
-public class CDO implements Serializable
+public class CDO implements java.io.Serializable
 {
 
 	/**
@@ -65,7 +64,12 @@ public class CDO implements Serializable
 		String strIndexFieldId;
 	};
 
+	
 	//静态对象,所有static在此声明并初始化------------------------------------------------------------------------
+
+	 void setFileCount(int fileCount) {
+		this.fileCount = fileCount;
+	}
 
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
 	private HashMap<String,Field> hmItem;

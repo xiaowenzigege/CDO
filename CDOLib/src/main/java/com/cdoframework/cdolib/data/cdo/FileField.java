@@ -4,10 +4,12 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.base.DataType.Data;
 import com.cdoframework.cdolib.util.Function;
+import com.google.protobuf.ByteString;
 
 /**
  * 
@@ -41,7 +43,7 @@ public class FileField extends FieldImpl
 		this.fileValue=fileValue;
 		
 		if(fileValue!=null)
-			allocate(fileValue.getName());
+			allocate(fileValue.getPath());
 		else
 			allocate("");
 	}
@@ -50,6 +52,7 @@ public class FileField extends FieldImpl
 	{
 		return this.fileValue;
 	}
+	
 	
 	public Object getObjectValue()
 	{
@@ -172,6 +175,15 @@ public class FileField extends FieldImpl
 		setType(Data.FILE);
 		
 		this.buffer=buffer;
+		this.fileValue=new File(getFileNameValue());
 	}
-
+	
+	private String getFileNameValue()
+	{
+		buffer.position(dataIndex);
+		ByteBuffer slice = buffer.slice();
+		byte[] dst=new byte[slice.capacity()];
+		slice.get(dst);
+		return new String(dst,Charset.forName("UTF-8"));
+	}
 }

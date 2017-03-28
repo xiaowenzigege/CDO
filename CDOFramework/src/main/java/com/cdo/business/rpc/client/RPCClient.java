@@ -159,7 +159,6 @@ public class RPCClient implements IRPCClient{
 	    	    bootstrap.channel(NioSocketChannel.class);	
 	    	    
 //	    	    bootstrap.option(ChannelOption.TCP_NODELAY,false);	    	
-	    	    bootstrap.option(ChannelOption.SO_BACKLOG,1024);
 	    	    bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
 	    	    bootstrap.handler(new ChannelInitializer<SocketChannel>(){
 					@Override

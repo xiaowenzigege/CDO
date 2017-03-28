@@ -1,13 +1,12 @@
 package com.cdo.business.rpc.zk;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import io.netty.util.internal.SystemPropertyUtil;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
@@ -15,6 +14,7 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
 import com.cdo.util.exception.ZookeeperException;
+import com.cdo.util.resource.GlobalResource;
 
 /**
  * 监听zk上的服务
@@ -30,9 +30,9 @@ public class ZookeeperClient {
     private ClientWatch clientWatch;
     private String zkConnect;
     private Logger logger=Logger.getLogger(ZookeeperClient.class);
-    private int Time_OUT=10000;
+    private int Time_OUT=Math.max(10, SystemPropertyUtil.getInt("zk.sessionTimeout", 10))*1000;
     private class ClientWatch implements Watcher{
-    	 // 如果发生了"/CDOService"节点下的子节点变化事件, 更新配置server列表, 并重新注册监听  
+    	 // 如果发生了"/CDO"节点下的子节点变化事件, 更新配置server列表, 并重新注册监听  
 		public void process(WatchedEvent event) {  
 			if(logger.isDebugEnabled())
 				logger.debug("client eventType="+event.getType()+",eventState="+event.getState()+",eventPath="+event.getPath());
@@ -40,8 +40,8 @@ public class ZookeeperClient {
                     &&event.getPath().startsWith("/" + groupNode)) {  
                     try {                      
                         updateServerList(clientWatch);                          
-                    } catch (Exception e) {  
-                        e.printStackTrace();  
+                    } catch (Exception e) {
+                    	logger.error("zk eventType="+event.getType()+",path="+event.getPath()+",error:"+e.getMessage(),e);                        
                     }  
                 }         
              if(event.getType()==EventType.None && event.getState()==Watcher.Event.KeeperState.Expired){
@@ -54,8 +54,7 @@ public class ZookeeperClient {
 					zk = new ZooKeeper(zkConnect, Time_OUT,clientWatch);
 					updateServerList(clientWatch);  
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error("zk eventType="+event.getType()+",path="+event.getPath()+",error:"+e.getMessage(),e);  
 				} 
              }
             }  				   	
@@ -100,7 +99,7 @@ public class ZookeeperClient {
 	        }  
       }catch(Throwable ex){
     	 logger.error("get node["+groupNode+"] faile,"+ex.getMessage(),ex);
-    	  try {
+    	try {
 			Thread.sleep(5000);
 		} catch (Exception e) {			
 			
@@ -112,6 +111,7 @@ public class ZookeeperClient {
         try {
         	zk.exists("/" + groupNode, clientWatch);
 		} catch (Exception e) {
+		
 		}       
     }  
  

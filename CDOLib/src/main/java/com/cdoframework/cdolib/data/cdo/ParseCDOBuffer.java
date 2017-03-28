@@ -63,7 +63,12 @@ public class ParseCDOBuffer extends CDOBuffer {
 	   }
 	}
 	
-	
+	/**
+	 * 
+	 * @param cdo
+	 * @param key
+	 * @param buffer
+	 */
 	@SuppressWarnings("unchecked")
 	protected  void setCDOValue(CDO cdo,String key,ByteBuffer buffer){	
 		 int dataType=buffer.get();	

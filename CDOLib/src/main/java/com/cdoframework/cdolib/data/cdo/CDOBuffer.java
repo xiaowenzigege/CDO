@@ -148,6 +148,9 @@ public class CDOBuffer {
     	}
     	Field field=new FileField(fieldId.strFieldId,buffer);
 		cdo.setObjectValue(fieldId,DataType.FILE_TYPE,null,field,cdo);
+		if(fieldId.nType==FieldId.SIMPLE){
+			cdo.setFileCount(cdo.getSerialFileCount()+1);
+		}
     }
 
 

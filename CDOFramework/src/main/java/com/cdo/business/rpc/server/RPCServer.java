@@ -1,6 +1,7 @@
 package com.cdo.business.rpc.server;
 
 import org.apache.log4j.Logger;
+
 import com.cdo.business.BusinessService;
 import com.cdo.util.resource.GlobalResource;
 import com.cdoframework.cdolib.base.Return;
@@ -16,6 +17,7 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.netty.util.internal.SystemPropertyUtil;
 
 public class RPCServer {
     static final boolean SSL = System.getProperty("ssl") != null;
@@ -27,7 +29,7 @@ public class RPCServer {
     
 	public void start(){
         final SslContext sslCtx;
-        int numMainThread=Math.max(1, Runtime.getRuntime().availableProcessors());
+        int numMainThread=Math.max(1, SystemPropertyUtil.getInt("io.netty.eventLoopThreads", Runtime.getRuntime().availableProcessors()));
         bossGroup = new NioEventLoopGroup(numMainThread);
         workerGroup = new NioEventLoopGroup(numMainThread*3);
         try {
@@ -39,7 +41,8 @@ public class RPCServer {
             }            
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
-             .option(ChannelOption.TCP_NODELAY, true)       
+             .option(ChannelOption.TCP_NODELAY, true)  
+             .option(ChannelOption.SO_BACKLOG, 10240)
              .childOption(ChannelOption.SO_KEEPALIVE, true)
              .channel(NioServerSocketChannel.class)
              .handler(new LoggingHandler(LogLevel.INFO))

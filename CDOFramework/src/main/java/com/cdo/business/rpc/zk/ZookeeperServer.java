@@ -1,14 +1,15 @@
 package com.cdo.business.rpc.zk;
 
-import java.io.IOException;
+import io.netty.util.internal.SystemPropertyUtil;
+
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+
+
 
 
 import org.apache.log4j.Logger;
@@ -37,6 +38,7 @@ public class ZookeeperServer {
 	private String address;
 	private List<ZkParameter> zkParameterList;
 	private String zkConnect;
+	private int Time_OUT=Math.max(10, SystemPropertyUtil.getInt("zk.sessionTimeout", 10))*1000;
 	/**
 	 * 
 	 * 检查zk是否已经断开，如果断开,则重新连接
@@ -51,11 +53,10 @@ public class ZookeeperServer {
                 	 }
                 	 if(clientWatch==null)
                 		 clientWatch=new Watch(); 
-					zk = new ZooKeeper(zkConnect, 10000,clientWatch);
+					zk = new ZooKeeper(zkConnect, Time_OUT,clientWatch);
 					checkServerNode(clientWatch);  
-				} catch (Exception e) {
-					// TODO Auto-generated catch block					
-					logger.error("....watch is error :"+e.getMessage(), e);
+				} catch (Exception e) {				
+					logger.error("watch is error :"+e.getMessage(), e);
 				} 
              }
             }  				   	
@@ -67,7 +68,7 @@ public class ZookeeperServer {
     public  void connectZookeeper() throws ZookeeperException {
     	try{
 	    	clientWatch=new Watch(); 
-	        zk = new ZooKeeper(zkConnect, 10000,clientWatch);  
+	        zk = new ZooKeeper(zkConnect, Time_OUT,clientWatch);  
 	        checkServerNode(clientWatch);
     	}catch(Exception ex){
     		throw new ZookeeperException(ex.getMessage(),ex);
