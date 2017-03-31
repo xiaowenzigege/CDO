@@ -112,41 +112,6 @@ public class RPCServer {
 		if(logger.isInfoEnabled()){
 			logger.info("business started-----------------");
 		}
-    }
-    
-    
-    public static void main(String[] args) throws Exception {
-        // Configure SSL.
-        final SslContext sslCtx;
-        if (SSL) {
-            SelfSignedCertificate ssc = new SelfSignedCertificate();
-            sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
-        } else {
-            sslCtx = null;
-        }
-        int numMainThread=Math.max(1, Runtime.getRuntime().availableProcessors());
-        EventLoopGroup bossGroup = new NioEventLoopGroup(numMainThread);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(numMainThread*3);
-        try {
-            ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup)
-             .option(ChannelOption.TCP_NODELAY, true)       
-             .childOption(ChannelOption.SO_KEEPALIVE, true)
-             .childOption(ChannelOption.SO_BACKLOG,10240)
-             .channel(NioServerSocketChannel.class)
-             .handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new RPCServerInitializer(sslCtx));
-            
-            GlobalResource.bundleInitCDOEnv();	
-            int port=8080;
-            startService();
-            ChannelFuture f= b.bind(port).sync();
-            f.channel().closeFuture().sync();
-            
-        } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
-        }
-    }
+    }    
 
 }

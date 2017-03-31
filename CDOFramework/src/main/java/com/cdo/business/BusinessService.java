@@ -1,5 +1,7 @@
 package com.cdo.business;
 
+import java.io.File;
+
 import org.apache.log4j.Logger;
 
 import com.cdo.util.resource.GlobalResource;
@@ -61,14 +63,28 @@ public class BusinessService
 
 	public Return start()
 	{
-		Return ret=getLocalEnvironment();
-		if(ret.getCode()!=0)
-			return ret;
+		//可通过 外部初始化,若外部未初始化，使用默认初始化
+		if(GlobalResource.cdoConfig==null){
+			Return ret=getLocalEnvironment();
+			if(ret.getCode()!=0)
+				return ret;
+		}
+
 		String strBusResource=GlobalResource.cdoConfig.getString("servicebusResource.path");	
 		String strFrameworkResource=GlobalResource.cdoConfig.getString("frameworkResource.path");	
+		if(strBusResource==null){
+			 String confPath=GlobalResource.getCDOEnvConfigPath();
+			 String parent=new File(confPath).getParent();
+			 strBusResource=parent+"/servicebusResource.xml";
+			 log.info("使用默认配置文件:strBusResource="+strBusResource);
+			 File file=new File(strBusResource);
+			 if(!file.exists()||!file.isFile())
+				 strBusResource=null;			 
+		}
 		if(strBusResource==null || strBusResource.equals("")){
 			return Return.valueOf(-1, "init Environment failed! parameter[servicebusResource.path,frameworkResource.path] is not found");
 		}		
+		
 		return start(strBusResource,"pluginsConfig.xml","bigTableConfig.xml",strFrameworkResource,"UTF-8");
 	}
 	

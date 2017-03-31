@@ -18,7 +18,7 @@ public class GlobalResource{
   public static BundleConfig resource = null;
   public static BundleConfig cdoConfig=null;
   private static Logger logger = Logger.getLogger(GlobalResource.class);
-
+  private static String configPath;
   static {
     try { 
     	resource = new BundleConfig("resource.*?.properties");     	
@@ -29,25 +29,29 @@ public class GlobalResource{
   }
   
   public static void bundleInitCDOEnv() throws IOException{
-	  	String strCDOConfig=System.getProperty("CDO_CONFIG_FILE");	//文件全路径
-		if(strCDOConfig==null || strCDOConfig.equals(""))
+	  bundleInitCDOEnv("CDO_CONFIG_FILE");
+  }
+  
+  public static void bundleInitCDOEnv(String varPath) throws IOException{
+	  	configPath=System.getProperty(varPath);	//文件全路径
+		if(configPath==null || configPath.equals(""))
 		{
-			logger.error("vm启动参数  未正确设置:CDO_CONFIG_FILE");
+			logger.error("vm启动参数  未正确设置:"+varPath+"="+configPath);
 			return;
 		}
 		StringBuilder sb=new StringBuilder();
 		char ch;
-		for(int i=0;i<strCDOConfig.length();i++){
-			ch=strCDOConfig.charAt(i);
+		for(int i=0;i<configPath.length();i++){
+			ch=configPath.charAt(i);
 			if(ch=='{'){
-				if(i>0 && strCDOConfig.charAt(i-1)=='$'){
+				if(i>0 && configPath.charAt(i-1)=='$'){
 					sb=new StringBuilder();
 				}
 			}else if(ch=='}'){
 				if(sb!=null){
 					String value=System.getProperty(sb.toString());
 					if(value!=null && !value.equals(""))
-						strCDOConfig=strCDOConfig.replace("${"+sb.toString()+"}",value);
+						configPath=configPath.replace("${"+sb.toString()+"}",value);
 				}					
 				sb=null;
 			}else{
@@ -55,7 +59,11 @@ public class GlobalResource{
 					sb.append(ch);
 			}
 		}
-		GlobalResource.bundleLocalCDOEnv(strCDOConfig);
+		GlobalResource.bundleLocalCDOEnv(configPath);
+  }
+  
+  public static String getCDOEnvConfigPath(){
+		return configPath;
   }
   /**
    *  vm 启动时，获取 cdo框架所需文件所在的位置，由启动时设定其文件位置
