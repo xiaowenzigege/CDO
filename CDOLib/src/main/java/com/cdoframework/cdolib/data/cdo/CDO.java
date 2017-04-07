@@ -1384,7 +1384,7 @@ public class CDO implements java.io.Serializable
 	public void remove(String key)
 	{
 		Field objExt=hmItem.remove(key);
-		if(objExt.getType().getDataType()==DataType.FILE_TYPE && !key.contains(".")){
+		if(objExt!=null && objExt.getType().getDataType()==DataType.FILE_TYPE && !key.contains(".")){
 			fileCount--;
 		}
 	}
