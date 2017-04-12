@@ -28,7 +28,6 @@ class CDOHTTPClient extends HttpClient {
 				handler.setAutoCloseStream(streamCDO.isAutoCloseStream());
 			}			
 		}
-		CDOHTTPResponse httpResponse=handleResponse(handler);
-		return httpResponse;
+		return handleResponse(handler);
 	}
 }

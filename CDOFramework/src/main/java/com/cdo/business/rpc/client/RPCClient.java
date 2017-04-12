@@ -1,5 +1,7 @@
 package com.cdo.business.rpc.client;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +50,7 @@ public class RPCClient implements IRPCClient{
 	private final static Logger logger=Logger.getLogger(RPCClient.class);
 	private ExecutorService executor=Executors.newScheduledThreadPool(1);
 	
-	private static final Map<String, RPCClient> clients;
+	private  static  final Map<String, RPCClient> clients;
 	static final boolean SSL = System.getProperty("ssl") != null;
 	private volatile EventLoopGroup workerGroup;
 	private volatile Bootstrap bootstrap;
@@ -68,7 +70,7 @@ public class RPCClient implements IRPCClient{
     private boolean closedServer=false;
 
     static{
-    	clients=new HashMap<String, RPCClient>();
+    	clients=Collections.synchronizedMap(new HashMap<String, RPCClient>());
     }
     /**
      *  
@@ -212,10 +214,17 @@ public class RPCClient implements IRPCClient{
 	    future.addListener(new ChannelFutureListener() {
 	      public void operationComplete(ChannelFuture f) throws Exception {
 	        if (f.isSuccess()) {
-	          logger.info("Started  Client Success connection: " + getServerInfo());
+	          logger.info("Started  Client Success connection: " + getServerInfo());	          
 	          channel=f.channel();
 	          handle=channel.pipeline().get(RPCClientHandler.class);	
-	          clients.put(clientKey,rpcClient);
+	          synchronized (clients) {
+		          if(clients.get(clientKey)==null || clients.get(clientKey).getHandle()==null){ 
+		        	  clients.put(clientKey,rpcClient);
+		          }else{
+			          //已经存在连接,本次连接不在保存
+			          channel.close();  
+		          }
+	          	}
 	        } else {
 	           //正常的客户端连接
 	          if(!closedServer)	

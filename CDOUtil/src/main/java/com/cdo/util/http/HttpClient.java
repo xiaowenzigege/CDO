@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -35,6 +34,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.EntityUtils;
@@ -42,6 +42,7 @@ import org.apache.log4j.Logger;
 
 import com.cdo.util.bean.CDOHTTPResponse;
 import com.cdo.util.constants.Constants;
+import com.cdo.util.exception.HttpException;
 import com.cdo.util.resource.GlobalResource;
 /**
  * 
@@ -49,7 +50,7 @@ import com.cdo.util.resource.GlobalResource;
  *
  */
 public class HttpClient {
-	private Logger log = Logger.getLogger(HttpClient.class);
+	private Logger logger = Logger.getLogger(HttpClient.class);
     public static final ContentType TEXT_PLAIN_UTF8 =ContentType.create("text/plain", Charset.forName(Constants.Encoding.CHARSET_UTF8));
 	//----------传输类型---------//
 	public static final int TRANSMODE_BODY = 1;//整体传输  例如SOAP xml文件 设置在body里传输
@@ -60,13 +61,13 @@ public class HttpClient {
 	public static final String METHOD_GET = "GET";
 	public static final String METHOD_DELETE = "DELETE";
 	
-	private org.apache.http.client.HttpClient httpClient;
+	private CloseableHttpClient httpClient;
 	private HttpRequestBase httpRequest;
 	private Map<String, String> headers;
 	private Map<String, File>  uploadFiles;
 	private int transMode;
 	private String url;
-	private String method;
+	private String method=METHOD_POST;
 
 
 	private List<NameValuePair> paramsList = new ArrayList<NameValuePair>();
@@ -78,7 +79,7 @@ public class HttpClient {
 	
 	
 	public HttpClient() {
-		this(null);
+		this(null,METHOD_POST);
 	}
 
 	public HttpClient(String url) {
@@ -149,28 +150,32 @@ public class HttpClient {
 	protected  <T>T handleResponse(ResponseHandler<T> handler) {
 		Object response = null;
 		try {
-			setRequestParam();			
+			setRequestParam();	
+			this.httpClient = HttpUtil.getHttpClient();	
 			if (this.httpHost != null)
 				response = this.httpClient.execute(this.httpHost,this.httpRequest, handler);
 			else 
 				response = this.httpClient.execute(this.httpRequest, handler);
 			
 			return (T)response;
-		} catch (Exception e) {
-			this.log.error(e.getMessage(), e);
-			throw new RuntimeException("httpClient send request error:"+ e.getMessage());
+		} catch (Exception e) {				
+			logger.error(e.getMessage(), e);
+			throw new HttpException("httpClient send request error:"+ e.getMessage());
+		}finally{
+			// 不能关闭连接池
+			//if(this.httpClient!=null){try{this.httpClient.close();}catch(Exception ex){}}
 		}
 	}
 	/**
 	 * 设置请求参数
 	 */
 	private void setRequestParam() {
-		if ((this.url == null) || (this.url.trim().equals(""))) {
-			throw new RuntimeException("url is null");
-		}
-		this.httpClient = HttpUtil.getHttpClient();		
+
 		HttpEntity  entity = null;		
 		try {
+			if (this.url == null || this.url.trim().length()==0) {
+				throw new HttpException("http url is null");
+			}				
 			if (this.transMode ==TRANSMODE_BODY) {
 				//作为body传输
 				if (this.body!= null) {
@@ -198,34 +203,31 @@ public class HttpClient {
 					entity = new UrlEncodedFormEntity(this.paramsList, Constants.Encoding.CHARSET_UTF8);
 				}				
 			}
-		} catch (UnsupportedEncodingException e) {
-			this.log.error(e.getMessage(), e);
-			throw new RuntimeException("param UnsupportedEncodingException");
-		}
-		//设置默认方法
-		if (this.method == null) {			
-			this.method =METHOD_POST;
-		}		
-		if (this.method.equals(METHOD_PUT)) {
-			this.httpRequest = new HttpPut(this.url);
-			((HttpEntityEnclosingRequestBase) this.httpRequest).setEntity(entity);
-		} else if (this.method.equals(METHOD_GET)) {
-			this.httpRequest = new HttpGet(this.url);
-		} else if (this.method.equals(METHOD_DELETE)) {
-			this.httpRequest = new HttpDelete(this.url);
-		} else {
-			this.httpRequest = new HttpPost(this.url);
-			((HttpPost)this.httpRequest).setEntity(entity);
 			
-		}
+			if (this.method.equals(METHOD_PUT)) {
+				this.httpRequest = new HttpPut(this.url);
+				((HttpEntityEnclosingRequestBase) this.httpRequest).setEntity(entity);
+			} else if (this.method.equals(METHOD_GET)) {
+				this.httpRequest = new HttpGet(this.url);
+			} else if (this.method.equals(METHOD_DELETE)) {
+				this.httpRequest = new HttpDelete(this.url);
+			} else {
+				this.httpRequest = new HttpPost(this.url);
+				((HttpPost)this.httpRequest).setEntity(entity);			
+			}
 
-		if (this.headers != null) {
-			for (Map.Entry<String,String> entry : this.headers.entrySet()) {			
-				if ((entry.getKey()  == null) || (entry.getKey().trim().equals("")))
-					continue;
-				this.httpRequest.setHeader(entry.getKey().trim(), entry.getValue());
-			}			
+			if (this.headers != null) {
+				for (Map.Entry<String,String> entry : this.headers.entrySet()) {			
+					if ((entry.getKey()  == null) || (entry.getKey().trim().equals("")))
+						continue;
+					this.httpRequest.setHeader(entry.getKey().trim(), entry.getValue());
+				}			
+			}		
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new HttpException("http 参数发生异常:"+e.getMessage(),e);
 		}
+		
 	}
 
 
@@ -271,7 +273,7 @@ public class HttpClient {
 		    			 //文件输出		    			
 		    			 HttpEntity resEntity = response.getEntity();		    			 	
 	    				 if(resEntity==null){//body 为 empty	    					
-	    					 log.warn("download http entity is empty ....");
+	    					 logger.warn("download http entity is empty ....");
 	    					 return cdoHttpResponse;
 	    				 }	
 	    				 download(header, response, cdoHttpResponse);
@@ -280,7 +282,7 @@ public class HttpClient {
 			  return cdoHttpResponse;
 			}catch(Exception ex){
 		    		 throw new IOException(ex.getMessage(),ex);
-		   }	
+		   }
 	 }
 		//---------------------读取 响应报头,是否是cdo  header------------------//	
 		private LinkedHashMap<String, FileInfo> readHeader(Header[] header){
@@ -324,7 +326,7 @@ public class HttpClient {
 	   				 }
 	   			 }	
 			 }catch(Exception ex){
-				 log.error(ex.getMessage(),ex);
+				 logger.error(ex.getMessage(),ex);
 				 throw new IOException(ex.getMessage(),ex);
 			 }finally{
 				 if(inStream!=null)try{inStream.close();}catch(Exception e){}
@@ -382,12 +384,12 @@ public class HttpClient {
 	   	                        }
    	                        break;
    	                   } catch (Exception e) {  
-   	                    	log.error(e.getMessage(), e);
+   	                	logger.error(e.getMessage(), e);
    	                 }   
    				 }
    			 }	
 			 }catch(Exception ex){
-				 log.error(ex.getMessage(),ex);
+				 logger.error(ex.getMessage(),ex);
 				 throw new IOException(ex.getMessage(),ex);
 			 }finally{
 				 if(inStream!=null)try{inStream.close();}catch(Exception e){}

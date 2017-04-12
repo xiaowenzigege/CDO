@@ -2,8 +2,10 @@ package com.cdo.util.http;
 
 
 import java.io.File;
+import java.nio.charset.CodingErrorAction;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -17,24 +19,53 @@ import java.util.concurrent.TimeUnit;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import javax.naming.InitialContext;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElementIterator;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.AuthSchemes;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.ConnectionConfig;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHeaderElementIterator;
@@ -44,6 +75,7 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.log4j.Logger;
 
 import com.cdo.util.bean.Response;
+import com.cdo.util.exception.HttpException;
 import com.cdo.util.exception.ResponseException;
 
 
@@ -53,105 +85,100 @@ import com.cdo.util.exception.ResponseException;
  *
  */
 public class HttpUtil {
-
+	private static final Logger logger=Logger.getLogger(HttpUtil.class); 
 	
     private static final String DEFAULT_ACCEPT = "text/html,text/xml,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"; 
     private static final String DEFAULT_ACCEPT_CHARSET = "utf-8,ISO-8859-1;q=0.7,*;q=0.7"; 
     private static final String DEFAULT_ACCEPT_ENCODING = "x-gzip, gzip"; 
 	
-    
-	private static HttpClientBuilder builder;
-	private static HttpClientBuilder KeepLivebuilder;
-	private static PoolingHttpClientConnectionManager poolHttp;
-	private static RegistryBuilder<ConnectionSocketFactory> registry;
-	private static RequestConfig.Builder requestBuilder;
-  	private static ConnectionKeepAliveStrategy keepAliveStrategy;
-	private HttpUtil() {
-	}
-
-	static{
-		//注册端口
-	    registry = RegistryBuilder.<ConnectionSocketFactory>create();
-	    registry=registry.register("http", PlainConnectionSocketFactory.INSTANCE);
-	    SSLContext sslcontext = SSLContexts.createSystemDefault();
-	    registry=registry.register("https",  new SSLConnectionSocketFactory(sslcontext));
-	    
-	    
-	    //--------创建连接池------------//	    
-		poolHttp= new PoolingHttpClientConnectionManager(registry.build());
-		poolHttp.setMaxTotal(400);
-		poolHttp.setDefaultMaxPerRoute(200);
-		poolHttp.closeExpiredConnections();
-		poolHttp.closeIdleConnections(10, TimeUnit.SECONDS);
-		//--------设置客服端连接配置-------------//
-		requestBuilder= RequestConfig.custom();
-		requestBuilder = requestBuilder.setConnectTimeout(6000*5);
-		requestBuilder = requestBuilder.setSocketTimeout(6000*5);
-		requestBuilder = requestBuilder.setConnectionRequestTimeout(6000*5);
-		requestBuilder = requestBuilder.setContentCompressionEnabled(true);
-		requestBuilder = requestBuilder.setExpectContinueEnabled(Boolean.FALSE);		
-       //--------设置默认header配置---------// 				    
-  
-      
-       
-       //-----若使用一段时间内的连接  复用tcp  需要服务端配置相关的参数值,否则服务端关闭连接，客服端tcp rst一样失败
-       //--------应用服务器 默认一般都为短连接      ----------------//
-       keepAliveStrategy = new ConnectionKeepAliveStrategy() {
-    	   public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
-			        // Honor 'keep-alive' header
-			        HeaderElementIterator it = new BasicHeaderElementIterator(response.headerIterator(HTTP.CONN_KEEP_ALIVE));
-			        while (it.hasNext()) {
-			            HeaderElement he = it.nextElement();
-			            String param = he.getName();
-			            String value = he.getValue();
-			            if (value != null && param.equalsIgnoreCase("timeout")) {
-			                try {
-			                    return Long.parseLong(value) * 1000;
-			                } catch(NumberFormatException ignore) {
-			                }
-			            }
-			        }
-			        return 30 * 1000;
-			    }
-			};
-
-       	   	   
-	}
-
+    private volatile static HttpClientBuilder builder;		
 	
-	public static HttpClient getHttpClient() {	
-		if(builder==null){
-			HashSet<Header>  defaultHeaders = new HashSet<Header>();   
-		       defaultHeaders.add(new BasicHeader(HttpHeaders.ACCEPT_CHARSET, DEFAULT_ACCEPT_CHARSET));
-		       defaultHeaders.add(new BasicHeader(HttpHeaders.ACCEPT_ENCODING, DEFAULT_ACCEPT_ENCODING));
-		       defaultHeaders.add(new BasicHeader(HttpHeaders.ACCEPT, DEFAULT_ACCEPT)); 
-			   defaultHeaders.add(new BasicHeader(HttpHeaders.CONNECTION, "close"));   
-		       //----- 创建连接---------------------//
-		       builder = HttpClientBuilder.create()
-			   .setDefaultRequestConfig(requestBuilder.build())
-			   .setConnectionManager(poolHttp)
-			   .setDefaultHeaders(defaultHeaders)			  
-			   .evictExpiredConnections();			 
+    private HttpUtil() {
+		
+	}
+
+	static {
+		try{
+	        SSLContext sslContext = SSLContexts.custom().build();
+	        sslContext.init(null,
+	                new TrustManager[] { new X509TrustManager() {
+	                     
+	                    public X509Certificate[] getAcceptedIssuers() {
+	                        return null;
+	                    }
+	
+	                    public void checkClientTrusted(
+	                            X509Certificate[] certs, String authType) {
+	                    }
+	
+	                    public void checkServerTrusted(
+	                            X509Certificate[] certs, String authType) {
+	                    }
+	                }}, null);
+	        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+	                .register("http", PlainConnectionSocketFactory.INSTANCE)
+	                .register("https", new SSLConnectionSocketFactory(sslContext))
+	                .build();	    
+		    
+	        // Create socket configuration
+	        SocketConfig socketConfig = SocketConfig.custom()
+	            .setTcpNoDelay(true)
+	            .setSoReuseAddress(true)
+	            .setSoKeepAlive(true)            
+	            .build();
+			
+			 // Create message constraints
+		    MessageConstraints messageConstraints = MessageConstraints.custom()
+		            .setMaxHeaderCount(200)
+		            .setMaxLineLength(2000)
+		            .build();
+	       // Create connection configuration
+	       ConnectionConfig connectionConfig = ConnectionConfig.custom()
+	           .setMalformedInputAction(CodingErrorAction.IGNORE)
+	           .setUnmappableInputAction(CodingErrorAction.IGNORE)
+	           .setCharset(Consts.UTF_8)           
+	           .setMessageConstraints(messageConstraints)
+	           .build();
+		    //--------创建连接池------------//	    
+	        PoolingHttpClientConnectionManager poolHttp= new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+			poolHttp.setMaxTotal(500);
+			poolHttp.setDefaultMaxPerRoute(100);
+			poolHttp.closeExpiredConnections();
+			poolHttp.closeIdleConnections(30, TimeUnit.SECONDS);      
+			poolHttp.setValidateAfterInactivity(30*1000);
+			poolHttp.setDefaultSocketConfig(socketConfig);
+			poolHttp.setDefaultConnectionConfig(connectionConfig);
+			
+	        // Use custom cookie store if necessary.
+	//        CookieStore cookieStore = new BasicCookieStore();
+	        // Use custom credentials provider if necessary.
+	//        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+	        // Create global request configuration
+	        RequestConfig defaultRequestConfig = RequestConfig.custom()
+	            .setCookieSpec(CookieSpecs.DEFAULT)
+	            .setExpectContinueEnabled(Boolean.FALSE)    
+	            .setSocketTimeout(5000*6)
+	            .setConnectTimeout(5000*6)
+	            .setConnectionRequestTimeout(5000*6)
+	//            .setTargetPreferredAuthSchemes(Arrays.asList(AuthSchemes.NTLM, AuthSchemes.DIGEST))
+	//            .setProxyPreferredAuthSchemes(Arrays.asList(AuthSchemes.BASIC))
+	            .build();
+	
+	        
+	        builder=HttpClients.custom()
+	        .setConnectionManager(poolHttp)
+	        .setDefaultRequestConfig(defaultRequestConfig).evictIdleConnections(120,TimeUnit.SECONDS);
+       
+		}catch(Exception ex){
+			logger.error("创建http pool 出现异常:"+ex.getMessage(), ex);
+			throw new HttpException("创建http pool 出现异常:"+ex.getMessage(), ex);
 		}
+	}
+	
+	public static CloseableHttpClient getHttpClient() {	
 		return builder.build();
 	}
 
-	public static HttpClient getKeepLiveHttpClient() {	
-		if(KeepLivebuilder==null){			   		      
-			   HashSet<Header>  defaultHeaders = new HashSet<Header>();   
-		       defaultHeaders.add(new BasicHeader(HttpHeaders.ACCEPT_CHARSET, DEFAULT_ACCEPT_CHARSET));
-		       defaultHeaders.add(new BasicHeader(HttpHeaders.ACCEPT_ENCODING, DEFAULT_ACCEPT_ENCODING));
-		       defaultHeaders.add(new BasicHeader(HttpHeaders.ACCEPT, DEFAULT_ACCEPT)); 
-		       //----- 创建连接---------------------//
-		       KeepLivebuilder = HttpClientBuilder.create()
-			   .setDefaultRequestConfig(requestBuilder.build())
-			   .setConnectionManager(poolHttp)
-			   .setDefaultHeaders(defaultHeaders)
-			   .setKeepAliveStrategy(keepAliveStrategy)
-			   .evictExpiredConnections();			 
-		}
-		return KeepLivebuilder.build();
-	}	
 	/**
 	 * 
 	 * @param url 
@@ -287,4 +314,5 @@ public class HttpUtil {
 		client.setBody(strContent);
 		return client.execute();	
 	}	
+	
 }

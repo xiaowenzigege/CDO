@@ -71,6 +71,7 @@ public class RPCServer {
 			bossGroup.shutdownGracefully();
 			workerGroup.shutdownGracefully();
 		}
+		System.exit(1);
 	}
 	
 	
@@ -82,6 +83,7 @@ public class RPCServer {
 			bossGroup.shutdownGracefully();
 			workerGroup.shutdownGracefully();
 		}
+		System.exit(1);
 	}
     protected class ShutdownHook extends Thread {
         @Override
