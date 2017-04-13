@@ -1,55 +1,19 @@
 package com.cdo.util.http;
 
-
 import java.io.File;
 import java.nio.charset.CodingErrorAction;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import javax.naming.InitialContext;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.Consts;
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.HeaderElementIterator;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.CredentialsProvider;
+import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.AuthSchemes;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.ConnectionConfig;
@@ -57,46 +21,54 @@ import org.apache.http.config.MessageConstraints;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicHeaderElementIterator;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.log4j.Logger;
 
 import com.cdo.util.bean.Response;
+import com.cdo.util.constants.Constants;
 import com.cdo.util.exception.HttpException;
 import com.cdo.util.exception.ResponseException;
-
-
 /**
  * 
  * @author KenelLiu
  *
  */
+@SuppressWarnings("deprecation")
 public class HttpUtil {
 	private static final Logger logger=Logger.getLogger(HttpUtil.class); 
 	
-    private static final String DEFAULT_ACCEPT = "text/html,text/xml,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"; 
-    private static final String DEFAULT_ACCEPT_CHARSET = "utf-8,ISO-8859-1;q=0.7,*;q=0.7"; 
-    private static final String DEFAULT_ACCEPT_ENCODING = "x-gzip, gzip"; 
+//    private static final String DEFAULT_ACCEPT = "text/html,text/xml,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"; 
+//    private static final String DEFAULT_ACCEPT_CHARSET = "utf-8,ISO-8859-1;q=0.7,*;q=0.7"; 
+//    private static final String DEFAULT_ACCEPT_ENCODING = "x-gzip, gzip"; 
+//	
+//    private  static HttpClientBuilder builder;		
 	
-    private volatile static HttpClientBuilder builder;		
-	
+    
     private HttpUtil() {
 		
 	}
-
+    /**
+     * 4.5 example http连接池 新版写法  在jdk1.6下，在ubuntu会创建大量的子进程，消耗大量资源，回收资源慢,
+     * 故采用旧式写法，减少子进程创建
+     * 
 	static {
 		try{
 	        SSLContext sslContext = SSLContexts.custom().build();
@@ -150,20 +122,19 @@ public class HttpUtil {
 			poolHttp.setDefaultConnectionConfig(connectionConfig);
 			
 	        // Use custom cookie store if necessary.
-	//        CookieStore cookieStore = new BasicCookieStore();
+//	        CookieStore cookieStore = new BasicCookieStore();
 	        // Use custom credentials provider if necessary.
 	//        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 	        // Create global request configuration
 	        RequestConfig defaultRequestConfig = RequestConfig.custom()
-	            .setCookieSpec(CookieSpecs.DEFAULT)
-	            .setExpectContinueEnabled(Boolean.FALSE)    
+	            .setCookieSpec(CookieSpecs.DEFAULT)	               
 	            .setSocketTimeout(5000*6)
 	            .setConnectTimeout(5000*6)
 	            .setConnectionRequestTimeout(5000*6)
+	            .setExpectContinueEnabled(Boolean.FALSE)	            
 	//            .setTargetPreferredAuthSchemes(Arrays.asList(AuthSchemes.NTLM, AuthSchemes.DIGEST))
 	//            .setProxyPreferredAuthSchemes(Arrays.asList(AuthSchemes.BASIC))
 	            .build();
-	
 	        
 	        builder=HttpClients.custom()
 	        .setConnectionManager(poolHttp)
@@ -178,6 +149,42 @@ public class HttpUtil {
 	public static CloseableHttpClient getHttpClient() {	
 		return builder.build();
 	}
+     **/
+	private static HttpParams params;
+	private static ThreadSafeClientConnManager conMgr;
+	
+	static{
+		
+		params = new BasicHttpParams();
+		// 设置一些基本参数
+		HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+		HttpProtocolParams.setContentCharset(params, Constants.Encoding.CHARSET_UTF8);
+		HttpProtocolParams.setUseExpectContinue(params, Boolean.TRUE);
+		HttpProtocolParams.setHttpElementCharset(params, Constants.Encoding.CHARSET_UTF8);
+		HttpProtocolParams.setUserAgent(params, "HttpComponents/1.1");
+		// 超时设置		
+		HttpConnectionParams.setConnectionTimeout(params, 6000*5);//30秒 （单位毫秒）		
+		HttpConnectionParams.setSoTimeout(params, 5000*6);//30秒 （单位毫秒）
+		// 设置我们的HttpClient支持HTTP和HTTPS两种模式
+		SchemeRegistry schReg = new SchemeRegistry();
+		schReg.register(new Scheme("http", 80, PlainSocketFactory
+				.getSocketFactory()));
+		schReg.register(new Scheme("https", 443, SSLSocketFactory
+				.getSocketFactory()));
+		
+		// 使用线程安全的连接管理来创建HttpClient
+		// 从连接池中取连接的超时时间 1000毫秒 
+		conMgr = new ThreadSafeClientConnManager(
+				schReg, 1000*60, TimeUnit.MILLISECONDS);
+		conMgr.setDefaultMaxPerRoute(100);
+		conMgr.setMaxTotal(500);
+		conMgr.closeExpiredConnections();
+		conMgr.closeIdleConnections(10, TimeUnit.SECONDS);		
+	}
+	
+	public static CloseableHttpClient getHttpClient() {
+		return new DefaultHttpClient(conMgr, params);
+	}	
 
 	/**
 	 * 

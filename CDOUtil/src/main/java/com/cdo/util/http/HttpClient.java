@@ -19,6 +19,8 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -26,8 +28,6 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
@@ -158,12 +158,13 @@ public class HttpClient {
 				response = this.httpClient.execute(this.httpRequest, handler);
 			
 			return (T)response;
-		} catch (Exception e) {				
+		} catch (Exception e) {			
+			if(httpRequest!=null){try{httpRequest.abort();}catch(Exception em){}}
 			logger.error(e.getMessage(), e);
 			throw new HttpException("httpClient send request error:"+ e.getMessage());
-		}finally{
-			// 不能关闭连接池
-			//if(this.httpClient!=null){try{this.httpClient.close();}catch(Exception ex){}}
+		}finally{			
+			//释放资源
+			if(this.httpRequest!=null){try{this.httpRequest.releaseConnection();}catch(Exception ex){}}
 		}
 	}
 	/**
