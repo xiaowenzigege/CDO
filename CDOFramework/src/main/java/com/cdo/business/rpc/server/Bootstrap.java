@@ -7,8 +7,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 import com.cdo.business.rpc.client.RPCClient;
 import com.cdo.util.resource.GlobalResource;
@@ -73,7 +75,10 @@ public final class Bootstrap {
         }
     
     public static void main(String[] args){ 
-    	String homePath=args[0];    	
+    	String homePath=args[0];    
+    	Properties properties=new Properties();
+    	properties.setProperty("log4j.rootLogger", "INFO");
+    	PropertyConfigurator.configure(properties);
         if (daemon == null) {
             // Don't set daemon until init() has completed
             Bootstrap bootstrap = new Bootstrap();
