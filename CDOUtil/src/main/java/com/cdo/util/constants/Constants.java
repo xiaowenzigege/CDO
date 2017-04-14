@@ -1,5 +1,7 @@
 package com.cdo.util.constants;
 
+import com.cdo.util.exception.EncodeException;
+
 /**
  * 
  * @author KenelLiu
@@ -23,6 +25,20 @@ public class Constants {
 		public static final String CHARSET_GBK="GBK";
 		public static final String CHARSET_GBK2312="GBK2312";
 		public static final String CHARSET_ISO8859="ISO-8859-1";
+		
+		public static final byte[]  encode(String value){
+			return encode(value, CHARSET_UTF8);
+		}
+		
+		public static final byte[] encode(String value,String charset){
+			if(value==null)
+				throw new EncodeException("value is null");
+			try{
+				return value.getBytes(charset);
+			}catch(Exception ex){
+				throw new EncodeException(ex);
+			}
+		}
 	}
 	//byteBuffer读取字节长度
 	public static class Byte{

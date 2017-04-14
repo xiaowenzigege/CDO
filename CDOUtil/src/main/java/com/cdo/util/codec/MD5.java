@@ -1,7 +1,5 @@
 package com.cdo.util.codec;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -83,22 +81,4 @@ public class MD5 {
 		}
 	}
 	
-
-
-//	
-	public static void main(String[] args) {
-		String path="D:\\tomcat-7.0.32\\webapps\\StaticCenter\\unsign\\201308\\201308091433023.zip";
-		path="D:\\201308091433023.zip";
-		path="D:\\aa.sh";
-		try{
-			String md5=MD5.getFileMD5(new FileInputStream(new File(path)));
-			System.out.println(MD5.encode("111111"));
-			if("90bf63fa7217a4e5a60f421b64ab30eb".toUpperCase().equals(md5)){
-				System.out.print("true");
-			}
-			
-		}catch(Exception ex){
-			ex.printStackTrace();
-		}
-    }
 }
