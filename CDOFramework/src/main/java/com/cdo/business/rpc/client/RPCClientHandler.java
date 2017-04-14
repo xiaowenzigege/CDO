@@ -16,7 +16,6 @@ import com.cdo.google.protocol.GoogleCDO;
 import com.cdo.util.common.UUidGenerator;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.MessageLite;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,7 +31,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     final CallsLinkedHashMap calls = new CallsLinkedHashMap();
     /** A counter for generating call IDs. */
     static final AtomicInteger callIdCounter = new AtomicInteger();
-    
+    boolean closeServer=false;
     /**
      * 通过 tcp来关闭server
      */
@@ -42,6 +41,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 		header.setType(ProtoProtocol.TYPE_STOPLOCALServer);	
 		stopServer.setHeader(header);
 		channel.writeAndFlush(stopServer);
+		closeServer=true;
     }
     
     public RPCResponse handleTrans(CDO cdoRequest) {   
@@ -167,8 +167,11 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    	logger.error(cause.getMessage(),cause);
-    	ctx.fireExceptionCaught(cause);
+    	if(!closeServer){
+        	logger.error(cause.getMessage(),cause);
+        	ctx.fireExceptionCaught(cause);
+    	}
+
     }
       
 	

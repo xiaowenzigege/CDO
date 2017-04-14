@@ -76,9 +76,6 @@ public final class Bootstrap {
     
     public static void main(String[] args){ 
     	String homePath=args[0];    
-    	Properties properties=new Properties();
-    	properties.setProperty("log4j.rootLogger", "INFO");
-    	PropertyConfigurator.configure(properties);
         if (daemon == null) {
             // Don't set daemon until init() has completed
             Bootstrap bootstrap = new Bootstrap();
@@ -96,7 +93,7 @@ public final class Bootstrap {
             Thread.currentThread().setContextClassLoader(daemon.catalinaLoader);
         }
         try {
-            String command = "stop";
+            String command =args[1];
             GlobalResource.bundleInitCDOEnv();          
             if (args.length > 1) {
                 command = args[args.length - 1];

@@ -1,6 +1,5 @@
 package com.cdo.business.rpc.client;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +25,6 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.handler.timeout.ReadTimeoutHandler;
 
 import org.apache.log4j.Logger;
 
@@ -125,16 +123,12 @@ public class RPCClient implements IRPCClient{
 	    this.remotePort = port;	    
 	    this.closedServer=true;
     	this.retryCount=1;
-    	this.retryTime=3;
+    	this.retryTime=2;
     	init(0);
     	while (true) {
+	    	try {Thread.sleep(500);} catch (Exception e){};			
 			if(handle!=null)
-				break;
-	    	try {
-				Thread.sleep(500);
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
+				break;		
 		}
     	handle.stopLocalServer();
    }
@@ -248,7 +242,13 @@ public class RPCClient implements IRPCClient{
 	public void close() {
 		    closed = true;
 		    workerGroup.shutdownGracefully();
-		    logger.info("Stopped Tcp Client: " + getServerInfo());		    
+		    logger.info("Stopped Tcp Client: " + getServerInfo());
+		    if(closedServer){
+		    	//如果是关闭服务器,需要退出程序
+		    	logger.info("exit system client " + getServerInfo());
+		    	System.exit(0);
+		    }
+		    
 	}	
 
 	private String getServerInfo() {
