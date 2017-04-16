@@ -3,6 +3,12 @@ package com.cdo.util.system;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -39,4 +45,36 @@ public class SystemUtil {
 		}
 		return "Unknown";
 	}
+	
+	public static String getLocalServerIP(){
+		String SERVER_IP="";
+		List<String> list=new ArrayList<String>();
+		try{
+			Enumeration allNetInterfaces = NetworkInterface.getNetworkInterfaces();
+		
+			InetAddress ip = null;
+			while (allNetInterfaces.hasMoreElements()){
+				NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();			
+				Enumeration addresses = netInterface.getInetAddresses();
+				while (addresses.hasMoreElements()){
+					ip = (InetAddress) addresses.nextElement();
+					if (ip != null && ip instanceof Inet4Address ){						
+						list.add(ip.getHostAddress());
+					} 
+				}
+			}
+		}catch(Exception ex){
+			logger.error(ex.getMessage(), ex);
+		}
+		if(list.size()==1)
+			return list.get(0);
+		else{
+			for(int i=0;i<list.size();i++){
+				SERVER_IP=list.get(i);
+				if(!SERVER_IP.startsWith("127.0.0.1"))					
+					break;
+			}
+		}		
+		return SERVER_IP;
+	   }  	
 }

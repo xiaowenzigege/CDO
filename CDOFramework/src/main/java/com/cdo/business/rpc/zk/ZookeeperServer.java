@@ -12,6 +12,7 @@ import java.util.List;
 
 
 
+
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
@@ -22,6 +23,7 @@ import org.apache.zookeeper.ZooKeeper;
 
 import com.cdo.util.exception.ZookeeperException;
 import com.cdo.util.resource.GlobalResource;
+import com.cdo.util.system.SystemUtil;
 
 
 /**
@@ -109,8 +111,8 @@ public class ZookeeperServer {
 			  	if(zk.exists(node, false)!=null){
 			  		 zk.setData(node, "".getBytes("utf-8"), -1);
 			  	}
-			  	//停留30秒检查一下 服务是否已经注册,若未正确注册 进行重试
-			  	Thread.sleep(30000);
+			  	//停留10秒检查一下 服务是否已经注册,若未正确注册 进行重试
+			  	Thread.sleep(10000);
 			  	if(checkServiceNode!=null){
 			  		List<String> addressList = zk.getChildren(checkServiceNode,clientWatch);  
 			  		if(addressList==null || addressList.size()==0)
@@ -131,6 +133,8 @@ public class ZookeeperServer {
     	this.zkConnect=zkConnect;
     	this.zkParameterList=zkParameterList;
     	this.address=getServerIp()+":"+GlobalResource.cdoConfig.getString("netty.server.port");
+    	if(logger.isInfoEnabled())
+    		logger.info("本机 server address="+this.address);
     }
 	
 	
@@ -138,33 +142,6 @@ public class ZookeeperServer {
 		String SERVER_IP=GlobalResource.cdoConfig.getString("netty.server.ip");
 		if(SERVER_IP!=null && SERVER_IP.trim().equals(""))
 			return SERVER_IP;
-		List<String> list=new ArrayList<String>();
-		try{
-			Enumeration allNetInterfaces = NetworkInterface.getNetworkInterfaces();
-		
-			InetAddress ip = null;
-			while (allNetInterfaces.hasMoreElements()){
-				NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();			
-				Enumeration addresses = netInterface.getInetAddresses();
-				while (addresses.hasMoreElements()){
-					ip = (InetAddress) addresses.nextElement();
-					if (ip != null && ip instanceof Inet4Address ){						
-						list.add(ip.getHostAddress());
-					} 
-				}
-			}
-		}catch(Exception ex){
-			logger.error(ex.getMessage(), ex);
-		}
-		if(list.size()==1)
-			return list.get(0);
-		else{
-			for(int i=0;i<list.size();i++){
-				SERVER_IP=list.get(i);
-				if(!SERVER_IP.startsWith("127.0.0.1"))					
-					break;
-			}
-		}		
-		return SERVER_IP;
-	   }  	
+		return SystemUtil.getLocalServerIP();
+	}
 }
