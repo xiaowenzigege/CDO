@@ -21,7 +21,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.Op.Check;
 
+import com.cdo.business.client.IClient;
+import com.cdo.business.rpc.zk.ZKClientManager;
 import com.cdo.business.rpc.zk.ZkParameter;
 import com.cdo.business.rpc.zk.ZookeeperServer;
 import com.cdo.util.exception.ZookeeperException;
@@ -40,6 +43,7 @@ import com.cdoframework.cdolib.framework.ClusterController;
 import com.cdoframework.cdolib.servicebus.xsd.DataGroup;
 import com.cdoframework.cdolib.servicebus.xsd.NoSQLDB;
 import com.cdoframework.cdolib.servicebus.xsd.Parameter;
+import com.cdoframework.cdolib.servicebus.xsd.ZkConsumer;
 import com.cdoframework.cdolib.servicebus.xsd.ZkProducer;
 
 /**
@@ -59,9 +63,9 @@ public class ServiceBus implements IServiceBus
 	private ReentrantReadWriteLock lockSharedData;	
 	private HashMap<String,NoSQLDataEngine> hmNoSQLDataEngine;
 	private HashMap<String,IService> hmService;
-//	private HashMap<String, ZooKeeper> hmZkProducer; //保存连接zk的对象，用于
-	private List<ZkProducer>  zkProducerService;
-	//zkId
+	//用于创建客户端
+	private ZKClientManager zkClientManager;
+	//zkId,ZkParameter<serviceName>, 一个zkId,对应的一组serviceName 服务
 	private Map<String, List<ZkParameter>> zkServiceMap=new HashMap<String, List<ZkParameter>>();
 	
 	private HashMap<String,BigTable[]> hmBigTableGroupConfig;
@@ -338,9 +342,13 @@ public class ServiceBus implements IServiceBus
 			logger.warn("........Data source is not set.........");
 		}
 		
-		//连接zk 
+		//将plugin.xml上服务  根据配置注册到对应的zk服务器上  
 		ZkProducer[] zkProducer=serviceBus.getZkProducer();
-		serviceRegZk(zkProducer);
+		initServiceOnZk(zkProducer);
+		//创建zk客户端,本机调用其他机器上的服务
+		ZkConsumer[] zkConsumers=serviceBus.getZkConsumer();
+		initZKClient(zkConsumers);
+		
 		return Return.OK;
 	}
 	 	
@@ -762,16 +770,11 @@ public class ServiceBus implements IServiceBus
 		hmSharedData			=new HashMap<String,Object>();
 		lockSharedData			=new ReentrantReadWriteLock();
 		btEngine				=new BigTableEngine();
-//		hmCacheClient			=new HashMap<String,CacheClient>(3);
 		hmNoSQLDataEngine		=new HashMap<String,NoSQLDataEngine>(3);
 		hmService 				= new LinkedHashMap<String,IService>(20);
-//		alService				= new ArrayList<IService>(20) ;
 		hmParameterMap			= new HashMap<String,String>(10);	
 		hmBigTableGroupConfig	=new HashMap<String,BigTable[]>(2);
 	}
-//	public ArrayList<IService> getAlService() {
-//		return alService;
-//	}
 	/**
 	 * 将每个插件的servie 按照zkId 进行合并
 	 * @param pluginZkServiceMap
@@ -790,13 +793,17 @@ public class ServiceBus implements IServiceBus
 			zkServiceMap.put(zkId, zkServiceList);			
 		}
 	}
-	
-	private void serviceRegZk(ZkProducer[] zkProducer){
+	/**
+	 * 将plugin.xml上的服务注册到zk上
+	 * @param zkProducer
+	 */
+	private void initServiceOnZk(ZkProducer[] zkProducer){
 		if(zkProducer==null || zkProducer.length==0){	
-			zkServiceMap.clear();
-			zkServiceMap=null;
+			//若服务需要注册到zk上,zk没有配置,则报错 退出系统
+			checkZkProducer(zkServiceMap);
 			return;
 		}	
+		//插件上的服务 注册到zk上
 		List<ZookeeperServer> zkServerList=new ArrayList<ZookeeperServer>();
 		for(int i=0;i<zkProducer.length;i++){
 			List<ZkParameter> zkList=zkServiceMap.get(zkProducer[i].getId());
@@ -807,27 +814,56 @@ public class ServiceBus implements IServiceBus
 			zkServerList.add(zkServer);
 			zkServiceMap.remove(zkProducer[i].getId());
 		}
-		if(zkServiceMap.size()>0){			
-			String  zkId="";
-			for(Iterator<Map.Entry<String, List<ZkParameter>>> it=zkServiceMap.entrySet().iterator();it.hasNext();){
-				  zkId=zkId+it.next().getKey()+",";
-			}
-			logger.error("zkId ["+zkId.substring(0,zkId.length()-1)+"] is not found");
-			System.exit(-1);
-		}
-		
+		//检查插件上的服务是否 可以全部注册，若不能到找到对应zkId注册,报错退出
+		checkZkProducer(zkServiceMap);
+		//
 		for (ZookeeperServer zookeeperServer : zkServerList) {
 			try {
 				zookeeperServer.connectZookeeper();
 			} catch (ZookeeperException e) {
-				// TODO Auto-generated catch block
 				logger.error(e.getMessage(),e);
 			}
 		}				
 	}
 	
+	private void checkZkProducer(Map<String, List<ZkParameter>> zkServiceMap){
+		if(zkServiceMap.size()>0){			
+			String  zkId="";
+			for(Iterator<Map.Entry<String, List<ZkParameter>>> it=zkServiceMap.entrySet().iterator();it.hasNext();){
+				  zkId=zkId+it.next().getKey()+",";
+			}
+			logger.error("zkId ["+zkId.substring(0,zkId.length()-1)+"] on ZkProducer is not defined,please check  ZkProducer element");
+			System.exit(-1);
+		}
+	}
+	
+	private void initZKClient(ZkConsumer[] zkConsumers){
+		if(zkConsumers==null || zkConsumers.length==0){	
+			//本机没有zk Client 创建			
+			return;
+		}	
+		zkClientManager=ZKClientManager.getInstance();		
+		for(int i=0;i<zkConsumers.length;i++){
+			try{
+				zkClientManager.addConnectZk(zkConsumers[i].getId(), zkConsumers[i].getConnect());
+			}catch(Exception ex){				
+				logger.error("zkId ["+zkConsumers[i].getId()+"],connect zk server ["+zkConsumers[i].getConnect()+"] failure,please check  zkConsumers element. error message:"+ex.getMessage(), ex);
+				System.exit(-1);
+			}
+		}
+		
+	}
+	
 	public HashMap<String,com.cdoframework.cdolib.base.CycleList<IDataEngine>> getHMDataGroup(){		
 		return hmDataGroup;		
+	}
+	@Override
+	public IClient getRPCClient(String zkId) {
+		if(zkClientManager==null){
+			logger.warn(" zkConsumers element is not defined,pelease check serviceBus.xml");
+			return null;
+		}
+		return zkClientManager.getClient(zkId);
 	}
 
 }

@@ -1,10 +1,14 @@
 package com.cdo.business.rpc.zk;
 
+import java.util.List;
+
+
+
 public class ZkParameter {
 
 	private String zkId;
 	private String serviceName;
-	private String className;
+	private List<String> className;
 	public String getZkId() {
 		return zkId;
 	}
@@ -17,10 +21,10 @@ public class ZkParameter {
 	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
 	}
-	public String getClassName() {
+	public List<String> getClassName() {
 		return className;
 	}
-	public void setClassName(String className) {
+	public void setClassName(List<String> className) {
 		this.className = className;
 	}
 	

@@ -44,7 +44,7 @@ import com.cdoframework.cdolib.servicebus.ITransService;
  * @author KenelLiu
  *
  */
-public class RPCClient implements IRPCClient{
+public class RPCClient extends AbstractRPCClient{
 	private final static Logger logger=Logger.getLogger(RPCClient.class);
 	private ExecutorService executor=Executors.newScheduledThreadPool(1);
 	
@@ -273,11 +273,11 @@ public class RPCClient implements IRPCClient{
 		String strServiceName=cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);
 		
 	  try {	
-			RPCClient rpcClient=getRpcClient(strServiceName);
+			RPCClient rpcClient=getRPCClient(strServiceName);
 			if(rpcClient.getHandle()==null){
 				int retryCount=1;//重试3次
 				while(retryCount<=3){
-					rpcClient=getRpcClient(strServiceName);
+					rpcClient=getRPCClient(strServiceName);
 					if(rpcClient.getHandle()!=null) //创建链接成功，退出重试
 						break;
 					try{Thread.sleep(1000+500*retryCount);}catch(Exception em){}
@@ -303,8 +303,8 @@ public class RPCClient implements IRPCClient{
 			return new Return(-1,e.getMessage(),e.getMessage());
 		}		  
 	}	
-	private  RPCClient getRpcClient(String strServiceName) throws NotEstablishConnectException{
-		Map<String, ZkServerData>  zkServerMap=ZookeeperClient.getZKServerData();
+	private  RPCClient getRPCClient(String strServiceName) throws NotEstablishConnectException{
+		Map<String, ZkServerData>  zkServerMap=getServiceMap();
 		if(zkServerMap==null || zkServerMap.get(strServiceName)==null || zkServerMap.get(strServiceName).getHostList().size()==0){
 			logger.warn("Service["+strServiceName+"] not registered on zk server");
 			throw new NotEstablishConnectException("Service["+strServiceName+"] not registered on zk server");	

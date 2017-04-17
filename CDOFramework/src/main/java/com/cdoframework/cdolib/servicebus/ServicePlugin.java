@@ -270,10 +270,15 @@ public class ServicePlugin implements IServicePlugin
 				service.addTransService(transServiceObject);
 				
 
-				//保存className
+				//zkId 对应保存className
 				ZkParameter zkParameter=zkProducerMap.get(transService.getId());
 				if(zkParameter!=null){
-					zkParameter.setClassName(transService.getClassPath());
+					List<String> listClassName=zkParameter.getClassName();
+					if(listClassName==null){
+						listClassName=new ArrayList<String>();
+					}
+					listClassName.add(transService.getClassPath());
+					zkParameter.setClassName(listClassName);
 					zkProducerMap.put(transService.getId(), zkParameter);
 				}
 			}

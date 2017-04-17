@@ -13,8 +13,8 @@ import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
+import com.cdo.business.rpc.client.AbstractRPCClient;
 import com.cdo.util.exception.ZookeeperException;
-import com.cdo.util.resource.GlobalResource;
 
 /**
  * 监听zk上的服务
@@ -26,8 +26,9 @@ public class ZookeeperClient {
     private String groupNode = "CDO";  
     private ZooKeeper zk;  
     private Stat stat = new Stat();  
-    private static volatile Map<String,ZkServerData> serviceMap;  
+//    private static volatile Map<String,ZkServerData> serviceMap;  
     private ClientWatch clientWatch;
+    private AbstractRPCClient rpcClient;
     private String zkConnect;
     private Logger logger=Logger.getLogger(ZookeeperClient.class);
     private int Time_OUT=Math.max(10, SystemPropertyUtil.getInt("zk.sessionTimeout", 10))*1000;
@@ -93,8 +94,7 @@ public class ZookeeperClient {
 	            ZkServerData zkData=new ZkServerData();
 	            zkData.setServiceName(serviceNode);
 	            zkData.setClassName(className);
-	            zkData.setHostList(hostList);
-	            
+	            zkData.setHostList(hostList);	            
 	            newServiceMap.put(serviceNode, zkData);            
 	        }  
       }catch(Throwable ex){
@@ -107,7 +107,9 @@ public class ZookeeperClient {
     	 updateServerList(clientWatch);
       }
         // 替换server列表  
-        serviceMap = newServiceMap;  
+        //serviceMap = newServiceMap;
+      	rpcClient.setServiceMap(newServiceMap);
+      	
         try {
         	zk.exists("/" + groupNode, clientWatch);
 		} catch (Exception e) {
@@ -115,13 +117,14 @@ public class ZookeeperClient {
 		}       
     }  
  
-    public ZookeeperClient(String zkConect){
+    public ZookeeperClient(String zkConect,AbstractRPCClient rpcClient){
     	this.zkConnect=zkConect;
+    	this.rpcClient=rpcClient;
     }
     
-    public static Map<String, ZkServerData> getZKServerData(){
-    	return serviceMap;
-    }
+//    public  Map<String, ZkServerData> getZKServerData(){
+//    	return serviceMap;
+//    }
   
   
 }   

@@ -1,6 +1,6 @@
 package com.cdo.util.exception;
 
-public class ZookeeperException extends Exception {
+public class ZookeeperException extends RuntimeException {
 	/**
 	 * 
 	 */
