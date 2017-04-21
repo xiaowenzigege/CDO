@@ -70,18 +70,26 @@ public interface IDataEngine
 	public String getPassword();
 
 	public void setPassword(String strPassword);
+	
+	public void setInitialSize(int nInitalSize);
+	
+	public int getInitialSize();
+	
+	public void setMaxActive(int nMaxActive);
+	
+	public int getMaxActive();
+	
+	public void setMinIdle(int nMinIdle);
+	
+	public int getMinIdle();
+	
+	public void setMaxIdle(int nMaxIdle);
+	
+	public int getMaxIdle();	    
 
-	public void setMinConnectionCount(int nMinIdleConnectionCount);
+	public void setMaxWait(long nMaxWaitTime);
 
-	public int getMinConnectionCount();
-
-	public void setMaxConnectionCount(int nMaxIdleConnectionCount);
-
-	public int getMaxConnectionCount();
-
-	public void setTimeout(long lTimeout);
-
-	public long getTimeout();
+	public long getMaxWait();
 
 	public boolean isOpened();
 	

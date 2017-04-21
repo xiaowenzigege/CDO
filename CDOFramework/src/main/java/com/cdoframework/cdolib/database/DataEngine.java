@@ -153,41 +153,64 @@ public class DataEngine implements IDataEngine
 	{
 		this.strPassword=strPassword;
 	}
+	protected int nInitalSize;
 
-	protected int nMinConnectionCount;
-
-	public void setMinConnectionCount(int nMinConnectionCount)
+	public void setInitialSize(int nInitalSize)
 	{
-		this.nMinConnectionCount=nMinConnectionCount;
+		this.nInitalSize=nInitalSize;
 	}
 
-	public int getMinConnectionCount()
+	public int getInitialSize()
 	{
-		return this.nMinConnectionCount;
+		return this.nInitalSize;
 	}
 
-	protected int nMaxConnectionCount;
+	protected int nMaxActive;
 
-	public void setMaxConnectionCount(int nMaxConnectionCount)
+	public void setMaxActive(int nMaxActive)
 	{
-		this.nMaxConnectionCount=nMaxConnectionCount;
+		this.nMaxActive=nMaxActive;
 	}
 
-	public int getMaxConnectionCount()
+	public int getMaxActive()
 	{
-		return this.nMaxConnectionCount;
+		return this.nMaxActive;
+	}
+	
+	protected int nMinIdle;
+
+	public void setMinIdle(int nMinIdle)
+	{
+		this.nMinIdle=nMinIdle;
 	}
 
-	protected long lTimeout;
-
-	public void setTimeout(long lTimeout)
+	public int getMinIdle()
 	{
-		this.lTimeout=lTimeout;
+		return this.nMinIdle;
 	}
 
-	public long getTimeout()
+	protected int nMaxIdle;
+
+	public void setMaxIdle(int nMaxIdle)
 	{
-		return this.lTimeout;
+		this.nMaxIdle=nMaxIdle;
+	}
+
+	public int getMaxIdle()
+	{
+		return this.nMaxIdle;
+	}
+
+	protected long maxWaitTime;
+
+	public void setMaxWait(long maxWaitTime)
+	{
+		this.maxWaitTime=maxWaitTime;
+	}
+
+	public long getMaxWait()
+	{
+		return this.maxWaitTime;
 	}
 
 	public boolean isOpened()
@@ -1575,19 +1598,20 @@ public class DataEngine implements IDataEngine
         ds.setUsername(strUserName);   
         ds.setPassword(strPassword);   
         ds.setUrl(strURI);   
-        ds.setInitialSize(nMinConnectionCount);
-        ds.setMaxActive(nMaxConnectionCount);   
-        ds.setMaxIdle(10);
-        ds.setMinIdle(nMinConnectionCount);
-        ds.setMaxWait(10000);//最大等待空闲连接的时间
+        
+        ds.setInitialSize(Math.max(nInitalSize,1));
+        ds.setMaxActive(Math.max(nMaxActive, 5));   
+        ds.setMinIdle(Math.max(nMinIdle,1));
+        ds.setMaxIdle(Math.max(nMaxIdle, 5));
+        ds.setMaxWait(Math.max(maxWaitTime, 10000));//最大等待空闲连接的时间
+        
         ds.setTestWhileIdle(true);
         ds.setTestOnBorrow(true);
         ds.setValidationQuery("select 1");
         ds.setPoolPreparedStatements(true);
         ds.setRemoveAbandoned(true);
         ds.setRemoveAbandonedTimeout(60);
-        ds.setLogAbandoned(true);
-        
+        ds.setLogAbandoned(true);        
 		// 打开连接
 		try
 		{
@@ -2423,10 +2447,6 @@ public class DataEngine implements IDataEngine
 		strUserName="";
 		strPassword="";
 		strSystemCharset=System.getProperty("sun.jnu.encoding");
-
-		nMinConnectionCount=10;
-		nMaxConnectionCount=100;
-		lTimeout=60000L;
 
 		hmAnalyzedSQL	=new HashMap<String,AnalyzedSQL>(100);
 	}

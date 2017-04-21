@@ -16,9 +16,20 @@ package com.cdoframework.cdolib.servicebus.xsd;
 public class ConnectionPool implements java.io.Serializable {
 
     /**
+     * Field initialConnectionCount.
+     */
+    private int initialConnectionCount = 1;
+
+    /**
+     * Keeps track of whether primitive field
+     * initialConnectionCount has been set already.
+     */
+    private boolean _hasinitialConnectionCount;
+
+    /**
      * Field maxActiveConnectionCount.
      */
-    private int maxActiveConnectionCount = 0;
+    private int maxActiveConnectionCount = 5;
 
     /**
      * Keeps track of whether primitive field
@@ -40,7 +51,7 @@ public class ConnectionPool implements java.io.Serializable {
     /**
      * Field maxIdleConnectionCount.
      */
-    private int maxIdleConnectionCount = 3;
+    private int maxIdleConnectionCount = 5;
 
     /**
      * Keeps track of whether primitive field
@@ -51,7 +62,7 @@ public class ConnectionPool implements java.io.Serializable {
     /**
      * Field maxWaitTime.
      */
-    private long maxWaitTime = 60000;
+    private long maxWaitTime = 10000;
 
     /**
      * Keeps track of whether primitive field maxWaitTime has been
@@ -61,6 +72,12 @@ public class ConnectionPool implements java.io.Serializable {
 
     public ConnectionPool() {
         super();
+    }
+
+    /**
+     */
+    public void deleteInitialConnectionCount() {
+        this._hasinitialConnectionCount= false;
     }
 
     /**
@@ -85,6 +102,15 @@ public class ConnectionPool implements java.io.Serializable {
      */
     public void deleteMinIdleConnectionCount() {
         this._hasminIdleConnectionCount= false;
+    }
+
+    /**
+     * Returns the value of field 'initialConnectionCount'.
+     * 
+     * @return the value of field 'InitialConnectionCount'.
+     */
+    public int getInitialConnectionCount() {
+        return this.initialConnectionCount;
     }
 
     /**
@@ -121,6 +147,16 @@ public class ConnectionPool implements java.io.Serializable {
      */
     public int getMinIdleConnectionCount() {
         return this.minIdleConnectionCount;
+    }
+
+    /**
+     * Method hasInitialConnectionCount.
+     * 
+     * @return true if at least one InitialConnectionCount has been
+     * added
+     */
+    public boolean hasInitialConnectionCount() {
+        return this._hasinitialConnectionCount;
     }
 
     /**
@@ -202,6 +238,17 @@ public class ConnectionPool implements java.io.Serializable {
      */
     public void marshal(final org.xml.sax.ContentHandler handler) throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
         org.exolab.castor.xml.Marshaller.marshal(this, handler);
+    }
+
+    /**
+     * Sets the value of field 'initialConnectionCount'.
+     * 
+     * @param initialConnectionCount the value of field
+     * 'initialConnectionCount'.
+     */
+    public void setInitialConnectionCount(final int initialConnectionCount) {
+        this.initialConnectionCount = initialConnectionCount;
+        this._hasinitialConnectionCount = true;
     }
 
     /**

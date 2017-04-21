@@ -370,10 +370,11 @@ public class DataGroup implements java.io.Serializable {
 			ConnectionPool connPool=dbs[i].getConnectionPool();
 			if(connPool!=null)
 			{
-				dataEngine.setMinConnectionCount(connPool.getMinIdleConnectionCount());
-				
-				dataEngine.setMaxConnectionCount(connPool.getMaxIdleConnectionCount());
-				dataEngine.setTimeout(connPool.getMaxWaitTime());
+				dataEngine.setInitialSize(connPool.getInitialConnectionCount());
+				dataEngine.setMaxActive(connPool.getMaxActiveConnectionCount());				
+				dataEngine.setMinIdle(connPool.getMinIdleConnectionCount());				
+				dataEngine.setMaxIdle(connPool.getMaxIdleConnectionCount());
+				dataEngine.setMaxWait(connPool.getMaxWaitTime());				
 			}
 			Return ret = dataEngine.open();
 			if(ret.getCode()!=0)

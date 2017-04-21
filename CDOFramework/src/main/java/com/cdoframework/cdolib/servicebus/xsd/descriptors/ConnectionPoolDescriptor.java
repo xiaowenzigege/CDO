@@ -59,6 +59,55 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
 
         //-- initialize element descriptors
 
+        //-- initialConnectionCount
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "initialConnectionCount", "InitialConnectionCount", org.exolab.castor.xml.NodeType.Element);
+        handler = new org.exolab.castor.xml.XMLFieldHandler() {
+            @Override
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                ConnectionPool target = (ConnectionPool) object;
+                if (!target.hasInitialConnectionCount()) { return null; }
+                return new java.lang.Integer(target.getInitialConnectionCount());
+            }
+            @Override
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    ConnectionPool target = (ConnectionPool) object;
+                    // ignore null values for non optional primitives
+                    if (value == null) { return; }
+
+                    target.setInitialConnectionCount( ((java.lang.Integer) value).intValue());
+                } catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            @Override
+            @SuppressWarnings("unused")
+            public java.lang.Object newInstance(java.lang.Object parent) {
+                return null;
+            }
+        };
+        desc.setSchemaType("int");
+        desc.setHandler(handler);
+        desc.setRequired(true);
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+        addSequenceElement(desc);
+
+        //-- validation code for: initialConnectionCount
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        fieldValidator.setMinOccurs(1);
+        { //-- local scope
+            org.exolab.castor.xml.validators.IntValidator typeValidator;
+            typeValidator = new org.exolab.castor.xml.validators.IntValidator();
+            fieldValidator.setValidator(typeValidator);
+            typeValidator.setMinInclusive(-2147483648);
+            typeValidator.setMaxInclusive(2147483647);
+        }
+        desc.setValidator(fieldValidator);
         //-- maxActiveConnectionCount
         desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "maxActiveConnectionCount", "MaxActiveConnectionCount", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
@@ -76,11 +125,9 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
             {
                 try {
                     ConnectionPool target = (ConnectionPool) object;
-                    // if null, use delete method for optional primitives 
-                    if (value == null) {
-                        target.deleteMaxActiveConnectionCount();
-                        return;
-                    }
+                    // ignore null values for non optional primitives
+                    if (value == null) { return; }
+
                     target.setMaxActiveConnectionCount( ((java.lang.Integer) value).intValue());
                 } catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
@@ -94,12 +141,14 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
         };
         desc.setSchemaType("int");
         desc.setHandler(handler);
+        desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
         addSequenceElement(desc);
 
         //-- validation code for: maxActiveConnectionCount
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        fieldValidator.setMinOccurs(1);
         { //-- local scope
             org.exolab.castor.xml.validators.IntValidator typeValidator;
             typeValidator = new org.exolab.castor.xml.validators.IntValidator();
