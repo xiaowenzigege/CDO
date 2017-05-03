@@ -3,6 +3,7 @@ package com.cdo.business.rpc.server;
 import org.apache.log4j.Logger;
 
 import com.cdo.business.BusinessService;
+import com.cdo.util.constants.Constants;
 import com.cdo.util.resource.GlobalResource;
 import com.cdoframework.cdolib.base.Return;
 
@@ -29,9 +30,9 @@ public class RPCServer {
     
 	public void start(){
         final SslContext sslCtx;
-        int numMainThread=Math.max(1, SystemPropertyUtil.getInt("io.netty.eventLoopThreads", Runtime.getRuntime().availableProcessors()));
+        int numMainThread=Math.max(1, SystemPropertyUtil.getInt(Constants.Netty.THREAD_BOSS,Runtime.getRuntime().availableProcessors()));
         bossGroup = new NioEventLoopGroup(numMainThread);
-        workerGroup = new NioEventLoopGroup(numMainThread*3);
+        workerGroup = new NioEventLoopGroup(numMainThread*2);
         try {
             if (SSL) {
                 SelfSignedCertificate ssc = new SelfSignedCertificate();
@@ -60,10 +61,7 @@ public class RPCServer {
         	 System.exit(1);
          }
 	}
-	
 
-
-	
 	public static void stop(){
 		if(app!=null)
 			app.stop();		 

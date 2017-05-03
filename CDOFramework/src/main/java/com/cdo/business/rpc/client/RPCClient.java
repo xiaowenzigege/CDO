@@ -30,7 +30,6 @@ import org.apache.log4j.Logger;
 
 import com.cdo.business.rpc.RPCFile;
 import com.cdo.business.rpc.zk.ZkServerData;
-import com.cdo.business.rpc.zk.ZookeeperClient;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
 import com.cdo.google.protocol.GoogleCDO;
@@ -102,10 +101,28 @@ public class RPCClient extends AbstractRPCClient{
     	return channel.isOpen();
     }
     
-    public boolean isWritable(){
+	public boolean isRegistered(){
     	if(channel==null)
     		return false;
+    	return channel.isRegistered();
+    }
+	
+	public boolean isActive(){
+    	if(channel==null)
+    		return false;
+    	return channel.isActive();
+    }
+	
+    public boolean isWritable(){
+    	if(channel==null)
+    		return false;    	
     	return channel.isWritable();
+    }
+    
+    public void closeChannel(){
+    	if(channel==null)
+    		return;    	
+    	 channel.close();
     }
     
     public RPCClient() {
@@ -184,7 +201,7 @@ public class RPCClient extends AbstractRPCClient{
 					        });			        
 				        p.addLast("encoder",new CDOProtobufEncoder());
 				        p.addLast("decoder",new CDOProtobufDecoder());  
-				        p.addLast("ideaHandler",new IdleStateHandler(30,15,0));
+				        p.addLast("ideaHandler",new IdleStateHandler(30,10,0));
 				        p.addLast(new RPCClientHandler());				
 					}            	 
 	             });	                     
@@ -212,11 +229,17 @@ public class RPCClient extends AbstractRPCClient{
 	          channel=f.channel();
 	          handle=channel.pipeline().get(RPCClientHandler.class);	
 	          synchronized (clients) {
-		          if(clients.get(clientKey)==null || clients.get(clientKey).getHandle()==null){ 
+		          if(clients.get(clientKey)==null || clients.get(clientKey).getHandle()==null){ 		        
 		        	  clients.put(clientKey,rpcClient);
 		          }else{
-			          //已经存在连接,本次连接不在保存
-			          channel.close();  
+			          //已经存在连接,本次连接不在保存		 
+		        	  RPCClient oldClient=clients.get(clientKey);
+		        	  if(!oldClient.isOpen()&&!oldClient.isRegistered()&&!oldClient.isActive()){
+		        		  clients.put(clientKey,rpcClient); 
+		        		  oldClient.closeChannel();
+		        	  }else{
+		        		  channel.close();  
+		        	  }			          
 		          }
 	          	}
 	        } else {
@@ -283,7 +306,7 @@ public class RPCClient extends AbstractRPCClient{
 					try{Thread.sleep(1000+500*retryCount);}catch(Exception em){}
 					retryCount++;
 				}
-			}
+			}	
 			RPCResponse response=rpcClient.getHandle().handleTrans(cdoRequest);
 		   
 			//cdo 内容

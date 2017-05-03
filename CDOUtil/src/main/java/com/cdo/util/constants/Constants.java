@@ -9,6 +9,12 @@ import com.cdo.util.exception.EncodeException;
  */
 public class Constants {
 
+	public static class Netty{
+		public static final String THREAD_BOSS="io.netty.eventLoopThreads";//netty主线程
+		public static final String THREAD_BUSINESS="io.netty.thread.bussiness";//处理业务线程数量
+		public static final String BUSINESS_TIME_OUT="io.netty.bussiness.timeOut";//客户端处理业务处理超时时间
+		
+	}
 	//分页常量
 	public static class Page{		
 		public static final String PAGE_INDEX="nPageIndex";
@@ -47,6 +53,7 @@ public class Constants {
 		public final static int minSize=512;
 	}
 	
+	//CDO传输数据的变量
 	public static class CDO{
 		public final static String HTTP_CDO_REQUEST="$$CDORequest$$";
 		public final static String HTTP_CDO_UPLOADFILE_KEY="$CDOSerialFile$";

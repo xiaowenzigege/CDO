@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
+import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
@@ -26,7 +28,6 @@ public class ZookeeperClient {
     private String groupNode = "CDO";  
     private ZooKeeper zk;  
     private Stat stat = new Stat();  
-//    private static volatile Map<String,ZkServerData> serviceMap;  
     private ClientWatch clientWatch;
     private AbstractRPCClient rpcClient;
     private String zkConnect;
@@ -83,10 +84,14 @@ public class ZookeeperClient {
        Map<String, ZkServerData> newServiceMap=new HashMap<String, ZkServerData>();
        // 获取并监听CDOService的子节点变化             
       try{        
-	    	List<String> serviceList = zk.getChildren("/" + groupNode,clientWatch); 
+		   	String rootNode="/" + groupNode;
+		   	if(zk.exists(rootNode, false)==null){   		  
+		   		 zk.create(rootNode, "".getBytes("utf-8"), Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);    		   	
+		   	}	
+	    	List<String> serviceList = zk.getChildren(rootNode,clientWatch); 
 	        for (String serviceNode : serviceList) {  
 	            // 获取每个子节点下关联的server地址  
-	        	String service="/" + groupNode + "/" + serviceNode;
+	        	String service=rootNode+ "/" + serviceNode;
 	            byte[] data = zk.getData(service, false, stat);  
 	            String className=new String(data, "utf-8");
 	            List<String> hostList = zk.getChildren(service,clientWatch);
@@ -98,7 +103,7 @@ public class ZookeeperClient {
 	            newServiceMap.put(serviceNode, zkData);            
 	        }  
       }catch(Throwable ex){
-    	 logger.error("get node["+groupNode+"] faile,"+ex.getMessage(),ex);
+    	 logger.error("get node["+groupNode+"] faile,"+ex.getMessage()+" 5",ex);
     	try {
 			Thread.sleep(5000);
 		} catch (Exception e) {			
@@ -121,10 +126,6 @@ public class ZookeeperClient {
     	this.zkConnect=zkConect;
     	this.rpcClient=rpcClient;
     }
-    
-//    public  Map<String, ZkServerData> getZKServerData(){
-//    	return serviceMap;
-//    }
-  
+      
   
 }   

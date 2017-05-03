@@ -44,7 +44,8 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 		closeServer=true;
     }
     
-    public RPCResponse handleTrans(CDO cdoRequest) {   
+    public RPCResponse handleTrans(CDO cdoRequest) {  
+
     	//是否有文件传输
     	List<File> files=null;
     	try{
@@ -113,7 +114,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
-            switch (e.state()) {// ping message when there is no outbound traffic for 15 seconds  see RPCClient,RPCServerInitializer         	
+            switch (e.state()) {//  message when there is no outbound traffic for 10 seconds  see RPCClient,RPCServerInitializer         	
                 case WRITER_IDLE:                	
         			CDOMessage heartBeat=new CDOMessage();
         			try{
@@ -125,6 +126,9 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
         				ReferenceCountUtil.release(heartBeat);        				
         			}
                     break;
+                case READER_IDLE:
+                	// message when there is no inbound traffic for 30 seconds see RPCClient,RPCServerInitializer   
+                	ctx.close();
                 default:
                     break;
             }
@@ -135,8 +139,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {    
     	if(msg instanceof CDOMessage){   
     		try{
-    			CDOMessage cdoMessage=(CDOMessage)msg;
-    		
+    			CDOMessage cdoMessage=(CDOMessage)msg;    		
 	           if(cdoMessage.getHeader().getType()==ProtoProtocol.TYPE_CDO){
 	        		GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(cdoMessage.getBody());
 	    			int callId=proto.getCallId();
@@ -169,9 +172,9 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     	if(!closeServer){
         	logger.error(cause.getMessage(),cause);
-        	ctx.fireExceptionCaught(cause);
-    	}
-
+        	}
+    	//出现channel异常 关闭channel连接
+       try{if(channel!=null) channel.close();if(ctx!=null)ctx.close();}catch(Exception ex){};	
     }
       
 	

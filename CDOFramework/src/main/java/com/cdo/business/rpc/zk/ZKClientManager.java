@@ -14,6 +14,11 @@ public class ZKClientManager {
 	private static ZKClientManager instance=null;
 	private Logger logger=Logger.getLogger(ZKClientManager.class);
 	private Map<String, AbstractRPCClient> zkClientMap=new HashMap<String, AbstractRPCClient>();
+	
+	private ZKClientManager(){
+
+	}
+	
 	public static  synchronized ZKClientManager getInstance()
 	{//使用单列
 		if(instance==null)

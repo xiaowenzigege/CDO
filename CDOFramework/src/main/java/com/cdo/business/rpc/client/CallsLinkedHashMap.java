@@ -1,6 +1,8 @@
 package com.cdo.business.rpc.client;
 
 
+import io.netty.util.internal.SystemPropertyUtil;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -8,12 +10,14 @@ import java.util.List;
 import java.util.Map;
 
 import com.cdo.google.protocol.GoogleCDO;
+import com.cdo.util.constants.Constants;
 import com.cdoframework.cdolib.data.cdo.CDO;
 
 public class CallsLinkedHashMap {
 	private LinkedHashMap<Integer, Call> calls=new LinkedHashMap<Integer, Call>();
 	private final long hourMillis=60*1000;
-	private final int  maxTimeOut=2*60;
+	//默认设置30分钟
+	private final int  maxTimeOut=Math.max(30,SystemPropertyUtil.getInt(Constants.Netty.BUSINESS_TIME_OUT, 10));
 	public void put(Integer callId,Call call){
 		calls.put(callId, call);	
 		setTimeOut();

@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import org.apache.log4j.Logger;
 
 import com.cdo.business.BusinessService;
@@ -20,6 +19,7 @@ import com.cdo.google.handle.ParseProtoCDO;
 import com.cdo.google.handle.ProtoProtocol;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdo.util.common.UUidGenerator;
+import com.cdo.util.constants.Constants;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.servicebus.ITransService;
@@ -29,13 +29,14 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
+import io.netty.util.internal.SystemPropertyUtil;
 
 public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 
 	private static Logger logger=Logger.getLogger(RPCServerHandler.class);
 	private final  BusinessService serviceBus=BusinessService.getInstance();
 	static Map<String,SocketChannel> socketChannelMap=new ConcurrentHashMap<String, SocketChannel>();
-	private ExecutorService executor =Executors.newFixedThreadPool(Math.max(15,(int)(Runtime.getRuntime().availableProcessors()*5)));
+	private ExecutorService executor =Executors.newFixedThreadPool(Math.max(20,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS, Runtime.getRuntime().availableProcessors()*5)));
  
     /**
      * 防止   客户机与服务器之间的长连接   发生阻塞,业务数据采用线程池处理,长连接channel仅用于数据传输，
@@ -206,8 +207,9 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
         }
     }
     /**
-     * 服务端设定  30秒是空闲写时,发起心跳检查,在30秒内未读取到客服端响应,则关闭连接
-     * 心跳检查  使用客户端来检查
+     * 服务端设定  在60秒内未接受到客户端的请求数据,则关闭连接
+     * 空闲时 使用客户端来检查,大约每10秒发起心跳检查   @see RPCClient#IdleStateHandler
+     * 
      */
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
@@ -216,12 +218,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
                 case READER_IDLE:
                 	ctx.close();
                     break;
-                case WRITER_IDLE:
-//        			CDOMessage heartBeat=new CDOMessage();
-//        			Header header=new Header();
-//        			header.setType(ProtoProtocol.TYPE_HEARTBEAT_REQ);
-//        			heartBeat.setHeader(header);
-//        			ctx.writeAndFlush(heartBeat);
+                case WRITER_IDLE:                	
         			break;
                 default:
                     break;
