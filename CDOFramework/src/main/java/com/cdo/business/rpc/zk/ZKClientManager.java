@@ -2,18 +2,18 @@ package com.cdo.business.rpc.zk;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import com.cdo.business.client.IClient;
-import com.cdo.business.rpc.client.AbstractRPCClient;
 import com.cdo.business.rpc.client.RPCClient;
 import com.cdo.util.exception.ZookeeperException;
 
 public class ZKClientManager {
 	private static ZKClientManager instance=null;
 	private Logger logger=Logger.getLogger(ZKClientManager.class);
-	private Map<String, AbstractRPCClient> zkClientMap=new HashMap<String, AbstractRPCClient>();
+	private Map<String, ZKRPCClient> zkClientMap=new HashMap<String, ZKRPCClient>();
 	
 	private ZKClientManager(){
 
@@ -48,10 +48,13 @@ public class ZKClientManager {
 				logger.warn("zkId["+zkId+"] is alreay ");
 				return ;
 			}
-			AbstractRPCClient rpcClient=new RPCClient();
+			ZKRPCClient rpcClient=new RPCClient();
 			ZookeeperClient zkClient=new ZookeeperClient(zkConnect,rpcClient);
-			zkClient.connectZookeeper();						
+			zkClient.connectZookeeper();			
+			rpcClient.setZKId(zkId);
+			rpcClient.setZKConnect(zkConnect);
 			zkClientMap.put(zkId, rpcClient);
+
 		}catch(ZookeeperException ex){
 			logger.error("zkId ["+zkId+"],connect zk server ["+zkConnect+"] error:"+ex.getMessage(), ex);
 			throw ex;
@@ -66,4 +69,7 @@ public class ZKClientManager {
 		return zkClientMap.get(zkId);
 	} 
 	
+	public   Set<Map.Entry<String, ZKRPCClient>> entrySetZKClient(){
+		return zkClientMap.entrySet();
+	}
 }

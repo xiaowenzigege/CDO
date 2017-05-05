@@ -73,9 +73,11 @@ public final class Bootstrap {
             Method method = catalinaDaemon.getClass().getMethod("stop", (Class [] ) null);
             method.invoke(catalinaDaemon, (Object [] ) null);
         }
-    
+
     public static void main(String[] args){ 
-    	String homePath=args[0];    
+    	String homePath=args[0]; 
+    	String command =args[1];
+    	System.getProperty("log4j.file");
         if (daemon == null) {
             // Don't set daemon until init() has completed
             Bootstrap bootstrap = new Bootstrap();
@@ -92,8 +94,7 @@ public final class Bootstrap {
             // a range of class not found exceptions.
             Thread.currentThread().setContextClassLoader(daemon.catalinaLoader);
         }
-        try {
-            String command =args[1];
+        try {          
             GlobalResource.bundleInitCDOEnv();          
             if (args.length > 1) {
                 command = args[args.length - 1];

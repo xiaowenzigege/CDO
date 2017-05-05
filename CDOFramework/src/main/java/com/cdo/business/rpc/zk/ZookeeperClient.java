@@ -15,7 +15,7 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
-import com.cdo.business.rpc.client.AbstractRPCClient;
+import com.cdo.business.rpc.client.IRPCClient;
 import com.cdo.util.exception.ZookeeperException;
 
 /**
@@ -29,7 +29,7 @@ public class ZookeeperClient {
     private ZooKeeper zk;  
     private Stat stat = new Stat();  
     private ClientWatch clientWatch;
-    private AbstractRPCClient rpcClient;
+    private ZKRPCClient rpcClient;
     private String zkConnect;
     private Logger logger=Logger.getLogger(ZookeeperClient.class);
     private int Time_OUT=Math.max(10, SystemPropertyUtil.getInt("zk.sessionTimeout", 10))*1000;
@@ -113,8 +113,7 @@ public class ZookeeperClient {
       }
         // 替换server列表  
         //serviceMap = newServiceMap;
-      	rpcClient.setServiceMap(newServiceMap);
-      	
+      	rpcClient.setServiceMap(newServiceMap);        	
         try {
         	zk.exists("/" + groupNode, clientWatch);
 		} catch (Exception e) {
@@ -122,7 +121,7 @@ public class ZookeeperClient {
 		}       
     }  
  
-    public ZookeeperClient(String zkConect,AbstractRPCClient rpcClient){
+    public ZookeeperClient(String zkConect,ZKRPCClient rpcClient){
     	this.zkConnect=zkConect;
     	this.rpcClient=rpcClient;
     }

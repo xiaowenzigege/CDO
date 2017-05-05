@@ -29,6 +29,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.apache.log4j.Logger;
 
 import com.cdo.business.rpc.RPCFile;
+import com.cdo.business.rpc.zk.ZKRPCClient;
 import com.cdo.business.rpc.zk.ZkServerData;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
@@ -43,7 +44,7 @@ import com.cdoframework.cdolib.servicebus.ITransService;
  * @author KenelLiu
  *
  */
-public class RPCClient extends AbstractRPCClient{
+public class RPCClient extends ZKRPCClient{
 	private final static Logger logger=Logger.getLogger(RPCClient.class);
 	private ExecutorService executor=Executors.newScheduledThreadPool(1);
 	
@@ -128,7 +129,7 @@ public class RPCClient extends AbstractRPCClient{
     public RPCClient() {
 	
 	}
-    
+
     RPCClient(String remoteHost, int remotePort) {
 		    this.remoteHost = remoteHost;
 		    this.remotePort = remotePort;
@@ -266,6 +267,8 @@ public class RPCClient extends AbstractRPCClient{
 		    closed = true;
 		    workerGroup.shutdownGracefully();
 		    logger.info("Stopped Tcp Client: " + getServerInfo());
+		    if(executor!=null)
+		    	executor.shutdownNow();
 		    if(closedServer){
 		    	//如果是关闭服务器,需要退出程序
 		    	logger.info("exit system client " + getServerInfo());

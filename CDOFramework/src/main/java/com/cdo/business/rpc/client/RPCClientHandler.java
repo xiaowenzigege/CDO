@@ -172,8 +172,9 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     	if(!closeServer){
         	logger.error(cause.getMessage(),cause);
-        	}
-    	//出现channel异常 关闭channel连接
+        	logger.warn("通道channel出现异常:"+cause.getMessage()+",即将关闭channel通道",cause);
+         }
+    	//出现channel异常 关闭channel连接    	
        try{if(channel!=null) channel.close();if(ctx!=null)ctx.close();}catch(Exception ex){};	
     }
       
