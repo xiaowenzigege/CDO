@@ -108,13 +108,13 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     }
     
     /**
-     * 客端设定 15秒是空闲写时,发起心跳检查
-     * 服务端在60秒内 read_idea处于空闲状态,则会认为该连接无效，进行关闭
+     * 客端设定 5秒是空闲写时,发起心跳检查
+     * 服务端在60秒内 read_idea处于空闲状态,则会认为该连接无效[即客户端发起了12次连接，服务端均未收到消息]，进行关闭
      */
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
-            switch (e.state()) {//  message when there is no outbound traffic for 10 seconds  see RPCClient,RPCServerInitializer         	
+            switch (e.state()) {//  message when there is no outbound traffic for 5 seconds  see RPCClient,RPCServerInitializer         	
                 case WRITER_IDLE:                	
         			CDOMessage heartBeat=new CDOMessage();
         			try{

@@ -15,7 +15,7 @@ import com.cdoframework.cdolib.data.cdo.CDO;
 
 public class CallsLinkedHashMap {
 	private LinkedHashMap<Integer, Call> calls=new LinkedHashMap<Integer, Call>();
-	private final long hourMillis=60*1000;
+	private final long minute=60*1000;
 	//默认设置30分钟
 	private final int  maxTimeOut=Math.max(30,SystemPropertyUtil.getInt(Constants.Netty.BUSINESS_TIME_OUT, 10));
 	public void put(Integer callId,Call call){
@@ -36,7 +36,7 @@ public class CallsLinkedHashMap {
 		List<Integer> callIdList=new ArrayList<Integer>();
 		while(it.hasNext()){
 			Map.Entry<Integer,Call> entry =it.next(); 
-			if(((System.currentTimeMillis()-entry.getValue().getSendTime())/hourMillis)>maxTimeOut){
+			if(((System.currentTimeMillis()-entry.getValue().getSendTime())/minute)>maxTimeOut){
 				callIdList.add(entry.getKey());
 				continue;
 			}

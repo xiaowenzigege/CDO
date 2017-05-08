@@ -208,13 +208,13 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
     }
     /**
      * 服务端设定  在60秒内未接受到客户端的请求数据,则关闭连接
-     * 空闲时 使用客户端来检查,大约每10秒发起心跳检查   @see RPCClient#IdleStateHandler
+     * 空闲时 使用客户端来检查,大约每5秒发起心跳检查   @see RPCClient#IdleStateHandler
      * 
      */
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
-            switch (e.state()) {//The connection is closed when there is no inbound traffic  for 60 seconds.see RPCServerInitializer,RPCClient
+            switch (e.state()) {//The connection is closed when there is no inbound traffic  for 30 seconds.see RPCServerInitializer,RPCClient
                 case READER_IDLE:
                 	ctx.close();
                     break;

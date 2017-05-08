@@ -202,7 +202,7 @@ public class RPCClient extends ZKRPCClient{
 					        });			        
 				        p.addLast("encoder",new CDOProtobufEncoder());
 				        p.addLast("decoder",new CDOProtobufDecoder());  
-				        p.addLast("ideaHandler",new IdleStateHandler(30,10,0));
+				        p.addLast("ideaHandler",new IdleStateHandler(60,5,0));
 				        p.addLast(new RPCClientHandler());				
 					}            	 
 	             });	                     

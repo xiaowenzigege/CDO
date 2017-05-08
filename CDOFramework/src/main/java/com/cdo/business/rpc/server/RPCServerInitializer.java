@@ -25,7 +25,7 @@ public class RPCServerInitializer extends ChannelInitializer<SocketChannel> {
         }   
         p.addLast("encoder",new CDOProtobufEncoder());
         p.addLast("decoder",new CDOProtobufDecoder());  
-        p.addLast("ideaHandler",new IdleStateHandler(60,30,0));              
+        p.addLast("ideaHandler",new IdleStateHandler(60,15,0));              
         p.addLast(new RPCServerHandler());
     }
 
