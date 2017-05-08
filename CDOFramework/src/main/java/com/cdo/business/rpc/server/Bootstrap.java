@@ -1,6 +1,7 @@
 package com.cdo.business.rpc.server;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -77,7 +78,20 @@ public final class Bootstrap {
     public static void main(String[] args){ 
     	String homePath=args[0]; 
     	String command =args[1];
-    	System.getProperty("log4j.file");
+    	String file=System.getProperty("log4j.file");
+    	try{
+    		if(file!=null && file.trim().length()>0){    			
+    			Properties log4j=new Properties();
+    			log4j.load(new FileInputStream(new File(file)));
+    			PropertyConfigurator.configure(log4j);
+    			log.info("加载指定日志配置文件: "+file);
+    		}else{
+    			log.warn("未指定日志配置文件 ....");
+    		}
+    	}catch(Throwable ex){
+    		log.error("加载指定日志配置 ["+file+"] 异常:"+ex.getMessage(),ex);    		
+    	}
+    	
         if (daemon == null) {
             // Don't set daemon until init() has completed
             Bootstrap bootstrap = new Bootstrap();
