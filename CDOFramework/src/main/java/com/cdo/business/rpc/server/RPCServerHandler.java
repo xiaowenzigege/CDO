@@ -36,7 +36,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	private static Logger logger=Logger.getLogger(RPCServerHandler.class);
 	private final  BusinessService serviceBus=BusinessService.getInstance();
 	static Map<String,SocketChannel> socketChannelMap=new ConcurrentHashMap<String, SocketChannel>();
-	private ExecutorService executor =Executors.newFixedThreadPool(Math.max(20,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS, Runtime.getRuntime().availableProcessors()*5)));
+	private ExecutorService executor =Executors.newFixedThreadPool(Math.max(30,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS, Runtime.getRuntime().availableProcessors()*5)));
  
     /**
      * 防止   客户机与服务器之间的长连接   发生阻塞,业务数据采用线程池处理,长连接channel仅用于数据传输，

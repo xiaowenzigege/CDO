@@ -53,7 +53,7 @@ public class IPUtil {
 	  
 	  
 	  public static String getLocalIp(){
-		  String sIP = "";
+		  String serverIP = "";
 		  InetAddress ip = null;
 		  try {
 		   //如果是Windows操作系统
@@ -62,32 +62,33 @@ public class IPUtil {
 		   }else{ //如果是Linux操作系统
 		    boolean bFindIP = false;
 		    Enumeration<NetworkInterface> netInterfaces = (Enumeration<NetworkInterface>) NetworkInterface.getNetworkInterfaces();
-		    while (netInterfaces.hasMoreElements()) {
+		    while(netInterfaces.hasMoreElements()) {
 			     if(bFindIP)
 			    	 break;		     
 			     NetworkInterface ni =netInterfaces.nextElement();
-
-		     //----------特定情况，可以考虑用ni.getName判断
-		     //遍历所有ip
-		     Enumeration<InetAddress> ips = ni.getInetAddresses();
-		     while (ips.hasMoreElements()) {
-			      ip = (InetAddress) ips.nextElement();
-			      if( ip.isSiteLocalAddress() 
-			    		  && !ip.isLoopbackAddress()   //127.开头的都是lookback地址
-			    		  && ip.getHostAddress().indexOf(":")==-1){
-			          bFindIP = true;
-			          break; 
-			         }
+			     //----------特定情况，可以考虑用ni.getName判断
+			     //遍历所有ip
+			     Enumeration<InetAddress> ips = ni.getInetAddresses();
+			     while (ips.hasMoreElements()) {
+				      ip = (InetAddress) ips.nextElement();
+				      if(ip.isSiteLocalAddress() 
+				    		  && !ip.isLoopbackAddress()   //127.开头的都是lookback地址
+				    		  && ip.getHostAddress().indexOf(":")==-1){
+				          bFindIP = true;
+				          break; 
+				         }
+			     }
 		     }
 		    }
-		   }
 		  }catch (Exception e) {		   
 		   logger.error(e.getMessage(), e);
 		  }
 		  if(null != ip){
-			  sIP = ip.getHostAddress();
+			  serverIP = ip.getHostAddress();
 		  }
-		  return sIP;
+		  if(logger.isInfoEnabled())
+			  logger.info("local server IP="+serverIP);
+		  return serverIP;
 	  }
 	  
 	  private static boolean isWindowsOS(){
@@ -104,5 +105,6 @@ public class IPUtil {
 
 		    return isWindowsOS;
 		  }
+	  	 
 	  
 }
