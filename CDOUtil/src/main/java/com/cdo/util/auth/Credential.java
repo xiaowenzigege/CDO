@@ -1,8 +1,5 @@
 package com.cdo.util.auth;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
@@ -23,12 +20,28 @@ public class Credential {
 	
 	private String urlMethod;
 	
-	private Map<String,String> credentailMap=new HashMap<String, String>();
+	private DigestData digestData=new DigestData();
 	
-	private String response;
+	/**
+	 * 未认证通过时，生成认证消息给客服端
+	 * @param realm
+	 * @return
+     * WWW-Authenticate: Digest
+              realm="www.china-cos.com",
+              qop="auth",
+              nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093",
+          	 opaque="5ccc069c403ebaf9f0171e9517f40e41"
+     */ 	
+	public static String genUnauthorized(String realm){		 
+    	String nonce=System.currentTimeMillis()+" "+MD5.encode(System.currentTimeMillis()+":"+RandomUtil.getHexRandom(15));
+    	nonce=Base64.encodeBase64String(nonce.getBytes());    	
+    	return "Digest realm=\""+realm+"\",qop=\"auth\",nonce=\""+nonce+"\","
+    			+"opaque=\""+RandomUtil.getHexRandom(32)+"\"";
+	}
+	
 	/**
 	 * 
-	 * @param credentail
+	 * @param credentail  客户端传过来的摘要认证信息
 	 * credentail 值为
      * Authorization: Digest username="userName",   //用户名
                      realm="www.china-cos.com",          //域名
@@ -47,68 +60,73 @@ public class Credential {
     	this.credentail=credentail;
     	this.urlMethod=urlMethod;
     	if(credentail!=null&& !credentail.trim().equals("")){
-    		setMapCredential(credentail.split(",")); 
-    		response=credentailMap.get("response");
+    		initDigestData(credentail.split(","));     		
     	}
     }
-	
+	/**
+	 * 
+	 * @param userName  用户名
+	 * @param password  密码
+	 * @return
+	 */
     public  boolean checkAuth(String userName,String password){
     	if(credentail==null || credentail.trim().equals(""))
     		return false;
     	if(urlMethod==null || urlMethod.trim().equals("") )
     		return false;    	    	    	     	
     	try{
-    		if(response.equalsIgnoreCase(authorMd5(userName,password)))
+    		if(digestData.getResponse().equalsIgnoreCase(authorMd5(userName,password)))
     			return true;
     	}catch(Exception ex){    		
-    		  logger.error("checkHeaderAuth："+ex.getMessage(),ex);
+    		  logger.error("checkAuth："+ex.getMessage(),ex);
     	}    	
     	return false;
     } 
+    
+    /**
+     *  String A1=user+":"+digestData.getRealm()+":" +password;  
+        String HA1 = MD5.encode(A1);    
+     * @param HA1  
+     * @return
+     */
     public  boolean checkAuth(String HA1){
     	if(credentail==null || credentail.trim().equals(""))
     		return false;
     	if(urlMethod==null || urlMethod.trim().equals("") )
     		return false;    	    	
     	try{
-    	if(response.equalsIgnoreCase(authorMd5(HA1)))
-    		return true;
+    		if(digestData.getResponse().equalsIgnoreCase(authorMd5(HA1)))
+    			return true;
     	}catch(Exception ex){    		
-    		  logger.error("checkHeaderAuth："+ex.getMessage(),ex);
+    		  logger.error("checkAuth："+ex.getMessage(),ex);
     	}    	
     	return false;
     } 
-    /**
-     * 
-     * @return
-     */
-    public   Map<String, String> getMapCredential(){
-    	return credentailMap;
-    }
     
-    private  void setMapCredential(String[] resourceStr){
+    
+    private  void initDigestData(String[] resourceStr){
     	
         String prefix="Digest ";
         for (String str : resourceStr){
         	str=str.trim();        	
-        	if(str.startsWith("username") || str.startsWith(prefix+"username") ){
-        		credentailMap.put("username", getValueByName(str)); 
-        	}else if(str.startsWith("realm")|| str.startsWith(prefix+"realm")){
-        		credentailMap.put("realm", getValueByName(str)); 
-        	}else if(str.startsWith("nonce")|| str.startsWith(prefix+"nonce")){
-        		credentailMap.put("nonce", getValueByName(str));
+        	if(str.startsWith("username") || str.startsWith(prefix+"username") ){        	
+	            digestData.setUsername(getValueByName(str));		
+        	}else if(str.startsWith("realm")|| str.startsWith(prefix+"realm")){       
+        		digestData.setRealm(getValueByName(str));
+        	}else if(str.startsWith("nonce")|| str.startsWith(prefix+"nonce")){        		
+        		digestData.setNonce(getValueByName(str));
         	}else if(str.startsWith("uri")|| str.startsWith(prefix+"uri")){
-        		credentailMap.put("uri", getValueByName(str));
+        		digestData.setUri(getValueByName(str));
         	}else if(str.startsWith("response")|| str.startsWith(prefix+"response")){
-        		credentailMap.put("response", getValueByName(str));
-        	}else if(str.startsWith("opaque")|| str.startsWith(prefix+"opaque")){
-        		credentailMap.put("opaque", getValueByName(str));
-        	}else if(str.startsWith("qop")|| str.startsWith(prefix+"qop")){
-        		credentailMap.put("qop", getValueByName(str));
-        	}else if(str.startsWith("nc")|| str.startsWith(prefix+"nc")){
-        		credentailMap.put("nc", getValueByName(str));
-        	}else if(str.startsWith("cnonce")|| str.startsWith(prefix+"cnonce")){
-        		credentailMap.put("cnonce", getValueByName(str));
+        		digestData.setResponse(getValueByName(str));
+        	}else if(str.startsWith("opaque")|| str.startsWith(prefix+"opaque")){        		
+        		digestData.setOpaque(getValueByName(str));
+        	}else if(str.startsWith("qop")|| str.startsWith(prefix+"qop")){        		
+        		digestData.setQop(getValueByName(str));
+        	}else if(str.startsWith("nc")|| str.startsWith(prefix+"nc")){        		
+        		digestData.setNc(getValueByName(str));
+        	}else if(str.startsWith("cnonce")|| str.startsWith(prefix+"cnonce")){        		
+        		digestData.setCnonce(getValueByName(str));
         	}        	       
         }
         
@@ -124,37 +142,25 @@ public class Credential {
         
     private  String authorMd5(String user,String password) throws Exception
     {
-    	//HA1=MD5(A1)=MD5(username:realm:password)
-    	String A1=user+":"+credentailMap.get("realm")+":" +password;   	
+    	//String A1=user+":"+credentailMap.get("realm")+":" +password;   
+    	String A1=user+":"+digestData.getRealm()+":" +password;  
         String HA1 = MD5.encode(A1);        
         return authorMd5(HA1);
     }  
    
     private  String authorMd5(String HA1) throws Exception{     
         //当qop="auth" HA2=MD5(A2)=MD5(method:digestURI) 
-        String A2=this.urlMethod+":" +credentailMap.get("uri");
+       // String A2=this.urlMethod+":" +credentailMap.get("uri");
+    	String A2=this.urlMethod+":"+digestData.getUri();
         String HA2 = MD5.encode(A2);      
         //HA3=MD5(HA1:nonce:nc:cnonce:qop:HA2)
-        String A3=HA1+":"+credentailMap.get("nonce") + ":"+credentailMap.get("nc")+":"+credentailMap.get("cnonce")+":"+credentailMap.get("qop")+":"+HA2;        
+       // String A3=HA1+":"+credentailMap.get("nonce") + ":"+credentailMap.get("nc")+":"+credentailMap.get("cnonce")+":"+credentailMap.get("qop")+":"+HA2;  
+        String A3=HA1+":"+digestData.getNonce() + ":"+digestData.getNc()+":"+digestData.getCnonce()+":"+digestData.getQop()+":"+HA2; 
         String HA3 = MD5.encode(A3);        
         if(logger.isDebugEnabled())
-        	logger.debug("\r\n Credential server response:" + HA3+",\r\n client response:"+credentailMap.get("response"));
+        	logger.debug("\r\n Credential server response:" + HA3+",\r\n client response:"+digestData.getResponse());
         return HA3;
     } 	
-	/**
-	 * 未认证通过时，生成认证消息给客服端
-	 * @param realm
-	 * @return
-     * WWW-Authenticate: Digest
-              realm="www.china-cos.com",
-              qop="auth",
-              nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093",
-          	 opaque="5ccc069c403ebaf9f0171e9517f40e41"
-     */ 	
-	public static String genUnauthorized(String realm){		 
-    	String nonce=System.currentTimeMillis()+" "+MD5.encode(System.currentTimeMillis()+":"+RandomUtil.getHexRandom(15));
-    	nonce=Base64.encodeBase64String(nonce.getBytes());    	
-    	return "Digest realm=\""+realm+"\",qop=\"auth\",nonce=\""+nonce+"\","
-    			+"opaque=\""+RandomUtil.getHexRandom(32)+"\"";
-	}
+
+ 
 }
