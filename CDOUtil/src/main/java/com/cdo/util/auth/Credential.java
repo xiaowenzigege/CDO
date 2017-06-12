@@ -103,7 +103,9 @@ public class Credential {
     	return false;
     } 
     
-    
+    public DigestData getDigestData(){
+    	return digestData;
+    }
     private  void initDigestData(String[] resourceStr){
     	
         String prefix="Digest ";

@@ -1398,7 +1398,8 @@ public class CDO implements java.io.Serializable
 	}
 	
 	private  void release(){
-		hmItem.clear();
+		if(hmItem!=null)
+			hmItem.clear();
 		hmItem=null;		
 	}
 	
