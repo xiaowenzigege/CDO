@@ -13,38 +13,38 @@ public interface DataType extends Serializable
 {
 
 	//静态对象,所有static在此声明并初始化------------------------------------------------------------------------
-	int NONE_TYPE				=0;
+	byte NONE_TYPE				=0;
 
 	byte BOOLEAN_TYPE			=1;
-	int BYTE_TYPE				=2;
-	int SHORT_TYPE				=3;
-	int INTEGER_TYPE			=4;
-	int LONG_TYPE				=5;
-	int FLOAT_TYPE				=6;
-	int DOUBLE_TYPE				=7;
-	int STRING_TYPE				=8;
-	int DATE_TYPE				=9;
-	int TIME_TYPE				=10;
-	int DATETIME_TYPE			=11;
-	int CDO_TYPE				=12;
+	byte BYTE_TYPE				=2;
+	byte SHORT_TYPE				=3;
+	byte INTEGER_TYPE			=4;
+	byte LONG_TYPE				=5;
+	byte FLOAT_TYPE				=6;
+	byte DOUBLE_TYPE				=7;
+	byte STRING_TYPE				=8;
+	byte DATE_TYPE				=9;
+	byte TIME_TYPE				=10;
+	byte DATETIME_TYPE			=11;
+	byte CDO_TYPE				=12;
 	
 	
-	int FILE_TYPE				=50;
+	byte FILE_TYPE				=50;
 	
 	
-	int BOOLEAN_ARRAY_TYPE		=101;
-	int BYTE_ARRAY_TYPE			=102;
-	int SHORT_ARRAY_TYPE		=103;
-	int INTEGER_ARRAY_TYPE		=104;
-	int LONG_ARRAY_TYPE			=105;
-	int FLOAT_ARRAY_TYPE		=106;
-	int DOUBLE_ARRAY_TYPE		=107;
-	int STRING_ARRAY_TYPE		=108;
-	int DATE_ARRAY_TYPE			=109;
-	int TIME_ARRAY_TYPE			=110;
-	int DATETIME_ARRAY_TYPE		=111;
-	int CDO_ARRAY_TYPE			=112;
-	int EMPTY_CDO_ARRAY_TYPE	=115;  
+	byte BOOLEAN_ARRAY_TYPE		=101;
+	byte BYTE_ARRAY_TYPE			=102;
+	byte SHORT_ARRAY_TYPE		=103;
+	byte INTEGER_ARRAY_TYPE		=104;
+	byte LONG_ARRAY_TYPE			=105;
+	byte FLOAT_ARRAY_TYPE		=106;
+	byte DOUBLE_ARRAY_TYPE		=107;
+	byte STRING_ARRAY_TYPE		=108;
+	byte DATE_ARRAY_TYPE			=109;
+	byte TIME_ARRAY_TYPE			=110;
+	byte DATETIME_ARRAY_TYPE		=111;
+	byte CDO_ARRAY_TYPE			=112;
+	byte EMPTY_CDO_ARRAY_TYPE	=115;  
 	
 	String	DATETIME_FORMAT_STRING		="yyyy-MM-dd HH:mm:ss";
 	String	DATE_FORMAT_STRING			="yyyy-MM-dd";
@@ -85,16 +85,16 @@ public interface DataType extends Serializable
 		DATETIME_ARRAY(DATETIME_ARRAY_TYPE,"dateTime array "),
 		CDO_ARRAY(CDO_ARRAY_TYPE,"cdo array ");
 		
-	     private int dataType;
+	     private byte dataType;
 	     private String fieldType;
-	     private Data(int dataType,String fieldType){
+	     private Data(byte dataType,String fieldType){
 	         this.dataType = dataType;
 	         this.fieldType = fieldType;
 	     }
-		public int getDataType() {
+		public byte getDataType() {
 			return dataType;
 		}
-		public void setDataType(int dataType) {
+		public void setDataType(byte dataType) {
 			this.dataType = dataType;
 		}
 		public String getFieldType() {

@@ -75,6 +75,8 @@ public interface Field extends DataType
 	public void toXMLLog(StringBuilder strbXML);
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML);
 	
+	public void release();
+	
 	/**
 	 * [CDOField,CDOArrayField]字段  由CDO构成，CDO保存的数据是由 以下基础数据字段组成
 	 * 即对基础字段序列化即可

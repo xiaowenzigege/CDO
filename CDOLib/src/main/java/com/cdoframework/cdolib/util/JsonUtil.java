@@ -1,85 +1,164 @@
 package com.cdoframework.cdolib.util;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+//import java.text.DateFormat;
+//import java.text.SimpleDateFormat;
+//import java.util.Date;
+//import java.util.HashMap;
+//import java.util.stream.Collectors;
+//import com.cdoframework.cdolib.base.DateTime;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
+
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.cdoframework.cdolib.base.DateTime;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
 
 public class JsonUtil {
-	private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-	private static DateFormat df = new SimpleDateFormat(DATE_TIME_FORMAT);
+//	private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+//	private static DateFormat df = new SimpleDateFormat(DATE_TIME_FORMAT);
 
-	/**
-	 * 根据命名Key前缀 ,将JSON 转换成CDO
-	 */
-	private static final String CDOTYPE_BOOLEAN_PREFIX = "b";
-	private static final String CDOTYPE_INTEGER_PREFIX = "n";
-	private static final String CDOTYPE_LONG_PREFIX = "l";
-	private static final String CDOTYPE_FLOAT_PREFIX = "f";	
-	private static final String CDOTYPE_SHORT_PREFIX = "sh";
+	//---json中 value 数据类型 都转换成String,将json转换成CDO --/
+	final static byte JSON2CDO_String=1;
+	//==使用class定义的value 数据类型 [即在class中标识key类型即可],将jsong转换成CDO ==/	
+	final static byte JSON2CDO_Class=2;
+
 	
-	private static final String CDOTYPE_DATETIME_PREFIX = "dt";	
-	private static final String CDOTYPE_STRING_PREFIX = "str";
-	private static final String CDOTYPE_CDO_PREFIX = "cdo";
-
-	final static byte JSON2CDO_PrefixKey=1;//使用   Key字符串前缀 做数据类型,将数据转换成CDO
-	final static byte JSON2CDO_Class=2;//使用自定义class定义的key对应值 数据类型,将jsong转换成CDO
-	final static byte JSON2CDO_String=3;//定义的key 数据类型 都转换成String,将jsong转换成CDO
+	final static String Class_Byte="BYTE";
+	final static String Class_Short="SHORT";
+	final static String Class_Int="INT";
+	final static String Class_Integer="INTEGER";
+	final static String Class_Long="LONG";
+	final static String Class_Float="FLOAT";
+	final static String Class_Double="DOUBLE";
+	
+	final static String Class_Boolean="BOOLEAN";
+	final static String Class_String="STRING";
+	final static String Class_Time="TIME";
+	final static String Class_Date="DATE";
+	final static String Class_DateTime="DATETIME";
+	
 
 	/**
-	 * json转换为cdo对象
+	 * json中 value 数据类型 都转换成String,将json转换成CDO
 	 * 
-	 * @param strJSON
-	 * @return CDO
+	 * @param strJSON  json中的数据用字符串处理
+	 * @return CDO 
 	 * @throws JSONException
 	 * @throws Exception
 	 */
-	public static CDO jsonToCDO(String strJSON) throws JSONException{
-		return jsonToCDO(strJSON, JSON2CDO_String,null);
+	public static CDO json2CDO(String strJSON) throws JSONException{		
+		return json2CDO(strJSON, JSON2CDO_String,null);
 	}
 	/**
-	 * 
+	 * 使用class定义的value 数据类型 [即在class中标识key名称 的类型即可],将jsong转换成CDO
 	 * @param strJSON
-	 * @param cls class定义的key对应值   数据类型,将json转换成CDO
+	 * @param cls 使用class定义的value 数据类型 [即在class中标识key类型即可],将jsong转换成CDO	
 	 * @return
 	 * @throws JSONException
 	 */
-	public static CDO jsonToCDO(String strJSON,Class cls) throws JSONException{		
-		return jsonToCDO(strJSON,JSON2CDO_Class,cls);
+	public static CDO json2CDO(String strJSON,Class cls) throws JSONException{		
+		return json2CDO(strJSON,JSON2CDO_Class,cls);
 	}
+
 	/**
 	 * 
 	 * @param strJSON
-	 * @param prefixKeyType 使用   Key字符串前缀  的值做数据类型,将数据转换成CDO
+	 * @param json2CDOType
+	 * @param cls
 	 * @return
 	 * @throws JSONException
 	 */
-	public static CDO jsonToCDO(String strJSON,boolean prefixKeyType) throws JSONException{	
-		if(!prefixKeyType){
-			return jsonToCDO(strJSON);
-		}
-		return jsonToCDO(strJSON,JSON2CDO_PrefixKey,null);
-	}
-	
-	private static CDO jsonToCDO(String strJSON,byte json2CDOType,Class cls) throws JSONException {
+	private static CDO json2CDO(String strJSON,byte json2CDOType,Class cls) throws JSONException {
+		if(strJSON==null)
+			return null;
 		CDO cdoRequest = new CDO();		
-		JSONObject jsonObj = transferToJsonObj(strJSON); // 转换成jsonObjects
+		JSONObject jsonObj = String2Json(strJSON); // 转换成jsonObjects
 		setCDOFromJson(jsonObj, cdoRequest,json2CDOType,cls);		
 		return cdoRequest;
 	}
 	
+
+	/**
+	 * json中 value 数据类型 都转换成String,json数组转换为CDO数组
+	 * 
+	 * @param jsonArray格式  [{...},..]
+	 * @return CDO[]
+	 * @throws Exception
+	 */
+	public static CDO[] jsonArray2CDOArray(String jsonArray) throws Exception {
+		if (jsonArray == null || jsonArray.trim().length() <= 0 || jsonArray.equalsIgnoreCase("[]")) {
+			return new CDO[0];
+		}
+		if(!jsonArray.startsWith("[")|| !jsonArray.endsWith("]")){
+			throw new JSONException(jsonArray+" is not jsonArray");
+		} 
+		String tempList = "{\"cdosTempList\":" + jsonArray + "}";
+		CDO tempCDO = JsonUtil.json2CDO(tempList);
+		return tempCDO.getCDOArrayValue("cdosTempList");
+	}
+	
+	/**
+	 * 
+	 * 使用class定义的value 数据类型 [即在class中标识key名称 的类型即可],json数组转换为CDO数组
+	 * @param jsonArray jsonArray格式  [{...},..]
+	 * @param cls
+	 * @return
+	 * @throws Exception
+	 */
+	public static CDO[] jsonArray2CDOArray(String jsonArray,Class cls) throws Exception {
+		if (jsonArray == null || jsonArray.trim().length() <= 0 || jsonArray.equalsIgnoreCase("[]")) {
+			return new CDO[0];
+		}
+		if(!jsonArray.startsWith("[")|| !jsonArray.endsWith("]")){
+			throw new JSONException(jsonArray+" is not jsonArray");
+		} 
+		String tempList = "{\"cdosTempList\":" + jsonArray + "}";
+		CDO tempCDO = JsonUtil.json2CDO(tempList,cls);
+		return tempCDO.getCDOArrayValue("cdosTempList");
+	}
+	
+	/**
+	 * CDO数组转换成json 数组
+	 * @param cdos
+	 * @return
+	 */
+	public static String cdoArray2JsonArray(CDO[] cdos) {
+		if (cdos == null || cdos.length == 0) {
+			return null;
+		}
+		StringBuffer buf = new StringBuffer(80);
+		buf.append("[");
+		for (int i = 0; i < cdos.length; i++) {
+			if (i > 0) {
+				buf.append(",");
+			}
+			buf.append(cdos[i].toJSON());
+		}
+		buf.append("]");
+		return buf.toString();
+	}
+	/**
+	 * 
+	 * @param strJSON
+	 * @return
+	 * @throws JSONException
+	 */
+	private static JSONObject String2Json(String strJSON) throws JSONException {
+		JSONObject jsonObj = null;
+		try {
+			jsonObj = new JSONObject(strJSON); // 偶数个的这里会转换成功
+		} catch (org.json.JSONException jex) {
+			// 特殊处理,替换1个反斜杠为2个,2个以上的不匹配
+			String newStr = strJSON.replaceAll("\\\\{1}", "\\\\\\\\"); 
+			jsonObj = new JSONObject(newStr);
+		}
+		return jsonObj;
+	}
 	/**
 	 * 根据 Json数据格式，得到一个具有构造一个等级结构
 	 * 
@@ -98,7 +177,7 @@ public class JsonUtil {
 					cdoRequest.setCDOValue(key, subCDO);
 					setCDOFromJson((JSONObject) obj, subCDO,json2CDOType,cls);
 				} else if (obj instanceof JSONArray) {
-					//数组 里的数据 1为普通数据类型,2 json对象类型,不支持数组嵌套数组 ,混合数据
+					//数组 里的数据 1为普通数据类型,2 json对象类型,3 不支持数组嵌套数组 ,混合数据
 					JSONArray jsonArr=(JSONArray) obj;
 					if(jsonArr.length()==0){	
 						setEmptyArray(cdoRequest, key, json2CDOType, cls);
@@ -106,8 +185,8 @@ public class JsonUtil {
 					}					
 				   setCDOListFromJson((JSONArray) obj,cdoRequest,key,json2CDOType,cls);
 				} else {
-//					map.put(key, obj);
-					//TODO 单个数据 
+					//设置普通数据类型
+					setCommonField(cdoRequest, key, obj, json2CDOType, cls);
 				}
 			}
 		} catch (Exception e) {
@@ -118,12 +197,12 @@ public class JsonUtil {
 	
 	private static void setCDOListFromJson(JSONArray jsonObj,CDO cdoParent,String key,byte json2CDOType,Class cls) throws Exception {
 		Object obj = null;
-		List commonList=null;
+		List<String> commonList=null;
 		List<CDO> cdoList=null;
 		for (int i = 0; i < jsonObj.length(); i++) {
 			obj = jsonObj.get(i);
 			if (obj instanceof JSONObject) {
-				if(cdoList!=null){
+				if(cdoList==null){
 					cdoList=new ArrayList<CDO>();
 					cdoParent.setCDOListValue(key, cdoList);	
 				}				
@@ -131,481 +210,205 @@ public class JsonUtil {
 				cdoList.add(subCDO);
 				setCDOFromJson((JSONObject) obj, subCDO,json2CDOType,cls);
 			} else if (obj instanceof JSONArray) {
-				throw new JSONException("unsupport Array nesting  for example:[[]] unsupported");				
+				throw new JSONException("unsupport json Array nesting, [[]] is unsupported");				
 			} else {
 				if(commonList==null)
-					commonList=new ArrayList();
-				commonList.add(obj);
+					commonList=new ArrayList<String>();
+				commonList.add(obj==null?"":obj.toString());
 			}
 		}
-//		if(commonList!=null)
-			//
-			
-		
+		//设置普通类型数组
+		if(commonList!=null){
+			setCommontArray(cdoParent, key,commonList, json2CDOType, cls);
+		}
+
 	}
 	
-	
-	private static void setEmptyArray(CDO cdoRequest,String key,byte json2CDOType,Class cls) throws JSONException{
+	private static void setCommonField(CDO cdoRequest,String key,Object values,byte json2CDOType,Class cls) throws JSONException{
 		try{
 		switch (json2CDOType) {
-			case JSON2CDO_PrefixKey:
-				{
-					if (key.startsWith(CDOTYPE_STRING_PREFIX)) {
-						cdoRequest.setStringArrayValue(key, new String[0]);
-					} else if (key.startsWith(CDOTYPE_DATETIME_PREFIX)) {
-						cdoRequest.setDateTimeArrayValue(key, new String[0]);
-					} else if (key.startsWith(CDOTYPE_CDO_PREFIX)) {
-						cdoRequest.setCDOArrayValue(key, new CDO[0]);
-					} else if (key.startsWith(CDOTYPE_SHORT_PREFIX)) {
-						cdoRequest.setShortArrayValue(key, new short[0]);
-					} else if (key.startsWith(CDOTYPE_LONG_PREFIX)) {
-						cdoRequest.setLongArrayValue(key, new long[0]);
-					} else if (key.startsWith(CDOTYPE_INTEGER_PREFIX)) {
-						cdoRequest.setIntegerArrayValue(key, new int[0]);
-					} else if (key.startsWith(CDOTYPE_BOOLEAN_PREFIX)) {
-						cdoRequest.setBooleanArrayValue(key, new boolean[0]);
-					} else if (key.startsWith(CDOTYPE_FLOAT_PREFIX)) {
-						cdoRequest.setFloatArrayValue(key, new float[0]);
-					} 
-				}
-				break;
 			case JSON2CDO_Class:
 				{
-					String type=cls.getDeclaredField(key).getType().getSimpleName();
+					String type=cls.getDeclaredField(key).getType().getSimpleName().toUpperCase();
+					type=type.indexOf("[")>0?type.substring(0,type.indexOf("[")):type;
+					switch(type){
+						case Class_Byte:
+							 cdoRequest.setByteValue(key,Utility.parseByteValue(values));
+							 break;
+						case Class_Short:
+							 cdoRequest.setShortValue(key, Utility.parseShortValue(values));
+							 break;
+						case Class_Int:
+							  cdoRequest.setIntegerValue(key, Utility.parseIntegerValue(values));
+							  break;
+						case Class_Integer:
+							  cdoRequest.setIntegerValue(key, Utility.parseIntegerValue(values));
+							  break;
+						case Class_Long:
+							 cdoRequest.setLongValue(key, Utility.parseLongValue(values));
+							 break;
+						case Class_Float:
+							cdoRequest.setFloatValue(key,  Utility.parseFloatValue(values));
+							break;
+						case Class_Double:	
+							cdoRequest.setDoubleValue(key, Utility.parseDoubleValue(values));
+							break;
+						case Class_Boolean:	
+							cdoRequest.setBooleanValue(key,Utility.parseBooleanValue(values));
+							break;
+						case Class_String:
+							cdoRequest.setStringValue(key,Utility.parseStingValue(values));
+							break;
+						case Class_Time:
+							cdoRequest.setTimeValue(key, Utility.parseTimeValue(values));
+							break;
+						case Class_Date:
+							cdoRequest.setDateValue(key, Utility.parseDateValue(values));
+							break;
+						case Class_DateTime:	
+							cdoRequest.setDateTimeValue(key,Utility.parseDateTimeValue(values));
+							break;
+						default:
+							throw new JSONException("unsupported json to cdo type,Json Key=["+key+"] Json value["+values+"] cast to "+cls.getDeclaredField(key).getType().getName());							
+					}
 				}
 				break;
-			default:
-				cdoRequest.setStringArrayValue(key, new String[0]);
+			case JSON2CDO_String:
+				cdoRequest.setStringValue(key, Utility.parseStingValue(values));
 				break;
-		}
+			default:
+				throw new JSONException("unsupported json to cdo type,json2CDOType="+json2CDOType);
+		 }
 		}catch(Exception ex){
 			throw new JSONException(ex);
 		}
 
 	}
-	
-	/**
-	 * 将json字符串转换成CDO对象
-	 * 
-	 * @param strJSON
-	 *            转换前的字符串
-	 * @param isCDOType
-	 *            true 表示转换成CDO对应的类型 必须满足 CDOTYPE_前缀条件 false 表示 按照一般性处理 转换成CDO String类型
-	 * @return 转换后的CDO對象
-	 * @throws JSONException
-	 * @throws Exception
-	 */
-	public static CDO jsonToCDO(String strJSON, Boolean isCDOType) throws JSONException, Exception {
-		CDO cdoRequest = new CDO();
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		JSONObject jsonObj = transferToJsonObj(strJSON); // 转换成jsonObjects
-		setMapFromJson(jsonObj, resultMap);
-		setCDORequest(cdoRequest, resultMap, isCDOType);
-
-		return cdoRequest;
-	}
-
-	public static void jsonToCDO(String strJSON, CDO cdoResponse) throws JSONException, Exception {
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		JSONObject jsonObj = transferToJsonObj(strJSON); // 转换成jsonObjects
-		setMapFromJson(jsonObj, resultMap);
-		setCDORequest(cdoResponse, resultMap, true);
-	}
-
-	/*
-	 * 对json字符串转换成jsonObject对象, 其中包括了转义字符斜杠的处理.
-	 */
-	private static JSONObject transferToJsonObj(String strJSON) throws JSONException {
-		JSONObject jsonObj = null;
-		try {
-			jsonObj = new JSONObject(strJSON); // 偶数个的这里会转换成功
-		} catch (org.json.JSONException jex) {
-			// 特殊处理,替换1个反斜杠为2个,2个以上的不匹配
-			String newStr = strJSON.replaceAll("\\\\{1}", "\\\\\\\\"); 
-			jsonObj = new JSONObject(newStr);
-		}
-		return jsonObj;
-	}
-
-	/**
-	 * 转换json数组为CDO数组
-	 * 
-	 * @param jsonArray格式[{...},..]
-	 * @return CDO[]
-	 * @throws Exception
-	 */
-	public static CDO[] jsonArrayToCDOArray(String jsonArray) throws Exception {
-		if (jsonArray == null || jsonArray.trim().length() <= 0 || jsonArray.equalsIgnoreCase("[]")) {
-			return new CDO[0];
-		}
-		String tempList = "{\"cdosTempList\":" + jsonArray + "}";
-		CDO tempCDO = JsonUtil.jsonToCDO(tempList);
-		CDO[] cdosTempList = tempCDO.getCDOArrayValue("cdosTempList");
-		return cdosTempList;
-	}
-
-	/**
-	 * cdos中不支持还嵌套cdos,cdos有且只有cdo
-	 * 
-	 * @param cdos,key
-	 * @return 返回json对象{key:[{...},..]}
-	 */
-	public static String cdosToJson(String key, CDO[] cdos) {
-		if (cdos == null || cdos.length == 0) {
-			return null;
-		}
-		String strJsonArray = cdosToJsonArray(cdos);
-		strJsonArray = "{" + key + ":" + strJsonArray + "}";
-		return strJsonArray;
-	}
-
-	/**
-	 * cdos转换成JSONARRAY
-	 * 
-	 * @param cdos
-	 * @return 返回json数组[{...},..]
-	 */
-	@SuppressWarnings("unchecked")
-	public static String cdosToJsonArray(CDO[] cdos) {
-		if (cdos == null || cdos.length == 0) {
-			return null;
-		}
-		StringBuffer buf = new StringBuffer(80);
-		buf.append("[");
-		for (int i = 0; i < cdos.length; i++) {
-			if (i > 0) {
-				buf.append(",");
-			}
-			buf.append(cdos[i].toJSON());
-		}
-		buf.append("]");
-		return buf.toString();
-	}
-
-	/**
-	 * 根据 Json数据格式，得到一个具有构造一个等级结构
-	 * 
-	 * @throws JSONException
-	 */
-	private static void setMapFromJson(JSONObject jsonObj, Map<String, Object> map) throws JSONException {
-		try {
-			String key = "";
-			Object obj = null;
-			Map<String, Object> jsonMap = null;
-			List jsonList = null;
-			for (Iterator it = jsonObj.keys(); it.hasNext();) {
-				key = (String) it.next();
-				obj = jsonObj.get(key);
-				if (obj instanceof JSONObject) {
-					jsonMap = new HashMap();
-					map.put(key, jsonMap);
-					setMapFromJson((JSONObject) obj, jsonMap);
-				} else if (obj instanceof JSONArray) {
-					jsonList = new ArrayList();
-					map.put(key, jsonList);
-					setListFromJson((JSONArray) obj, jsonList);
-				} else {
-					map.put(key, obj);
+	private static void setEmptyArray(CDO cdoRequest,String key,byte json2CDOType,Class cls) throws JSONException{
+		try{
+		switch (json2CDOType) {
+			case JSON2CDO_Class:
+				{
+					String type=cls.getDeclaredField(key).getType().getSimpleName().toUpperCase();
+					type=type.indexOf("[")>0?type.substring(0,type.indexOf("[")):type;
+					switch(type){
+						case Class_Byte:
+							 cdoRequest.setByteArrayValue(key, new byte[0]);
+							 break;
+						case Class_Short:
+							 cdoRequest.setShortArrayValue(key, new short[0]);
+							 break;
+						case Class_Int:
+							  cdoRequest.setIntegerArrayValue(key, new int[0]);
+							  break;
+						case Class_Integer:
+							  cdoRequest.setIntegerArrayValue(key, new int[0]);
+							  break;
+						case Class_Long:
+							 cdoRequest.setLongArrayValue(key, new long[0]);
+							 break;
+						case Class_Float:
+							cdoRequest.setFloatArrayValue(key, new float[0]);
+							break;
+						case Class_Double:	
+							cdoRequest.setDoubleArrayValue(key, new double[0]);
+							break;
+						case Class_Boolean:	
+							cdoRequest.setBooleanArrayValue(key, new boolean[0]);
+							break;
+						case Class_String:
+							cdoRequest.setStringArrayValue(key, new String[0]);
+							break;
+						case Class_Time:
+							cdoRequest.setTimeArrayValue(key, new String[0]);
+							break;
+						case Class_Date:
+							cdoRequest.setDateArrayValue(key, new String[0]);
+							break;
+						case Class_DateTime:	
+							cdoRequest.setDateTimeArrayValue(key, new String[0]);
+							break;
+						default:
+							throw new JSONException("unsupported json to cdo type="+cls.getDeclaredField(key).getType().getName());							
+					}
 				}
-			}
-		} catch (Exception e) {
-			throw new JSONException(e);
-		}
-	}
-
-	/**
-	 * 根据 Json数据格式，得到一个具有构造一个等级结构
-	 * 
-	 * @param jsonObj
-	 * @param list
-	 * @throws Exception
-	 */
-	private static void setListFromJson(JSONArray jsonObj, List list) throws Exception {
-		Object obj = null;
-		String value = "";
-		Map jsonMap = null;
-		List jsonList = null;
-		for (int i = 0; i < jsonObj.length(); i++) {
-			obj = jsonObj.get(i);
-			if (obj instanceof JSONObject) {
-				jsonMap = new HashMap();
-				list.add(jsonMap);
-				setMapFromJson((JSONObject) obj, jsonMap);
-			} else if (obj instanceof JSONArray) {
-				jsonList = new ArrayList();
-				list.add(jsonList);
-				setListFromJson((JSONArray) obj, jsonList);
-			} else {
-				list.add(obj);
-			}
-		}
-	}
-
-	/**
-	 * 装配CDO对象 (cdoRequest)请求参数
-	 * 
-	 * @param cdoRequest
-	 * @param map
-	 * @throws Exception
-	 */
-	private static void setCDORequest(CDO cdoRequest, Map map, boolean isCDOType) throws Exception {
-		Object obj = null;
-		CDO tmpCDO = null;
-		for (Iterator it = map.keySet().iterator(); it.hasNext();) {
-			String key = (String) it.next();
-			obj = map.get(key);
-			if (obj instanceof Map) {
-				tmpCDO = new CDO();
-				cdoRequest.setCDOValue(key, tmpCDO);
-				setCDORequest(tmpCDO, (Map) obj, isCDOType);
-			} else if (obj instanceof List) {
-				setCDORequest(cdoRequest, key, (List) obj, isCDOType);
-			} else {
-				// TODO 根据参数前缀字符 判断要插入的 数据类型
-				setCDORequest(cdoRequest, key, obj, null, isCDOType);
-			}
-		}
-	}
-
-	private static void setCDORequest(CDO cdoRequest, String key, List list, boolean isCDOType) throws Exception {
-		Object obj = null;
-		CDO[] tmpCDOs = new CDO[list.size()];
-		if (isCDOType && list.size() == 0) {
-			if (key.startsWith(CDOTYPE_STRING_PREFIX)) {
+				break;
+			default:
 				cdoRequest.setStringArrayValue(key, new String[0]);
-			} else if (key.startsWith(CDOTYPE_DATETIME_PREFIX)) {
-				cdoRequest.setDateTimeArrayValue(key, new String[0]);
-			} else if (key.startsWith(CDOTYPE_CDO_PREFIX)) {
-				cdoRequest.setCDOArrayValue(key, new CDO[0]);
-			} else if (key.startsWith(CDOTYPE_SHORT_PREFIX)) {
-				cdoRequest.setShortArrayValue(key, new short[0]);
-			} else if (key.startsWith(CDOTYPE_LONG_PREFIX)) {
-				cdoRequest.setLongArrayValue(key, new long[0]);
-			} else if (key.startsWith(CDOTYPE_INTEGER_PREFIX)) {
-				cdoRequest.setIntegerArrayValue(key, new int[0]);
-			} else if (key.startsWith(CDOTYPE_BOOLEAN_PREFIX)) {
-				cdoRequest.setBooleanArrayValue(key, new boolean[0]);
-			}
+				break;
+		 }
+		}catch(Exception ex){
+			throw new JSONException(ex);
 		}
-		for (int i = 0; i < list.size(); i++) {
-			obj = list.get(i);
-			if (obj instanceof Map) {
-				tmpCDOs[i] = new CDO();
-				cdoRequest.setCDOArrayValue(key, tmpCDOs);
-				setCDORequest(tmpCDOs[i], (Map) obj, isCDOType);
-			} else {// 如果list的内容不为Map形式，则必为主数据类型
-				if (i == 0) {
-					// 根据参数前缀字符 判断要插入的 数据类型，
-					setCDORequest(cdoRequest, key, "", list, isCDOType);
-					break;
-				}
-			}
-		}
-	}
 
+	}
 	/**
-	 * 根据 参数key前缀 装配CDO 数据类型
-	 * 
-	 * @param isCDOType
-	 *            true 表示转换成CDO对应的类型 必须满足 CDOTYPE_前缀条件 false 表示 按照一般性处理 转换成CDO String类型
+	 * 设置常规类型数组
 	 * @param cdoRequest
 	 * @param key
-	 * @param list
-	 * @throws Exception
+	 * @param values
+	 * @param json2CDOType
+	 * @param cls
+	 * @throws JSONException
 	 */
-	public static void setCDORequest(CDO cdoRequest, String key, Object obj, List list, boolean isCDOType)
-			throws Exception {
-		boolean isArrflag = false;
-		if (list != null)
-			isArrflag = true;
-		try {
-			if (isCDOType) {
-				if (key.startsWith(CDOTYPE_STRING_PREFIX)) {// 处理 String
-					String value = "";
-					if (isArrflag) {
-						String str[] = new String[list.size()];
-						for (int i = 0; i < list.size(); i++) {
-							value = getStr(list.get(i));
-							str[i] = value;
-						}
-						cdoRequest.setStringArrayValue(key, str);
-					} else {
-						value = getStr(obj);
-						if (value == null)
-							return;
-						cdoRequest.setStringValue(key, value);
-					}
-					return;
-				} else if (key.startsWith(CDOTYPE_DATETIME_PREFIX)) {// 处理 DateTime
-					String value = "";
-					if (isArrflag) {
-						String str[] = new String[list.size()];
-						for (int i = 0; i < list.size(); i++) {
-							value = getStr(list.get(i));
-							if (value != null && value.trim().length() > 0) {
-								str[i] = Utility.parseDateTimeValue(value);
-							} else {
-								str[i] = value;
-							}
-						}
-						cdoRequest.setDateTimeArrayValue(key, str);
-					} else {
-						// 处理mongodb null数据
-						value = getStr(obj);
-						if (value == null)
-							return;
-						value = Utility.parseDateTimeValue(value);
-						cdoRequest.setDateTimeValue(key, value);
-					}
-					return;
-				} else if (key.startsWith(CDOTYPE_BOOLEAN_PREFIX)) {// 处理 BOOEAN
-					String value = "";
-					if (isArrflag) {
-						boolean b[] = new boolean[list.size()];
-						for (int i = 0; i < list.size(); i++) {
-							value = getStr(list.get(i));
-							b[i] = false;
-							if (value != null && value.trim().length() > 0)
-								b[i] = Utility.parseBooleanValue(value);
-						}
-						cdoRequest.setBooleanArrayValue(key, b);
-					} else {
-						value = getStr(obj);
-						if (value == null)
-							return;
-						boolean b = false;
-						if (value != null && value.trim().length() > 0)
-							b = Utility.parseBooleanValue(value);
-						cdoRequest.setBooleanValue(key, b);
-					}
-					return;
-				} else if (key.startsWith(CDOTYPE_LONG_PREFIX)) {// 处理 Long
-					String value = "";
-					if (isArrflag) {
-						long ls[] = new long[list.size()];
-						for (int i = 0; i < list.size(); i++) {
-							value = getStr(list.get(i));
-							if (value != null && value.trim().length() > 0)
-								// ls[i]=new Long(value);
-								ls[i] = new Double(value).longValue();
-						}
-						cdoRequest.setLongArrayValue(key, ls);
-					} else {
-						value = getStr(obj);
-						if (value == null || value.trim().equals(""))
-							return;
-						long l = 0;
-						// l=new Long(value);
-						l = new Double(value).longValue();
-						cdoRequest.setLongValue(key, l);
-					}
-					return;
-				} else if (key.startsWith(CDOTYPE_INTEGER_PREFIX) || key.startsWith(CDOTYPE_SHORT_PREFIX)) {
-					// TODO: 处理Integer,后期修改,因为传过来的有可能
-					String value = "";
-					if (isArrflag) {
-						int ns[] = new int[list.size()];
-						for (int i = 0; i < list.size(); i++) {
-							value = getStr(list.get(i));
-							if (value != null && value.trim().length() > 0)
-								// ns[i]=new Integer(value);
-								ns[i] = new Double(value).intValue();
-						}
-						cdoRequest.setIntegerArrayValue(key, ns);
-					} else {
-						value = getStr(obj);
-						if (value == null || value.trim().equals(""))
-							return;
-						int n = 0;
-						// n=new Integer(value);
-						n = new Double(value).intValue();
-						cdoRequest.setIntegerValue(key, n);
-					}
-				} else {// 按照一般性处理，都作为String 处理
-					String value = "";
-					if (isArrflag) {
-						String str[] = new String[list.size()];
-						for (int i = 0; i < list.size(); i++) {
-							value = getStr(list.get(i));
-							str[i] = value;
-						}
-						cdoRequest.setStringArrayValue(key, str);
-					} else {
-						value = getStr(obj);
-						if (value == null)
-							return;
-						cdoRequest.setStringValue(key, value);
+	private static void setCommontArray(CDO cdoRequest,String key,List<String> commonList,byte json2CDOType,Class cls) throws JSONException{
+		String[] values=commonList.toArray(new String[commonList.size()]);
+		try{
+		switch (json2CDOType) {
+			case JSON2CDO_Class:
+				{
+					String type=cls.getDeclaredField(key).getType().getSimpleName().toUpperCase();
+					type=type.indexOf("[")>0?type.substring(0,type.indexOf("[")):type;
+					switch(type){
+						case Class_Byte:
+							 cdoRequest.setByteArrayValue(key,Utility.parseByteArrayValue(values));
+							 break;
+						case Class_Short:
+							 cdoRequest.setShortArrayValue(key, Utility.parseShortArrayValue(values));
+							 break;
+						case Class_Int:
+							  cdoRequest.setIntegerArrayValue(key, Utility.parseIntegerArrayValue(values));
+							  break;
+						case Class_Integer:
+							  cdoRequest.setIntegerArrayValue(key, Utility.parseIntegerArrayValue(values));
+							  break;
+						case Class_Long:
+							 cdoRequest.setLongArrayValue(key, Utility.parseLongArrayValue(values));
+							 break;
+						case Class_Float:
+							cdoRequest.setFloatArrayValue(key,  Utility.parseFloatArrayValue(values));
+							break;
+						case Class_Double:	
+							cdoRequest.setDoubleArrayValue(key, Utility.parseDoubleArrayValue(values));
+							break;
+						case Class_Boolean:	
+							cdoRequest.setBooleanArrayValue(key,Utility.parseBooleanArrayValue(values));
+							break;
+						case Class_String:
+							cdoRequest.setStringArrayValue(key, Utility.parseStringArrayValue(values));
+							break;
+						case Class_Time:
+							cdoRequest.setTimeArrayValue(key, values);
+							break;
+						case Class_Date:
+							cdoRequest.setDateArrayValue(key, values);
+							break;
+						case Class_DateTime:	
+							cdoRequest.setDateTimeArrayValue(key,values);
+							break;
+						default:
+							throw new JSONException("unsupported json to cdo type,Json Key=["+key+"] Json value["+commonList+"] cast to "+cls.getDeclaredField(key).getType().getName());							
 					}
 				}
-			} else {// 按照一般性处理，都作为String 处理
-				String value = "";
-				if (isArrflag) {
-					String str[] = new String[list.size()];
-					for (int i = 0; i < list.size(); i++) {
-						value = getStr(list.get(i));
-						str[i] = value;
-					}
-					cdoRequest.setStringArrayValue(key, str);
-				} else {
-					value = getStr(obj);
-					if (value == null)
-						return;
-					cdoRequest.setStringValue(key, value);
-				}
-			}
-		} catch (Exception ex) {
-			throw new Exception(ex);
+				break;
+			case JSON2CDO_String:
+				cdoRequest.setStringArrayValue(key, values);
+				break;
+			default:
+				throw new JSONException("unsupported json to cdo type,json2CDOType="+json2CDOType);
+		 }
+		}catch(Exception ex){
+			throw new JSONException(ex);
 		}
-	}
-
-	private static String getStr(Object obj) {
-		if (obj == null)
-			return null;
-		String str = obj.toString();
-		if ("null".equals(str)) {
-			return null;
-		}
-		return str;
-	}
-
-	public static void main(String[] args) {
-		String aa = "[{\"lCategoryId\":1,\"nPropertyIndex\":0,\"strPropertyName\":\"颜\\\\\\色\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":1,\"bPropertyEditable\":false,\"strPropertyType\":\"SELECT\",\"strPropertyFormat\":\"红色|黄色|蓝色|军绿色|海蓝色\",\"nLevel\":1,\"bPropertyCanQuery\":true,\"strsPropertyFormat\":[\"红色\",\"黄色\",\"蓝色\",\"军绿色\",\"海蓝色\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1,\"nPropertyIndex\":2,\"strPropertyName\":\"重量\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":1,\"bPropertyEditable\":true,\"strPropertyType\":\"SELECT\",\"strPropertyFormat\":\"超重|重|轻\",\"nLevel\":1,\"bPropertyCanQuery\":true,\"strsPropertyFormat\":[\"超重\",\"重\",\"轻\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1,\"nPropertyIndex\":4,\"strPropertyName\":\"新旧程度\",\"bPropertyDisabled\":false,\"bPropertyRequired\":true,\"nPropertyCanQuery\":1,\"bPropertyEditable\":true,\"strPropertyType\":\"SELECT\",\"strPropertyFormat\":\"七成新|九成新|五成新|三成新\",\"nLevel\":1,\"bPropertyCanQuery\":true,\"strsPropertyFormat\":[\"七成新\",\"九成新\",\"五成新\",\"三成新\"],\"strPropertyValue\":\"七成新\",\"nPropValueIndex\":0}, {\"lCategoryId\":1,\"nPropertyIndex\":5,\"strPropertyName\":\"价格区间\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":0,\"bPropertyEditable\":true,\"strPropertyType\":\"SELECT\",\"strPropertyFormat\":\"不限|500-1000元|1000-2000元|2000-4000元\",\"nLevel\":1,\"bPropertyCanQuery\":false,\"strsPropertyFormat\":[\"不限\",\"500-1000元\",\"1000-2000元\",\"2000-4000元\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1,\"nPropertyIndex\":6,\"strPropertyName\":\"适用人群\",\"bPropertyDisabled\":false,\"bPropertyRequired\":true,\"nPropertyCanQuery\":0,\"bPropertyEditable\":false,\"strPropertyType\":\"SELECT\",\"strPropertyFormat\":\"老人|小孩|青年人|中年人\",\"nLevel\":1,\"bPropertyCanQuery\":false,\"strsPropertyFormat\":[\"老人\",\"小孩\",\"青年人\",\"中年人\"],\"strPropertyValue\":\"老人\",\"nPropValueIndex\":0}, {\"lCategoryId\":1,\"nPropertyIndex\":8,\"strPropertyName\":\"长度\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":0,\"bPropertyEditable\":false,\"strPropertyType\":\"SELECT\",\"strPropertyFormat\":\"长|中长|短\",\"nLevel\":1,\"bPropertyCanQuery\":false,\"strsPropertyFormat\":[\"长\",\"中长\",\"短\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1001,\"nPropertyIndex\":0,\"strPropertyName\":\"按特殊功能选择\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":1,\"bPropertyEditable\":false,\"strPropertyType\":\"SELECT\",\"strPropertyFormat\":\"防抖|面部优先|支持笑脸快门|广角|长焦|微距|手动|支持高清视频拍摄|触摸屏|旋转液晶屏|防水|防摔|防尘|防冻|支持外接闪光灯|支持GPS功能|支持RAW格式文件|无特殊功能\",\"nLevel\":2,\"bPropertyCanQuery\":true,\"strsPropertyFormat\":[\"防抖\",\"面部优先\",\"支持笑脸快门\",\"广角\",\"长焦\",\"微距\",\"手动\",\"支持高清视频拍摄\",\"触摸屏\",\"旋转液晶屏\",\"防水\",\"防摔\",\"防尘\",\"防冻\",\"支持外接闪光灯\",\"支持GPS功能\",\"支持RAW格式文件\",\"无特殊功能\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1001,\"nPropertyIndex\":1,\"strPropertyName\":\"相机价格\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":1,\"bPropertyEditable\":false,\"strPropertyType\":\"OTHER\",\"strPropertyFormat\":\"0-800元|801-1500元|1501-2500元|2501-4000元|4000元以上\",\"nLevel\":2,\"bPropertyCanQuery\":true,\"strsPropertyFormat\":[\"0-800元\",\"801-1500元\",\"1501-2500元\",\"2501-4000元\",\"4000元以上\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1001,\"nPropertyIndex\":2,\"strPropertyName\":\"光学变焦\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":1,\"bPropertyEditable\":false,\"strPropertyType\":\"OTHER\",\"strPropertyFormat\":\"定焦|2倍以下|2倍|3倍|3.4倍|3.6倍|4倍|5倍|6倍|7倍|8倍|10倍|12倍|14倍|15倍|18倍|2.5倍|20倍|24倍|26倍|3.8倍|4.6倍|可更换镜头|其它倍数\",\"nLevel\":2,\"bPropertyCanQuery\":true,\"strsPropertyFormat\":[\"定焦\",\"2倍以下\",\"2倍\",\"3倍\",\"3.4倍\",\"3.6倍\",\"4倍\",\"5倍\",\"6倍\",\"7倍\",\"8倍\",\"10倍\",\"12倍\",\"14倍\",\"15倍\",\"18倍\",\"2.5倍\",\"20倍\",\"24倍\",\"26倍\",\"3.8倍\",\"4.6倍\",\"可更换镜头\",\"其它倍数\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1001,\"nPropertyIndex\":3,\"strPropertyName\":\"上市时间\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":0,\"bPropertyEditable\":false,\"strPropertyType\":\"OTHER\",\"strPropertyFormat\":\"2009年|2008年|2007年|2006年|2005年|2004年|2004年以前\",\"nLevel\":2,\"bPropertyCanQuery\":false,\"strsPropertyFormat\":[\"2009年\",\"2008年\",\"2007年\",\"2006年\",\"2005年\",\"2004年\",\"2004年以前\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1001,\"nPropertyIndex\":4,\"strPropertyName\":\"颜色\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":0,\"bPropertyEditable\":false,\"strPropertyType\":\"OTHER\",\"strPropertyFormat\":\"军绿色|天蓝色|巧克力色|桔色|浅灰色|浅绿色|浅黄色|深卡其布色|深灰色|深紫色|深蓝色|白色|粉红色|紫罗兰|紫色|红色|绿色|花色|蓝色|褐色|透明|酒红色|黄色|黑色\",\"nLevel\":2,\"bPropertyCanQuery\":false,\"strsPropertyFormat\":[\"军绿色\",\"天蓝色\",\"巧克力色\",\"桔色\",\"浅灰色\",\"浅绿色\",\"浅黄色\",\"深卡其布色\",\"深灰色\",\"深紫色\",\"深蓝色\",\"白色\",\"粉红色\",\"紫罗兰\",\"紫色\",\"红色\",\"绿色\",\"花色\",\"蓝色\",\"褐色\",\"透明\",\"酒红色\",\"黄色\",\"黑色\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1001,\"nPropertyIndex\":5,\"strPropertyName\":\"显示屏尺寸\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":0,\"bPropertyEditable\":false,\"strPropertyType\":\"OTHER\",\"strPropertyFormat\":\"1.8及以下|2|2.4|2.5|2.6|2.7|2.8|3|3.1|3.2|3.5及以上\",\"nLevel\":2,\"bPropertyCanQuery\":false,\"strsPropertyFormat\":[\"1.8及以下\",\"2\",\"2.4\",\"2.5\",\"2.6\",\"2.7\",\"2.8\",\"3\",\"3.1\",\"3.2\",\"3.5及以上\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1001,\"nPropertyIndex\":6,\"strPropertyName\":\"像素\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":0,\"bPropertyEditable\":false,\"strPropertyType\":\"OTHER\",\"strPropertyFormat\":\"200万及以下|300万|600万|400万|500万|800万|1000万|700万|1100万|1200万|900万|1300万|1400万|1500万|1600万及以上\",\"nLevel\":2,\"bPropertyCanQuery\":false,\"strsPropertyFormat\":[\"200万及以下\",\"300万\",\"600万\",\"400万\",\"500万\",\"800万\",\"1000万\",\"700万\",\"1100万\",\"1200万\",\"900万\",\"1300万\",\"1400万\",\"1500万\",\"1600万及以上\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1001,\"nPropertyIndex\":7,\"strPropertyName\":\"储存介质\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":0,\"bPropertyEditable\":false,\"strPropertyType\":\"OTHER\",\"strPropertyFormat\":\"SD卡|高速SD卡|CF卡|高速CF卡|MINISD卡|高速miniSD|RSMMC卡|TF/MICRO SD卡|MS卡(记忆棒)|xD Picture卡|SmartMedia卡|MMC(多媒体卡)|MMC Plus|MMC Micro|微硬盘|其它闪存卡|Memory Stick Micro (M2)|Memory Stick Duo|Memory Stick PRO|Memory Stick PRO Duo|高速Memory Stick PRO|高速Memory Stick PRO Duo|SDHC|其它记忆棒|工业用CF卡\",\"nLevel\":2,\"bPropertyCanQuery\":false,\"strsPropertyFormat\":[\"SD卡\",\"高速SD卡\",\"CF卡\",\"高速CF卡\",\"MINISD卡\",\"高速miniSD\",\"RSMMC卡\",\"TF/MICRO SD卡\",\"MS卡(记忆棒)\",\"xD Picture卡\",\"SmartMedia卡\",\"MMC(多媒体卡)\",\"MMC Plus\",\"MMC Micro\",\"微硬盘\",\"其它闪存卡\",\"Memory Stick Micro (M2)\",\"Memory Stick Duo\",\"Memory Stick PRO\",\"Memory Stick PRO Duo\",\"高速Memory Stick PRO\",\"高速Memory Stick PRO Duo\",\"SDHC\",\"其它记忆棒\",\"工业用CF卡\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1001,\"nPropertyIndex\":8,\"strPropertyName\":\"电池类型\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":0,\"bPropertyEditable\":false,\"strPropertyType\":\"OTHER\",\"strPropertyFormat\":\"AA电池|专用锂电|镍氢电池|其它|其它电池\",\"nLevel\":2,\"bPropertyCanQuery\":false,\"strsPropertyFormat\":[\"AA电池\",\"专用锂电\",\"镍氢电池\",\"其它\",\"其它电池\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1001,\"nPropertyIndex\":9,\"strPropertyName\":\"售后服务\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":0,\"bPropertyEditable\":false,\"strPropertyType\":\"OTHER\",\"strPropertyFormat\":\"全国联保|店铺三包|自用(已过保)|其它售后服务\",\"nLevel\":2,\"bPropertyCanQuery\":false,\"strsPropertyFormat\":[\"全国联保\",\"店铺三包\",\"自用(已过保)\",\"其它售后服务\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1001,\"nPropertyIndex\":10,\"strPropertyName\":\"套餐\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":0,\"bPropertyEditable\":false,\"strPropertyType\":\"OTHER\",\"strPropertyFormat\":\"无|套餐一|套餐二|套餐三|套餐四|套餐五|套餐六|套餐七|套餐八\",\"nLevel\":2,\"bPropertyCanQuery\":false,\"strsPropertyFormat\":[\"无\",\"套餐一\",\"套餐二\",\"套餐三\",\"套餐四\",\"套餐五\",\"套餐六\",\"套餐七\",\"套餐八\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1001,\"nPropertyIndex\":11,\"strPropertyName\":\"适合送给谁\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":0,\"bPropertyEditable\":false,\"strPropertyType\":\"OTHER\",\"strPropertyFormat\":\"中年女性|中年男性|女青年|男青年|老年女性|老年男性|女童|少女|少男|男童\",\"nLevel\":2,\"bPropertyCanQuery\":false,\"strsPropertyFormat\":[\"中年女性\",\"中年男性\",\"女青年\",\"男青年\",\"老年女性\",\"老年男性\",\"女童\",\"少女\",\"少男\",\"男童\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}, {\"lCategoryId\":1001,\"nPropertyIndex\":12,\"strPropertyName\":\"摄像机颜色\",\"bPropertyDisabled\":false,\"bPropertyRequired\":false,\"nPropertyCanQuery\":0,\"bPropertyEditable\":false,\"strPropertyType\":\"OTHER\",\"strPropertyFormat\":\"黑色|银色|金色|红色|玫瑰红|粉色|浅粉|浅蓝|蓝色|深蓝|草绿|绿色|黄色|灰色|白色|咖啡色|橙色|紫色\",\"nLevel\":2,\"bPropertyCanQuery\":false,\"strsPropertyFormat\":[\"黑色\",\"银色\",\"金色\",\"红色\",\"玫瑰红\",\"粉色\",\"浅粉\",\"浅蓝\",\"蓝色\",\"深蓝\",\"草绿\",\"绿色\",\"黄色\",\"灰色\",\"白色\",\"咖啡色\",\"橙色\",\"紫色\"],\"strPropertyValue\":\"\",\"nPropValueIndex\":-1}]";
-		String no_nomal = "[{'\\x\\\\yz':'28_113_48000\\\\\\00000\\\\\\\\963_1258_2_155','nSubGoodsValueIndex':'0'},{'wyz':'28_113_4800000000963_1258_2_155','nSubGoodsValueIndex':'0'}]";
-		try {
-			JsonUtil a1=new JsonUtil();
-			JsonUtil.ab a= a1.new ab();
-			java.lang.reflect.Field[] field=a.getClass().getDeclaredFields();
-			for(int i=0;i<a.getClass().getDeclaredFields().length;i++){
-				System.out.println(field[i].getType().getSimpleName());
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			// logger.error(e.getMessage(),e);
-		}
-	}
-	
-	private class ab{
-		
-		private byte by;
-		private short sh;
-		private int i;
-		private long c;
-		private boolean b;
-		private String str;
-		private Date da;
-		private DateTime time;
-	
-		private byte[] arr0;
-		private short[] arr1;
-		private int[] arr2;
-		private long[] arr3;
-		private boolean[] arr4;
-		private String[] arr5;
-		private Date[] arr6;
-		private DateTime[] arr7;
-	
-		
-		
 	}
 }

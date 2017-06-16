@@ -1397,16 +1397,24 @@ public class CDO implements java.io.Serializable
 		return hmItem.keySet();
 	}
 	
-	private  void release(){
-		if(hmItem!=null)
+    
+	void release(){		
+		if(hmItem!=null){
+			Entry<String, Field> entry=null;
+			for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
+				entry=it.next();
+				entry.getValue().release();
+			}	
 			hmItem.clear();
-		hmItem=null;		
+			hmItem=null;
+		}				
 	}
 	
 	public static void release(CDO cdo){
-		if(cdo!=null)
-			cdo.release();
-		cdo=null;		
+		if(cdo!=null){	  
+		  cdo.release();
+		  cdo=null;
+		}	
 	}
 	
 	public int size(){

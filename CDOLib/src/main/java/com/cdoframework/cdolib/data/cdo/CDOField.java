@@ -73,6 +73,7 @@ public class CDOField extends FieldImpl
 		this.cdoValue.toProto(prefix,cdoProto);	
 	}
 	
+	
 	@Override
 	public int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){		
 		int curLevel=1;
@@ -104,8 +105,12 @@ public class CDOField extends FieldImpl
 		return cdoValue;
 	}
 
-
-
+	
+	
+	@Override
+	public void release(){		
+		this.cdoValue.release();	
+	}
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
 	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------

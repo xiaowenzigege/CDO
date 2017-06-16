@@ -4,32 +4,6 @@
  * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOWeb/Source/com/cdoframework/cdolib/web/CDOServlet.java,v 1.1 2008/03/05
  * 01:35:45 Frank Exp $
  * 
- * $Log: CDOServlet.java,v $ Revision 1.1 2008/03/05 01:35:45 Frank *** empty log message ***
- * 
- * Revision 1.4 2008/02/19 13:45:25 Frank *** empty log message ***
- * 
- * Revision 1.3 2008/01/22 12:24:06 Frank *** empty log message ***
- * 
- * Revision 1.2 2008/01/07 10:57:48 Frank *** empty log message ***
- * 
- * Revision 1.1 2007/12/25 14:11:29 Frank *** empty log message ***
- * 
- * Revision 1.8 2007/12/15 09:07:22 Frank *** empty log message ***
- * 
- * Revision 1.7 2007/12/10 12:01:03 Frank *** empty log message ***
- * 
- * Revision 1.6 2007/08/31 15:10:58 Frank *** empty log message ***
- * 
- * Revision 1.5 2007/08/31 14:58:54 Frank *** empty log message ***
- * 
- * Revision 1.4 2007/08/31 13:43:06 Frank *** empty log message ***
- * 
- * Revision 1.3 2007/08/31 02:50:54 Frank *** empty log message ***
- * 
- * Revision 1.2 2007/08/29 08:32:18 Frank *** empty log message ***
- * 
- * Revision 1.1 2007/08/22 06:34:06 Frank *** empty log message ***
- * 
  * 
  */
 
@@ -107,7 +81,7 @@ public abstract class CDOJSONServlet extends HttpServlet
 			}
 			else
 			{
-				cdoRequest=JsonUtil.jsonToCDO(strCDORequest);
+				cdoRequest=JsonUtil.json2CDO(strCDORequest);
 			}
 			cdoRequest.setStringValue("strTransName",strTransName);
 		}

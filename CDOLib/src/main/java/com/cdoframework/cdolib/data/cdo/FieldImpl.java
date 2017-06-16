@@ -6,7 +6,6 @@
 
 package com.cdoframework.cdolib.data.cdo;
 
-import java.io.File;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -16,7 +15,9 @@ import com.google.protobuf.ByteString;
 
 
 /**
- * @author Frank
+ * 
+ * @author Kenel  Liu
+ *
  */
 public abstract class FieldImpl implements Field
 {
@@ -120,6 +121,11 @@ public abstract class FieldImpl implements Field
 	@Override
 	public Buffer getBuffer() {		
 		return buffer;
+	}
+	
+	@Override
+	public void release() {		
+		 this.buffer=null;
 	}
 	
 }

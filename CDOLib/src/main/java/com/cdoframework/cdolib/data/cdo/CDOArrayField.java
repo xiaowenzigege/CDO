@@ -160,6 +160,12 @@ public class CDOArrayField extends ArrayFieldImpl
 	}
 
 
+	@Override
+	public void release(){	
+		for(int i=0;i<this.cdosValue.size();i=i+1){
+			this.cdosValue.get(i).release();
+		}		
+	}
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
 	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------

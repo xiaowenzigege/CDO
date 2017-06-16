@@ -2403,7 +2403,7 @@ public class Utility
 			double[] values=new double[objs.length];
 			for(int i=0;i<objs.length;i++)
 			{
-				values[i]=Double.valueOf(objs[i].toString()).floatValue();
+				values[i]=Double.valueOf(objs[i].toString()).doubleValue();
 			}
 			return values;
 		}
@@ -2468,6 +2468,16 @@ public class Utility
 			}
 			return bsArr;
 		}
+		if(source instanceof Object[])
+		{
+			Object[] objs=(Object[])source;
+			boolean[] values=new boolean[objs.length];
+			for(int i=0;i<objs.length;i++)
+			{
+				values[i]=Boolean.valueOf(objs[i].toString());
+			}
+			return values;
+		}		
 		if(source instanceof String)
 		{
 			String[] ss = ((String)source).split(",");
@@ -2597,6 +2607,16 @@ public class Utility
 		{
 			return (byte[])source;
 		}
+		if(source instanceof Object[])
+		{
+			Object[] objs=(Object[])source;
+			byte[] values=new byte[objs.length];
+			for(int i=0;i<objs.length;i++)
+			{
+				values[i]=Byte.parseByte(objs[i].toString());
+			}
+			return values;
+		}		
 		if(source instanceof String)
 		{
 			String[] ss = ((String)source).split(",");
