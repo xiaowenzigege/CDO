@@ -163,7 +163,7 @@ public class CDOArrayField extends ArrayFieldImpl
 	@Override
 	public void release(){	
 		for(int i=0;i<this.cdosValue.size();i=i+1){
-			this.cdosValue.get(i).release();
+			CDO.release(this.cdosValue.get(i));
 		}		
 	}
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------

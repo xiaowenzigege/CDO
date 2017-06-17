@@ -16,7 +16,7 @@ import java.util.Map;
 
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.Utility;
-import com.google.protobuf.ByteString;
+//import com.google.protobuf.ByteString;
 
 /**
  * @author Frank
@@ -108,8 +108,8 @@ public class CDOField extends FieldImpl
 	
 	
 	@Override
-	public void release(){		
-		this.cdoValue.release();	
+	public void release(){				
+		CDO.release(this.cdoValue);
 	}
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
