@@ -36,8 +36,8 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	private static Logger logger=Logger.getLogger(RPCServerHandler.class);
 	private final  BusinessService serviceBus=BusinessService.getInstance();
 	static Map<String,SocketChannel> socketChannelMap=new ConcurrentHashMap<String, SocketChannel>();
-	private ExecutorService executor =Executors.newFixedThreadPool(Math.max(30,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS, Runtime.getRuntime().availableProcessors()*5)));
- 
+	private ExecutorService executor =Executors.newFixedThreadPool(Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS,Runtime.getRuntime().availableProcessors()*2)));
+	
     /**
      * 防止   客户机与服务器之间的长连接   发生阻塞,业务数据采用线程池处理,长连接channel仅用于数据传输，
      * 多个action通过长连接 发送请求到service端 
@@ -140,9 +140,9 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 				channel.writeAndFlush(resMessage);
 				channel.flush();
 			}finally{
-				CDO.release(cdoResponse);
+				CDO.release(cdoResponse);				
 				CDO.release(cdoReturn);
-				CDO.release(cdoOutput);
+				CDO.release(cdoOutput);				
 			}
 		}
 		
@@ -175,7 +175,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 			}catch(Throwable ex){
 				logger.error(ex.getMessage(), ex);	
 				setOutCDO(cdoOutput,"服务端处理异常:"+ex.getMessage());
-			}finally{
+			}finally{				
 				CDO.release(cdoRequest);
 			} 	
 			return cdoOutput;

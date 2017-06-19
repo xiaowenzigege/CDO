@@ -87,6 +87,10 @@ public class CDO implements java.io.Serializable
 	//如果FieldId错误，则返回null
 	 FieldId parseFieldId(String strFieldId)
 	{
+		if(hmItem==null){
+			throw new RuntimeException(" CDO is already release ,can'n  set field ["+strFieldId+"]");
+		}
+			
 		char[] chsFieldId=strFieldId.toCharArray();
 		
 		int nLength=chsFieldId.length;;
@@ -151,7 +155,10 @@ public class CDO implements java.io.Serializable
 	 * 转换成avro
 	 * @return
 	 */
-	public  AvroCDO toAvro(){		
+	public  AvroCDO toAvro(){	
+		if(this.hmItem==null){
+			return null;
+		}
 		LinkedHashMap<CharSequence,ByteBuffer> fieldMap=new LinkedHashMap<CharSequence, ByteBuffer>();
 		String prefixField="";	
 		int maxLevel=toAvro(prefixField,fieldMap,0);			
@@ -194,6 +201,9 @@ public class CDO implements java.io.Serializable
 	}
 	
 	public GoogleCDO.CDOProto.Builder toProtoBuilder(){
+		if(this.hmItem==null){
+			return null;
+		}
 		GoogleCDO.CDOProto.Builder cdoProto=GoogleCDO.CDOProto.newBuilder();
 		String prefixField="";	
 		int maxLevel=toProto(prefixField,cdoProto,0);
@@ -237,6 +247,9 @@ public class CDO implements java.io.Serializable
 	 
 	public String toXML()
 	{
+		if(this.hmItem==null){
+			return null;
+		}
 		StringBuilder strbXML=new StringBuilder(500);
 		strbXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");				
 		strbXML.append("<CDO>");
@@ -268,6 +281,9 @@ public class CDO implements java.io.Serializable
 	 
 	public String toXMLLog()
 	{
+		if(this.hmItem==null){
+			return null;
+		}
 		StringBuilder strbXML=new StringBuilder(500);
 		strbXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");				
 		strbXML.append("<CDO>");
@@ -282,6 +298,9 @@ public class CDO implements java.io.Serializable
 	
 	
 	public String toXMLWithIndent(){
+		if(this.hmItem==null){
+			return null;
+		}
 		StringBuilder strbXML=new StringBuilder(500);
 		strbXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
 		strbXML.append("<CDO>\r\n");
@@ -314,6 +333,9 @@ public class CDO implements java.io.Serializable
 	 */
 	public String toJSON()
 	{
+		if(this.hmItem==null){
+			return null;
+		}
 		StringBuffer str_JSON=new StringBuffer("{");
 		
 		Entry<String, Field> entry=null;
@@ -336,6 +358,9 @@ public class CDO implements java.io.Serializable
 
 	public String toJSONString()
 	{
+		if(this.hmItem==null){
+			return null;
+		}
 		StringBuffer str_JSON=new StringBuffer("{");
 		
 		Entry<String, Field> entry=null;
@@ -558,6 +583,9 @@ public class CDO implements java.io.Serializable
      */
     public Field getObject(String strFieldId)
     {
+		if(hmItem==null){
+			throw new RuntimeException(" CDO is already release ,can'n  get field ["+strFieldId+"]");
+		}
     	Field objExt=this.hmItem.get(strFieldId);
     	if(objExt!=null)
     	{//直接子节点
@@ -1392,29 +1420,29 @@ public class CDO implements java.io.Serializable
 	public void clear(){
 		hmItem.clear();
 	}
+	
 	public Set<String> keySet()
 	{
 		return hmItem.keySet();
 	}
 	
     
-	void release(){		
+	 void release(){		
 		if(hmItem!=null){
 			Entry<String, Field> entry=null;
 			for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
 				entry=it.next();
-				entry.getValue().release();
-			}	
+				entry.getValue().release();								
+			}				
 			hmItem.clear();
-			hmItem=null;
-		}				
+			hmItem=null;		
+		}		
 	}
 
 	public static void release(CDO cdo){
-		if(cdo!=null){	  
-		  cdo.release();
-		  cdo=null;
-		}	
+		if(cdo!=null){
+			cdo.release();
+		}
 	}
 	
 	public int size(){
@@ -1447,6 +1475,9 @@ public class CDO implements java.io.Serializable
 	 */
 	public String toString()
 	{
+		if(this.hmItem==null){
+			return null;
+		}
 		StringBuffer str_String=new StringBuffer("{");
 		
 		Entry<String, Field> entry=null;

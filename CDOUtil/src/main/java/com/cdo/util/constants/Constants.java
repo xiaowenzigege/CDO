@@ -10,9 +10,9 @@ import com.cdo.util.exception.EncodeException;
 public class Constants {
 
 	public static class Netty{
-		public static final String THREAD_BOSS="io.netty.eventLoopThreads";//netty主线程，默认 Runtime.getRuntime().availableProcessors()
+		public static final String THREAD_BOSS="io.netty.eventLoopThreads";//netty主线程，默认 Runtime.getRuntime().availableProcessors()*2
 		public static final String THREAD_WORK="io.netty.thread.channel";//处理netty主线程工作线程,默认Runtime.getRuntime().availableProcessors()*2
-		public static final String THREAD_BUSINESS="io.netty.thread.bussiness";//处理业务线程数量  服务端默认30
+		public static final String THREAD_BUSINESS="io.netty.thread.bussiness";//处理业务线程数量  默认Runtime.getRuntime().availableProcessors()*2
 		public static final String BUSINESS_TIME_OUT="io.netty.bussiness.timeOut";//客户端发送请求，等待服务端返回结果的超时时间,默认30分钟
 		
 	}

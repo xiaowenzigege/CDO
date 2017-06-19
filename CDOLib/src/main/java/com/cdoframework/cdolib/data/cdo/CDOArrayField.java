@@ -162,7 +162,7 @@ public class CDOArrayField extends ArrayFieldImpl
 
 	@Override
 	public void release(){	
-		for(int i=0;i<this.cdosValue.size();i=i+1){
+		for(int i=0;i<this.cdosValue.size();i=i+1){			
 			CDO.release(this.cdosValue.get(i));
 		}		
 	}

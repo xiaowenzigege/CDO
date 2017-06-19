@@ -149,7 +149,7 @@ public abstract class CDOServlet extends HttpServlet
 		}finally{
 			//业务处理完毕 释放CDO
 			CDO.release(cdoRequest);
-			CDO.release(cdoResponse);			
+			CDO.release(cdoResponse);				
 		}		
 	}
 	private void outPut(HttpServletResponse response,String message) throws IOException{

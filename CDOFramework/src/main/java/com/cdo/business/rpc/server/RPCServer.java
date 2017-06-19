@@ -30,9 +30,10 @@ public class RPCServer {
     
 	public void start(){
         final SslContext sslCtx;
-        int numMainThread=Math.max(1, SystemPropertyUtil.getInt(Constants.Netty.THREAD_BOSS,Runtime.getRuntime().availableProcessors()));
-        bossGroup = new NioEventLoopGroup(numMainThread);
-        workerGroup = new NioEventLoopGroup(Math.max(numMainThread*2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_WORK,Runtime.getRuntime().availableProcessors())));
+        int bossThread=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BOSS,Runtime.getRuntime().availableProcessors()));
+        int workThread=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_WORK,Runtime.getRuntime().availableProcessors()*2));
+        bossGroup = new NioEventLoopGroup(bossThread);
+        workerGroup = new NioEventLoopGroup(workThread);
         try {
             if (SSL) {
                 SelfSignedCertificate ssc = new SelfSignedCertificate();
