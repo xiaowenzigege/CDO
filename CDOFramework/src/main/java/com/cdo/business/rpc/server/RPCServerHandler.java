@@ -36,7 +36,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	private static Logger logger=Logger.getLogger(RPCServerHandler.class);
 	private final  BusinessService serviceBus=BusinessService.getInstance();
 	static Map<String,SocketChannel> socketChannelMap=new ConcurrentHashMap<String, SocketChannel>();
-	private ExecutorService executor =Executors.newFixedThreadPool(Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS,Runtime.getRuntime().availableProcessors()*2)));
+	private ExecutorService executor =Executors.newFixedThreadPool(Math.max(5,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS,Runtime.getRuntime().availableProcessors()*2)));
 	
     /**
      * 防止   客户机与服务器之间的长连接   发生阻塞,业务数据采用线程池处理,长连接channel仅用于数据传输，
@@ -100,14 +100,9 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 		@Override
 		public void run() {				
 			
-			CDO cdoResponse=null;
-			CDO cdoReturn=null;
+			CDO cdoRequest=null;				
 			CDO cdoOutput=null;
 			try{
-				cdoOutput=handleTrans(this.proto,this.listFile);	   
-				cdoResponse=cdoOutput.getCDOValue("cdoResponse");
-				cdoReturn=cdoOutput.getCDOValue("cdoReturn"); 
-				
 				String clientId=UUidGenerator.ClientId.toString(this.proto.getClientId().toByteArray());
 				SocketChannel channel=socketChannelMap.get(clientId);			
 				if(channel==null){
@@ -117,14 +112,18 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 				}			
 		    	//响应里存在文件,即下载到客服端.是否有文件传输到客户端
 				List<File> files=null;
+				
+				//解释cdo
 		    	try{
-		    		files=RPCFile.readFileFromCDO(cdoResponse);    		
+					cdoRequest=ParseProtoCDO.ProtoParse.parse(proto);
+					cdoOutput=handleTrans(cdoRequest);	   
+		    		files=RPCFile.readFileFromCDO(cdoOutput.getCDOValue("cdoResponse"));    		
 		    	}catch(Throwable ex){
-				    //文件不存在,返回给错误给客户端
+				    //解释异常 ,..文件不存在,返回给错误给客户端
 		    		logger.error(ex.getMessage(), ex);
-					cdoReturn.setIntegerValue("nCode",-1);
-					cdoReturn.setStringValue("strText","RPCServer "+ex.getMessage());
-					cdoReturn.setStringValue("strInfo","RPCServer "+ex.getMessage());
+		    		if(cdoOutput==null)
+		    			cdoOutput=new CDO();
+		    		setFailOutCDO(cdoOutput, "RPCServer "+ex.getMessage());
 		    	}
 		    	
 				GoogleCDO.CDOProto.Builder resProtoBuiler=cdoOutput.toProtoBuilder();
@@ -136,32 +135,28 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 				resMessage.setHeader(resHeader);
 				resMessage.setBody(resProtoBuiler.build());
 				resMessage.setFiles(files);
-			
+				
 				channel.writeAndFlush(resMessage);
-				channel.flush();
+				
 			}finally{
-				CDO.release(cdoResponse);				
-				CDO.release(cdoReturn);
-				CDO.release(cdoOutput);				
+				CDO.release(cdoRequest);
+				CDO.deepRelease(cdoOutput);				
 			}
 		}
 		
-		private CDO handleTrans(GoogleCDO.CDOProto proto,List<File> listFile){
+		private CDO handleTrans(CDO cdoRequest){
 			
-			CDO cdoOutput=new CDO();	
-			CDO cdoRequest=null;
-			try{				
-				CDO cdoResponse=new CDO();
-				//解释cdo
-				cdoRequest=ParseProtoCDO.ProtoParse.parse(proto);
+			CDO cdoOutput=new CDO();
+			CDO cdoResponse=new CDO();;			
+			try{							
 				//将client传过来的文件 设置到cdoRequest里
-				RPCFile.setFile2CDO(cdoRequest, listFile);
+				RPCFile.setFile2CDO(cdoRequest, this.listFile);
 				//处理业务
 				Return ret=serviceBus.handleTrans(cdoRequest, cdoResponse);
 				if(ret==null){
 					String strServiceName=cdoRequest.exists(ITransService.SERVICENAME_KEY)?cdoRequest.getStringValue(ITransService.SERVICENAME_KEY):"null";
 					String strTransName=cdoRequest.exists(ITransService.TRANSNAME_KEY)?cdoRequest.getStringValue(ITransService.TRANSNAME_KEY):"null";					
-					setOutCDO(cdoOutput," ret is null,Request method :strServiceName="+strServiceName+",strTransName="+strTransName);	
+					setFailOutCDO(cdoOutput," ret is null,Request method :strServiceName="+strServiceName+",strTransName="+strTransName);	
 					logger.error("ret is null,Request method:strServiceName="+strServiceName+",strTransName="+strTransName);
 				}else{
 					CDO cdoReturn=new CDO();
@@ -174,14 +169,12 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 				}
 			}catch(Throwable ex){
 				logger.error(ex.getMessage(), ex);	
-				setOutCDO(cdoOutput,"服务端处理异常:"+ex.getMessage());
-			}finally{				
-				CDO.release(cdoRequest);
-			} 	
+				setFailOutCDO(cdoOutput,"服务端处理异常:"+ex.getMessage());
+			}	
 			return cdoOutput;
 		}
 
-		private void setOutCDO(CDO cdoOutput,String message){
+		private void setFailOutCDO(CDO cdoOutput,String message){
 			
 			CDO cdoReturn=new CDO();
 			cdoReturn.setIntegerValue("nCode",-1);

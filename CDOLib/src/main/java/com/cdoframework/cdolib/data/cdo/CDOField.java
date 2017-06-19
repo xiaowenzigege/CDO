@@ -109,7 +109,7 @@ public class CDOField extends FieldImpl
 	
 	@Override
 	public void release(){				
-		CDO.release(this.cdoValue);
+		CDO.deepRelease(this.cdoValue);
 	}
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
