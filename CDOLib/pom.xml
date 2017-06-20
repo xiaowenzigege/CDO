@@ -20,10 +20,10 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>org.json</artifactId>
-			<version>chargebee-1.0</version>
-		</dependency>		
+		    <groupId>org.json</groupId>
+		    <artifactId>org.json</artifactId>
+		    <version>chargebee-1.0</version>
+		</dependency>						
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
@@ -39,11 +39,13 @@
 		  <groupId>org.apache.avro</groupId>
 		  <artifactId>avro</artifactId>
 		  <version>1.8.1</version>
-            <exclusions>            	
+            <exclusions>   
+               <!--           	
             	<exclusion>
 			      <groupId>org.codehaus.jackson</groupId>
 			      <artifactId>jackson-mapper-asl</artifactId>
             	</exclusion>
+            	-->
             	<exclusion>
 				      <groupId>com.thoughtworks.paranamer</groupId>
 				      <artifactId>paranamer</artifactId>        	

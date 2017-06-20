@@ -3,11 +3,16 @@ package com.cdo.example;
 import java.io.File;
 import java.net.InetAddress;
 
+import com.cdoframework.cdolib.base.Date;
+import com.cdoframework.cdolib.base.DateTime;
+import com.cdoframework.cdolib.base.Time;
 import com.cdoframework.cdolib.data.cdo.BooleanArrayField;
 import com.cdoframework.cdolib.data.cdo.ByteArrayField;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.DateArrayField;
 import com.cdoframework.cdolib.data.cdo.DateTimeArrayField;
+import com.cdoframework.cdolib.data.cdo.DoubleArrayField;
+import com.cdoframework.cdolib.data.cdo.FloatArrayField;
 import com.cdoframework.cdolib.data.cdo.IntegerArrayField;
 import com.cdoframework.cdolib.data.cdo.LongArrayField;
 import com.cdoframework.cdolib.data.cdo.ShortArrayField;
@@ -15,151 +20,132 @@ import com.cdoframework.cdolib.data.cdo.TimeArrayField;
 
 public class ExampleCDO {
 
-	public static CDO getCDO(){
-			CDO cdo = new CDO();		
-//			cdo.setByteValue("byte", (byte)2);
-//			cdo.setByteArrayValue("bytes", new byte[]{1,2,3});
-//			cdo.setBooleanValue("bvalue", true);
-//			cdo.setBooleanArrayValue("bsValue", new boolean[]{false,true,true,false});
-//			cdo.setShortValue("short", (short)100);
-//			cdo.setShortArrayValue("shorts", new short[]{100,200,300});
-//			cdo.setIntegerValue("int", 300);
-//			cdo.setIntegerArrayValue("ints", new int[]{400,500,600});
-//			cdo.setLongValue("long", 7000);
-//			cdo.setLongArrayValue("longs", new long[]{9000,10000});
-//			cdo.setFloatValue("float", 3.0f);
-//			cdo.setFloatArrayValue("floats", new float[]{1.0f,2.0f,3.0f});
-//			cdo.setDoubleValue("double", 5.0);
-//			cdo.setDoubleArrayValue("doubles", new double[]{6.0,7.0,8.0});
-//			cdo.setStringValue("str", "张三");
-//			cdo.setStringArrayValue("strvalues", new String[]{ "张3", "张4", "张5"});
-//			cdo.setDateValue("date", "2016-05-01");
-//			cdo.setDateArrayValue("date1", new String[]{"2012-05-01","2013-05-01","2014-05-01"});
-//			cdo.setTimeValue("time", "20:00:00");
-//			cdo.setTimeArrayValue("times", new String[]{"17:00:00","18:00:00","20:00:00"});
-//			cdo.setDateTimeValue("dateTime", "2012-05-01 20:00:00");
-//			cdo.setDateTimeArrayValue("dateTimeValues", new String[]{"2012-05-01 20:00:00","2013-05-01 21:00:00","2014-05-01 22:00:00"});
-//			cdo.setFileValue("file", new File("D:/test/excel.xlsx"));
-//			cdo.setFileValue("file1", new File("D:/test/test.xlsx"));
-//			for(int i=0;i<5;i++){
-//				System.out.println(cdo.getDoubleValue("double"));
-//				System.out.println(cdo.getDoubleValue("double"));
-//				System.out.println(((ByteArrayField)cdo.getField("bytes")).getValue());
-//				System.out.println(((ByteArrayField)cdo.getField("bytes")).getValue());
-//			    ((ByteArrayField)cdo.getField("bytes")).setValueAt(2, (byte)2);
-//			    ((ByteArrayField)cdo.getField("bytes")).setValueAt(0, (byte)2);
-//			    ((ByteArrayField)cdo.getField("bytes")).setValueAt(1, (byte)2);
-//				System.out.println(((ByteArrayField)cdo.getField("bytes")).getValue());
-//				System.out.println(((ByteArrayField)cdo.getField("bytes")).getValueAt(0));
-//				System.out.println(((ByteArrayField)cdo.getField("bytes")).getValueAt(1));
-//				System.out.println(((ByteArrayField)cdo.getField("bytes")).getValueAt(2));
-//				
-//				System.out.println(cdo.getBooleanValue("bvalue"));
-//				System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
-//				System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
-//			    ((BooleanArrayField)cdo.getField("bsValue")).setValueAt(3, true);
-//				System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValue());
-//				System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValueAt(0));
-//				System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValueAt(1));
-//				System.out.println(((BooleanArrayField)cdo.getField("bsValue")).getValueAt(2));
-//				
-//				System.out.println(((DateArrayField)cdo.getField("date1")).getValueAt(1));
-//				System.out.println(((DateArrayField)cdo.getField("date1")).getValueAt(1));
-//				System.out.println(((DateArrayField)cdo.getField("date1")).getValue()[2]);
-//				System.out.println(((DateArrayField)cdo.getField("date1")).getValue()[2]);
-//				System.out.println(((DateArrayField)cdo.getField("date1")).getLength());
-//				System.out.println(((DateArrayField)cdo.getField("date1")).getLength());	
-//				
-//				System.out.println(((TimeArrayField)cdo.getField("times")).getValueAt(1));
-//				System.out.println(((TimeArrayField)cdo.getField("times")).getValueAt(1));
-//				System.out.println(((TimeArrayField)cdo.getField("times")).getValue()[0]);
-//				System.out.println(((TimeArrayField)cdo.getField("times")).getValue()[0]);
-//				System.out.println(((TimeArrayField)cdo.getField("times")).getLength());
-//				System.out.println(((TimeArrayField)cdo.getField("times")).getLength());
-//				
-//				System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValueAt(1));
-//				System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValueAt(0));
-//				System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValue()[0]);
-//				System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getValue()[0]);
-//				System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getLength());
-//				System.out.println(((DateTimeArrayField)cdo.getField("dateTimeValues")).getLength());
-//				
-//				System.out.println(((ShortArrayField)cdo.getField("shorts")).getValueAt(1));
-//				System.out.println(((ShortArrayField)cdo.getField("shorts")).getValueAt(1));
-//				System.out.println(((ShortArrayField)cdo.getField("shorts")).getLength());
-//				System.out.println(((ShortArrayField)cdo.getField("shorts")).getLength());			
-//				System.out.println(((ShortArrayField)cdo.getField("shorts")).getValue()[0]);
-//				System.out.println(((ShortArrayField)cdo.getField("shorts")).getValue()[0]);
-//
-//				System.out.println(((IntegerArrayField)cdo.getField("ints")).getValueAt(1));
-//				System.out.println(((IntegerArrayField)cdo.getField("ints")).getValueAt(1));
-//				System.out.println(((IntegerArrayField)cdo.getField("ints")).getLength());
-//				System.out.println(((IntegerArrayField)cdo.getField("ints")).getLength());			
-//				System.out.println(((IntegerArrayField)cdo.getField("ints")).getValue()[0]);
-//				System.out.println(((IntegerArrayField)cdo.getField("ints")).getValue()[0]);
-//				
-//				System.out.println(((LongArrayField)cdo.getField("longs")).getValueAt(1));
-//				System.out.println(((LongArrayField)cdo.getField("longs")).getValueAt(1));
-//				System.out.println(((LongArrayField)cdo.getField("longs")).getLength());
-//				System.out.println(((LongArrayField)cdo.getField("longs")).getLength());			
-//				System.out.println(((LongArrayField)cdo.getField("longs")).getValue()[0]);
-//				System.out.println(((LongArrayField)cdo.getField("longs")).getValue()[0]);
-//				
-//				
-//			}
-			
-			
-			CDO cdoOut=new CDO();
-			
-//			CDO cdoReturn=new CDO();
-//			cdoReturn.setIntegerValue("nCode",0);
-//			cdoReturn.setStringValue("strText","测试成功");
-//			cdoReturn.setStringValue("strInfo","测试成功");
-//			
-//			CDO cdoResponse=new CDO();			
-//			cdoResponse.setIntegerValue("nCount", 30);
-//			cdoResponse.setCDOArrayValue("cdosList", new CDO[]{cdo.clone(),cdo.clone(),cdo.clone(),cdo.clone(),cdo.clone(),cdo.clone()});			
-//			cdoResponse.setStringValue("aa", "ab");
-//			
-//			cdoOut.setCDOValue("cdoResponse",cdoResponse);
-//			cdoOut.setCDOValue("cdoReturn", cdoReturn);
-			cdoOut.copyFrom(cdo);
-//			cdoOut.setCDOArrayValue("testarr", new CDO[]{cdo.clone()});
-			System.out.println("xml="+cdoOut.toXMLWithIndent());	
-			InetAddress ia=null;
-			try {
-				ia=InetAddress.getLocalHost();
-				
-				
-				String localname=ia.getHostName();
-				for (InetAddress it : InetAddress.getAllByName(localname)) {
-
-					System.out.println(ipv4OrIpv6(it));
-
-				}
-				String localip=ia.getHostAddress();
-				System.out.println("本机名称是："+ localname);
-				System.out.println("本机的ip是 ："+localip);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			return cdoOut;
+	
+	public static class  ExampleCDOType{
+		byte byte1,bytes;
+		boolean boolean1,booleanArr;
+		short short1,shortArr;
+		int int1,intArr;
+		long long1,longArr;
+		float float1,floatArr;
+		double double1,doubleArr;
+		String str1,strArr;
+		Date date1,dateArr;
+		Time time1,timeArr;
+		DateTime dateTime1,dateTimeArr;
+		File file;
 	}
 	
-	private static String ipv4OrIpv6(InetAddress ita) {
+	public static ExampleCDOType getCDOClassType(){
+		return new ExampleCDOType();
+	}
+	
+	public static CDO getCDO(){
+			CDO cdo = new CDO();		
+			cdo.setByteValue("byte1", (byte)2);
+			cdo.setByteArrayValue("bytes", new byte[]{1,2,3});
+			cdo.setBooleanValue("boolean1", true);
+			cdo.setBooleanArrayValue("booleanArr", new boolean[]{false,true,true,false});
+			cdo.setShortValue("short1", (short)100);
+			cdo.setShortArrayValue("shortArr", new short[]{100,200,300});
+			cdo.setIntegerValue("int1", 300);
+			cdo.setIntegerArrayValue("intArr", new int[]{400,500,600});
+			cdo.setLongValue("long1", 7000);
+			cdo.setLongArrayValue("longArr", new long[]{9000,10000});
+			cdo.setFloatValue("float1", 3.0f);
+			cdo.setFloatArrayValue("floatArr", new float[]{1.0f,2.0f,3.0f});
+			cdo.setDoubleValue("double1", 5.0);
+			cdo.setDoubleArrayValue("doubleArr", new double[]{6.0,7.0,8.0});
+			cdo.setStringValue("str1", "张三");
+			cdo.setStringArrayValue("strArr", new String[]{ "张3", "张4", "张5"});
+			cdo.setDateValue("date1", "2016-05-01");
+			cdo.setDateArrayValue("dateArr", new String[]{"2012-05-01","2013-05-01","2014-05-01"});
+			cdo.setTimeValue("time1", "20:00:00");
+			cdo.setTimeArrayValue("timeArr", new String[]{"17:00:00","18:00:00","20:00:00"});
+			cdo.setDateTimeValue("dateTime1", "2012-05-01 20:00:00");
+			cdo.setDateTimeArrayValue("dateTimeArr", new String[]{"2012-05-01 20:00:00","2013-05-01 21:00:00","2014-05-01 22:00:00"});
+			cdo.setFileValue("file", new File("D:/test/excel.xlsx"));
+			/**
+			for(int i=0;i<5;i++){
 
-		String[] itn = ita.toString().split("/");
+				System.out.println(((ByteArrayField)cdo.getField("bytes")).getValue());
+				System.out.println(((ByteArrayField)cdo.getField("bytes")).getValue());
+			    ((ByteArrayField)cdo.getField("bytes")).setValueAt(0, (byte)2);			   
+				System.out.println(((ByteArrayField)cdo.getField("bytes")).getValue());
+				System.out.println(((ByteArrayField)cdo.getField("bytes")).getValueAt(0));
+				System.out.println(((ByteArrayField)cdo.getField("bytes")).getValueAt(1));
+				System.out.println(((ByteArrayField)cdo.getField("bytes")).getValueAt(2));
+				
+				System.out.println(cdo.getBooleanValue("boolean1"));
+				System.out.println(((BooleanArrayField)cdo.getField("booleanArr")).getValue());
+				System.out.println(((BooleanArrayField)cdo.getField("booleanArr")).getValue());
+			    ((BooleanArrayField)cdo.getField("booleanArr")).setValueAt(3, true);
+				System.out.println(((BooleanArrayField)cdo.getField("booleanArr")).getValue());
+				System.out.println(((BooleanArrayField)cdo.getField("booleanArr")).getValueAt(0));				
+				System.out.println(((BooleanArrayField)cdo.getField("booleanArr")).getValueAt(3));
+				
+				System.out.println(((DateArrayField)cdo.getField("dateArr")).getValueAt(1));
+				System.out.println(((DateArrayField)cdo.getField("dateArr")).getValueAt(1));
+				System.out.println(((DateArrayField)cdo.getField("dateArr")).getValue()[2]);
+				System.out.println(((DateArrayField)cdo.getField("dateArr")).getValue()[2]);
+				System.out.println(((DateArrayField)cdo.getField("dateArr")).getLength());
+				System.out.println(((DateArrayField)cdo.getField("dateArr")).getLength());	
+				
+				System.out.println(((TimeArrayField)cdo.getField("timeArr")).getValueAt(1));
+				System.out.println(((TimeArrayField)cdo.getField("timeArr")).getValueAt(1));
+				System.out.println(((TimeArrayField)cdo.getField("timeArr")).getValue()[0]);
+				System.out.println(((TimeArrayField)cdo.getField("timeArr")).getValue()[0]);
+				System.out.println(((TimeArrayField)cdo.getField("timeArr")).getLength());
+				System.out.println(((TimeArrayField)cdo.getField("timeArr")).getLength());
+				
+				System.out.println(((DateTimeArrayField)cdo.getField("dateTimeArr")).getValueAt(1));
+				System.out.println(((DateTimeArrayField)cdo.getField("dateTimeArr")).getValueAt(0));
+				System.out.println(((DateTimeArrayField)cdo.getField("dateTimeArr")).getValue()[0]);
+				System.out.println(((DateTimeArrayField)cdo.getField("dateTimeArr")).getValue()[0]);
+				System.out.println(((DateTimeArrayField)cdo.getField("dateTimeArr")).getLength());
+				System.out.println(((DateTimeArrayField)cdo.getField("dateTimeArr")).getLength());
+				
+				System.out.println(((ShortArrayField)cdo.getField("shortArr")).getValueAt(1));
+				System.out.println(((ShortArrayField)cdo.getField("shortArr")).getValueAt(1));
+				System.out.println(((ShortArrayField)cdo.getField("shortArr")).getLength());
+				System.out.println(((ShortArrayField)cdo.getField("shortArr")).getLength());			
+				System.out.println(((ShortArrayField)cdo.getField("shortArr")).getValue()[0]);
+				System.out.println(((ShortArrayField)cdo.getField("shortArr")).getValue()[0]);
 
-		String str = itn[1];
-
-		if (str.length() > 16) {
-
-			return "IPv6\t" + ita.toString();
-
-		}
-
-		return "IPv4\t" + ita.toString();
-
-		}
+				System.out.println(((IntegerArrayField)cdo.getField("intArr")).getValueAt(1));
+				System.out.println(((IntegerArrayField)cdo.getField("intArr")).getValueAt(1));
+				System.out.println(((IntegerArrayField)cdo.getField("intArr")).getLength());
+				System.out.println(((IntegerArrayField)cdo.getField("intArr")).getLength());			
+				System.out.println(((IntegerArrayField)cdo.getField("intArr")).getValue()[0]);
+				System.out.println(((IntegerArrayField)cdo.getField("intArr")).getValue()[0]);
+				
+				System.out.println(((LongArrayField)cdo.getField("longArr")).getValueAt(1));
+				System.out.println(((LongArrayField)cdo.getField("longArr")).getValueAt(1));
+				System.out.println(((LongArrayField)cdo.getField("longArr")).getLength());
+				System.out.println(((LongArrayField)cdo.getField("longArr")).getLength());			
+				System.out.println(((LongArrayField)cdo.getField("longArr")).getValue()[0]);
+				System.out.println(((LongArrayField)cdo.getField("longArr")).getValue()[0]);
+				
+				System.out.println(((FloatArrayField)cdo.getField("floatArr")).getValueAt(1));
+				System.out.println(((FloatArrayField)cdo.getField("floatArr")).getValueAt(1));
+				System.out.println(((FloatArrayField)cdo.getField("floatArr")).getLength());
+				System.out.println(((FloatArrayField)cdo.getField("floatArr")).getLength());			
+				System.out.println(((FloatArrayField)cdo.getField("floatArr")).getValue()[0]);
+				System.out.println(((FloatArrayField)cdo.getField("floatArr")).getValue()[0]);
+				
+				System.out.println(((DoubleArrayField)cdo.getField("doubleArr")).getValueAt(1));
+				System.out.println(((DoubleArrayField)cdo.getField("doubleArr")).getValueAt(1));
+				System.out.println(((DoubleArrayField)cdo.getField("doubleArr")).getLength());
+				System.out.println(((DoubleArrayField)cdo.getField("doubleArr")).getLength());			
+				System.out.println(((DoubleArrayField)cdo.getField("doubleArr")).getValue()[0]);
+				System.out.println(((DoubleArrayField)cdo.getField("doubleArr")).getValue()[0]);				
+			}	
+			**/
+			CDO cdoOut=new CDO();
+			cdoOut.copyFrom(cdo);
+			cdoOut.setCDOValue("cdo", cdo.clone());
+			cdoOut.setCDOArrayValue("cdoArr", new CDO[]{cdo.clone(),cdo.clone()});
+			return cdoOut;
+	 }
+	
 }

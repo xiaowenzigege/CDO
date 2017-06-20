@@ -1,5 +1,6 @@
 package com.cdoframework.cdolib.util;
 
+import java.io.File;
 //import java.text.DateFormat;
 //import java.text.SimpleDateFormat;
 //import java.util.Date;
@@ -41,7 +42,7 @@ public class JsonUtil {
 	final static String Class_Time="TIME";
 	final static String Class_Date="DATE";
 	final static String Class_DateTime="DATETIME";
-	
+	final static String Class_File="FILE";
 
 	/**
 	 * json中 value 数据类型 都转换成String,将json转换成CDO
@@ -55,13 +56,15 @@ public class JsonUtil {
 		return json2CDO(strJSON, JSON2CDO_String,null);
 	}
 	/**
-	 * 使用class定义的value 数据类型 [即在class中标识key名称 的类型即可],将jsong转换成CDO
-	 * @param strJSON
-	 * @param cls 使用class定义的value 数据类型 [即在class中标识key类型即可],将jsong转换成CDO	
+	 * 将 json字符串 转换成CDO对象	 * 
+	 * @param strJSON  json字符串
+	 * @param cls    定义 了strJSON中    key作为变量,key变量的类型为    key对应的value值实际数据类型。
+	 *      如 : strJSON={"key1":"value1","key2":20} 则 定义的class中   存在  int key2,String key1 变量,
+	 *        则  strJSON 转换key1成CDO 中string 对象,转换key2成CDO 中int 对象数据
 	 * @return
 	 * @throws JSONException
 	 */
-	public static CDO json2CDO(String strJSON,Class cls) throws JSONException{		
+	public static CDO json2CDO(String strJSON,Class<?> cls) throws JSONException{		
 		return json2CDO(strJSON,JSON2CDO_Class,cls);
 	}
 
@@ -73,9 +76,12 @@ public class JsonUtil {
 	 * @return
 	 * @throws JSONException
 	 */
-	private static CDO json2CDO(String strJSON,byte json2CDOType,Class cls) throws JSONException {
+	private static CDO json2CDO(String strJSON,byte json2CDOType,Class<?>  cls) throws JSONException {
 		if(strJSON==null)
 			return null;
+		if(!strJSON.startsWith("{")|| !strJSON.endsWith("}")){
+			throw new JSONException(strJSON+" is not jsonObject");
+		} 
 		CDO cdoRequest = new CDO();		
 		JSONObject jsonObj = String2Json(strJSON); // 转换成jsonObjects
 		setCDOFromJson(jsonObj, cdoRequest,json2CDOType,cls);		
@@ -104,13 +110,15 @@ public class JsonUtil {
 	
 	/**
 	 * 
-	 * 使用class定义的value 数据类型 [即在class中标识key名称 的类型即可],json数组转换为CDO数组
+	 * 
 	 * @param jsonArray jsonArray格式  [{...},..]
-	 * @param cls
+	 * @param cls 定义 了jsonArray中    key作为变量,key变量的类型为    key对应的value值实际数据类型。json数组转换为CDO数组
+	 * 	 *      如 : jsonArray=[{"key1":"value1","key2":20}] 则 定义的class中   存在  int key2,String key1 变量,
+	 *         则  jsonArray 转换key1成CDO 中string 对象,转换key2成CDO 中int 对象数据
 	 * @return
 	 * @throws Exception
 	 */
-	public static CDO[] jsonArray2CDOArray(String jsonArray,Class cls) throws Exception {
+	public static CDO[] jsonArray2CDOArray(String jsonArray,Class<?>  cls) throws Exception {
 		if (jsonArray == null || jsonArray.trim().length() <= 0 || jsonArray.equalsIgnoreCase("[]")) {
 			return new CDO[0];
 		}
@@ -164,12 +172,12 @@ public class JsonUtil {
 	 * 
 	 * @throws JSONException
 	 */
-	private static void setCDOFromJson(JSONObject jsonObj,CDO cdoRequest,byte json2CDOType,Class cls) throws JSONException {
+	private static void setCDOFromJson(JSONObject jsonObj,CDO cdoRequest,byte json2CDOType,Class<?>  cls) throws JSONException {
 		try {
 			String key = "";
 			Object obj = null;
 			CDO subCDO=null;
-			for (Iterator it = jsonObj.keys(); it.hasNext();) {
+			for (Iterator<?> it = jsonObj.keys(); it.hasNext();) {
 				key = (String) it.next();
 				obj = jsonObj.get(key);
 				if (obj instanceof JSONObject) {
@@ -195,7 +203,7 @@ public class JsonUtil {
 	}
 	
 	
-	private static void setCDOListFromJson(JSONArray jsonObj,CDO cdoParent,String key,byte json2CDOType,Class cls) throws Exception {
+	private static void setCDOListFromJson(JSONArray jsonObj,CDO cdoParent,String key,byte json2CDOType,Class<?>  cls) throws Exception {
 		Object obj = null;
 		List<String> commonList=null;
 		List<CDO> cdoList=null;
@@ -224,7 +232,7 @@ public class JsonUtil {
 
 	}
 	
-	private static void setCommonField(CDO cdoRequest,String key,Object values,byte json2CDOType,Class cls) throws JSONException{
+	private static void setCommonField(CDO cdoRequest,String key,Object values,byte json2CDOType,Class<?>  cls) throws JSONException{
 		try{
 		switch (json2CDOType) {
 			case JSON2CDO_Class:
@@ -268,6 +276,9 @@ public class JsonUtil {
 						case Class_DateTime:	
 							cdoRequest.setDateTimeValue(key,Utility.parseDateTimeValue(values));
 							break;
+						case Class_File:
+							cdoRequest.setFileValue(key, new File(Utility.parseStingValue(values)));
+							break;
 						default:
 							throw new JSONException("unsupported json to cdo type,Json Key=["+key+"] Json value["+values+"] cast to "+cls.getDeclaredField(key).getType().getName());							
 					}
@@ -284,7 +295,7 @@ public class JsonUtil {
 		}
 
 	}
-	private static void setEmptyArray(CDO cdoRequest,String key,byte json2CDOType,Class cls) throws JSONException{
+	private static void setEmptyArray(CDO cdoRequest,String key,byte json2CDOType,Class<?>  cls) throws JSONException{
 		try{
 		switch (json2CDOType) {
 			case JSON2CDO_Class:
@@ -351,7 +362,7 @@ public class JsonUtil {
 	 * @param cls
 	 * @throws JSONException
 	 */
-	private static void setCommontArray(CDO cdoRequest,String key,List<String> commonList,byte json2CDOType,Class cls) throws JSONException{
+	private static void setCommontArray(CDO cdoRequest,String key,List<String> commonList,byte json2CDOType,Class<?>  cls) throws JSONException{
 		String[] values=commonList.toArray(new String[commonList.size()]);
 		try{
 		switch (json2CDOType) {
