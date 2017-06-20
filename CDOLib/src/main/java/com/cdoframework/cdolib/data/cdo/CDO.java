@@ -1426,8 +1426,10 @@ public class CDO implements java.io.Serializable
 		return hmItem.keySet();
 	}
 	
-    
-	 void deepRelease(){		
+	/**
+	 * 深层释放，释放所有数据
+	 */
+	 public void deepRelease(){		
 		if(hmItem!=null){
 			Entry<String, Field> entry=null;
 			for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
@@ -1439,7 +1441,10 @@ public class CDO implements java.io.Serializable
 		}		
 	}
 
-	 void shallowRelease(){
+	 /**
+	  * 浅层释放,仅释放 顶层CDO里常规变量[如：string,int],嵌套本层CDO及CDO数组里的数据, 并未进行有效释放
+	  */
+	 public void release(){
 		 if(hmItem!=null){	
 			Entry<String, Field> entry=null;
 			Field field=null;
@@ -1456,23 +1461,7 @@ public class CDO implements java.io.Serializable
 			hmItem=null;	
 		 }
 	 }
-	 /**
-	  * 浅层释放,仅释放 顶层CDO里常规变量[如：string,int],嵌套本层CDO及CDO数组里的数据, 并未进行有效释放
-	  * @param cdo
-	  */
-	public static void release(CDO cdo){
-		if(cdo!=null){			
-			cdo.shallowRelease();
-		}
-	}
-	/**
-	 * 深层释放，释放所有数据
-	 */
-	public static void deepRelease(CDO cdo){
-		if(cdo!=null){			
-			cdo.deepRelease();
-		}
-	}
+
 	
 	public int size(){
 		return hmItem.size();

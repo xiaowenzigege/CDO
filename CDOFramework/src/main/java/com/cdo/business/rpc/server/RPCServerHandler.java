@@ -139,8 +139,8 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 				channel.writeAndFlush(resMessage);
 				
 			}finally{
-				CDO.release(cdoRequest);
-				CDO.deepRelease(cdoOutput);				
+				cdoRequest.deepRelease();
+				cdoOutput.deepRelease();			
 			}
 		}
 		
