@@ -26,6 +26,7 @@ import nanoxml.XMLElement;
 import org.apache.log4j.Logger;
 
 import com.cdo.avro.protocol.AvroCDO;
+import com.cdo.exception.StateException;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
@@ -176,6 +177,9 @@ public class CDO implements java.io.Serializable
 	 * @return
 	 */
 	int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
+		if(this.hmItem==null){
+			throwStateException(prefixField);		
+		}		
 		Entry<String, Field> entry=null;
 		int curLevel=0;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
@@ -220,6 +224,9 @@ public class CDO implements java.io.Serializable
 	 * @return
 	 */
 	int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){
+		if(this.hmItem==null){
+			throwStateException(prefixField);
+		}
 		Entry<String, Field> entry=null;
 		int curLevel=0;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
@@ -231,6 +238,26 @@ public class CDO implements java.io.Serializable
 		return maxLevel;
 	}	
 	
+	private void throwStateException(String prefixField){
+		String message="The CDO";
+		if(prefixField.endsWith(".")){
+			prefixField=prefixField.substring(0,prefixField.length()-1);				
+		}			
+		int index=prefixField.lastIndexOf(".");
+		if(index>0){
+			String name=prefixField.substring(index+1, prefixField.length());
+			if(name.contains("[")){
+				 prefixField=prefixField.substring(0,index+1)+name.substring(0,name.lastIndexOf("["));
+				 message="The CDO Array";
+			}
+		}else{
+			if(prefixField.contains("[")){
+				 prefixField=prefixField.substring(0,prefixField.indexOf("["));
+				 message="The CDO Array ";
+			}
+		}
+		throw new StateException(message+"["+prefixField+"] has been released by another program");
+	}
 	/**
 	 * 供非CDOField  CDOArrayField 基础字段调用，输出数据
 	 * @param prefixField
@@ -262,7 +289,10 @@ public class CDO implements java.io.Serializable
 
 
 	 String toXML(StringBuilder strbXML)
-	{				
+	{		
+		 if(this.hmItem==null){
+				return strbXML.toString();
+		 }		
 		strbXML.append("<CDO>");
 		appendFieldXML(strbXML);
 		strbXML.append("</CDO>");
@@ -271,6 +301,9 @@ public class CDO implements java.io.Serializable
 	}
 	
 	 private void appendFieldXML(StringBuilder strbXML){
+		 if(this.hmItem==null){
+				return;
+		 }		 
 		Entry<String, Field> entry=null;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
 			entry=it.next();		
@@ -315,6 +348,9 @@ public class CDO implements java.io.Serializable
 	}
 	
 	void toXMLWithIndent(String strIndent,StringBuilder strbXML){
+		 if(this.hmItem==null){
+				return ;
+		 }			
 		strbXML.append(strIndent).append("<CDO>\r\n");		
 		Entry<String, Field> entry=null;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
