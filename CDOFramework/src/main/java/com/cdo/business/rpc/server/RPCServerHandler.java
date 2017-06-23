@@ -19,7 +19,6 @@ import com.cdo.google.handle.ParseProtoCDO;
 import com.cdo.google.handle.ProtoProtocol;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdo.util.common.UUidGenerator;
-import com.cdo.util.constants.Constants;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.servicebus.ITransService;
@@ -29,15 +28,17 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
-import io.netty.util.internal.SystemPropertyUtil;
 
 public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 
 	private static Logger logger=Logger.getLogger(RPCServerHandler.class);
 	private final  BusinessService serviceBus=BusinessService.getInstance();
 	static Map<String,SocketChannel> socketChannelMap=new ConcurrentHashMap<String, SocketChannel>();
-	private ExecutorService executor =Executors.newFixedThreadPool(Math.max(5,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS,Runtime.getRuntime().availableProcessors()*2)));
+	private ExecutorService executor;
 	
+	public RPCServerHandler(int businessThreads){
+		this.executor=Executors.newFixedThreadPool(businessThreads);
+	}
     /**
      * 防止   客户机与服务器之间的长连接   发生阻塞,业务数据采用线程池处理,长连接channel仅用于数据传输，
      * 多个action通过长连接 发送请求到service端 

@@ -12,9 +12,10 @@ import io.netty.handler.timeout.IdleStateHandler;
 
 public class RPCServerInitializer extends ChannelInitializer<SocketChannel> {
     private final SslContext sslCtx;
-
-    public RPCServerInitializer(SslContext sslCtx) {
+    private final int businessThreads;
+    public RPCServerInitializer(SslContext sslCtx,int businessThreads) {
         this.sslCtx = sslCtx;
+        this.businessThreads=businessThreads;
     }
 
     @Override
@@ -26,7 +27,7 @@ public class RPCServerInitializer extends ChannelInitializer<SocketChannel> {
         p.addLast("encoder",new CDOProtobufEncoder());
         p.addLast("decoder",new CDOProtobufDecoder());  
         p.addLast("ideaHandler",new IdleStateHandler(60,15,0));              
-        p.addLast(new RPCServerHandler());
+        p.addLast(new RPCServerHandler(businessThreads));
     }
 
 }

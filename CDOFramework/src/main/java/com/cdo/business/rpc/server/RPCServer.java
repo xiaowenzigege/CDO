@@ -31,7 +31,9 @@ public class RPCServer {
 	public void start(){
         final SslContext sslCtx;
         int bossThread=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BOSS,Runtime.getRuntime().availableProcessors()));
-        int workThread=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_WORK,Runtime.getRuntime().availableProcessors()*2));
+        int workThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_WORK,Runtime.getRuntime().availableProcessors()*2));
+        int businessThread=Math.max(5,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS,Runtime.getRuntime().availableProcessors()*3));
+        
         bossGroup = new NioEventLoopGroup(bossThread);
         workerGroup = new NioEventLoopGroup(workThread);
         try {
@@ -48,13 +50,13 @@ public class RPCServer {
              .childOption(ChannelOption.SO_KEEPALIVE, true)
              .channel(NioServerSocketChannel.class)
              .handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new RPCServerInitializer(sslCtx));
+             .childHandler(new RPCServerInitializer(sslCtx,businessThread));
                         	
             if(GlobalResource.cdoConfig==null)
             	GlobalResource.bundleInitCDOEnv();
             int port=GlobalResource.cdoConfig.getInt("netty.server.port");
             startService();
-            logger.info("server start success ..........");
+            logger.info("server start success ..........\r\n connection acceptor  threads="+bossThread+",channel threads="+workThread+",business threads="+businessThread);
             ChannelFuture f= b.bind(port).sync();
             f.channel().closeFuture().sync();
          }catch(Throwable ex){
