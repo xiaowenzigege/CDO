@@ -79,7 +79,7 @@ public class JsonUtil {
 	private static CDO json2CDO(String strJSON,byte json2CDOType,Class<?>  cls) throws JSONException {
 		if(strJSON==null)
 			return null;
-		if(!strJSON.startsWith("{")|| !strJSON.endsWith("}")){
+		if(!strJSON.startsWith("{") && !strJSON.startsWith("\r{") && !strJSON.startsWith("\r\n{")){
 			throw new JSONException(strJSON+" is not jsonObject");
 		} 
 		CDO cdoRequest = new CDO();		
@@ -100,7 +100,7 @@ public class JsonUtil {
 		if (jsonArray == null || jsonArray.trim().length() <= 0 || jsonArray.equalsIgnoreCase("[]")) {
 			return new CDO[0];
 		}
-		if(!jsonArray.startsWith("[")|| !jsonArray.endsWith("]")){
+		if(!jsonArray.startsWith("[") && !jsonArray.startsWith("\r[") && !jsonArray.startsWith("\r\n[")){
 			throw new JSONException(jsonArray+" is not jsonArray");
 		} 
 		String tempList = "{\"cdosTempList\":" + jsonArray + "}";
@@ -122,7 +122,7 @@ public class JsonUtil {
 		if (jsonArray == null || jsonArray.trim().length() <= 0 || jsonArray.equalsIgnoreCase("[]")) {
 			return new CDO[0];
 		}
-		if(!jsonArray.startsWith("[")|| !jsonArray.endsWith("]")){
+		if(!jsonArray.startsWith("[") && !jsonArray.startsWith("\r[") && !jsonArray.startsWith("\r\n[")){
 			throw new JSONException(jsonArray+" is not jsonArray");
 		} 
 		String tempList = "{\"cdosTempList\":" + jsonArray + "}";
