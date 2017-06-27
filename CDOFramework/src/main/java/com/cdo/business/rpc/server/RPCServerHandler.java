@@ -22,6 +22,7 @@ import com.cdo.util.common.UUidGenerator;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.servicebus.ITransService;
+import com.cdoframework.cdolib.util.ReleaseFactory;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -35,7 +36,6 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	private final  BusinessService serviceBus=BusinessService.getInstance();
 	static Map<String,SocketChannel> socketChannelMap=new ConcurrentHashMap<String, SocketChannel>();
 	private ExecutorService executor;
-	
 	public RPCServerHandler(int businessThreads){
 		this.executor=Executors.newFixedThreadPool(businessThreads);
 	}
@@ -147,7 +147,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 				channel.writeAndFlush(resMessage);				
 			}finally{
 				cdoRequest.deepRelease();
-				cdoOutput.deepRelease();			
+				cdoOutput.deepRelease();		
 			}
 		}
 		
