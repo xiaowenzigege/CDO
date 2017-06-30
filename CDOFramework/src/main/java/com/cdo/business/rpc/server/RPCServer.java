@@ -30,8 +30,8 @@ public class RPCServer {
     
 	public void start(){
         final SslContext sslCtx;
-        int bossThread=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BOSS,Runtime.getRuntime().availableProcessors()));
-        int workThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_WORK,Runtime.getRuntime().availableProcessors()*2));
+        int bossThread=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_BOSS,Runtime.getRuntime().availableProcessors()));
+        int workThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_WORK,Runtime.getRuntime().availableProcessors()*2));
         int businessThread=Math.max(5,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS,Runtime.getRuntime().availableProcessors()*3));
         
         bossGroup = new NioEventLoopGroup(bossThread);

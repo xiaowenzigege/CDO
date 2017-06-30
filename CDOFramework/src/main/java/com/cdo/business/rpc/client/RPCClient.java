@@ -25,6 +25,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.util.internal.SystemPropertyUtil;
 
 import org.apache.log4j.Logger;
 
@@ -34,6 +35,8 @@ import com.cdo.business.rpc.zk.ZkServerData;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
 import com.cdo.google.protocol.GoogleCDO;
+import com.cdo.util.algorithm.CircleQueue;
+import com.cdo.util.constants.Constants;
 import com.cdo.util.exception.NotEstablishConnectException;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
@@ -47,8 +50,10 @@ import com.cdoframework.cdolib.servicebus.ITransService;
 public class RPCClient extends ZKRPCClient{
 	private final static Logger logger=Logger.getLogger(RPCClient.class);
 	private ExecutorService executor=Executors.newScheduledThreadPool(1);
-	
-	private  static  final Map<String, RPCClient> clients;
+	//一个客户端与同一服务器端口 可以创建多个长连接，即开启多个tcp通道
+	static final int channelNum=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_WORK,1));
+	static final int workGroup=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_BOSS,Runtime.getRuntime().availableProcessors()));
+	private static  final Map<String, CircleQueue<RPCClient>> clients;	
 	static final boolean SSL = System.getProperty("ssl") != null;
 	private volatile EventLoopGroup workerGroup;
 	private volatile Bootstrap bootstrap;
@@ -68,7 +73,7 @@ public class RPCClient extends ZKRPCClient{
     private boolean closedServer=false;
 
     static{
-    	clients=Collections.synchronizedMap(new HashMap<String, RPCClient>());
+    	clients=Collections.synchronizedMap(new HashMap<String, CircleQueue<RPCClient>>());
     }
     /**
      *  
@@ -78,17 +83,13 @@ public class RPCClient extends ZKRPCClient{
 	    if(nettyAddress==null|| nettyAddress.trim().equals(""))
 	    	return;
 		String[] params=nettyAddress.split(":");
-		String strWorkGroup="0";
 		if(params.length<2)
-			return;
-		if(params.length>2)
-			strWorkGroup=params[2].trim();		
+			return;	
 		String hostName=params[0].trim();
 		String strPort=params[1].trim();
 		int port=Integer.parseInt(strPort);
-		int workGroup=Integer.parseInt(strWorkGroup);
 		RPCClient client=new RPCClient(hostName,port);
-		client.init(workGroup);       
+		client.init();       
     }
     
     
@@ -152,8 +153,8 @@ public class RPCClient extends ZKRPCClient{
    }
 	
 	
-  void init(){
-    	init(0);
+  void init(){	  
+    	init(workGroup);
     }
 
 	
@@ -230,17 +231,37 @@ public class RPCClient extends ZKRPCClient{
 	          channel=f.channel();
 	          handle=channel.pipeline().get(RPCClientHandler.class);	
 	          synchronized (clients) {
-		          if(clients.get(clientKey)==null || clients.get(clientKey).getHandle()==null){ 		        
-		        	  clients.put(clientKey,rpcClient);
+		          if(clients.get(clientKey)==null){ 		        
+		        	  //一个客户端与同一服务器端口 可以创建多个长连接，即开启多个tcp通道
+		        	  CircleQueue<RPCClient> rpcClients=new CircleQueue<RPCClient>(channelNum);
+		        	  rpcClients.add(rpcClient);
+		        	  clients.put(clientKey,rpcClients);
 		          }else{
-			          //已经存在连接,本次连接不在保存		 
-		        	  RPCClient oldClient=clients.get(clientKey);
-		        	  if(!oldClient.isOpen()&&!oldClient.isRegistered()&&!oldClient.isActive()){
-		        		  clients.put(clientKey,rpcClient); 
-		        		  oldClient.closeChannel();
-		        	  }else{
-		        		  channel.close();  
-		        	  }			          
+			          //后期异步创建的线程		 
+		        	  CircleQueue<RPCClient> rpcClients=clients.get(clientKey);
+		        	  int circleNum=0;
+		        	  RPCClient oldClient=null;
+		        	  boolean isColseChannel=true;//是否关闭该channel通道
+		        	  try{
+			        	  while(true){		        		 
+			        		  oldClient=rpcClients.getCircleFront();		        		  
+			        		  if(oldClient==null){
+			        			  rpcClients.add(rpcClient);
+			        			  clients.put(clientKey,rpcClients);
+			        			  isColseChannel=false;
+			        			  break;
+			        		  }		
+			        		  circleNum++;
+			        		  if(circleNum>channelNum)
+			        			  break;	        			  
+			        	  }	
+		        	  }catch(Exception ex){
+		        		  logger.warn("add rpclient to circleQueue error:"+ex.getMessage());
+		        	  }	        	 		        	 
+		        	if(isColseChannel){
+		        		 channel.close();  
+		        	}  
+		        			          
 		          }
 	          	}
 	        } else {
@@ -339,7 +360,7 @@ public class RPCClient extends ZKRPCClient{
 		return RouteManager.getInstance().route(strServiceName, hostList); 
 	}
 	
-	static Map<String,RPCClient> getClients(){
+	static Map<String,CircleQueue<RPCClient>> getClients(){
 		return clients;
 	}
 	
