@@ -64,19 +64,4 @@ public class CircleQueue<E> {
 	           return count == 0;
 	    }	  
 	
-    public static void main(String[] args){
-    	CircleQueue<String> q=new CircleQueue<String>(1);
-    	q.add("a");
-
-
-    	for(int i=0;i<10;i++){
-    		System.out.println(q.getCircleFront());
-    	}
-    	q.add("d");
-
-    	for(int i=0;i<6;i++){
-    		System.out.println(q.getCircleFront());
-    	}    	
-    	
-    }
 }

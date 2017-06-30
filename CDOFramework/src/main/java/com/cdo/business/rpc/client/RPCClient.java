@@ -188,8 +188,19 @@ public class RPCClient extends ZKRPCClient{
 					            super.channelInactive(ctx);	
 					            //断开后  删除  到某台服务器连接					           
 					            logger.warn("ctx is channelInactive:"+ctx);
+					            CircleQueue<RPCClient> rpcClients=clients.get(clientKey);
 					            clients.remove(clientKey);
-					            ctx.channel().close();
+					            ctx.channel().close();		
+					            try{
+						            for(int i=0;i<channelNum;i++){
+						            	  RPCClient rpcClient=rpcClients.delete();
+						            	  if(rpcClient!=null)
+						            		  rpcClient.closeChannel();
+						            }
+					            }catch(Exception ex){
+					            	
+					            }
+					         			         
 						        executor.execute(new Runnable() {								
 										@Override
 										public void run() {
@@ -226,10 +237,10 @@ public class RPCClient extends ZKRPCClient{
 	    ChannelFuture future = bootstrap.connect(remoteHost,remotePort);
 	    future.addListener(new ChannelFutureListener() {
 	      public void operationComplete(ChannelFuture f) throws Exception {
-	        if (f.isSuccess()) {
-	          logger.info("Started  Client Success connection: " + getServerInfo());	          
+	        if (f.isSuccess()) {	                   
 	          channel=f.channel();
-	          handle=channel.pipeline().get(RPCClientHandler.class);	
+	          handle=channel.pipeline().get(RPCClientHandler.class);
+	          logger.info("Started  Client Success  connection  remote address: " + getServerInfo()+",channel="+channel);	
 	          synchronized (clients) {
 		          if(clients.get(clientKey)==null){ 		        
 		        	  //一个客户端与同一服务器端口 可以创建多个长连接，即开启多个tcp通道
@@ -267,7 +278,7 @@ public class RPCClient extends ZKRPCClient{
 	        } else {
 	           //正常的客户端连接
 	          if(!closedServer)	
-	        	  logger.error("Started Client Failed retry connection ["+retryCount+"] times : " + getServerInfo());
+	        	  logger.error("Started Client Failed retry connection ["+retryCount+"] times : " + getServerInfo()+",channel="+channel);
 	          
 	          f.channel().close();
 	          executor.execute(new Runnable() {								
@@ -287,21 +298,19 @@ public class RPCClient extends ZKRPCClient{
 	public void close() {
 		    closed = true;
 		    workerGroup.shutdownGracefully();
-		    logger.info("Stopped Tcp Client: " + getServerInfo());
+		    logger.info("Stopped Tcp Client: " + getServerInfo()+",channel="+channel);
 		    if(executor!=null)
 		    	executor.shutdownNow();
 		    if(closedServer){
 		    	//如果是关闭服务器,需要退出程序
-		    	logger.info("exit system client " + getServerInfo());
+		    	logger.info("exit system client " + getServerInfo()+",channel="+channel);
 		    	System.exit(0);
 		    }
 		    
 	}	
 
 	private String getServerInfo() {
-		    return String.format("RemoteHost=%s RemotePort=%d",
-		    		remoteHost,
-		    		remotePort);
+		    return String.format("RemoteAddress=%s:%d",remoteHost,remotePort);
 		} 	
 
 
