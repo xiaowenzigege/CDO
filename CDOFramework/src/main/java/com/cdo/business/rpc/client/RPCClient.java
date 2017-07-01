@@ -61,7 +61,9 @@ public class RPCClient extends ZKRPCClient{
 	private Channel channel;
 	private  String remoteHost;
 	private  int remotePort;  
-
+	
+	static final byte[] lock=new byte[0];// 动态添加RPCClient时
+	
 	private  int retryTime=5;//若断开，每隔多长时间重试一次 单位为秒
 	private  int totalRetryCount=5;//0表示无限次每隔retryTime时间的重试一次  大于0在表示重试 达到多次后，不再重试
 	private  long retryCount=0;
@@ -73,7 +75,7 @@ public class RPCClient extends ZKRPCClient{
     private boolean closedServer=false;
 
     static{
-    	clients=Collections.synchronizedMap(new HashMap<String, CircleQueue<RPCClient>>());
+    	clients=new HashMap<String, CircleQueue<RPCClient>>();
     }
     /**
      *  
@@ -241,7 +243,7 @@ public class RPCClient extends ZKRPCClient{
 	          channel=f.channel();
 	          handle=channel.pipeline().get(RPCClientHandler.class);
 	          logger.info("Started  Client Success  connection  remote address: " + getServerInfo()+",channel="+channel);	
-	          synchronized (clients) {
+	          synchronized (lock) {
 		          if(clients.get(clientKey)==null){ 		        
 		        	  //一个客户端与同一服务器端口 可以创建多个长连接，即开启多个tcp通道
 		        	  CircleQueue<RPCClient> rpcClients=new CircleQueue<RPCClient>(channelNum);

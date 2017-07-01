@@ -24,13 +24,13 @@ import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 
 public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
-	private static Logger logger=Logger.getLogger(RPCClientHandler.class);
+	private  Logger logger=Logger.getLogger(RPCClientHandler.class);
 
     private volatile Channel channel;
     private ByteString clientId; 
     final CallsLinkedHashMap calls = new CallsLinkedHashMap();
     /** A counter for generating call IDs. */
-    static final AtomicInteger callIdCounter = new AtomicInteger();
+    final AtomicInteger callIdCounter = new AtomicInteger();
     boolean closeServer=false;
     /**
      * 通过 tcp来关闭server
