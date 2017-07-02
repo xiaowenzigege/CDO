@@ -1,18 +1,21 @@
 package com.cdo.business.rpc.client;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.log4j.Logger;
 
-import com.cdo.util.algorithm.CircleQueue;
+import com.cdo.util.server.Server;
+import com.cdo.util.server.ServerScheduling;
 
 public class RouteManager {
 
-	static Map<String, Integer> routeMap=new HashMap<String, Integer>();
+	private Map<String, RPCClient> routeMap=new HashMap<String, RPCClient>();
 	private static RouteManager instance=null;
 	private static final Logger logger=Logger.getLogger(RouteManager.class); 
+	private  ReadWriteLock routeLock = new ReentrantReadWriteLock();  
 	public static  synchronized RouteManager getInstance()
 	{//使用单列
 		if(instance==null)
@@ -23,27 +26,76 @@ public class RouteManager {
 	private RouteManager(){
 		
 	}
+	
+	public boolean containKey(String serverAddress){
+		return routeMap.containsKey(serverAddress);
+	}
+	
 	/**
-	 * 均匀使用连接
-	 * @param serviceName
-	 * @param hostList
+	 * 
+	 * @param serverAddress=ip:port
+	 * @param rpcClient
+	 */
+	public void removeRPCClient(String serverAddress){
+		RPCClient discardRPCClient=null;
+		try{
+			routeLock.writeLock().lock(); 
+			discardRPCClient=routeMap.get(serverAddress);	
+			routeMap.remove(serverAddress);
+		}catch(Throwable ex){
+			logger.error("remove rpclient from routeMap error:"+ex.getMessage(),ex);
+		}finally{
+			try{
+				routeLock.writeLock().unlock();
+				if(discardRPCClient!=null)
+					discardRPCClient.close();
+			}catch (Exception ex){}
+		}
+		
+	}	
+	
+	/**
+	 * 
+	 * @param serverAddress=ip:port
+	 * @param rpcClient
+	 */
+	public void addRPCClient(String serverAddress,RPCClient rpcClient){
+		RPCClient discardRPCClient=null;
+		try{
+			routeLock.writeLock().lock(); 
+			if(!routeMap.containsKey(serverAddress)){
+				routeMap.put(serverAddress, rpcClient);
+			}else{
+				if(routeMap.get(serverAddress).getHandle()==null){
+					discardRPCClient=routeMap.put(serverAddress, rpcClient);
+				}else{
+					discardRPCClient=rpcClient;
+				}				
+			}			
+		}catch(Throwable ex){
+			logger.error("add rpclient to routeMap error:"+ex.getMessage(),ex);
+		}finally{
+			try{
+				routeLock.writeLock().unlock();
+				if(discardRPCClient!=null)
+					discardRPCClient.close();
+			}catch (Exception ex){}
+		}
+		
+	}
+	/**
+	 * 获取分发的机器ip:port,根据ip:port获取长连接.
+	 * @param serverAddress=ip:port
 	 * @return
 	 */
-	public  RPCClient route(String serviceName,List<String> hostList){
-		int index=getIndex(serviceName, hostList);
-		String serverAddress=hostList.get(index);
-		routeMap.put(serviceName, index);
-	
-		CircleQueue<RPCClient> rpcClients=RPCClient.getClients().get(serverAddress);
-		RPCClient rpcClient;
-		if(rpcClients!=null){
-			rpcClient=getCircleQueue(rpcClients,serverAddress);
-			if(rpcClient!=null){
-				return rpcClient;
-			}
-		}
-		//未找到 服务连接任何一台机器
-		RPCClient rpClient=new RPCClient(serverAddress.split(":")[0],Integer.parseInt(serverAddress.split(":")[1]));
+	public RPCClient route(ServerScheduling serverScheduling){
+		Server server=serverScheduling.getServer();
+		String hostPort=server.getHostPost();
+		RPCClient rpcClient=routeMap.get(server.getHostPost());
+		if(rpcClient!=null)
+			return rpcClient;
+		//本机还未与服务连接进行连接成功，尝试连接
+		RPCClient rpClient=new RPCClient(hostPort.split(":")[0],Integer.parseInt(hostPort.split(":")[1]));
 		rpClient.init();
 		int retry=1;
 		while ( retry<5) {
@@ -57,53 +109,6 @@ public class RouteManager {
 			}
 			retry++;
 		}
-		return rpClient;
+		return rpClient;		
 	}
-	/**
-	 * 客户端主动建立多个tcp通道
-	 * @param rpcClients
-	 * @return
-	 */
-	private RPCClient getCircleQueue(CircleQueue<RPCClient> rpcClients,String serverAddress){
-  	 
-  	  RPCClient rpcClient=null;
-  	  boolean isAddChannel=false;//客户端增加通道连接
-  	  int circleNum=0;
-  	  try{
-      	  while(true){		        		 
-      		  rpcClient=rpcClients.getCircleFront();	
-      		  if(rpcClient!=null && rpcClient.getHandle()!=null)
-      			  break;
-      		  if(rpcClient==null){
-      			isAddChannel=true;
-      		  }		
-      		  circleNum++;
-      		  if(circleNum>RPCClient.channelNum)
-      			  break;        			  
-      	  }	
-  	  }catch(Exception ex){
-  		  logger.warn("get rpclient to circleQueue error:"+ex.getMessage());
-  	  }
-  	  if(rpcClient!=null && isAddChannel){
-  		  //至少有一条可用通道，才可增加新的通道，否则进行同步增加通道
-  		RPCClient rpClient=new RPCClient(serverAddress.split(":")[0],Integer.parseInt(serverAddress.split(":")[1]));
-  		rpClient.init();
-  	  }
-  	  return rpcClient;
-	}
-	/**
-	 * 提供serviceName服务有多少个地址
-	 * @param serviceName
-	 * @param hostList
-	 * @return
-	 */
-	private int getIndex(String serviceName,List<String> hostList){
-		int total=hostList.size();
-		int index=routeMap.get(serviceName)==null?0:routeMap.get(serviceName);
-		if(index>=(total-1))
-			index=0;
-		else
-			index++;
-		return index;
-	}	
 }

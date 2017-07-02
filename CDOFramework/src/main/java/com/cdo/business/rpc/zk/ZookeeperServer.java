@@ -1,17 +1,7 @@
 package com.cdo.business.rpc.zk;
 
 import io.netty.util.internal.SystemPropertyUtil;
-
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-
-
-
-
 
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
@@ -32,12 +22,15 @@ import com.cdo.util.system.SystemUtil;
  * 将service服务注册到zk 集群上
  */
 public class ZookeeperServer {
+	//服务放置在 zk的 /CDO 目录下
 	private String groupNode="CDO";
+	private static Logger logger=Logger.getLogger(ZookeeperServer.class);
 	
 	private ZooKeeper zk;  
 	private Watch clientWatch;
-	private static Logger logger=Logger.getLogger(ZookeeperServer.class);
-	private String address;
+	
+	private String address;//提供service的服务地址  host:port
+	private int weight=1;
 	private List<ZkParameter> zkParameterList;
 	private String zkConnect;
 	private int Time_OUT=Math.max(10, SystemPropertyUtil.getInt("zk.sessionTimeout", 10))*1000;
@@ -82,7 +75,7 @@ public class ZookeeperServer {
 	    		serviceName=serviceName+zkParameter.getServiceName();
 	    	}
         	if(logger.isInfoEnabled())
-        		logger.info("\r\n将["+this.address+"]上的服务["+serviceName+"] 注册到 ZK["+zkConnect+"]上");
+        		logger.info("\r\n将["+this.address+"]上的服务["+serviceName+"] 注册到 ZK["+zkConnect+"]上,服务器权重值为="+this.weight);
     	}catch(Exception ex){
     		throw new ZookeeperException(ex.getMessage(),ex);
     	}
@@ -118,8 +111,8 @@ public class ZookeeperServer {
 			  		 }else{
 			  			 zk.setData(node, className.getBytes("utf-8"), -1);
 			  		 }
-			  		 //保存地址
-			  		 node="/" + groupNode + "/" +serviceName+"/"+this.address;
+			  		 //在zk上保存提供服务的地址及权重
+			  		 node="/" + groupNode + "/" +serviceName+"/"+this.address+" w="+this.weight;
 			  		 if(zk.exists(node, false)==null){	  			 
 			  			 zk.create(node, "".getBytes("utf-8"), Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);    
 			  		 }	
@@ -137,7 +130,7 @@ public class ZookeeperServer {
 			  		if(addressList==null || addressList.size()==0)
 			  			checkServerNode(clientWatch);
 			  	}
-	    	}catch(Exception ex){	    		
+	    	}catch(Throwable ex){	    		
 	    		logger.error("zk connect is error"+ex.getMessage(),ex);
 	    		try {
 					Thread.sleep(8000);
@@ -148,10 +141,12 @@ public class ZookeeperServer {
     } 
     
     
-    public ZookeeperServer(String zkConnect,List<ZkParameter> zkParameterList){
+    public ZookeeperServer(String zkConnect,List<ZkParameter> zkParameterList,int weight){
     	this.zkConnect=zkConnect;
     	this.zkParameterList=zkParameterList;
-    	this.address=getServerIp()+":"+GlobalResource.cdoConfig.getString("netty.server.port");
+    	if(weight>0)
+    		this.weight=weight;
+    	this.address=getServerIp()+":"+GlobalResource.cdoConfig.getString("netty.server.port").trim();
     }
 	
 	

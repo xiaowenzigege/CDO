@@ -25,8 +25,25 @@ public class ZkProducer implements java.io.Serializable {
      */
     private java.lang.String connect;
 
+    /**
+     * Field weight.
+     */
+    private int weight = 1;
+
+    /**
+     * Keeps track of whether primitive field weight has been set
+     * already.
+     */
+    private boolean _hasweight;
+
     public ZkProducer() {
         super();
+    }
+
+    /**
+     */
+    public void deleteWeight() {
+        this._hasweight= false;
     }
 
     /**
@@ -45,6 +62,24 @@ public class ZkProducer implements java.io.Serializable {
      */
     public java.lang.String getId() {
         return this.id;
+    }
+
+    /**
+     * Returns the value of field 'weight'.
+     * 
+     * @return the value of field 'Weight'.
+     */
+    public int getWeight() {
+        return this.weight;
+    }
+
+    /**
+     * Method hasWeight.
+     * 
+     * @return true if at least one Weight has been added
+     */
+    public boolean hasWeight() {
+        return this._hasweight;
     }
 
     /**
@@ -105,6 +140,16 @@ public class ZkProducer implements java.io.Serializable {
      */
     public void setId(final java.lang.String id) {
         this.id = id;
+    }
+
+    /**
+     * Sets the value of field 'weight'.
+     * 
+     * @param weight the value of field 'weight'.
+     */
+    public void setWeight(final int weight) {
+        this.weight = weight;
+        this._hasweight = true;
     }
 
     /**

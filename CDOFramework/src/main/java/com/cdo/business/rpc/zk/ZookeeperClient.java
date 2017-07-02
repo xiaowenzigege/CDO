@@ -2,6 +2,7 @@ package com.cdo.business.rpc.zk;
 
 import io.netty.util.internal.SystemPropertyUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +16,11 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
-import com.cdo.business.rpc.client.IRPCClient;
+import com.cdo.business.rpc.client.RPCClient;
+import com.cdo.business.rpc.client.RouteManager;
+import com.cdo.util.algorithm.RoundRobinScheduling;
 import com.cdo.util.exception.ZookeeperException;
+import com.cdo.util.server.Server;
 
 /**
  * 监听zk上的服务
@@ -32,6 +36,10 @@ public class ZookeeperClient {
     private ZKRPCClient rpcClient;
     private String zkConnect;
     private Logger logger=Logger.getLogger(ZookeeperClient.class);
+    //客户端调用多个服务   ，多个服务存在 使用同一台机器[ip:port]，因此根据服务权重轮询时，共享server数据.
+    private Map<String,Server> serverMap=new HashMap<String,Server>();
+    private RouteManager routeManager=RouteManager.getInstance();
+    
     private int Time_OUT=Math.max(10, SystemPropertyUtil.getInt("zk.sessionTimeout", 10))*1000;
     private class ClientWatch implements Watcher{
     	 // 如果发生了"/CDO"节点下的子节点变化事件, 更新配置server列表, 并重新注册监听  
@@ -81,7 +89,7 @@ public class ZookeeperClient {
      */  
     private void updateServerList(ClientWatch clientWatch){  
           
-       Map<String, ZkServerData> newServiceMap=new HashMap<String, ZkServerData>();
+       Map<String, ZkNodeData> newServiceMap=new HashMap<String, ZkNodeData>();
        // 获取并监听CDOService的子节点变化             
       try{        
 		   	String rootNode="/" + groupNode;
@@ -90,20 +98,46 @@ public class ZookeeperClient {
 		   	}	
 	    	List<String> serviceList = zk.getChildren(rootNode,clientWatch); 
 	        for (String serviceNode : serviceList) {  
-	            // 获取每个子节点下关联的server地址  
+	            // 获取每个子节点service下关联的server服务器地址 及权重  
 	        	String service=rootNode+ "/" + serviceNode;
 	            byte[] data = zk.getData(service, false, stat);  
 	            String className=new String(data, "utf-8");
 	            List<String> hostList = zk.getChildren(service,clientWatch);
 	            
-	            ZkServerData zkData=new ZkServerData();
+	            
+	            ZkNodeData zkData=new ZkNodeData();
 	            zkData.setServiceName(serviceNode);
 	            zkData.setClassName(className);
-	            zkData.setHostList(hostList);	            
+	            if(hostList!=null && hostList.size()>0){
+	            	//提供该接口的服务地址,使用权重轮询获取服务地址
+	            	List<Server> serverList=new ArrayList<Server>();
+	            	String[] array=null;
+	            	String hostPort=null;
+	            	Server server=null;
+	            	for(int i=0;i<hostList.size();i++){
+	            		array=hostList.get(i).split("w=");
+	            		hostPort=array[0].trim();
+	            		int weight=array[1]==null?1:Integer.parseInt(array[1].trim());
+	            		if(serverMap.containsKey(hostPort) &&
+	            				serverMap.get(hostPort).getWeight()==weight){
+	            			//服务器提供的 权重未发生变化，则使用原有的.
+	            			server=serverMap.get(hostPort);
+	            		}else{
+	            			server=new Server(array[0].trim(),weight);
+	            			serverMap.put(hostPort, server);
+	            		}	            		
+	            		serverList.add(server);
+	            		//还未建立连接,可以创建连接
+	            		if(!routeManager.containKey(hostPort)){
+	            			RPCClient.connectionServer(hostPort);;
+	            		}
+	            	}	
+	            	zkData.setRobinScheduling(new RoundRobinScheduling(serverList));
+	            }       
 	            newServiceMap.put(serviceNode, zkData);            
 	        }  
       }catch(Throwable ex){
-    	 logger.error("get node["+groupNode+"] faile,"+ex.getMessage()+" 5",ex);
+    	 logger.error("get node["+groupNode+"] fail,5 seconds reset.error message="+ex.getMessage(),ex);
     	try {
 			Thread.sleep(5000);
 		} catch (Exception e) {			
@@ -112,15 +146,22 @@ public class ZookeeperClient {
     	 updateServerList(clientWatch);
       }
         // 替换server列表  
-        //serviceMap = newServiceMap;
-      	rpcClient.setServiceMap(newServiceMap);        	
-        try {
-        	zk.exists("/" + groupNode, clientWatch);
-		} catch (Exception e) {
-		
-		}       
+      	rpcClient.setServiceMap(newServiceMap);  
+      	watchRootNode(clientWatch);    
     }  
  
+    private void watchRootNode(ClientWatch clientWatch){
+        try {
+        	zk.exists("/" + groupNode, clientWatch);
+		} catch (Throwable ex) {
+			logger.error("listen node ["+groupNode+"] fail,10 seconds reset.error message="+ex.getMessage(),ex);
+	    	try {
+				Thread.sleep(10000);
+			} catch (Exception e) {							
+			}
+		}    
+    }
+    
     public ZookeeperClient(String zkConect,ZKRPCClient rpcClient){
     	this.zkConnect=zkConect;
     	this.rpcClient=rpcClient;

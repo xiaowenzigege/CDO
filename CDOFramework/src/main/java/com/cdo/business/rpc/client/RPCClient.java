@@ -1,8 +1,5 @@
 package com.cdo.business.rpc.client;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,11 +28,10 @@ import org.apache.log4j.Logger;
 
 import com.cdo.business.rpc.RPCFile;
 import com.cdo.business.rpc.zk.ZKRPCClient;
-import com.cdo.business.rpc.zk.ZkServerData;
+import com.cdo.business.rpc.zk.ZkNodeData;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
 import com.cdo.google.protocol.GoogleCDO;
-import com.cdo.util.algorithm.CircleQueue;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.exception.NotEstablishConnectException;
 import com.cdoframework.cdolib.base.Return;
@@ -50,19 +46,15 @@ import com.cdoframework.cdolib.servicebus.ITransService;
 public class RPCClient extends ZKRPCClient{
 	private final static Logger logger=Logger.getLogger(RPCClient.class);
 	private ExecutorService executor=Executors.newScheduledThreadPool(1);
-	//一个客户端与同一服务器端口 可以创建多个长连接，即开启多个tcp通道
-	static final int channelNum=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_WORK,1));
-	static final int workGroup=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_BOSS,Runtime.getRuntime().availableProcessors()));
-	private static  final Map<String, CircleQueue<RPCClient>> clients;	
+	private RouteManager routeManager=RouteManager.getInstance();
+    int workGroup=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_BOSS,Runtime.getRuntime().availableProcessors()*2));
 	static final boolean SSL = System.getProperty("ssl") != null;
-	private volatile EventLoopGroup workerGroup;
-	private volatile Bootstrap bootstrap;
-	private volatile boolean closed = false;
-	private Channel channel;
+	private  EventLoopGroup workerGroup;
+	private  Bootstrap bootstrap;
+	private  boolean closed = false;
+	private  Channel channel;
 	private  String remoteHost;
 	private  int remotePort;  
-	
-	static final byte[] lock=new byte[0];// 动态添加RPCClient时
 	
 	private  int retryTime=5;//若断开，每隔多长时间重试一次 单位为秒
 	private  int totalRetryCount=5;//0表示无限次每隔retryTime时间的重试一次  大于0在表示重试 达到多次后，不再重试
@@ -70,27 +62,19 @@ public class RPCClient extends ZKRPCClient{
 
 	
     RPCClientHandler handle; 
-    
-    private String clientKey;
+    //ip:port
+    private String serverAddress;
     private boolean closedServer=false;
 
-    static{
-    	clients=new HashMap<String, CircleQueue<RPCClient>>();
-    }
-    /**
-     *  
-     * nettyAddrss=ip:port
+    /** server 服务器ip:port 地址
+     * hostPort=ip:port
+     * @param hostPort
      */
-    public  void connectionNettyServer(String nettyAddress){
-	    if(nettyAddress==null|| nettyAddress.trim().equals(""))
-	    	return;
-		String[] params=nettyAddress.split(":");
-		if(params.length<2)
-			return;	
-		String hostName=params[0].trim();
-		String strPort=params[1].trim();
-		int port=Integer.parseInt(strPort);
-		RPCClient client=new RPCClient(hostName,port);
+    public static void connectionServer(String serverHostPort){
+		String[] params=serverHostPort.split(":");
+		String host=params[0].trim();
+		int port=Integer.parseInt(params[1].trim());		
+		RPCClient client=new RPCClient(host,port);
 		client.init();       
     }
     
@@ -132,11 +116,11 @@ public class RPCClient extends ZKRPCClient{
     public RPCClient() {
 	
 	}
-
-    RPCClient(String remoteHost, int remotePort) {
-		    this.remoteHost = remoteHost;
-		    this.remotePort = remotePort;
-		    this.clientKey=remoteHost+":"+remotePort;
+    
+    RPCClient(String serverHost, int serverPort) {
+		    this.remoteHost = serverHost;
+		    this.remotePort = serverPort;
+		    this.serverAddress=serverHost+":"+serverPort;
 	}
 
     public void stopLocalNettyServer(int port){
@@ -173,8 +157,7 @@ public class RPCClient extends ZKRPCClient{
 	    	    workerGroup = new NioEventLoopGroup(workGroup);
 	    	    bootstrap = new Bootstrap();
 	    	    bootstrap.group(workerGroup);
-	    	    bootstrap.channel(NioSocketChannel.class);	
-	    	    
+	    	    bootstrap.channel(NioSocketChannel.class);		    	    
 	    	    bootstrap.option(ChannelOption.TCP_NODELAY,true);	    	
 	    	    bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
 	    	    bootstrap.handler(new ChannelInitializer<SocketChannel>(){
@@ -190,18 +173,7 @@ public class RPCClient extends ZKRPCClient{
 					            super.channelInactive(ctx);	
 					            //断开后  删除  到某台服务器连接					           
 					            logger.warn("ctx is channelInactive:"+ctx);
-					            CircleQueue<RPCClient> rpcClients=clients.get(clientKey);
-					            clients.remove(clientKey);
-					            ctx.channel().close();		
-					            try{
-						            for(int i=0;i<channelNum;i++){
-						            	  RPCClient rpcClient=rpcClients.delete();
-						            	  if(rpcClient!=null)
-						            		  rpcClient.closeChannel();
-						            }
-					            }catch(Exception ex){
-					            	
-					            }
+					            routeManager.removeRPCClient(serverAddress);
 					         			         
 						        executor.execute(new Runnable() {								
 										@Override
@@ -242,41 +214,10 @@ public class RPCClient extends ZKRPCClient{
 	        if (f.isSuccess()) {	                   
 	          channel=f.channel();
 	          handle=channel.pipeline().get(RPCClientHandler.class);
+	          //添加到路由
+	          routeManager.addRPCClient(serverAddress, rpcClient);
+	          
 	          logger.info("Started  Client Success  connection  remote address: " + getServerInfo()+",channel="+channel);	
-	          synchronized (lock) {
-		          if(clients.get(clientKey)==null){ 		        
-		        	  //一个客户端与同一服务器端口 可以创建多个长连接，即开启多个tcp通道
-		        	  CircleQueue<RPCClient> rpcClients=new CircleQueue<RPCClient>(channelNum);
-		        	  rpcClients.add(rpcClient);
-		        	  clients.put(clientKey,rpcClients);
-		          }else{
-			          //后期异步创建的线程		 
-		        	  CircleQueue<RPCClient> rpcClients=clients.get(clientKey);
-		        	  int circleNum=0;
-		        	  RPCClient oldClient=null;
-		        	  boolean isColseChannel=true;//是否关闭该channel通道
-		        	  try{
-			        	  while(true){		        		 
-			        		  oldClient=rpcClients.getCircleFront();		        		  
-			        		  if(oldClient==null){
-			        			  rpcClients.add(rpcClient);
-			        			  clients.put(clientKey,rpcClients);
-			        			  isColseChannel=false;
-			        			  break;
-			        		  }		
-			        		  circleNum++;
-			        		  if(circleNum>channelNum)
-			        			  break;	        			  
-			        	  }	
-		        	  }catch(Exception ex){
-		        		  logger.warn("add rpclient to circleQueue error:"+ex.getMessage());
-		        	  }	        	 		        	 
-		        	if(isColseChannel){
-		        		 channel.close();  
-		        	}  
-		        			          
-		          }
-	          	}
 	        } else {
 	           //正常的客户端连接
 	          if(!closedServer)	
@@ -361,18 +302,15 @@ public class RPCClient extends ZKRPCClient{
 			return new Return(-1,e.getMessage(),e.getMessage());
 		}		  
 	}	
+	
 	private  RPCClient getRPCClient(String strServiceName) throws NotEstablishConnectException{
-		Map<String, ZkServerData>  zkServerMap=getServiceMap();
-		if(zkServerMap==null || zkServerMap.get(strServiceName)==null || zkServerMap.get(strServiceName).getHostList().size()==0){
+		Map<String, ZkNodeData>  zkServerMap=getServiceMap();
+		if(zkServerMap==null || zkServerMap.get(strServiceName)==null || zkServerMap.get(strServiceName).getRobinScheduling()==null){
 			logger.warn("Service["+strServiceName+"] not registered on zk server");
 			throw new NotEstablishConnectException("Service["+strServiceName+"] not registered on zk server");	
-		}			
-		List<String> hostList=zkServerMap.get(strServiceName).getHostList();	
-		return RouteManager.getInstance().route(strServiceName, hostList); 
+		}	
+		return RouteManager.getInstance().route(zkServerMap.get(strServiceName).getRobinScheduling()); 
 	}
 	
-	static Map<String,CircleQueue<RPCClient>> getClients(){
-		return clients;
-	}
 	
 }

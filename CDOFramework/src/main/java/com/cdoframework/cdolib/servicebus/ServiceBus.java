@@ -9,7 +9,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,9 +19,6 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.log4j.Logger;
-import org.apache.zookeeper.ZooKeeper;
-import org.apache.zookeeper.Op.Check;
-
 import com.cdo.business.client.IClient;
 import com.cdo.business.rpc.zk.ZKClientManager;
 import com.cdo.business.rpc.zk.ZkParameter;
@@ -810,7 +806,7 @@ public class ServiceBus implements IServiceBus
 			if(zkList==null || zkList.size()==0){
 				continue;
 			}				
-			ZookeeperServer zkServer=new ZookeeperServer(zkProducer[i].getConnect(),zkList);
+			ZookeeperServer zkServer=new ZookeeperServer(zkProducer[i].getConnect(),zkList,zkProducer[i].getWeight());
 			zkServerList.add(zkServer);
 			zkServiceMap.remove(zkProducer[i].getId());
 		}

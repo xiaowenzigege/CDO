@@ -1,12 +1,12 @@
 package com.cdo.business.rpc.zk;
 
-import java.util.List;
+import com.cdo.util.algorithm.RoundRobinScheduling;
 
-public class ZkServerData {
+public class ZkNodeData {
 
 	private String serviceName;
 	private String className;
-	private List<String> hostList;
+	private RoundRobinScheduling robinScheduling;
 	public String getServiceName() {
 		return serviceName;
 	}
@@ -19,11 +19,12 @@ public class ZkServerData {
 	public void setClassName(String className) {
 		this.className = className;
 	}
-	public List<String> getHostList() {
-		return hostList;
+	public RoundRobinScheduling getRobinScheduling() {
+		return robinScheduling;
 	}
-	public void setHostList(List<String> hostList) {
-		this.hostList = hostList;
+	public void setRobinScheduling(RoundRobinScheduling robinScheduling) {
+		this.robinScheduling = robinScheduling;
 	}
+	
 
 }
