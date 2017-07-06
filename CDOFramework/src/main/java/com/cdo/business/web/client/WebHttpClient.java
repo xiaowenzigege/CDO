@@ -19,6 +19,7 @@ import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.data.cdo.FileField;
+import com.cdoframework.cdolib.servicebus.ITransService;
 
 public class WebHttpClient implements IWebClient{
 	private static Logger logger = Logger.getLogger(WebHttpClient.class);
@@ -135,5 +136,11 @@ public class WebHttpClient implements IWebClient{
 		}
 		logger.error("返回数据: strCDOXml IS NULL,please check network connection");
 		return Return.valueOf(-1, "ERROR:return strCDOXml IS NULL,please check network connection");
+	}
+
+	@Override
+	public Return asyncHandleTrans(CDO cdoRequest,CDO cdoResponse){		
+		cdoRequest.setBooleanValue(ITransService.ASYNCH_KEY, true);
+		return this.handleTrans(cdoRequest, cdoResponse);		
 	}
 }

@@ -18,6 +18,11 @@ import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
+import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.EventExecutorGroup;
+import io.netty.util.concurrent.RejectedExecutionHandler;
+import io.netty.util.concurrent.SingleThreadEventExecutor;
 import io.netty.util.internal.SystemPropertyUtil;
 
 public class RPCServer {
@@ -27,15 +32,14 @@ public class RPCServer {
 	static EventLoopGroup workerGroup=null;
 	static BusinessService app=null;
     protected Thread shutdownHook = null;
+       
     
 	public void start(){
         final SslContext sslCtx;
         int bossThread=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_BOSS,Runtime.getRuntime().availableProcessors()));
-        int workThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_WORK,Runtime.getRuntime().availableProcessors()*2));
-        int businessThread=Math.max(5,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS,Runtime.getRuntime().availableProcessors()*3));
-        
+        int channelThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_WORK,Runtime.getRuntime().availableProcessors()*2));                
         bossGroup = new NioEventLoopGroup(bossThread);
-        workerGroup = new NioEventLoopGroup(workThread);
+        workerGroup = new NioEventLoopGroup(channelThread);        
         try {
             if (SSL) {
                 SelfSignedCertificate ssc = new SelfSignedCertificate();
@@ -46,17 +50,17 @@ public class RPCServer {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
              .option(ChannelOption.TCP_NODELAY, true)  
-             .option(ChannelOption.SO_BACKLOG, 10240)
+             .option(ChannelOption.SO_BACKLOG, 1024)
              .childOption(ChannelOption.SO_KEEPALIVE, true)
              .channel(NioServerSocketChannel.class)
              .handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new RPCServerInitializer(sslCtx,businessThread));
+             .childHandler(new RPCServerInitializer(sslCtx));
                         	
             if(GlobalResource.cdoConfig==null)
             	GlobalResource.bundleInitCDOEnv();
             int port=GlobalResource.cdoConfig.getInt("netty.server.port");
             startService();
-            logger.info("server start success ..........\r\n connection acceptor  threads="+bossThread+",channel threads="+workThread+",business threads="+businessThread);
+            logger.info("server start success ..........\r\n connection acceptor  threads="+bossThread+",channel threads="+channelThread);
             ChannelFuture f= b.bind(port).sync();
             f.channel().closeFuture().sync();
          }catch(Throwable ex){

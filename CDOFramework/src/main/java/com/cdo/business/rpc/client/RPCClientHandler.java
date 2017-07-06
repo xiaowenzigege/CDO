@@ -14,7 +14,9 @@ import com.cdo.google.handle.Header;
 import com.cdo.google.handle.ProtoProtocol;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdo.util.common.UUidGenerator;
+import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
+import com.cdoframework.cdolib.servicebus.ITransService;
 import com.google.protobuf.ByteString;
 
 import io.netty.channel.Channel;
@@ -80,8 +82,23 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 		
 		
         channel.writeAndFlush(reqMessage);
-        calls.put(callId, call);
-        
+        //表示异步调用  数据已经发送完毕，则表示成功,不关心回调结果
+        if(cdoRequest.exists(ITransService.ASYNCH_KEY) 
+        		&& cdoRequest.getBooleanValue(ITransService.ASYNCH_KEY)){
+        	
+    		CDO cdoOutput=new CDO();
+			CDO cdoResponse=new CDO();
+			CDO cdoReturn=new CDO();
+			cdoReturn.setIntegerValue("nCode",Return.OK.getCode());
+			cdoReturn.setStringValue("strText","RPCClient aync send data sucess");
+			cdoReturn.setStringValue("strInfo","RPCClient aync send data sucess");
+			cdoOutput.setCDOValue("cdoReturn",cdoReturn);
+			cdoOutput.setCDOValue("cdoResponse", cdoResponse);	    					 
+			return new RPCResponse(cdoOutput.toProtoBuilder().build());
+        	
+        }
+        //同步调用
+        calls.put(callId, call);        
         boolean interrupted = false;
         synchronized (call) {
           while (!call.done()) {
@@ -98,6 +115,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
           }          
          reqMessage=null;
          return call.getRPCResponse();
+         
        }
     }
 

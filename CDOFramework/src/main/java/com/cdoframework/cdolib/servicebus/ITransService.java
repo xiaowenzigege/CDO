@@ -14,7 +14,9 @@ import com.cdoframework.cdolib.data.cdo.CDO;
 public interface ITransService extends IServiceObject
 {
 	String	SERVICENAME_KEY="strServiceName";
-	String	TRANSNAME_KEY="strTransName";
+	String	TRANSNAME_KEY="strTransName";	
+	//表示是异步发送的数据
+	String  ASYNCH_KEY="$$Async$$";
 		
 	/**
 	 * 初始化服务对象操作

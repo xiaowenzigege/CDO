@@ -47,9 +47,11 @@ public class RPCClient extends ZKRPCClient{
 	private final static Logger logger=Logger.getLogger(RPCClient.class);
 	private ExecutorService executor=Executors.newScheduledThreadPool(1);
 	private RouteManager routeManager=RouteManager.getInstance();
-    int workGroup=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_BOSS,Runtime.getRuntime().availableProcessors()*2));
-	static final boolean SSL = System.getProperty("ssl") != null;
+//	private  static ReadWriteLock rpcClientLock = new ReentrantReadWriteLock();  
+    int channelThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_WORK,Runtime.getRuntime().availableProcessors()*2));
+	final boolean SSL = System.getProperty("ssl") != null;
 	private  EventLoopGroup workerGroup;
+	//客户端连接多个服务端，共享一个工作线程组,避免  后台服务器多了，线程成倍膨胀
 	private  Bootstrap bootstrap;
 	private  boolean closed = false;
 	private  Channel channel;
@@ -70,12 +72,13 @@ public class RPCClient extends ZKRPCClient{
      * hostPort=ip:port
      * @param hostPort
      */
-    public static void connectionServer(String serverHostPort){
+    public static RPCClient connectionServer(String serverHostPort){
 		String[] params=serverHostPort.split(":");
 		String host=params[0].trim();
 		int port=Integer.parseInt(params[1].trim());		
 		RPCClient client=new RPCClient(host,port);
-		client.init();       
+		client.init();   
+		return client;
     }
     
     
@@ -140,11 +143,11 @@ public class RPCClient extends ZKRPCClient{
 	
 	
   void init(){	  
-    	init(workGroup);
+    	init(channelThread);
     }
 
 	
-  void init(int workGroup){
+  void init(int channelThread){
 	    final SslContext sslCtx;        
 	    try {
 	            if (SSL) {
@@ -154,47 +157,49 @@ public class RPCClient extends ZKRPCClient{
 	                sslCtx = null;
 	            }    
 	    	    closed = false;
-	    	    workerGroup = new NioEventLoopGroup(workGroup);
-	    	    bootstrap = new Bootstrap();
-	    	    bootstrap.group(workerGroup);
-	    	    bootstrap.channel(NioSocketChannel.class);		    	    
-	    	    bootstrap.option(ChannelOption.TCP_NODELAY,true);	    	
-	    	    bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-	    	    bootstrap.handler(new ChannelInitializer<SocketChannel>(){
-					@Override
-					protected void initChannel(SocketChannel ch) throws Exception {
-				        ChannelPipeline p = ch.pipeline();
-				        if (sslCtx != null) {
-				            p.addLast(sslCtx.newHandler(ch.alloc(),remoteHost,remotePort));
-				        } 				       
-				        p.addLast(new ChannelInboundHandlerAdapter() {
-					          @Override
-					          public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-					            super.channelInactive(ctx);	
-					            //断开后  删除  到某台服务器连接					           
-					            logger.warn("ctx is channelInactive:"+ctx);
-					            routeManager.removeRPCClient(serverAddress);
-					         			         
-						        executor.execute(new Runnable() {								
-										@Override
-										public void run() {
-											try{
-												TimeUnit.SECONDS.sleep(retryTime);
-											}catch(Exception ex){}										
-											doConnect();								
-										}
-									});	  
-					          }
-					        });			        
-				        p.addLast("encoder",new CDOProtobufEncoder());
-				        p.addLast("decoder",new CDOProtobufDecoder());  
-				        p.addLast("ideaHandler",new IdleStateHandler(60,5,0));
-				        p.addLast(new RPCClientHandler());				
-					}            	 
-	             });	                     
+	    	    //还未建立连接时，开始建立连接 。创建锁,防止覆盖创建
+		    	    workerGroup = new NioEventLoopGroup(channelThread);		    	    		    	    
+		    	    bootstrap = new Bootstrap();
+		    	    
+		    	    bootstrap.group(workerGroup);
+		    	    bootstrap.channel(NioSocketChannel.class);		    	    
+		    	    bootstrap.option(ChannelOption.TCP_NODELAY,true);	    	
+		    	    bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+		    	    bootstrap.handler(new ChannelInitializer<SocketChannel>(){
+						@Override
+						protected void initChannel(SocketChannel ch) throws Exception {
+					        ChannelPipeline p = ch.pipeline();
+					        if (sslCtx != null) {
+					            p.addLast(sslCtx.newHandler(ch.alloc(),remoteHost,remotePort));
+					        } 				       
+					        p.addLast(new ChannelInboundHandlerAdapter() {
+						          @Override
+						          public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+						            super.channelInactive(ctx);	
+						            //断开后  删除  到某台服务器连接					           
+						            logger.warn("ctx is channelInactive:"+ctx);
+						            routeManager.removeRPCClient(serverAddress);
+						         			         
+							        executor.execute(new Runnable() {								
+											@Override
+											public void run() {
+												try{
+													TimeUnit.SECONDS.sleep(retryTime);
+												}catch(Exception ex){}										
+												doConnect();								
+											}
+										});	  
+						          }
+						        });			        
+					        p.addLast("encoder",new CDOProtobufEncoder());
+					        p.addLast("decoder",new CDOProtobufDecoder());  
+					        p.addLast("ideaHandler",new IdleStateHandler(60,5,0));
+					        p.addLast(new RPCClientHandler());				
+						}            	 
+		             });
 	        }catch(Exception ex){
 	        	logger.error(ex.getMessage(), ex);
-	        } 
+	        }	    
 	        doConnect();  
 	    }	
 
@@ -311,6 +316,17 @@ public class RPCClient extends ZKRPCClient{
 		}	
 		return RouteManager.getInstance().route(zkServerMap.get(strServiceName).getRobinScheduling()); 
 	}
+
+
+	@Override
+	public Return asyncHandleTrans(CDO cdoRequest,CDO cdoResponse){			
+			cdoRequest.setBooleanValue(ITransService.ASYNCH_KEY, true);
+			return this.handleTrans(cdoRequest,cdoResponse);		
+	}
 	
+	@Override
+	public String toString(){
+		return "channel="+channel+",bootstrap:"+bootstrap.toString();
+	}
 	
 }

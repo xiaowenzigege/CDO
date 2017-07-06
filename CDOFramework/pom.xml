@@ -16,8 +16,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-
+	</properties>	
+	
 	<dependencies>
 		<dependency>
 			<groupId>cdo</groupId>

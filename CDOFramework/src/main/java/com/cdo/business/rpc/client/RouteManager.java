@@ -6,13 +6,12 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.log4j.Logger;
-
 import com.cdo.util.server.Server;
 import com.cdo.util.server.ServerScheduling;
 
 public class RouteManager {
 
-	private Map<String, RPCClient> routeMap=new HashMap<String, RPCClient>();
+	private static Map<String, RPCClient> routeMap=new HashMap<String, RPCClient>();
 	private static RouteManager instance=null;
 	private static final Logger logger=Logger.getLogger(RouteManager.class); 
 	private  ReadWriteLock routeLock = new ReentrantReadWriteLock();  
@@ -80,20 +79,21 @@ public class RouteManager {
 				if(discardRPCClient!=null)
 					discardRPCClient.close();
 			}catch (Exception ex){}
-		}
-		
+		}		
 	}
+	
 	/**
 	 * 获取分发的机器ip:port,根据ip:port获取长连接.
 	 * @param serverAddress=ip:port
 	 * @return
 	 */
 	public RPCClient route(ServerScheduling serverScheduling){
-		Server server=serverScheduling.getServer();
-		String hostPort=server.getHostPost();
+		Server server=serverScheduling.getServer();		
+		String hostPort=server.getHostPost();			
+		//获取数据
 		RPCClient rpcClient=routeMap.get(server.getHostPost());
 		if(rpcClient!=null)
-			return rpcClient;
+			return rpcClient;		
 		//本机还未与服务连接进行连接成功，尝试连接
 		RPCClient rpClient=new RPCClient(hostPort.split(":")[0],Integer.parseInt(hostPort.split(":")[1]));
 		rpClient.init();

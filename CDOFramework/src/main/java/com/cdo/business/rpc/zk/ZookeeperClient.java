@@ -19,6 +19,7 @@ import org.apache.zookeeper.data.Stat;
 import com.cdo.business.rpc.client.RPCClient;
 import com.cdo.business.rpc.client.RouteManager;
 import com.cdo.util.algorithm.RoundRobinScheduling;
+import com.cdo.util.cache.LRUCache;
 import com.cdo.util.exception.ZookeeperException;
 import com.cdo.util.server.Server;
 
@@ -36,8 +37,8 @@ public class ZookeeperClient {
     private ZKRPCClient rpcClient;
     private String zkConnect;
     private Logger logger=Logger.getLogger(ZookeeperClient.class);
-    //客户端调用多个服务   ，多个服务存在 使用同一台机器[ip:port]，因此根据服务权重轮询时，共享server数据.
-    private Map<String,Server> serverMap=new HashMap<String,Server>();
+
+    
     private RouteManager routeManager=RouteManager.getInstance();
     
     private int Time_OUT=Math.max(10, SystemPropertyUtil.getInt("zk.sessionTimeout", 10))*1000;
@@ -88,9 +89,11 @@ public class ZookeeperClient {
      * 更新配置server host列表 
      */  
     private void updateServerList(ClientWatch clientWatch){  
-          
-       Map<String, ZkNodeData> newServiceMap=new HashMap<String, ZkNodeData>();
-       // 获取并监听CDOService的子节点变化             
+       //ServiceNode,ZkNodeData
+       Map<String, ZkNodeData> newServiceMap=new HashMap<String, ZkNodeData>();       
+       //更新列表 客户端调用多个服务   ，多个服务存在 使用同一台机器[ip:port]，因此根据服务权重轮询时，共享server数据.
+       LRUCache<String,Server> serverMap=new LRUCache<String ,Server>(1000);
+       //获取并监听CDOService的子节点变化             
       try{        
 		   	String rootNode="/" + groupNode;
 		   	if(zk.exists(rootNode, false)==null){   		  
@@ -118,6 +121,12 @@ public class ZookeeperClient {
 	            		array=hostList.get(i).split("w=");
 	            		hostPort=array[0].trim();
 	            		int weight=array[1]==null?1:Integer.parseInt(array[1].trim());
+	            		
+	            		//还未建立长连接,可以预建立连接
+	            		if(!routeManager.containKey(hostPort) && !serverMap.containsKey(hostPort)){
+	            			RPCClient.connectionServer(hostPort);;
+	            		}
+	            		
 	            		if(serverMap.containsKey(hostPort) &&
 	            				serverMap.get(hostPort).getWeight()==weight){
 	            			//服务器提供的 权重未发生变化，则使用原有的.
@@ -127,10 +136,6 @@ public class ZookeeperClient {
 	            			serverMap.put(hostPort, server);
 	            		}	            		
 	            		serverList.add(server);
-	            		//还未建立连接,可以创建连接
-	            		if(!routeManager.containKey(hostPort)){
-	            			RPCClient.connectionServer(hostPort);;
-	            		}
 	            	}	
 	            	zkData.setRobinScheduling(new RoundRobinScheduling(serverList));
 	            }       

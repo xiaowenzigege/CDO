@@ -3,6 +3,7 @@ package com.cdoframework.cdolib.datasync;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -58,7 +59,8 @@ public class ThreadPoolManager<T>
 	 ***************************************************************************/
 	public void init()
 	{
-		taskQueue = new ArrayBlockingQueue(queueSize);
+		
+		taskQueue = new ArrayBlockingQueue<Runnable>(queueSize);
 		taskPool = new ThreadPoolExecutor(corePoolSize, maxPoolSize, waitTime, 
 		TimeUnit.SECONDS, taskQueue, new ThreadPoolExecutor.CallerRunsPolicy());
 
@@ -70,7 +72,7 @@ public class ThreadPoolManager<T>
 	 * 在将来某个时间执行给定任务
 	 * @param command
 	 */
-	public Future submit(Callable<T> command)
+	public Future<T> submit(Callable<T> command)
 	{
 		//this.taskPool.execute(command);
 		return taskPool.submit(command);
@@ -107,7 +109,7 @@ public class ThreadPoolManager<T>
 	public void setWaitTime(long waitTime) {
 		this.taskPool.setKeepAliveTime(waitTime, TimeUnit.SECONDS);
 	}
-	public BlockingQueue getTaskQueue() {
+	public BlockingQueue<Runnable> getTaskQueue() {
 		return taskQueue;
 	}
 }
