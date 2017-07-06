@@ -9,9 +9,10 @@ import java.util.HashMap;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
+//import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.DefaultHttpClient;
+//import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
 
 import com.cdoframework.cdolib.base.Return;
@@ -30,13 +31,13 @@ public class SquidHttpClient implements IURLCacheServerClient
 	private String DDA="MD5";
 	private HashMap<String,String> hmParameter;
 	
-	static RequestConfig.Builder requestBuilder;
-	static {		
-		requestBuilder= RequestConfig.custom();
-		requestBuilder = requestBuilder.setConnectTimeout(6000);
-		requestBuilder = requestBuilder.setSocketTimeout(6000);
-		requestBuilder = requestBuilder.setConnectionRequestTimeout(6000);
-	}
+//	static RequestConfig.Builder requestBuilder;
+//	static {		
+//		requestBuilder= RequestConfig.custom();
+//		requestBuilder = requestBuilder.setConnectTimeout(6000);
+//		requestBuilder = requestBuilder.setSocketTimeout(6000);
+//		requestBuilder = requestBuilder.setConnectionRequestTimeout(6000);
+//	}
 	public SquidHttpClient()
 	{
 		this.hmParameter = new HashMap<String,String>(4);
@@ -84,8 +85,9 @@ public class SquidHttpClient implements IURLCacheServerClient
 	public boolean doGet(String url)
 	{
 
-		HttpClient httpClient = HttpClientBuilder.create()
-				   .setDefaultRequestConfig(requestBuilder.build()).build();//new DefaultHttpClient();
+//		HttpClient httpClient = HttpClientBuilder.create()
+//				   .setDefaultRequestConfig(requestBuilder.build()).build();//new DefaultHttpClient();
+		HttpClient httpClient = new DefaultHttpClient();
 		HttpGet method = new HttpGet(url);
 
 		// 执行GetMethod

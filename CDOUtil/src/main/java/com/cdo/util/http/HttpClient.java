@@ -33,8 +33,12 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
+//import org.apache.http.entity.mime.MultipartEntityBuilder;
+//import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.EntityUtils;
@@ -61,7 +65,7 @@ public class HttpClient {
 	public static final String METHOD_GET = "GET";
 	public static final String METHOD_DELETE = "DELETE";
 	
-	private CloseableHttpClient httpClient;
+	private org.apache.http.client.HttpClient httpClient;
 	private HttpRequestBase httpRequest;
 	private Map<String, String> headers;
 	private Map<String, File>  uploadFiles;
@@ -185,20 +189,23 @@ public class HttpClient {
 			} else {
 				//普通类似form传输,若有文件,则使用MultipartEntityBuilder
 				if(this.uploadFiles!=null && this.uploadFiles.size()>0){
-					MultipartEntityBuilder reqEntity=MultipartEntityBuilder.create();
-					reqEntity.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);					
-					reqEntity.setCharset(Charset.forName(Constants.Encoding.CHARSET_UTF8));
+//					MultipartEntityBuilder reqEntity=MultipartEntityBuilder.create();
+					MultipartEntity reqEntity = new MultipartEntity();
+//					reqEntity.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);					
+//					reqEntity.setCharset(Charset.forName(Constants.Encoding.CHARSET_UTF8));
 					//文件参数
 					for (Map.Entry<String,File> entry : this.uploadFiles.entrySet()) {			
 						if ((entry.getKey()  == null) || (entry.getKey().trim().equals("")))
 							continue;
-						reqEntity.addBinaryBody(entry.getKey(),  entry.getValue());						
+//						reqEntity.addBinaryBody(entry.getKey(),  entry.getValue());		
+						reqEntity.addPart(entry.getKey(),  new FileBody(entry.getValue()));
 					}
 					//其他参数
 					for(NameValuePair pair:this.paramsList){
-						reqEntity.addTextBody(pair.getName(),pair.getValue(),TEXT_PLAIN_UTF8);	
+//						reqEntity.addTextBody(pair.getName(),pair.getValue(),TEXT_PLAIN_UTF8);	
+						reqEntity.addPart(pair.getName(), new StringBody(pair.getValue()));
 					}					
-					entity=reqEntity.build();
+//					entity=reqEntity.build();
 				}else{
 					//没有文件传输
 					entity = new UrlEncodedFormEntity(this.paramsList, Constants.Encoding.CHARSET_UTF8);

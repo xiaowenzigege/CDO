@@ -11,7 +11,7 @@ import com.cdo.util.server.ServerScheduling;
 
 public class RouteManager {
 
-	private static Map<String, RPCClient> routeMap=new HashMap<String, RPCClient>();
+	private   Map<String, RPCClient> routeMap=new HashMap<String, RPCClient>();
 	private static RouteManager instance=null;
 	private static final Logger logger=Logger.getLogger(RouteManager.class); 
 	private  ReadWriteLock routeLock = new ReentrantReadWriteLock();  

@@ -14,32 +14,32 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.http.Consts;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.config.ConnectionConfig;
-import org.apache.http.config.MessageConstraints;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.config.SocketConfig;
+//import org.apache.http.client.config.CookieSpecs;
+//import org.apache.http.client.config.RequestConfig;
+//import org.apache.http.config.ConnectionConfig;
+//import org.apache.http.config.MessageConstraints;
+//import org.apache.http.config.Registry;
+//import org.apache.http.config.RegistryBuilder;
+//import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+//import org.apache.http.conn.socket.ConnectionSocketFactory;
+//import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+//import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.CloseableHttpClient;
+//import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+//import org.apache.http.impl.client.HttpClientBuilder;
+//import org.apache.http.impl.client.HttpClients;
+//import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.ssl.SSLContexts;
+//import org.apache.http.ssl.SSLContexts;
 import org.apache.log4j.Logger;
 
 import com.cdo.util.bean.Response;
@@ -182,7 +182,7 @@ public class HttpUtil {
 		conMgr.closeIdleConnections(10, TimeUnit.SECONDS);		
 	}
 	
-	public static CloseableHttpClient getHttpClient() {
+	public static HttpClient getHttpClient() {
 		return new DefaultHttpClient(conMgr, params);
 	}	
 
