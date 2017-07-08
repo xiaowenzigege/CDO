@@ -205,8 +205,7 @@ public class HttpClient {
 				if(getTransCDO()!=null){
 					entity = new MultipartEntity();
 				   ((MultipartEntity)entity).addPart(Constants.CDO.HTTP_CDO_REQUEST,
-						   new StringBody(Base64.encodeBase64String(Zipper.zipBytes(Serializable.protoCDO2Byte(getTransCDO())))));				   
-				   				  
+						   new StringBody(Base64.encodeBase64String(Zipper.zipBytes(Serializable.protoCDO2Byte(getTransCDO())))));				  
 				}else{
 					if(this.uploadFiles!=null){
 						//有文件传输    使用  MultipartEntity		 							
