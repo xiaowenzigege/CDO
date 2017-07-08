@@ -46,6 +46,8 @@ import com.cdo.util.bean.Response;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.exception.HttpException;
 import com.cdo.util.exception.ResponseException;
+
+import io.netty.util.internal.SystemPropertyUtil;
 /**
  * 
  * @author KenelLiu
@@ -154,6 +156,18 @@ public class HttpUtil {
 	private static ThreadSafeClientConnManager conMgr;
 	
 	static{
+		int soTime=SystemPropertyUtil.getInt(Constants.HTTP.SoTimeout_MS, 1000*30);//默认 30秒 （单位毫秒）
+		int connTimeout=SystemPropertyUtil.getInt(Constants.HTTP.ConnectionTimeout_MS, 1000*30);//默认 30秒 （单位毫秒）
+		long  maxConnectionLifetime=SystemPropertyUtil.getLong(Constants.HTTP.Max_Connection_Lifetime_MS, 1000*60);//默认 60秒 （单位毫秒）
+		long idleTimeout=SystemPropertyUtil.getLong(Constants.HTTP.IdleConnection_TimeOut_MS, 1000*10);//默认 10秒 （单位毫秒）
+		
+		int defaultMaxPerRoute= SystemPropertyUtil.getInt(Constants.HTTP.DefaultMaxPerRoute,200);//默认 30秒 （单位毫秒）
+		int maxTotal=SystemPropertyUtil.getInt(Constants.HTTP.MaxTotal, 400);
+		
+		if(logger.isInfoEnabled())
+			logger.info("Initialize http pool connTimeout="+connTimeout+"ms,SoTimeout="+soTime+"ms,"
+					+ " maxConnectionLifetime="+maxConnectionLifetime+"ms,idleTimeout="+idleTimeout+"ms"
+					+ " defaultMaxPerRoute="+defaultMaxPerRoute+",maxTotal="+maxTotal);
 		
 		params = new BasicHttpParams();
 		// 设置一些基本参数
@@ -163,8 +177,9 @@ public class HttpUtil {
 		HttpProtocolParams.setHttpElementCharset(params, Constants.Encoding.CHARSET_UTF8);
 		HttpProtocolParams.setUserAgent(params, "HttpComponents/1.1");
 		// 超时设置		
-		HttpConnectionParams.setConnectionTimeout(params, 6000*5);//30秒 （单位毫秒）		
-		HttpConnectionParams.setSoTimeout(params, 5000*6);//30秒 （单位毫秒）
+		HttpConnectionParams.setConnectionTimeout(params, connTimeout);		
+		HttpConnectionParams.setSoTimeout(params, soTime);//默认 30秒 （单位毫秒）
+		
 		// 设置我们的HttpClient支持HTTP和HTTPS两种模式
 		SchemeRegistry schReg = new SchemeRegistry();
 		schReg.register(new Scheme("http", 80, PlainSocketFactory
@@ -173,13 +188,14 @@ public class HttpUtil {
 				.getSocketFactory()));
 		
 		// 使用线程安全的连接管理来创建HttpClient
-		// 从连接池中取连接的超时时间 1000毫秒 
+		// 从连接池中取连接的超时时间 1分钟 1000*60 
 		conMgr = new ThreadSafeClientConnManager(
-				schReg, 1000*60, TimeUnit.MILLISECONDS);
-		conMgr.setDefaultMaxPerRoute(100);
-		conMgr.setMaxTotal(500);
+				schReg, maxConnectionLifetime, TimeUnit.MILLISECONDS);
+		conMgr.setDefaultMaxPerRoute(defaultMaxPerRoute);
+		conMgr.setMaxTotal(maxTotal);
 		conMgr.closeExpiredConnections();
-		conMgr.closeIdleConnections(10, TimeUnit.SECONDS);		
+		conMgr.closeIdleConnections(idleTimeout, TimeUnit.MILLISECONDS);	
+		
 	}
 	
 	public static HttpClient getHttpClient() {

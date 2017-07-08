@@ -76,7 +76,7 @@ public class BusinessService
 			 String confPath=GlobalResource.getCDOEnvConfigPath();
 			 String parent=new File(confPath).getParent();
 			 strBusResource=parent+"/servicebusResource.xml";
-			 log.info("使用默认配置文件:strBusResource="+strBusResource);
+			 log.info("使用配置文件:strBusResource="+strBusResource);
 			 File file=new File(strBusResource);
 			 if(!file.exists()||!file.isFile())
 				 strBusResource=null;			 

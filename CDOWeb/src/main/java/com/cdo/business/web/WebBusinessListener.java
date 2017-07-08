@@ -1,5 +1,9 @@
 package com.cdo.business.web;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Properties;
+
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletRequestEvent;
@@ -7,8 +11,10 @@ import javax.servlet.ServletRequestListener;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 import com.cdo.business.BusinessService;
+import com.cdo.business.threads.ThreadPoolFactory;
 import com.cdoframework.cdolib.base.Return;
 
 /**
@@ -31,6 +37,21 @@ public class WebBusinessListener implements ServletContextListener,ServletReques
 	
 	public void contextInitialized(ServletContextEvent arg0)
 	{//web start business		
+    	String file=System.getProperty("log4j.file");
+    	try{
+    		if(file!=null && file.trim().length()>0){    			
+    			Properties log4j=new Properties();
+    			log4j.load(new FileInputStream(new File(file)));
+    			PropertyConfigurator.configure(log4j);
+    			logger.info("加载指定日志配置文件: "+file);
+    		}else{
+    			logger.warn("未指定日志配置文件 ....");
+    		}    		
+    	}catch(Throwable ex){
+    		logger.error("加载指定日志配置 ["+file+"] 异常:"+ex.getMessage(),ex);    		
+    	}
+    	
+    	ThreadPoolFactory.getInstatnce();
 		Return ret = Return.OK;
 		BusinessService app = BusinessService.getInstance();		
 		try
@@ -68,17 +89,7 @@ public class WebBusinessListener implements ServletContextListener,ServletReques
 
 	public void requestInitialized(ServletRequestEvent arg0)
 	{
-		HttpServletRequest request=(HttpServletRequest)arg0.getServletRequest();		
-		String strClientIP=request.getRemoteAddr();
-		String strURL=request.getRequestURI();
-		if(request.getQueryString()!=null)
-		{
-			strURL+="?"+request.getQueryString();
-		}
-		if(logger.isInfoEnabled()){
-			logger.info(strClientIP+": "+strURL);
-		}
-		
+
 	}
 	
 	public void requestDestroyed(ServletRequestEvent arg0)

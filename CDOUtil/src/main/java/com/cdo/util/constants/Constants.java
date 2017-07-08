@@ -13,22 +13,40 @@ public class Constants {
 		//服务端 RPCServer
 		public static final String THREAD_SERVER_BOSS="io.netty.eventLoopThreads";//netty主线程，默认 Runtime.getRuntime().availableProcessors()*1
 		public static final String THREAD_SERVER_WORK="io.netty.thread.channel";//处理netty主线程工作线程,默认Runtime.getRuntime().availableProcessors()*2
-		//服务端  使用io channel进行处理 业务
-		public static final String THREAD_BUSINESS_USE_CHANNEL="io.netty.bussiness.useChannel";
-
 		//客户端 RPCClient
-		public static final String THREAD_CLIENT_WORK="io.netty.client.eventLoopThreads";//默认Runtime.getRuntime().availableProcessors()	
-		//业务处理线程
-		public static final String THREAD_BUSINESS_CoreSize="io.netty.thread.bussiness.coreSize";//处理业务线程默认保持线程数量   Runtime.getRuntime().availableProcessors()*2
-		public static final String THREAD_BUSINESS_MaxSize="io.netty.thread.bussiness.maxSize";//处理业务最大线程默认  Runtime.getRuntime().availableProcessors()*3
-		public static final String THREAD_BUSINESS_IDLE_KeepAliveTime="io.netty.thread.bussiness.idleKeepAliveTime";//空闲多长时间关闭 单位秒，默认60秒
-		public static final String THREAD_BUSINESS_TASK_QueueSize="io.netty.thread.bussiness.queueSize";//队列最长是多少
-		//客户端同步调用/异步调用线程
-		public static final String THREAD_BUSINESS_CLIENT_ASYNC="io.netty.thread.bussiness.client.async";//默认是异步调用
-				
-		public static final String BUSINESS_TIME_OUT="io.netty.bussiness.timeOut";//客户端发送请求，等待服务端返回结果的超时时间,默认30分钟
+		public static final String THREAD_CLIENT_WORK="io.netty.client.eventLoopThreads";//默认Runtime.getRuntime().availableProcessors()				
+	}
+	
+	//业务处理线程
+	public static class Business{	
+		//客户端  [同步/异步]调用线程
+		public static final String ASYNC="business.async";//默认是异步调用	
+        //后端是否使用rpc提供服务 		
+		public static final String RPC="business.rpc";//是否使用RPC调用
+		//RPC同步调用 接口  超时时间  10 分钟
+		public static final String TIME_OUT="business.timeOut";			
+		//RPC调用服务端  使用io channel进行处理 业务 .是否直接调用nio 处理业务
+		public static final String USE_NIO_CHANNEL="business.use.nioChannel";		
+		//线程数量
+		public static final String CoreSize="business.coreSize";
+		//最大线程数
+		public static final String MaxSize="business.maxSize";
+		//空闲时间  60 秒
+		public static final String IDLE_KeepAliveTime="business.idleKeepAliveTime";
+		//队列长度
+		public static final String QueueSize="business.queueSize";//队列最最大长度是多少
+		//阈值 remain =taskCount-taskComplete=
+		public static final String Threshold="business.threshold";
+	}
+	
+	public static class HTTP{
+		public static final String SoTimeout_MS="http.soTimeout";
+		public static final String ConnectionTimeout_MS="http.connection.timeOut";		
+		public static final String Max_Connection_Lifetime_MS="http.max.connection.lifeTime";
+		public static final String IdleConnection_TimeOut_MS="http.IdleConnection.timeOut";				
 		
-		
+		public static final String DefaultMaxPerRoute="http.default.maxPerRoute";
+		public static final String MaxTotal="http.max.total";						
 	}
 	//分页常量
 	public static class Page{		

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
@@ -30,9 +31,11 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.content.ByteArrayBody;
 //import org.apache.http.entity.mime.MultipartEntityBuilder;
 //import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.entity.mime.content.ContentBody;
@@ -45,9 +48,12 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
 import com.cdo.util.bean.CDOHTTPResponse;
+import com.cdo.util.common.Zipper;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.exception.HttpException;
 import com.cdo.util.resource.GlobalResource;
+import com.cdo.util.serial.Serializable;
+import com.cdoframework.cdolib.data.cdo.CDO;
 /**
  * 
  * @author KenelLiu
@@ -72,7 +78,7 @@ public class HttpClient {
 	private int transMode;
 	private String url;
 	private String method=METHOD_POST;
-
+	private CDO transCDO=null;
 
 	private List<NameValuePair> paramsList = new ArrayList<NameValuePair>();
 
@@ -81,7 +87,15 @@ public class HttpClient {
 
 	private HttpHost httpHost = null;
 	
-	
+   
+	public CDO getTransCDO() {
+		return transCDO;
+	}
+
+	public void setTransCDO(CDO transCDO) {
+		this.transCDO = transCDO;
+	}
+
 	public HttpClient() {
 		this(null,METHOD_POST);
 	}
@@ -187,29 +201,40 @@ public class HttpClient {
 					entity = new StringEntity(this.body,Constants.Encoding.CHARSET_UTF8);
 				}
 			} else {
-				//普通类似form传输,若有文件,则使用MultipartEntityBuilder
-				if(this.uploadFiles!=null && this.uploadFiles.size()>0){
-//					MultipartEntityBuilder reqEntity=MultipartEntityBuilder.create();
-					MultipartEntity reqEntity = new MultipartEntity();
-//					reqEntity.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);					
-//					reqEntity.setCharset(Charset.forName(Constants.Encoding.CHARSET_UTF8));
-					//文件参数
-					for (Map.Entry<String,File> entry : this.uploadFiles.entrySet()) {			
-						if ((entry.getKey()  == null) || (entry.getKey().trim().equals("")))
-							continue;
-//						reqEntity.addBinaryBody(entry.getKey(),  entry.getValue());		
-						reqEntity.addPart(entry.getKey(),  new FileBody(entry.getValue()));
-					}
-					//其他参数
-					for(NameValuePair pair:this.paramsList){
-//						reqEntity.addTextBody(pair.getName(),pair.getValue(),TEXT_PLAIN_UTF8);	
-						reqEntity.addPart(pair.getName(), new StringBody(pair.getValue()));
-					}					
-//					entity=reqEntity.build();
+				//解决与OAM项目冲突问题,
+				if(getTransCDO()!=null){
+					entity = new MultipartEntity();
+				   ((MultipartEntity)entity).addPart(Constants.CDO.HTTP_CDO_REQUEST,
+						   new StringBody(Base64.encodeBase64String(Zipper.zipBytes(Serializable.protoCDO2Byte(getTransCDO())))));				   
+				   				  
 				}else{
-					//没有文件传输
-					entity = new UrlEncodedFormEntity(this.paramsList, Constants.Encoding.CHARSET_UTF8);
+					if(this.uploadFiles!=null){
+						//有文件传输    使用  MultipartEntity		 							
+						entity=entity==null?new MultipartEntity():entity;
+						if(this.uploadFiles!=null){
+							  for (Map.Entry<String,File> entry : this.uploadFiles.entrySet()) {			
+									if ((entry.getKey()  == null) || (entry.getKey().trim().equals("")))
+										continue;		
+									((MultipartEntity)entity).addPart(entry.getKey(),  new FileBody(entry.getValue()));
+								}
+						  }					
+						//设置普通一般参数 
+						for(NameValuePair pair:this.paramsList){	
+								((MultipartEntity)entity).addPart(pair.getName(), new StringBody(pair.getValue(),Charset.forName(Constants.Encoding.CHARSET_UTF8)));								
+						}
+					}else{
+						//普通请求
+						entity = new UrlEncodedFormEntity(paramsList,Charset.forName(Constants.Encoding.CHARSET_UTF8));	
+					}					
 				}				
+
+				/**4.5
+				 * 
+				 *  MultipartEntityBuilder reqEntity=MultipartEntityBuilder.create();				 * 
+				 * 	reqEntity.addBinaryBody(entry.getKey(),  entry.getValue());		
+				 * 	reqEntity.addTextBody(pair.getName(),pair.getValue(),TEXT_PLAIN_UTF8);
+				 *  entity=reqEntity.build();
+				 */				 			
 			}
 			
 			if (this.method.equals(METHOD_PUT)) {

@@ -35,14 +35,14 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	private final  BusinessService serviceBus=BusinessService.getInstance();	
 	
 	private ThreadPoolExecutor executor;
-	private int corePoolSize=Math.max(4,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS_CoreSize,Runtime.getRuntime().availableProcessors()));
-	private int maxPoolSize=Math.max(4,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS_MaxSize,(int)(Runtime.getRuntime().availableProcessors())));
-	private int queueSize=Math.max(10,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS_TASK_QueueSize,10));
+	private int corePoolSize=Math.max(4,SystemPropertyUtil.getInt(Constants.Business.CoreSize,Runtime.getRuntime().availableProcessors()));
+	private int maxPoolSize=Math.max(4,SystemPropertyUtil.getInt(Constants.Business.MaxSize,(int)(Runtime.getRuntime().availableProcessors())));
+	private int queueSize=Math.max(10,SystemPropertyUtil.getInt(Constants.Business.QueueSize,10));
 	private int threshold=(int)(queueSize*0.8);
 	//空闲线程存活的时间
-	private int keepAliveTime=Math.max(60,SystemPropertyUtil.getInt(Constants.Netty.THREAD_BUSINESS_IDLE_KeepAliveTime,60));
+	private int keepAliveTime=Math.max(60,SystemPropertyUtil.getInt(Constants.Business.IDLE_KeepAliveTime,60));
 	//使用 io channel处理业务，则是   一个服务器对应了大量的客户端
-	private boolean useChannel=SystemPropertyUtil.getBoolean(Constants.Netty.THREAD_BUSINESS_USE_CHANNEL,false);
+	private boolean useChannel=SystemPropertyUtil.getBoolean(Constants.Business.USE_NIO_CHANNEL,false);
 	
 	private Channel channel;
 	
