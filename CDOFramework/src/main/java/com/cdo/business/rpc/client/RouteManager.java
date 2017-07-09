@@ -11,19 +11,17 @@ import com.cdo.util.server.ServerScheduling;
 
 public class RouteManager {
 
-	private   Map<String, RPCClient> routeMap=new HashMap<String, RPCClient>();
-	private static RouteManager instance=null;
+	private   Map<String, NettyClient> routeMap;
+	private final static RouteManager instance=new RouteManager();
 	private static final Logger logger=Logger.getLogger(RouteManager.class); 
 	private  ReadWriteLock routeLock = new ReentrantReadWriteLock();  
 	public static  synchronized RouteManager getInstance()
 	{//使用单列
-		if(instance==null)
-			instance=new RouteManager();
 		return instance;
 	}
 	
 	private RouteManager(){
-		
+		routeMap=new HashMap<String, NettyClient>();
 	}
 	
 	public boolean containKey(String serverAddress){
@@ -36,7 +34,7 @@ public class RouteManager {
 	 * @param rpcClient
 	 */
 	public void removeRPCClient(String serverAddress){
-		RPCClient discardRPCClient=null;
+		NettyClient discardRPCClient=null;
 		try{
 			routeLock.writeLock().lock(); 
 			discardRPCClient=routeMap.get(serverAddress);	
@@ -58,8 +56,8 @@ public class RouteManager {
 	 * @param serverAddress=ip:port
 	 * @param rpcClient
 	 */
-	public void addRPCClient(String serverAddress,RPCClient rpcClient){
-		RPCClient discardRPCClient=null;
+	public void addNettyClient(String serverAddress,NettyClient rpcClient){
+		NettyClient discardRPCClient=null;
 		try{
 			routeLock.writeLock().lock(); 
 			if(!routeMap.containsKey(serverAddress)){
@@ -87,15 +85,15 @@ public class RouteManager {
 	 * @param serverAddress=ip:port
 	 * @return
 	 */
-	public RPCClient route(ServerScheduling serverScheduling){
+	public NettyClient route(ServerScheduling serverScheduling){
 		Server server=serverScheduling.getServer();		
 		String hostPort=server.getHostPost();			
 		//获取数据
-		RPCClient rpcClient=routeMap.get(server.getHostPost());
+		NettyClient rpcClient=routeMap.get(server.getHostPost());
 		if(rpcClient!=null)
 			return rpcClient;		
 		//本机还未与服务连接进行连接成功，尝试连接
-		RPCClient rpClient=new RPCClient(hostPort.split(":")[0],Integer.parseInt(hostPort.split(":")[1]));
+		NettyClient rpClient=new NettyClient(hostPort.split(":")[0],Integer.parseInt(hostPort.split(":")[1]));
 		rpClient.init();
 		int retry=1;
 		while ( retry<5) {

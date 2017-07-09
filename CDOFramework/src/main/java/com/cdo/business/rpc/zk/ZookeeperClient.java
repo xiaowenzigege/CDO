@@ -16,6 +16,7 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
+import com.cdo.business.rpc.client.NettyClient;
 import com.cdo.business.rpc.client.RPCClient;
 import com.cdo.business.rpc.client.RouteManager;
 import com.cdo.util.algorithm.RoundRobinScheduling;
@@ -124,7 +125,7 @@ public class ZookeeperClient {
 	            		
 	            		//还未建立长连接,可以预建立连接
 	            		if(!routeManager.containKey(hostPort) && !serverMap.containsKey(hostPort)){
-	            			RPCClient.connectionServer(hostPort);;
+	            			NettyClient.connectionServer(hostPort);;
 	            		}
 	            		
 	            		if(serverMap.containsKey(hostPort) &&
