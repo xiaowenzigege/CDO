@@ -189,7 +189,18 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 			cdoOutput.deepRelease();		
 		}		
 	}	
-	
+	/**
+	 * 为了在客户端比较快速解释，使用固定顺序，采用 cdoReturn放在第一位,cdoResponse放在第二位
+	 * 返回的 cdoOutput 只有2个cdo对象,cdoReturn,cdoResponse
+	 * cdoReturn 只有 三个数据 
+	 * 其余 cdoResponse里的数据
+	 * 使用下标  判断 替换 原来的 字符串比较
+	 * @param cdoRequest
+	 * @param listFile
+	 * @param strServiceName
+	 * @param strTransName
+	 * @return
+	 */
 	private CDO handleTrans(CDO cdoRequest,List<File> listFile,String strServiceName,String strTransName){		
 		CDO cdoOutput=new CDO();
 		CDO cdoResponse=new CDO();;		

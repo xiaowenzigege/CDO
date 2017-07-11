@@ -153,7 +153,7 @@ public abstract class CDOServlet extends HttpServlet
 			cdoReturn.setIntegerValue("nCode",ret.getCode());
 			cdoReturn.setStringValue("strText",ret.getText());
 			cdoReturn.setStringValue("strInfo",ret.getInfo());
-			//为了返回快速解释，不重复copy,这儿 顺序不能变化，cdoReturn只有 三个数值，排在前面，后面为cdoResponse
+			//--为了返回快速解释，不重复copy,这儿 顺序不能变化，cdoReturn只有 三个数值，排在前面，后面为cdoResponse--/
 			cdoOutput.setCDOValue("cdoReturn",cdoReturn);
 			cdoOutput.setCDOValue("cdoResponse", cdoResponse);
 //			strOutput=cdoOutput.toXML();			
@@ -184,16 +184,17 @@ public abstract class CDOServlet extends HttpServlet
 		// 输出结果
 //		String strOutput="";
 		CDO cdoOutput=new CDO();
+		CDO cdoResponse=new CDO();
 		CDO cdoReturn=new CDO();
 		cdoReturn.setIntegerValue("nCode",nCode);
 		cdoReturn.setStringValue("strText",message);
 		cdoReturn.setStringValue("strInfo",message);
 	
 		cdoOutput.setCDOValue("cdoReturn",cdoReturn);
-		cdoOutput.setCDOValue("cdoResponse",new CDO());
+		cdoOutput.setCDOValue("cdoResponse",cdoResponse);
 //		strOutput=cdoOutput.toXML();		
 		response.setHeader("Cache-control","no-cache,no-store");
-		outputReponse(response, cdoOutput,cdoOutput);
+		outputReponse(response, cdoOutput,cdoResponse);
 	}
 	
 

@@ -73,9 +73,9 @@ public class WebHttpClient implements IWebClient{
 	    		 httpClient.setHeaders(headers);
 	    		 httpClient.setUploadFiles(uploadFiles);
 			}
-			//设置返回值 
+			//主要处理由外部，设置控制文件流，默认为自动关闭。当由外部通过OutStreamCDO控制  设置autoCloseStream 外部控制关闭
 			httpClient.setCdoResponse(cdoResponse);
-			//响应	
+			//响应数据	
 			httpRes=httpClient.execute();					
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
@@ -98,14 +98,15 @@ public class WebHttpClient implements IWebClient{
 //			CDO cdoOutput=Serializable.byte2ProtoCDO();  
 //			CDO cdoReturn=cdoOutput.getCDOValue("cdoReturn");
 			CDO cdoReturn=new CDO();
-			ParseHTTPProtoCDO.HTTPProtoParse.protoToCDO(httpRes.getResponseBytes(), cdoReturn, cdoResponse);
-			httpRes.copyFile2CDO(cdoResponse);
-			
+			ParseHTTPProtoCDO.HTTPProtoParse.parse(httpRes.getResponseBytes(), cdoReturn, cdoResponse);
+			//有文件传输,仅设置文件句柄，文件在磁盘上，或者通过外部开发者自己控制，写入到指定设备[内存，磁盘，输出流上]
+			httpRes.copyFile2CDO(cdoResponse);			
 			return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));	
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
 			return Return.valueOf(-1, "ERROR:" + ex.getMessage());
 		}finally{
+			httpRes.setResponseBytes(null);
 			httpRes=null;
 		}
 //		logger.error("返回数据: strCDOXml IS NULL,please check network connection");

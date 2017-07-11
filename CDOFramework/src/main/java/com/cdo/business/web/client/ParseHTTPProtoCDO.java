@@ -13,10 +13,11 @@ import com.google.protobuf.MessageLite;
 /**
  * @see {@link com.cdoframework.cdolib.web.CDOServlet}
  * @author KenelLiu
- * 解释http  响应的ProtoCDO
- *CDOServlet中的 cdoOutput输出，顺序
- *，cdoReturn只有 三个数值，排在前面，后面为cdoResponse
- * cdoOutput 有2个对象cdoReturn，cdoResponse
+ * 解释http  响应的bytes
+ *   响应数据为CDO序列化，该CDO 仅包含[cdoReturn,cdoResponse]2个cdo对象,
+ *   且顺序是固定的，cdoReturn 排序为第一位,
+ *   cdoReturn 只有 三个数据  
+ *   其余 cdoResponse里的数据
  */
 public class ParseHTTPProtoCDO extends ParseProtoCDO {
 	
@@ -24,29 +25,15 @@ public class ParseHTTPProtoCDO extends ParseProtoCDO {
     static{
     	HTTPProtoParse=new ParseHTTPProtoCDO();
    }
-	protected ParseHTTPProtoCDO(){}
 	
-	 void protoToCDO(byte[] byteOutput,CDO cdoReturn,CDO cdoResponse) throws InvalidProtocolBufferException
-	{
-			MessageLite result= GoogleCDO.CDOProto.getDefaultInstance().getParserForType().parseFrom(byteOutput, 0, byteOutput.length);
-			GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)result;
-			List<GoogleCDO.CDOProto.Entry> fieldList=proto.getFieldsList();
-			
-			 for(int i=0;i<fieldList.size();i++){
-				 GoogleCDO.CDOProto.Entry entry=fieldList.get(i);
-				 String key=entry.getName();
-				 ByteBuffer buffer = ByteBuffer.wrap(entry.getValue().toByteArray());
-				 buffer.clear();	
-				 if(i<=2){
-					 //前三个为cdoReturn对象里的数据，后面为cdoReponse对象里的数据
-					 parseHierarchicCDO(cdoReturn,buffer,key);
-				 }else{
-					 parseHierarchicCDO(cdoResponse,buffer,key);
-				 }
-				
-			  }	
-			
-	}
+	
+	private ParseHTTPProtoCDO(){}
+	
+	 void parse(byte[] byteOutput,CDO cdoResponse,CDO cdoReturn) throws InvalidProtocolBufferException{
+		MessageLite result= GoogleCDO.CDOProto.getDefaultInstance().getParserForType().parseFrom(byteOutput, 0, byteOutput.length);
+		GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)result;
+		proto2CDO(proto.getFieldsList(),cdoResponse,cdoReturn);					
+	} 	
 	 
 
 }
