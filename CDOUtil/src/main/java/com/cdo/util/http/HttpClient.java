@@ -226,8 +226,8 @@ public class HttpClient {
 					if(getTransCDO()!=null){
 						entity = new ByteArrayEntity(Serializable.protoCDO2Byte(getTransCDO()));					   				 
 					}else{
-					//普通请求
-					entity = new UrlEncodedFormEntity(paramsList,Charset.forName(Constants.Encoding.CHARSET_UTF8));	
+						//普通请求
+						entity = new UrlEncodedFormEntity(paramsList,Charset.forName(Constants.Encoding.CHARSET_UTF8));	
 					}	
 				}
 				
@@ -297,7 +297,7 @@ public class HttpClient {
 			//----读取响应报头信息	 用于区分普通请求响应  还是cdo响应---//
 			LinkedHashMap<String, FileInfo> linkMap=readHeader(response.getAllHeaders());
 			try{					
-				if(linkMap.size()==1){//仅有 cdo输出				 
+				if(linkMap.size()==1){//仅有 cdo输出,对象为Serializable.protoCDO2Byte(cdoOutput)的字节				 
 					cdoHttpResponse.setResponseBytes(response.getEntity()==null?null:EntityUtils.toByteArray(response.getEntity()));					
 				}else if(linkMap.size()>1){//cdo和下载文件   混合输出,第一个输出为cdo,后续为文件依次输出//	
 					outMixData(response, linkMap, cdoHttpResponse);

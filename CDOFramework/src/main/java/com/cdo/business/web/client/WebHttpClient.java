@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import com.cdo.util.bean.CDOHTTPResponse;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.exception.HttpException;
+import com.cdo.util.serial.Serializable;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
@@ -43,7 +44,7 @@ public class WebHttpClient implements IWebClient{
 		if ((this.strUrl == null) || (this.strUrl.equals(""))){
 			throw new HttpException(" target strUrl  is null ");
 		}			
-		String strCDOXml = "";
+//		String strCDOXml = "";
 		CDOHTTPResponse httpRes=null;
 		try {
 			CDOHTTPClient httpClient = new CDOHTTPClient(this.strUrl);	
@@ -85,20 +86,30 @@ public class WebHttpClient implements IWebClient{
 			return Return.valueOf(-1, " http Status:" + httpRes.getStatusCode()
 			        + ";Send Http Request ERROR:" + httpRes);
 		}
-		try {		
+		try {
+			/**
 			strCDOXml =httpRes.getResponseText();			
 			if (strCDOXml != null && !strCDOXml.trim().equals("")) {				            			    
 				CDO cdoReturn=new CDO();
 				ParseHTTPXmlCDO.xmlToCDO(strCDOXml, cdoReturn, cdoResponse);								
 				httpRes.copyFile2CDO(cdoResponse);
 			    return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));			
-		  }
+		  }**/
+//			CDO cdoOutput=Serializable.byte2ProtoCDO();  
+//			CDO cdoReturn=cdoOutput.getCDOValue("cdoReturn");
+			CDO cdoReturn=new CDO();
+			ParseHTTPProtoCDO.HTTPProtoParse.protoToCDO(httpRes.getResponseBytes(), cdoReturn, cdoResponse);
+			httpRes.copyFile2CDO(cdoResponse);
+			
+			return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));	
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
 			return Return.valueOf(-1, "ERROR:" + ex.getMessage());
+		}finally{
+			httpRes=null;
 		}
-		logger.error("返回数据: strCDOXml IS NULL,please check network connection");
-		return Return.valueOf(-1, "ERROR:return strCDOXml IS NULL,please check network connection");
+//		logger.error("返回数据: strCDOXml IS NULL,please check network connection");
+//		return Return.valueOf(-1, "ERROR:return strCDOXml IS NULL,please check network connection");
 	}
 
 	@Override

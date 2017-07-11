@@ -147,18 +147,18 @@ public abstract class CDOServlet extends HttpServlet
 		}		
 		// 输出结果
 		try{	
-			String strOutput="";
+//			String strOutput="";
 			CDO cdoOutput=new CDO();
 			CDO cdoReturn=new CDO();
 			cdoReturn.setIntegerValue("nCode",ret.getCode());
 			cdoReturn.setStringValue("strText",ret.getText());
 			cdoReturn.setStringValue("strInfo",ret.getInfo());
-
+			//为了返回快速解释，不重复copy,这儿 顺序不能变化，cdoReturn只有 三个数值，排在前面，后面为cdoResponse
 			cdoOutput.setCDOValue("cdoReturn",cdoReturn);
 			cdoOutput.setCDOValue("cdoResponse", cdoResponse);
-			strOutput=cdoOutput.toXML();			
+//			strOutput=cdoOutput.toXML();			
 			//TODO 可增加网页类cache  CacheUtil.handleReqCache(request, response, ret);
-			outputReponse(response, strOutput,cdoResponse);
+			outputReponse(response, cdoOutput,cdoResponse);
 		}finally{
 			//业务处理完毕 释放CDO
 			cdoRequest.deepRelease();
@@ -173,20 +173,27 @@ public abstract class CDOServlet extends HttpServlet
 	private void outPutAsync(HttpServletResponse response) throws IOException{
 		outPut(response,0, "server async process data");
 	}
-	
+	/**
+	 * 	为了返回快速解释http响应，CDO不重复copy,这儿 顺序不能变化，cdoReturn只有 三个数值，排在前面，后面为cdoResponse
+	 * @param response
+	 * @param nCode
+	 * @param message
+	 * @throws IOException
+	 */
 	private void outPut(HttpServletResponse response,int nCode,String message) throws IOException{
 		// 输出结果
-		String strOutput="";
+//		String strOutput="";
 		CDO cdoOutput=new CDO();
 		CDO cdoReturn=new CDO();
 		cdoReturn.setIntegerValue("nCode",nCode);
 		cdoReturn.setStringValue("strText",message);
 		cdoReturn.setStringValue("strInfo",message);
+	
 		cdoOutput.setCDOValue("cdoReturn",cdoReturn);
 		cdoOutput.setCDOValue("cdoResponse",new CDO());
-		strOutput=cdoOutput.toXML();		
+//		strOutput=cdoOutput.toXML();		
 		response.setHeader("Cache-control","no-cache,no-store");
-		outputReponse(response, strOutput,cdoOutput);
+		outputReponse(response, cdoOutput,cdoOutput);
 	}
 	
 
@@ -197,20 +204,24 @@ public abstract class CDOServlet extends HttpServlet
 	/**
 	 * 安全输出http响应
 	 * @param response
-	 * @param strOutput
+	 * @param cdoOutput
 	 * @throws IOException 
 	 */
-	private void outputReponse(HttpServletResponse response, String strOutput,CDO cdoResponse) throws IOException {
+	private void outputReponse(HttpServletResponse response, CDO cdoOutput,CDO cdoResponse) throws IOException {
 		
-		//----设置header----
-		File[] files=setResponseHeader(response, strOutput, cdoResponse);		
 		ServletOutputStream out=null;
 		InputStream inStream=null;
 		try {		
+			//转换成字节
+			byte[] byteOutput=Serializable.protoCDO2Byte(cdoOutput);
+			//----设置header----		
+			File[] files=setResponseHeader(response, byteOutput, cdoResponse);
+			
 			out=response.getOutputStream();			
-			byte[] cdoResXml=strOutput.getBytes();
+//			byte[] cdoResXml=strOutput.getBytes();
 			//输出cdo xml
-			out.write(cdoResXml);	
+//			out.write(cdoResXml);	
+			out.write(byteOutput);	
 			//输出文件
 			for(int i=0;i<files.length;i++){
 		         /*创建输入流*/
@@ -233,12 +244,15 @@ public abstract class CDOServlet extends HttpServlet
 		}
 	}	
 	
-	private File[] setResponseHeader(HttpServletResponse response, String strOutput,CDO cdoResponse) throws UnsupportedEncodingException{
+	private File[] setResponseHeader(HttpServletResponse response, byte[] byteOutput,CDO cdoResponse) throws UnsupportedEncodingException{
 		response.setContentType("application/octet-stream;charset=UTF-8");
 		response.setHeader("Accept-Ranges", "bytes");
-		
+		/**
 		byte[] cdoResXml=strOutput.getBytes("UTF-8");
 		int cdoXmlLen=cdoResXml.length;
+		long totalLen=cdoXmlLen;
+		**/
+		int cdoXmlLen=byteOutput.length;
 		long totalLen=cdoXmlLen;
 		
 		StringBuilder sbFieldName=new StringBuilder(15);
