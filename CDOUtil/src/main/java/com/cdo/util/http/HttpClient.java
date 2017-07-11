@@ -198,34 +198,40 @@ public class HttpClient {
 			if (this.transMode ==TRANSMODE_BODY) {
 				//作为body传输
 				if (this.body!= null) {
-					entity = new StringEntity(this.body,Constants.Encoding.CHARSET_UTF8);
+//					entity=new StringEntity(this.body, Constants.Encoding.CHARSET_UTF8);
+					entity = new ByteArrayEntity(this.body.getBytes(Constants.Encoding.CHARSET_UTF8));
 				}
 			} else {
-				//解决与OAM项目冲突问题,
-				if(getTransCDO()!=null){
-					entity = new MultipartEntity();
-				   ((MultipartEntity)entity).addPart(Constants.CDO.HTTP_CDO_REQUEST,
-						   new StringBody(Base64.encodeBase64String(Zipper.zipBytes(Serializable.protoCDO2Byte(getTransCDO())))));				  
-				}else{
+				if(this.uploadFiles!=null){
+					//有文件传输    使用  MultipartEntity		 							
+					entity=entity==null?new MultipartEntity():entity;
 					if(this.uploadFiles!=null){
-						//有文件传输    使用  MultipartEntity		 							
-						entity=entity==null?new MultipartEntity():entity;
-						if(this.uploadFiles!=null){
-							  for (Map.Entry<String,File> entry : this.uploadFiles.entrySet()) {			
-									if ((entry.getKey()  == null) || (entry.getKey().trim().equals("")))
-										continue;		
-									((MultipartEntity)entity).addPart(entry.getKey(),  new FileBody(entry.getValue()));
-								}
-						  }					
-						//设置普通一般参数 
-						for(NameValuePair pair:this.paramsList){	
-								((MultipartEntity)entity).addPart(pair.getName(), new StringBody(pair.getValue(),Charset.forName(Constants.Encoding.CHARSET_UTF8)));								
-						}
+						  for (Map.Entry<String,File> entry : this.uploadFiles.entrySet()) {			
+								if ((entry.getKey()  == null) || (entry.getKey().trim().equals("")))
+									continue;		
+								((MultipartEntity)entity).addPart(entry.getKey(),  new FileBody(entry.getValue()));
+							}
+					  }								
+					//设置普通一般参数 
+					for(NameValuePair pair:this.paramsList){	
+							((MultipartEntity)entity).addPart(pair.getName(), new StringBody(pair.getValue(),Charset.forName(Constants.Encoding.CHARSET_UTF8)));								
+					}
+					if(getTransCDO()!=null){
+						entity = new MultipartEntity();
+					   ((MultipartEntity)entity).addPart(Constants.CDO.HTTP_CDO_REQUEST,
+							   new StringBody(Base64.encodeBase64String(Serializable.protoCDO2Byte(getTransCDO()))));				  
+					}
+				}else{					
+					//只有CDO 使用二进制传输
+					if(getTransCDO()!=null){
+						entity = new ByteArrayEntity(Serializable.protoCDO2Byte(getTransCDO()));					   				 
 					}else{
-						//普通请求
-						entity = new UrlEncodedFormEntity(paramsList,Charset.forName(Constants.Encoding.CHARSET_UTF8));	
-					}					
-				}				
+					//普通请求
+					entity = new UrlEncodedFormEntity(paramsList,Charset.forName(Constants.Encoding.CHARSET_UTF8));	
+					}	
+				}
+				
+				
 
 				/**4.5
 				 * 

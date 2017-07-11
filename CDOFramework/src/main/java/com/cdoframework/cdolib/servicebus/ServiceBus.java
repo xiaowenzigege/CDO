@@ -528,7 +528,7 @@ public class ServiceBus implements IServiceBus
 			if(strTransName2.startsWith("GET") || strTransName2.startsWith("FIND") || strTransName2.startsWith("RETRIEVE")){
 				return;
 			}			
-			logger.info(new StringBuilder().append("Starting handle ").append(" ServceName=").append(strServiceName).append(" transName=").append(strTransName).append("\r\n").append(cdoRequest.toXMLLog()).toString());			
+			logger.info(new StringBuilder().append("Starting handle ").append(" ServceName=").append(strServiceName).append(" transName=").append(strTransName).append("\r\n").append(cdoRequest.toString()).toString());			
 		}
 	}
 	
@@ -545,7 +545,7 @@ public class ServiceBus implements IServiceBus
 			}else{
 				sb.append(" code=").append(retResult.getCode()).append(" text=").append(retResult.getText()).append(" info=").append(retResult.getInfo());
 			}
-			sb.append(" cdoResponse=").append(cdoResponse.toXMLLog());
+			sb.append(" cdoResponse=").append(cdoResponse.toString());
 			logger.info(sb.toString());
 		}
 	}

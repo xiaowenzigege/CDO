@@ -35,7 +35,7 @@ public class Constants {
 		public static final String IDLE_KeepAliveTime="business.idleKeepAliveTime";
 		//队列长度
 		public static final String QueueSize="business.queueSize";//队列最最大长度是多少
-		//阈值 remain =taskCount-taskComplete=
+		//阈值 remain =taskCount-taskComplete=activeCount+queueSize(队列剩余的个数)
 		public static final String Threshold="business.threshold";
 	}
 	

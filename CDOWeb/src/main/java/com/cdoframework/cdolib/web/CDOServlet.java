@@ -2,6 +2,7 @@
 
 package com.cdoframework.cdolib.web;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.Map.Entry;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -31,9 +33,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 
-import com.cdo.business.rpc.client.RPCResponse;
 import com.cdo.business.threads.ThreadPoolFactory;
-import com.cdo.util.common.Zipper;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.resource.GlobalResource;
 import com.cdo.util.serial.Serializable;
@@ -53,11 +53,10 @@ public abstract class CDOServlet extends HttpServlet
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6566513350461152047L;
-
+	private static final long serialVersionUID = 6566513350461152047L;	
 	private static Logger log=Logger.getLogger(CDOServlet.class);
 	private final static long maxFileSize=1024*1024*50;
-	ThreadPoolFactory threadPool=ThreadPoolFactory.getInstatnce();
+	
 	// 静态对象,所有static在此声明并初始化------------------------------------------------------------------------
 
 	// 内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
@@ -91,40 +90,38 @@ public abstract class CDOServlet extends HttpServlet
 	public void doPost(HttpServletRequest request,HttpServletResponse response) throws ServletException,IOException
 	{
 			// 构造请求对象
-		CDO cdoRequest=null;
-		String strCDORequest=null;
+		CDO cdoRequest=null;		
 		Map<String, File> mapFileMap=null;
-		String strTransName=null;
 		try
 		{
 			String serialFile=request.getHeader(Constants.CDO.HTTP_CDO_UPLOADFILE_KEY);
 			if(serialFile!=null && serialFile.trim().equals("1")){
 				//表示有文件对象需要上传 
 				mapFileMap=new HashMap<String,File>();
-				strCDORequest=processUploadFile(request, mapFileMap);				
-			}else{
-				cdoRequest=processProtobufEntity(request);
-			}
-			
-			if(cdoRequest==null){
-				cdoRequest=CDO.fromXML(strCDORequest);	
+				cdoRequest=processUploadFile(request, mapFileMap);
+				//设置文件
 				if(mapFileMap!=null){
 					for(Iterator<Map.Entry<String, File>> iterator=mapFileMap.entrySet().iterator();iterator.hasNext();){
 						Entry<String, File> entry=iterator.next();
 						cdoRequest.setFileValue(entry.getKey(), entry.getValue());
 					}
-				}
+				}				
+			}else{
+				//http的二进制传输
+				cdoRequest=processProtobufEntity(request);
 			}
-
+			
 	        //表示异步调用  数据已经发送完毕，则表示成功,不关心回调结果,若服务器当前线程处理不过来，则异步强制使用同步
-	        if(cdoRequest.exists(ITransService.ASYNCH_KEY) && 
-	        		cdoRequest.getBooleanValue(ITransService.ASYNCH_KEY) 
-	        		&& threadPool.isAdd()){
-	        	threadPool.submit(cdoRequest);
-	        	outPutAsync(response);
-	        	return;
+			boolean async=cdoRequest.exists(ITransService.ASYNCH_KEY)?cdoRequest.getBooleanValue(ITransService.ASYNCH_KEY):false; 
+	        if(async){
+	        	//如果后端服务器，异步已经处理不过来前端传过来的数据,则使用同步处理，达到阻塞效果
+	        	ThreadPoolFactory threadPool=ThreadPoolFactory.getInstatnce();
+	        	if(threadPool.isAdd()){
+		        	threadPool.submit(cdoRequest);
+		        	outPutAsync(response);
+		        	return;
+	        	}
 	        }
-			strTransName=cdoRequest.getStringValue("strTransName");
 		}catch(Exception e){						
 			log.error("error:"+e.getMessage(),e);
 			outPutFail(response," Request Parameter Error :"+e.getMessage());
@@ -134,7 +131,7 @@ public abstract class CDOServlet extends HttpServlet
 		CDO cdoResponse=new CDO();
 		Return ret=null;
 		try{
-			ret=handleTrans(request,response,cdoRequest,cdoResponse);
+			ret=handleTrans(request,response,cdoRequest,cdoResponse);			
 		}catch (Throwable e){
 			log.error("error:"+e.getMessage(),e);
 			outPutFail(response," Service Internal Error :"+e.getMessage());
@@ -142,7 +139,10 @@ public abstract class CDOServlet extends HttpServlet
 		}			
 		if(ret==null)
 		{			
-			outPutFail(response," Request method not found:strTransName="+strTransName);
+			String strTransName=cdoRequest.exists(ITransService.TRANSNAME_KEY)?
+					cdoRequest.getStringValue(ITransService.TRANSNAME_KEY):"NULL";
+			String strServiceName=cdoRequest.exists(ITransService.SERVICENAME_KEY)?cdoRequest.getStringValue(ITransService.SERVICENAME_KEY):"NULL";		
+			outPutFail(response," Request method not found:strServiceName="+strServiceName+",strTransName="+strTransName);
 			return;			
 		}		
 		// 输出结果
@@ -290,37 +290,29 @@ public abstract class CDOServlet extends HttpServlet
 	 * @throws ServletException
 	 * @throws IOException
 	 */
-	protected CDO processProtobufEntity(HttpServletRequest request) throws ServletException, IOException {  		  
-	        try {    
-	            DiskFileItemFactory factory = new DiskFileItemFactory();  
-	            factory.setSizeThreshold(DiskFileItemFactory.DEFAULT_SIZE_THRESHOLD);//设置成10K
-	  
-	            ServletFileUpload upload = new ServletFileUpload(factory);  	  
-	            // 设置文件上传的大小限制
-	            upload.setFileSizeMax(maxFileSize);  
-	            // 设置文件上传的头编码，如果需要正确接收中文文件路径或者文件名  
-	            // 这里需要设置对应的字符编码，为了通用这里设置为UTF-8  
-	            upload.setHeaderEncoding(Constants.Encoding.CHARSET_UTF8);  	  
-	            //解析请求数据包  
-	            List<FileItem> fileItems = upload.parseRequest(request);  
-	            //遍历解析完成后的Form数据和上传文件数据  	          
-	            for (Iterator<FileItem> iterator = fileItems.iterator(); iterator.hasNext();) {  
-	                FileItem fileItem = iterator.next();  
-	                String fieldName = fileItem.getFieldName();  
-	               	if(fieldName.equals(Constants.CDO.HTTP_CDO_REQUEST)){
-               		 byte[] array=Zipper.unzipBytes(Base64.decodeBase64(fileItem.getString())) ;
-               		 return Serializable.byte2ProtoCDO(array);
-               	}
-	          }
-	           throw new IOException("param["+Constants.CDO.HTTP_CDO_REQUEST+"] is not exists.... ");       
-	        } catch(Exception e) {  
+	protected CDO processProtobufEntity(HttpServletRequest request) throws  IOException {  		  
+		 ServletInputStream sis=null;  
+		 ByteArrayOutputStream baos=null;
+		try {    
+	        	final int BUFFER_SIZE = 4*Constants.Byte.defaultSize;
+	            byte[] buffer = new byte[ BUFFER_SIZE];
+	            sis = request .getInputStream();
+	            int length = 0;
+	            baos = new ByteArrayOutputStream();	        	        
+	            while(( length =  sis.read( buffer))>0){   
+	                  baos.write( buffer, 0, length);
+	            } 	           
+	            return Serializable.byte2ProtoCDO(baos.toByteArray());     
+	        } catch(Throwable e) {  
 	           throw new IOException(e.getMessage(),e);        
-	        }  
-	       
+	        }finally{
+	        	if(sis!=null){try{sis.close();}catch(Exception ex){}}
+	        	if(baos!=null){try{baos.close();}catch(Exception ex){}}
+	        }  	      
 	    } 
 	
-	protected String processUploadFile(HttpServletRequest request,Map<String,File> mapFile) throws ServletException, IOException {  
-		   String strCDORequest=null;
+	protected CDO processUploadFile(HttpServletRequest request,Map<String,File> mapFile) throws ServletException, IOException {  
+
 	        try {    
 	            String saveDirPath =GlobalResource.cdoConfig==null?null:GlobalResource.cdoConfig.getString(Constants.CDO.HTTP_UPLOAD_FILE_PATH);
 	            String tmpDirPath =GlobalResource.cdoConfig==null?null:GlobalResource.cdoConfig.getString(Constants.CDO.TEMP_FILE_PATH);
@@ -390,16 +382,16 @@ public abstract class CDOServlet extends HttpServlet
 	                   	if(log.isDebugEnabled())
 	                		log.debug("fieldName[" + fieldName + "] value[" + fileItem.getString() + "]"); 
 	                	if(fieldName.equals(Constants.CDO.HTTP_CDO_REQUEST)){
-	                		 strCDORequest=fileItem.getString();	              
+	                  		 byte[] array=Base64.decodeBase64(fileItem.getString()) ;
+	                   		 return Serializable.byte2ProtoCDO(array);              
 	                	}
 	                } 
 	            }
-	            if(strCDORequest==null)
-	            	  throw new IOException("param["+Constants.CDO.HTTP_CDO_REQUEST+"] is not exists.... ");  
+	          //未找到HTTP_CDO_REQUEST 关键参数.....
+	          throw new IOException("param["+Constants.CDO.HTTP_CDO_REQUEST+"] is not exists.... ");  
 	        } catch(Exception e) {  
 	        	log.error("解释上传文件数据失败....."+e.getMessage(), e);
 	        	throw new IOException(e.getMessage(),e);
-	        }  
-	        return strCDORequest;
+	        }  	        
 	    }  
 }
