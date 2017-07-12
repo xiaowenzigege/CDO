@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.CreateMode;
@@ -17,10 +19,12 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
 import com.cdo.business.rpc.client.NettyClient;
+import com.cdo.business.rpc.client.NettyClientFactory;
 import com.cdo.business.rpc.client.RPCClient;
 import com.cdo.business.rpc.client.RouteManager;
 import com.cdo.util.algorithm.RoundRobinScheduling;
 import com.cdo.util.cache.LRUCache;
+import com.cdo.util.constants.Constants;
 import com.cdo.util.exception.ZookeeperException;
 import com.cdo.util.server.Server;
 
@@ -38,8 +42,10 @@ public class ZookeeperClient {
     private ZKRPCClient rpcClient;
     private String zkConnect;
     private Logger logger=Logger.getLogger(ZookeeperClient.class);
-
-    
+	//一个jvm client 开启多少个长连接
+	public int maxClientCount=Math.max(1, SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_CONNECT_ConnCount,1));
+	
+    private NettyClientFactory nettyClientFactory=NettyClientFactory.getDefaultInstance();
     private RouteManager routeManager=RouteManager.getInstance();
     
     private int Time_OUT=Math.max(10, SystemPropertyUtil.getInt("zk.sessionTimeout", 10))*1000;
@@ -123,9 +129,9 @@ public class ZookeeperClient {
 	            		hostPort=array[0].trim();
 	            		int weight=array[1]==null?1:Integer.parseInt(array[1].trim());
 	            		
-	            		//还未建立长连接,可以预建立连接
-	            		if(!routeManager.containKey(hostPort) && !serverMap.containsKey(hostPort)){
-	            			NettyClient.connectionServer(hostPort);;
+	            		//还未建立长连接,可以预建立 多个连接
+	            		if(!routeManager.containKey(hostPort) && !serverMap.containsKey(hostPort)){	            			
+	            			createMutiClient(hostPort);
 	            		}
 	            		
 	            		if(serverMap.containsKey(hostPort) &&
@@ -173,5 +179,18 @@ public class ZookeeperClient {
     	this.rpcClient=rpcClient;
     }
       
+    private   void  createMutiClient(final String remoteAddress){
+    	 ExecutorService executor=Executors.newScheduledThreadPool(1);
+    	 executor.submit(new Runnable() {			
+			@Override
+			public void run() {
+    			for(int k=0;k<maxClientCount;k++){    				
+    				nettyClientFactory.connect(remoteAddress);
+    				try{Thread.sleep(3000);}catch(Exception ex){}
+    			}
+			}
+		});
+    	executor.shutdown(); 
+    }
   
 }   

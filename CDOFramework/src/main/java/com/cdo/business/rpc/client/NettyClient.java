@@ -164,7 +164,7 @@ public class NettyClient {
 						            super.channelInactive(ctx);	
 						            //断开后  删除  到某台服务器连接					           
 						            logger.warn("ctx is channelInactive:"+ctx);
-						            routeManager.removeRPCClient(serverAddress);
+//						            routeManager.removeRPCClient(serverAddress);
 						         			         
 							        executor.execute(new Runnable() {								
 											@Override
@@ -206,7 +206,7 @@ public class NettyClient {
 	          channel=f.channel();
 	          handle=channel.pipeline().get(RPCClientHandler.class);
 	          //添加到路由
-	          routeManager.addNettyClient(serverAddress, rpcClient);
+//	          routeManager.addNettyClient(serverAddress, rpcClient);
 	          
 	          logger.info("Started  Client Success  connection  remote address: " + getServerInfo()+",channel="+channel);	
 	        } else {

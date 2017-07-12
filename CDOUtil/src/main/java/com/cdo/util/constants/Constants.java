@@ -13,8 +13,14 @@ public class Constants {
 		//服务端 RPCServer
 		public static final String THREAD_SERVER_BOSS="io.netty.eventLoopThreads";//netty主线程，默认 Runtime.getRuntime().availableProcessors()*1
 		public static final String THREAD_SERVER_WORK="io.netty.thread.channel";//处理netty主线程工作线程,默认Runtime.getRuntime().availableProcessors()*2
-		//客户端 RPCClient
-		public static final String THREAD_CLIENT_WORK="io.netty.client.eventLoopThreads";//默认Runtime.getRuntime().availableProcessors()				
+		//客户端 RPCClient  工作线程
+		public static final String THREAD_CLIENT_WORK="io.netty.client.eventLoopThreads";//默认Runtime.getRuntime().availableProcessors()
+		// 重试间隔时间
+		public static final String THREAD_CLIENT_RETRY_INTERVAL="io.netty.client.retryInterval";//重试间隔时间,单位:秒
+		// 重试总次数
+		public static final String THREAD_CLIENT_RETRY_COUNT="io.netty.client.retryCount";
+		//在一个jvm里  开启多少个长连接,连接同一服务端,默认为1个
+		public static final String THREAD_CLIENT_CONNECT_ConnCount="io.netty.client.connCount";
 	}
 	
 	//业务处理线程

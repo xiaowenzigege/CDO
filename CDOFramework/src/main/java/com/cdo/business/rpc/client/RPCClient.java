@@ -59,18 +59,18 @@ public class RPCClient extends ZKRPCClient{
 	  
 	  CDO cdoReturn=null;
 	  try {	
-		  NettyClient rpcClient=getRPCClient(strServiceName);
-			if(rpcClient.getHandle()==null){
+		  RPCClientHandler rpcHandle=getRPCClient(strServiceName);
+		  if(rpcHandle==null){
 				int retryCount=1;//重试3次
 				while(retryCount<=3){
-					rpcClient=getRPCClient(strServiceName);
-					if(rpcClient.getHandle()!=null) //创建链接成功，退出重试
+					rpcHandle=getRPCClient(strServiceName);
+					if(rpcHandle!=null) //创建链接成功，退出重试
 						break;
 					try{Thread.sleep(1000+500*retryCount);}catch(Exception em){}
 					retryCount++;
 				}
 			}	
-		   RPCResponse response=rpcClient.getHandle().handleTrans(cdoRequest);
+		   RPCResponse response=rpcHandle.handleTrans(cdoRequest);
 		   
 			//cdo 内容
 		   GoogleCDO.CDOProto proto=response.getCdoProto();
@@ -93,7 +93,7 @@ public class RPCClient extends ZKRPCClient{
 		}		  
 	}	
 	
-	private  NettyClient getRPCClient(String strServiceName) throws NotEstablishConnectException{
+	private  RPCClientHandler getRPCClient(String strServiceName) throws NotEstablishConnectException{
 		Map<String, ZkNodeData>  zkServerMap=getServiceMap();
 		if(zkServerMap==null || zkServerMap.get(strServiceName)==null || zkServerMap.get(strServiceName).getRobinScheduling()==null){
 			logger.warn("Service["+strServiceName+"] not registered on zk server");

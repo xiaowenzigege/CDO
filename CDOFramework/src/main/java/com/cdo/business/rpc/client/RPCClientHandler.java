@@ -197,6 +197,6 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
       
 	@Override
 	public String toString(){
-		return "channel="+channel+",bootstrap:"+UUidGenerator.ClientId.toString(clientId.toByteArray());
+		return "channel="+channel;
 	}	
 }

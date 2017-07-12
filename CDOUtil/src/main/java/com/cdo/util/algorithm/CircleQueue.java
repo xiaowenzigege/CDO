@@ -4,34 +4,34 @@ import com.cdo.util.exception.QueueLengthException;
 
 public class CircleQueue<E> {
 	  static final int defaultSize = 5; //默认队列的长度
-	  int front;  //队头
-	  int rear;   //队尾
-	  int count;  //统计元素个数的计数器
-	  int maxSize; //队的最大长度
-	  Object[] queue;  //队列
-	
+	  protected int front;  //队头
+	  protected int rear;   //队尾
+	  protected int count;  //统计队列元素个数
+	  protected int capacity; //队的最大长度
+	  protected Object[] queue;  //队列
+	  protected int index;  //依次循环   获取队列元素
 	  
 	  public CircleQueue() {
 		 init(defaultSize);
 	  }
 	  
-	  public CircleQueue(int size) {
-		  init(size);
+	  public CircleQueue(int capacity) {
+		  init(capacity);
 	  }
 	  
-	  private void init(int size) {
-		     maxSize = size;
-		     front = rear=0;
+	  private void init(int capacity) {		  
+		     this.capacity = capacity;
+		     index=front = rear=0;
 		     count = 0;
-		     queue = new Object[size];
+		     queue = new Object[capacity];
 		}
 
 	  public void add(E e) throws QueueLengthException {	   
-	      if (count > 0 && front == rear) {
+	      if (isFull()) {
 	          throw new QueueLengthException("队列已满！");
 	      }
 	      queue[rear] = e;
-	      rear = (rear + 1) % maxSize;
+	      rear = (rear + 1) % capacity;
 	      count++;
 	    }
 	  
@@ -42,18 +42,21 @@ public class CircleQueue<E> {
         }
         E obj = (E)queue[front];
         queue[front]=null;
-        front = (front + 1) % maxSize;
+        front = (front + 1) % capacity;
         count--;
         return obj;
 	 }
 	  
-
+	/**
+	 * 获取最前面的个数
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public E getCircleFront(){	        
 	          if (!isEmpty()) {
-	        	  E obj =(E)(queue[front]);	        	
-	        	  front++;
-	        	  front = front% maxSize;
+	        	  E obj =(E)(queue[index]);	        	
+	        	  index++;
+	        	  index = index% capacity;
 	        	  return obj;
 	        } else {
 	              return null;
@@ -62,6 +65,18 @@ public class CircleQueue<E> {
 
     public boolean isEmpty() {	        
 	           return count == 0;
-	    }	  
-	
+	    }
+    
+    public boolean isFull(){
+    	//return count > 0 && front == rear;
+    	return count==capacity;
+    }
+    
+    public int getQueueSize(){
+    	return count;
+    }	
+    
+    public int getCapacity(){
+    	return capacity;
+    }
 }
