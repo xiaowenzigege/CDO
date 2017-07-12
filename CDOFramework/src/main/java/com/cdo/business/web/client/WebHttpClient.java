@@ -86,19 +86,21 @@ public class WebHttpClient implements IWebClient{
 			return Return.valueOf(-1, " http Status:" + httpRes.getStatusCode()
 			        + ";Send Http Request ERROR:" + httpRes);
 		}
+		CDO cdoReturn=null;
 		try {
-			/**
+			/** 由原来http+xml  替换为 http+protobuf
 			strCDOXml =httpRes.getResponseText();			
 			if (strCDOXml != null && !strCDOXml.trim().equals("")) {				            			    
 				CDO cdoReturn=new CDO();
 				ParseHTTPXmlCDO.xmlToCDO(strCDOXml, cdoReturn, cdoResponse);								
 				httpRes.copyFile2CDO(cdoResponse);
 			    return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));			
-		  }**/
-//			CDO cdoOutput=Serializable.byte2ProtoCDO();  
-//			CDO cdoReturn=cdoOutput.getCDOValue("cdoReturn");
-			CDO cdoReturn=new CDO();
-			ParseHTTPProtoCDO.HTTPProtoParse.parse(httpRes.getResponseBytes(), cdoReturn, cdoResponse);
+		  }
+			CDO cdoOutput=Serializable.byte2ProtoCDO();  
+			CDO cdoReturn=cdoOutput.getCDOValue("cdoReturn");
+			* */
+			cdoReturn=new CDO();
+			ParseHTTPProtoCDO.HTTPProtoParse.parse(httpRes.getResponseBytes(),cdoResponse,cdoReturn);
 			//有文件传输,仅设置文件句柄，文件在磁盘上，或者通过外部开发者自己控制，写入到指定设备[内存，磁盘，输出流上]
 			httpRes.copyFile2CDO(cdoResponse);			
 			return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));	
@@ -108,6 +110,8 @@ public class WebHttpClient implements IWebClient{
 		}finally{
 			httpRes.setResponseBytes(null);
 			httpRes=null;
+			if(cdoReturn!=null)
+				cdoReturn.deepRelease();
 		}
 //		logger.error("返回数据: strCDOXml IS NULL,please check network connection");
 //		return Return.valueOf(-1, "ERROR:return strCDOXml IS NULL,please check network connection");

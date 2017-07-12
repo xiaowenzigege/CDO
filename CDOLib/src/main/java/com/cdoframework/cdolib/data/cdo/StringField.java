@@ -154,10 +154,11 @@ public class StringField extends FieldImpl
 			strValue=strValue.substring(0, 50)+"......";
 		}
 		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":\\\"").append(Function.FormatTextForJson(strValue)).append(
-						"\\\",");
-		return str_JSON.toString();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":\"").append(Function.FormatTextForJson(strValue)).append("\",");
+		return str_JSON.toString();	
 	}
+	
+	
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
 	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------

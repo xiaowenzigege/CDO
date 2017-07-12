@@ -90,7 +90,8 @@ public abstract class FieldImpl implements Field
 	
 	@Override
 	public String toString() {
-		return toJSONString();		
+//		return toJSONString();		
+		return toJSON();		
 	}
 	
 	@Override

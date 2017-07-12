@@ -55,7 +55,9 @@ public class RPCClient extends ZKRPCClient{
 		if(!cdoRequest.exists(ITransService.SERVICENAME_KEY)){
 			return new Return(-1,"Service Name is null,plealse check strServiceName value");	
 		}
-		String strServiceName=cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);		
+	   String strServiceName=cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);
+	  
+	  CDO cdoReturn=null;
 	  try {	
 		  NettyClient rpcClient=getRPCClient(strServiceName);
 			if(rpcClient.getHandle()==null){
@@ -72,7 +74,7 @@ public class RPCClient extends ZKRPCClient{
 		   
 			//cdo 内容
 		   GoogleCDO.CDOProto proto=response.getCdoProto();
-		   CDO cdoReturn=new CDO();
+		   cdoReturn=new CDO();
 			//解释google buffer
 		   ParseRPCProtoCDO.ProtoRPCParse.parse(proto, cdoResponse, cdoReturn);
 			//设置响应文件
@@ -85,6 +87,9 @@ public class RPCClient extends ZKRPCClient{
 			String strTransName=cdoRequest.exists(ITransService.TRANSNAME_KEY)?cdoRequest.getStringValue(ITransService.TRANSNAME_KEY):"null";					
 			logger.error("Request method :strServiceName="+strServiceName+",strTransName="+strTransName+",error="+e.getMessage(),e);
 			return new Return(-1,e.getMessage(),e.getMessage());
+		}finally{
+			if(cdoReturn!=null)
+				cdoReturn.deepRelease();
 		}		  
 	}	
 	

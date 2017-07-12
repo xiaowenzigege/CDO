@@ -534,10 +534,6 @@ public class ServiceBus implements IServiceBus
 	
 	private void onTransFinished(String strServiceName,String strTransName,CDO cdoRequest,CDO cdoResponse,Return retResult){
 		if(logger.isInfoEnabled()){
-			String strTransName2 = strTransName.toUpperCase();
-			if(strTransName2.startsWith("GET") || strTransName2.startsWith("FIND") || strTransName2.startsWith("RETRIEVE")){
-				return;
-			}
 			StringBuilder sb = new StringBuilder(50);
 			sb.append("End handle ").append(" ServiceName=").append(strServiceName).append(" transName=").append(strTransName).append("\r\n");
 			if(retResult==null){

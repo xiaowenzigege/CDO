@@ -1,5 +1,7 @@
 package com.cdo.util.page;
 
+import org.apache.log4j.Logger;
+
 import com.cdo.util.constants.Constants;
 import com.cdoframework.cdolib.data.cdo.CDO;
 
@@ -9,6 +11,7 @@ import com.cdoframework.cdolib.data.cdo.CDO;
  *
  */
 public class PageUtil {
+		private static Logger logger=Logger.getLogger(PageUtil.class);
 		public static int getPageIndex(CDO cdoRequest) {
 			return getPageIndex(cdoRequest, Constants.Page.PAGE_INDEX);
 		  }
@@ -20,6 +23,7 @@ public class PageUtil {
 		      if (nPageIndex <= 0)
 		        nPageIndex = 1;
 		    }catch (Exception ex){
+	           logger.warn("Set default  "+key+" ="+nPageIndex);
 		    }
 		    return nPageIndex;
 		  }
@@ -35,6 +39,7 @@ public class PageUtil {
 		      if ((nPageSize <= 0) || (nPageSize > Constants.Page.PAGE_SIZE_MAX))
 		    	  nPageSize = Constants.Page.PAGE_SIZE_MIN;
 		    }catch (Exception ex){
+		    	 logger.warn("Set default "+key+" ="+nPageSize);
 		    }
 		    return nPageSize;
 		  }	

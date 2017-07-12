@@ -203,7 +203,7 @@ public class HttpClient {
 				}
 			} else {
 				if(this.uploadFiles!=null){
-					//有文件传输    使用  MultipartEntity		 							
+					//有文件传输    必须使用  MultipartEntity		 							
 					entity=entity==null?new MultipartEntity():entity;
 					if(this.uploadFiles!=null){
 						  for (Map.Entry<String,File> entry : this.uploadFiles.entrySet()) {			
@@ -222,7 +222,7 @@ public class HttpClient {
 							   new StringBody(Base64.encodeBase64String(Serializable.protoCDO2Byte(getTransCDO()))));				  
 					}
 				}else{					
-					//只有CDO 使用二进制传输
+					//只有CDO 采用 http+protobuf二进制传输
 					if(getTransCDO()!=null){
 						entity = new ByteArrayEntity(Serializable.protoCDO2Byte(getTransCDO()));					   				 
 					}else{

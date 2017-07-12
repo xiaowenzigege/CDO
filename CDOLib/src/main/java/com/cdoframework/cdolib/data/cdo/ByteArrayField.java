@@ -217,7 +217,16 @@ public class ByteArrayField extends ArrayFieldImpl
 		str_JSON.append("],");
 		return str_JSON.toString();
 	}
-
+	
+	public String toString()
+	{
+		StringBuffer str_JSON=new StringBuffer();
+		byte[] bysValue=getValue();		
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append("[");
+		str_JSON.append("").append(bysValue);
+		str_JSON.append("],");
+		return str_JSON.toString();
+	}
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
 	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------

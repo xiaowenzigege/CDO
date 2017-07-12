@@ -259,18 +259,18 @@ public class StringArrayField extends ArrayFieldImpl
 	public String toString(){
 
 		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append("[");
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append("[");
 		int _length=strsValue.length;
 		String value=null;
 		for(int i=0;i<this.strsValue.length;i=i+1)
 		{
-			String _sign=(i==_length-1)?"\\\"":"\\\",";
+			String _sign=(i==_length-1)?"\"":"\",";
 			
 			value=this.strsValue[i];
-			if(value.length()>100){
-				value=value.substring(0, 100)+"......";
-			}			
-			str_JSON.append("\\\"").append(Function.FormatTextForJson(value)).append(_sign);
+			if(value.length()>50){
+				value=value.substring(0, 50)+"......";
+			}				
+			str_JSON.append("\"").append(Function.FormatTextForJson(value)).append(_sign);
 		}
 		str_JSON.append("],");
 		return str_JSON.toString();
