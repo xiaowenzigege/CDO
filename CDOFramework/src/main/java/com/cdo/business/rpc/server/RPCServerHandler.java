@@ -1,12 +1,16 @@
 package com.cdo.business.rpc.server;
 
 import java.io.File;
-import java.net.InetSocketAddress;
+//import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+//import java.util.concurrent.ArrayBlockingQueue;
+//import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedTransferQueue;
+//import java.util.concurrent.SynchronousQueue;
+//import java.util.concurrent.ThreadPoolExecutor;
+//import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -25,8 +29,8 @@ import com.cdoframework.cdolib.servicebus.ITransService;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.util.ReferenceCountUtil;
+//import io.netty.handler.timeout.IdleStateEvent;
+//import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.SystemPropertyUtil;
 
 public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
@@ -34,20 +38,23 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	private static Logger logger=Logger.getLogger(RPCServerHandler.class);
 	private final  BusinessService serviceBus=BusinessService.getInstance();	
 	
-	private ThreadPoolExecutor executor;
+//	private ThreadPoolExecutor executor;
 	private int corePoolSize=Math.max(4,SystemPropertyUtil.getInt(Constants.Business.CoreSize,Runtime.getRuntime().availableProcessors()));
-	private int maxPoolSize=Math.max(4,SystemPropertyUtil.getInt(Constants.Business.MaxSize,(int)(Runtime.getRuntime().availableProcessors())));
-	private int queueSize=Math.max(10,SystemPropertyUtil.getInt(Constants.Business.QueueSize,10));
-	private int threshold=(int)(queueSize*0.8);
+	private ExecutorService exService=null;
 	//空闲线程存活的时间
-	private int keepAliveTime=Math.max(60,SystemPropertyUtil.getInt(Constants.Business.IDLE_KeepAliveTime,60));
+//	private int keepAliveTime=Math.max(60,SystemPropertyUtil.getInt(Constants.Business.IDLE_KeepAliveTime,60));
 	//使用 io channel处理业务，则是   一个服务器对应了大量的客户端
-	private boolean useChannel=SystemPropertyUtil.getBoolean(Constants.Business.USE_NIO_CHANNEL,false);
+	private boolean directNioChannel=SystemPropertyUtil.getBoolean(Constants.Business.DIRECT_NIO_CHANNEL,false);
 	
 	private Channel channel;
+	private LinkedTransferQueue<HandleData> lnkTransQueue;
 	
 	public RPCServerHandler(){
-	
+		lnkTransQueue = new LinkedTransferQueue<HandleData>();
+		exService=Executors.newFixedThreadPool(corePoolSize);
+		exService.submit(new Consumer());
+		if(logger.isInfoEnabled())
+			logger.info("create newFixedThreadPool coresize="+corePoolSize);
 	}
     /**
      * 防止   客户机与服务器之间的长连接   发生阻塞,业务数据采用线程池处理,长连接channel仅用于数据读取io数据
@@ -57,85 +64,44 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	protected void channelRead0(ChannelHandlerContext ctx, CDOMessage msg)
 			throws Exception {	
 		  Header header=msg.getHeader();
-		  
-		if(header.getType()==ProtoProtocol.TYPE_CDO){			
-			try{
-				GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(msg.getBody());
-				List<File> listFile=msg.getFiles();				
-				if(useChannel){
-					process(proto, listFile);
-				}else{
-					//几个客户端通过长连接,发送了大量的数据
-					long  taskCount=executor.getTaskCount();
-					long  taskComplete=executor.getCompletedTaskCount();
-					long  remainCount=taskCount-taskComplete;
-					if(remainCount>threshold){
+		  switch(header.getType()){
+		  	  case ProtoProtocol.TYPE_CDO:
+					GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(msg.getBody());
+					List<File> listFile=msg.getFiles();	
+					if(directNioChannel)
 						process(proto, listFile);
-					}else{
-						Task task=new Task(proto,listFile);
-						executor.submit(task);					
-						if(logger.isInfoEnabled()){
-							logger.info("submit task ["+channel+"]"+ " taskCount="+executor.getTaskCount()+
-									" CompletedTaskCount="+executor.getCompletedTaskCount()+",remainCount="+
-									remainCount+",activeCount="+executor.getActiveCount()+","+" taskQueueSize="+executor.getQueue().size());						
-						}
-					}					
-					
-				}
-
-			}catch(Throwable ex){
-				logger.fatal("parse header type CDO "+ex.getMessage(),ex);
-			}finally{
-				ReferenceCountUtil.release(msg);
-			}
-		}else if(header.getType()==ProtoProtocol.TYPE_HEARTBEAT_REQ){
-			//客户端主动发起 心跳检查，服务端回复心跳
-		 try{	
-				Header resHeader=new Header();
-				resHeader.setType(ProtoProtocol.TYPE_HEARTBEAT_RES);
-				CDOMessage resMessage=new CDOMessage();
-				resMessage.setHeader(resHeader);
-				ctx.writeAndFlush(resMessage);
-				
-			    if(logger.isDebugEnabled())
-	    			logger.debug("server receive client address["+(InetSocketAddress)ctx.channel().remoteAddress()+"] heart msg:"+msg);
-			}finally{
-				ReferenceCountUtil.release(msg);
-			}
-		}else if(header.getType()==ProtoProtocol.TYPE_HEARTBEAT_RES){
-			try{
-				//服务端主动发起心跳检查,客户端回复心跳
-			    if(logger.isDebugEnabled())
-			    			logger.debug("server receive client address["+(InetSocketAddress)ctx.channel().remoteAddress()+"] heart msg:"+msg);
-			}finally{
-				ReferenceCountUtil.release(msg);
-			}
-		}else if(header.getType()==ProtoProtocol.TYPE_STOPLOCALServer){
-			RPCServer.stop();
-		}else{
-			ctx.fireChannelRead(msg);
-		}
+					else{
+						HandleData handleData=new HandleData();
+						handleData.setProto(proto);
+						handleData.setListFile(listFile);
+						lnkTransQueue.transfer(handleData);
+					}
+		  		  break;
+		  	 default:
+		  		ctx.fireChannelRead(msg); 
+		  }		  	
 	}
 
-	private class Task implements Runnable{
-		private GoogleCDO.CDOProto proto;
-		private List<File> listFile;
-		public Task(GoogleCDO.CDOProto proto,List<File> listFile){
-			this.proto=proto;
-			this.listFile=listFile;
-		}
+	private class Consumer implements Runnable{
 		@Override
 		public void run() {	
-			process(proto, listFile);	
-			if(logger.isInfoEnabled()){
-				long  taskCount=executor.getTaskCount();
-				long  taskComplete=executor.getCompletedTaskCount();
-				long  remainCount=taskCount-taskComplete;				
-				logger.info("do task ["+channel+"]"+ " taskCount="+taskCount+
-						" CompletedTaskCount="+taskComplete+",remainCount="+
-						remainCount+",activeCount="+executor.getActiveCount()+","+" taskQueueSize="+executor.getQueue().size());						
+			while(true){
+			HandleData handleData=null;
+				try {
+					if(logger.isDebugEnabled())
+						logger.debug("Consumer is waiting to take element....");
+					handleData=lnkTransQueue.take();
+					if(logger.isDebugEnabled())
+						logger.debug("Consumer received Element:"+handleData);					
+				} catch (Exception  ex) {
+					if(logger.isInfoEnabled())
+						logger.info("Consumer Thread break,sleep 2 seconds,continue run()");
+					try{Thread.sleep(2000);}catch(Exception e){}				
+					run();
+				}
+				if(handleData!=null)
+					process(handleData.getProto(), handleData.getListFile());
 			}
-
 		}	
 		
 	}
@@ -247,48 +213,11 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {        
         super.channelInactive(ctx);      	
-        logger.warn("["+ctx.channel()+"]ctx channelInactive,business ThreadPoolExecutor will shutdown");
-        executor.shutdown();
     }
     
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-    	super.channelActive(ctx);
-		if(maxPoolSize<corePoolSize){
-			logger.warn("maxPoolSize<corePoolSize,maxPoolSize["+maxPoolSize+"],corePoolSize["+corePoolSize+"],reset maxPoolSize=coreSize="+corePoolSize);
-			maxPoolSize=corePoolSize;
-		}		
-		if(maxPoolSize==corePoolSize){
-			keepAliveTime=0;
-			logger.warn("maxPoolSize=corePoolSize,maxPoolSize["+maxPoolSize+"],corePoolSize["+corePoolSize+"],reset keepAliveTimee="+keepAliveTime);
-		}
-		
-		BlockingQueue<Runnable> workQueue=new ArrayBlockingQueue<Runnable>(queueSize);
-		this.executor=new ThreadPoolExecutor(corePoolSize, maxPoolSize, keepAliveTime, 
-				TimeUnit.SECONDS, workQueue, new ThreadPoolExecutor.CallerRunsPolicy());
-		if(logger.isInfoEnabled())
-			logger.info("["+ctx.channel()+"]ctx  channelActive Initialize thread pool succeed. ThreadPool: corePoolSize = " 
-					+ executor.getCorePoolSize()+ ",maxPoolSize = " + executor.getMaximumPoolSize()
-					+" idle keepAliveTime="+executor.getKeepAliveTime(TimeUnit.SECONDS)+"s,chnannel max queue size="+queueSize);	
+    	super.channelActive(ctx);	
     }
-    
-    /**
-     * 服务端设定  在60秒内未接受到客户端的请求数据,则关闭连接
-     * 空闲时 使用客户端来检查,大约每5秒发起心跳检查   @see RPCClient#IdleStateHandler
-     * 
-     */
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt instanceof IdleStateEvent) {
-            IdleStateEvent e = (IdleStateEvent) evt;
-            switch (e.state()) {//The connection is closed when there is no inbound traffic  for 30 seconds.see RPCServerInitializer,RPCClient
-                case READER_IDLE:
-                	ctx.close();
-                    break;
-                case WRITER_IDLE:                	
-        			break;
-                default:
-                    break;
-            }
-        }
-    }
+
 }

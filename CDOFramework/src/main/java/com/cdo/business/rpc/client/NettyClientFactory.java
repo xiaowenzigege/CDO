@@ -23,13 +23,13 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
+//import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+//import io.netty.handler.ssl.SslContext;
+//import io.netty.handler.ssl.SslContextBuilder;
+//import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.internal.SystemPropertyUtil;
 
@@ -41,27 +41,32 @@ public class NettyClientFactory {
 	private static final NettyClientFactory clientFactory=new NettyClientFactory();
 	//客户端连接多个服务端，共享一个工作线程组.
 	private  Bootstrap bootstrap;
-	private  int channelThread;
 	
-	private  int retryInterval=5;//若断开，每隔多长时间重试一次 单位为秒
-	private  int retryCount=3;//表示无限次每隔retryTime时间的重试一次  大于0在表示重试 达到多次后.
+	private  int channelThread;	
+	private  int retryInterval;//若断开，每隔多长时间重试一次 单位为秒  默认 5
+	private  int retryCount;//重试 多少次后.中断重试。默认3
+	public int maxClientCount;//在jvm里   client 同时开启多少个长连接  连接同一个remoteAddress,默认1
 	
+	//retryMap临时保存 remoteAddress-localAddress 的重试次数
 	private Map<String,Integer>  retryMap=new HashMap<String,Integer>();
-	//一个jvm client 开启多少个长连接
-	public int maxClientCount=Math.max(1, SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_CONNECT_ConnCount,1));
+	//
 	
+
 	private NettyClientFactory(){
 		channelThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_WORK,Runtime.getRuntime().availableProcessors()));
 		retryInterval=Math.max(5, SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_RETRY_INTERVAL,5));
 		retryCount=Math.max(3, SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_RETRY_COUNT,3));
+		maxClientCount=Math.max(1, SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_CONNECT_ConnCount,1));
 		init(channelThread);
+		if(logger.isInfoEnabled())
+			logger.info("NettyClientFactory init channelThread="+channelThread+",retryInterval="+retryInterval+",retryCount="+retryCount+",maxClientCount="+maxClientCount);
 	}
 	
 	public static final NettyClientFactory getDefaultInstance(){
 		return clientFactory;
 	}
 	/**
-	 * 
+	 * 根据remoteAddress 创建一个长连接
 	 * @param remoteAddress
 	 */
 	public void connect(String remoteAddress){
@@ -71,6 +76,23 @@ public class NettyClientFactory {
 		ChannelFuture future = bootstrap.connect(host, port);	    
 	    channelFutureListener(future,remoteAddress);
 	}
+	/**
+	 * 根据remoteAddress 同时创建多个客户端，客户端的个数
+	 * @param remoteAddress
+	 */
+    public    void  createMutiClient(final String remoteAddress){
+	   	 ExecutorService executor=Executors.newScheduledThreadPool(1);
+	   	 executor.submit(new Runnable() {			
+				@Override
+				public void run() {
+	   			for(int k=0;k<maxClientCount;k++){    				
+	   				connect(remoteAddress);	   				
+	   				try{Thread.sleep(2000);}catch(Exception ex){}
+	   			}
+				}
+			});
+	   	executor.shutdown(); 
+   }
 	/**
 	 * 一个jvm  创建一个 NettyClientFactory实例,初始化一个Bootstrap
 	 * @param channelThread  共享的线程池组	 
@@ -82,7 +104,7 @@ public class NettyClientFactory {
 			    bootstrap = new Bootstrap();			    
 			    bootstrap.group(workerGroup);
 			    bootstrap.channel(NioSocketChannel.class);		    	    
-			    bootstrap.option(ChannelOption.TCP_NODELAY,true);	    	
+//			    bootstrap.option(ChannelOption.TCP_NODELAY,true);	    	
 			    bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
 			    //连接断开后,需要处理连接 ,尝试重连
 			    bootstrap.handler(new ChannelInitializer<SocketChannel>(){
@@ -118,7 +140,8 @@ public class NettyClientFactory {
 			        p.addLast("encoder",new CDOProtobufEncoder());
 			        p.addLast("decoder",new CDOProtobufDecoder());  
 			        p.addLast("ideaHandler",new IdleStateHandler(60,5,0));
-			        p.addLast(new RPCClientHandler());				
+			        p.addLast("heartbeat",new HeartbeatClientHandler());
+			        p.addLast("handle",new RPCClientHandler());				
 				}            	 
 		      });
 		    }catch(Exception ex){

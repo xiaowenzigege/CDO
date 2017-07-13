@@ -18,7 +18,7 @@ import org.apache.zookeeper.ZooDefs.Ids;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 
-import com.cdo.business.rpc.client.NettyClient;
+import com.cdo.business.rpc.client.NettyStop;
 import com.cdo.business.rpc.client.NettyClientFactory;
 import com.cdo.business.rpc.client.RPCClient;
 import com.cdo.business.rpc.client.RouteManager;
@@ -42,10 +42,7 @@ public class ZookeeperClient {
     private ZKRPCClient rpcClient;
     private String zkConnect;
     private Logger logger=Logger.getLogger(ZookeeperClient.class);
-	//一个jvm client 开启多少个长连接
-	public int maxClientCount=Math.max(1, SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_CONNECT_ConnCount,1));
 	
-    private NettyClientFactory nettyClientFactory=NettyClientFactory.getDefaultInstance();
     private RouteManager routeManager=RouteManager.getInstance();
     
     private int Time_OUT=Math.max(10, SystemPropertyUtil.getInt("zk.sessionTimeout", 10))*1000;
@@ -127,21 +124,29 @@ public class ZookeeperClient {
 	            	for(int i=0;i<hostList.size();i++){
 	            		array=hostList.get(i).split("w=");
 	            		hostPort=array[0].trim();
-	            		int weight=array[1]==null?1:Integer.parseInt(array[1].trim());
+	            		int weight=1;
+	            		if(array.length>1)
+	            			weight=array[1]==null?1:Integer.parseInt(array[1].trim());
 	            		
 	            		//还未建立长连接,可以预建立 多个连接
-	            		if(!routeManager.containKey(hostPort) && !serverMap.containsKey(hostPort)){	            			
-	            			createMutiClient(hostPort);
-	            		}
-	            		
-	            		if(serverMap.containsKey(hostPort) &&
-	            				serverMap.get(hostPort).getWeight()==weight){
-	            			//服务器提供的 权重未发生变化，则使用原有的.
-	            			server=serverMap.get(hostPort);
-	            		}else{
+	            		if(!routeManager.containKey(hostPort) && !serverMap.containsKey(hostPort)){	
+	            			//初始建立
 	            			server=new Server(array[0].trim(),weight);
 	            			serverMap.put(hostPort, server);
-	            		}	            		
+	            			
+	            			NettyClientFactory.getDefaultInstance().createMutiClient(hostPort);
+	            		}else{
+		            		if(serverMap.containsKey(hostPort) &&
+		            				serverMap.get(hostPort).getWeight()==weight){
+		            			//服务器提供的 权重未发生变化，则使用原有的.
+		            			server=serverMap.get(hostPort);
+		            		}else{
+		            			//初始建立，或者权重发生变化
+		            			server=new Server(array[0].trim(),weight);
+		            			serverMap.put(hostPort, server);
+		            		}		            			
+	            			
+	            		}
 	            		serverList.add(server);
 	            	}	
 	            	zkData.setRobinScheduling(new RoundRobinScheduling(serverList));
@@ -179,18 +184,6 @@ public class ZookeeperClient {
     	this.rpcClient=rpcClient;
     }
       
-    private   void  createMutiClient(final String remoteAddress){
-    	 ExecutorService executor=Executors.newScheduledThreadPool(1);
-    	 executor.submit(new Runnable() {			
-			@Override
-			public void run() {
-    			for(int k=0;k<maxClientCount;k++){    				
-    				nettyClientFactory.connect(remoteAddress);
-    				try{Thread.sleep(3000);}catch(Exception ex){}
-    			}
-			}
-		});
-    	executor.shutdown(); 
-    }
+
   
 }   

@@ -13,7 +13,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.cdo.business.rpc.client.NettyClient;
+import com.cdo.business.rpc.client.NettyStop;
 import com.cdo.business.rpc.client.RPCClient;
 import com.cdo.util.resource.GlobalResource;
 
@@ -66,8 +66,8 @@ public final class Bootstrap {
     */
 	public  void stop(){
 		int port=GlobalResource.cdoConfig.getInt("netty.server.port");
-		NettyClient rClient=new NettyClient(); 
-	 	rClient.stopLocalNettyServer(port);
+		NettyStop rClient=new NettyStop(); 
+	 	rClient.stopLocalServer(port);
 	}
 	
     public void stopLocal()

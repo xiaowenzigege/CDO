@@ -26,7 +26,7 @@ import io.netty.util.concurrent.SingleThreadEventExecutor;
 import io.netty.util.internal.SystemPropertyUtil;
 
 public class RPCServer {
-    static final boolean SSL = System.getProperty("ssl") != null;
+    
 	private static Logger logger=Logger.getLogger(RPCServer.class);
 	static EventLoopGroup bossGroup=null;
 	static EventLoopGroup workerGroup=null;
@@ -34,19 +34,12 @@ public class RPCServer {
     protected Thread shutdownHook = null;
        
     
-	public void start(){
-        final SslContext sslCtx;
+	public void start(){        
         int bossThread=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_BOSS,Runtime.getRuntime().availableProcessors()));
         int channelThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_WORK,Runtime.getRuntime().availableProcessors()*2));                
         bossGroup = new NioEventLoopGroup(bossThread);
         workerGroup = new NioEventLoopGroup(channelThread);        
-        try {
-            if (SSL) {
-                SelfSignedCertificate ssc = new SelfSignedCertificate();
-                sslCtx = SslContextBuilder.forServer(ssc.certificate(), ssc.privateKey()).build();
-            } else {
-                sslCtx = null;
-            }            
+        try {        
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
              .option(ChannelOption.TCP_NODELAY, true)  
@@ -54,7 +47,7 @@ public class RPCServer {
              .childOption(ChannelOption.SO_KEEPALIVE, true)
              .channel(NioServerSocketChannel.class)
              .handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new RPCServerInitializer(sslCtx));
+             .childHandler(new RPCServerInitializer());
                         	
             if(GlobalResource.cdoConfig==null)
             	GlobalResource.bundleInitCDOEnv();

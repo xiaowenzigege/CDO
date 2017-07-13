@@ -32,7 +32,7 @@ public class Constants {
 		//RPC同步调用 接口  超时时间  10 分钟
 		public static final String TIME_OUT="business.timeOut";			
 		//RPC调用服务端  使用io channel进行处理 业务 .是否直接调用nio 处理业务
-		public static final String USE_NIO_CHANNEL="business.use.nioChannel";		
+		public static final String DIRECT_NIO_CHANNEL="business.direct.nioChannel";		
 		//线程数量
 		public static final String CoreSize="business.coreSize";
 		//最大线程数
