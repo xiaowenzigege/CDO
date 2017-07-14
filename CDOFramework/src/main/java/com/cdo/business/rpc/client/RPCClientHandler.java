@@ -1,23 +1,25 @@
 package com.cdo.business.rpc.client;
 
 
-import java.io.File;
+//import java.io.File;
 //import java.net.InetSocketAddress;
-import java.util.List;
+//import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 
-import com.cdo.business.rpc.RPCFile;
+//import com.cdo.business.rpc.RPCFile;
+//import com.cdo.util.common.UUidGenerator;
+//import com.google.protobuf.ByteString;
 import com.cdo.google.handle.CDOMessage;
 import com.cdo.google.handle.Header;
 import com.cdo.google.handle.ProtoProtocol;
 import com.cdo.google.protocol.GoogleCDO;
-import com.cdo.util.common.UUidGenerator;
+
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.servicebus.ITransService;
-import com.google.protobuf.ByteString;
+
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -28,7 +30,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 	private  Logger logger=Logger.getLogger(RPCClientHandler.class);
 
     private  Channel channel;
-    private ByteString clientId; 
+//    private ByteString clientId; 
     final CallsLinkedHashMap calls = new CallsLinkedHashMap();
     /** A counter for generating call IDs. */
     final AtomicInteger callIdCounter = new AtomicInteger();
@@ -58,7 +60,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
         final Call call =new Call(callId);    
     	GoogleCDO.CDOProto.Builder proto=cdoRequest.toProtoBuilder();
     	proto.setCallId(callId);
-		proto.setClientId(clientId);	
+//		proto.setClientId(clientId);	
 		//构造发送message 类型数据
 		Header reqHeader=new Header();
 		reqHeader.setType(ProtoProtocol.TYPE_CDO);
@@ -109,7 +111,8 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) {
         channel = ctx.channel();
-        clientId=ByteString.copyFrom(UUidGenerator.ClientId.getClientId());
+//        clientId=ByteString.copyFrom(UUidGenerator.ClientId.getClientId());
+
     }
     
    @Override

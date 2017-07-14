@@ -210,8 +210,9 @@ public class CDO implements java.io.Serializable
 		}
 		GoogleCDO.CDOProto.Builder cdoProto=GoogleCDO.CDOProto.newBuilder();
 		String prefixField="";	
-		int maxLevel=toProto(prefixField,cdoProto,0);
-		cdoProto.setLevel(maxLevel);		
+		toProto(prefixField,cdoProto);	
+//		int maxLevel=
+//		cdoProto.setLevel(maxLevel);		
 		return cdoProto;
 	}
 	
@@ -222,7 +223,7 @@ public class CDO implements java.io.Serializable
 	 * @param fieldMap
 	 * @param maxLevel
 	 * @return
-	 */
+	 *
 	int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){
 		if(this.hmItem==null){
 			throwStateException(prefixField);
@@ -237,7 +238,7 @@ public class CDO implements java.io.Serializable
 		}
 		return maxLevel;
 	}	
-	
+	**/
 	private void throwStateException(String prefixField){
 		String message="The CDO";
 		if(prefixField.endsWith(".")){

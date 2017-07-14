@@ -73,7 +73,7 @@ public class CDOField extends FieldImpl
 		this.cdoValue.toProto(prefix,cdoProto);	
 	}
 	
-	
+	/**
 	@Override
 	public int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){		
 		int curLevel=1;
@@ -84,7 +84,7 @@ public class CDOField extends FieldImpl
 		String prefix=prefixField+this.getName()+".";
 		return this.cdoValue.toProto(prefix,cdoProto,maxLevel);
 	}	
-	
+	**/
 	public void toXML(StringBuilder strbXML)
 	{
 		strbXML.append("<CDOF N=\"").append(this.getName()).append("\">");

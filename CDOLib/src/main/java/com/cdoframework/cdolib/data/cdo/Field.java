@@ -123,5 +123,8 @@ public interface Field extends DataType
 	
 	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto);
 	
+	/**
 	public int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel);
+	**/
+	
 }

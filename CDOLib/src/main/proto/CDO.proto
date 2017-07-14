@@ -8,10 +8,10 @@ message CDOProto{
     message Entry {
          string name  = 1;
          bytes value = 2;
-    }
-    sint32 level=1;
-    repeated Entry fields = 2;
-    bytes clientId=3;// Globally unique client ID 
-    sint32 callId=4;// a sequence number that is sent back in response
+    }    
+    repeated Entry fields = 1;
+    bytes clientId=2;// Globally unique client ID 
+    sint32 callId=3;// a sequence number that is sent back in response
     // clientId + callId uniquely identifies a request
+    //sint32 level=1; 
 }

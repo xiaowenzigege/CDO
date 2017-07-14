@@ -114,11 +114,13 @@ public abstract class FieldImpl implements Field
 		cdoProto.addFields(entry);
 	}
 	
+	/**
 	@Override
 	public int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){
 		toProto(prefixField, cdoProto);
 		return 0;
 	}	
+	**/
 	@Override
 	public Buffer getBuffer() {		
 		return buffer;

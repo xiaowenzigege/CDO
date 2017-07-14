@@ -95,12 +95,22 @@ public class CDOArrayField extends ArrayFieldImpl
 	
 	@Override
 	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
+		if(this.cdosValue.size()==0){
+			//表示无数据								
+			GoogleCDO.CDOProto.Entry.Builder entry=GoogleCDO.CDOProto.Entry.newBuilder();
+			ByteBuffer buffer=ByteBuffer.allocate(2);
+			buffer.put((byte)DataType.EMPTY_CDO_ARRAY_TYPE);
+			entry.setName(prefixField+this.getName()+"[-1].EMPTY");
+			entry.setValue(ByteString.copyFrom(buffer));
+			buffer.flip();
+			cdoProto.addFields(entry);
+		}		
 		for(int i=0;i<this.cdosValue.size();i=i+1){
 			String prefix=prefixField+this.getName()+"["+i+"].";
 			this.cdosValue.get(i).toProto(prefix,cdoProto);
 		}
 	}
-	
+	/**
 	@Override
 	public int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){
 		int curLevel=1;
@@ -126,7 +136,7 @@ public class CDOArrayField extends ArrayFieldImpl
 		}
 		return maxLevel;
 	}		
-	
+	**/
 	public void toXML(StringBuilder strbXML)
 	{
 		strbXML.append("<CDOAF N=\"").append(this.getName()).append("\">");
