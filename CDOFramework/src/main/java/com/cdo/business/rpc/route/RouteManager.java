@@ -1,4 +1,4 @@
-package com.cdo.business.rpc.client;
+package com.cdo.business.rpc.route;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +7,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.log4j.Logger;
 
+import com.cdo.business.rpc.client.NettyClientFactory;
+import com.cdo.business.rpc.client.RPCClientHandler;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.server.Server;
 import com.cdo.util.server.ServerScheduling;
@@ -15,8 +17,7 @@ import io.netty.util.internal.SystemPropertyUtil;
 
 public class RouteManager {
 	/**
-	 * String= remoteAddress
-	 * CircleRPCQueue=多个长连接
+	 * String=remoteAddress   CircleRPCQueue=同一个客户端与同一个服务端，建立多个长连接
 	 */
 	private   Map<String, CircleRPCQueue<RPCClientHandler>> routeMap;
 	private final static RouteManager instance=new RouteManager();

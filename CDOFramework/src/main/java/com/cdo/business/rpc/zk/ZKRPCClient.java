@@ -1,16 +1,17 @@
 package com.cdo.business.rpc.zk;
 
 import java.util.Map;
-import com.cdo.business.rpc.client.IRPCClient;
+
+import com.cdo.business.client.IClient;
 import com.cdo.business.rpc.zk.ZkNodeData;
 /**
- * RPC Client有额外需要实现的接口在此定义
+ * 根据serviceName,通过权重轮询获取 提供该服务的remoteAddress
  * @author kenelLiu
  *
  */
 
-public abstract class ZKRPCClient implements IRPCClient{
-	/**<serviceName,ZkServerData>**/
+public abstract class ZKRPCClient implements IClient{
+	/**<serviceName,ZkNodeData>**/
 	protected Map<String, ZkNodeData> serviceMap;
 	/**注册到zk上的连接**/
 	protected String zkConnect;
@@ -22,6 +23,7 @@ public abstract class ZKRPCClient implements IRPCClient{
 	}
 	
 	public Map<String, ZkNodeData> getServiceMap(){
+		
 		return this.serviceMap;
 	}
 	

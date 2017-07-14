@@ -89,15 +89,14 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 			HandleData handleData=null;
 				try {
 					if(logger.isDebugEnabled())
-						logger.debug("Consumer is waiting to take element....");
+						logger.debug("Consumer is waiting to take element....Thread="+Thread.currentThread().getId());
 					handleData=lnkTransQueue.take();
 					if(logger.isDebugEnabled())
-						logger.debug("Consumer received Element:"+handleData);					
+						logger.debug("Consumer received Element:"+handleData+",Thread="+Thread.currentThread().getId());					
 				} catch (Exception  ex) {
 					if(logger.isInfoEnabled())
-						logger.info("Consumer Thread break,sleep 2 seconds,continue run()");
-					try{Thread.sleep(2000);}catch(Exception e){}				
-					run();
+						logger.info("Consumer Thread break,sleep 1 seconds,continue run()");
+					try{Thread.sleep(1000);}catch(Exception e){}									
 				}
 				if(handleData!=null)
 					process(handleData.getProto(), handleData.getListFile());

@@ -49,7 +49,7 @@ public class CDOProtobufDecoder extends ByteToMessageDecoder {
 			}		
 			//读取cdo协议头
 			int headLen=ProtoProtocol.PROTOCOL_LEN;		
-			while(in.readableBytes()>headLen){
+			while(in.readableBytes()>=headLen){
 				in.markReaderIndex();
 				//读取魔数
 				short lowMagic=(short)(in.readByte()&0xff); 

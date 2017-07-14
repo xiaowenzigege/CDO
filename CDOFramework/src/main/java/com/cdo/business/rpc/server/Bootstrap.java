@@ -13,8 +13,8 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.cdo.business.rpc.client.NettyStop;
 import com.cdo.business.rpc.client.RPCClient;
+import com.cdo.business.rpc.stop.NettyStop;
 import com.cdo.util.resource.GlobalResource;
 
 

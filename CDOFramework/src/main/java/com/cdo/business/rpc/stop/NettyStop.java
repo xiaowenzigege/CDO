@@ -1,4 +1,4 @@
-package com.cdo.business.rpc.client;
+package com.cdo.business.rpc.stop;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
+import com.cdo.business.rpc.client.RPCClientHandler;
 import com.cdo.google.handle.CDOMessage;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
@@ -45,15 +46,22 @@ public class NettyStop {
 	private  int retryCount=3;//重试 多少次后.中断重试。默认3
 	private  int retry=0;//记录重试次数
 	
-	RPCClientHandler handle;
+	RPCStopHandler handle;
     public NettyStop() {
 	
 	}
     
     public void stopLocalServer(int port){
+	    
 	    this.remoteHost = "127.0.0.1";
-	    this.remotePort = port;	
+	    this.remotePort = port;	  
 	    init();
+    	while (true) {
+	    	try {Thread.sleep(500);} catch (Exception e){};			
+			if(handle!=null)
+				break;		
+		}
+    	handle.stopLocalServer(this);
    }
 			
   void init(){	        
@@ -70,7 +78,8 @@ public class NettyStop {
 					        ChannelPipeline p = ch.pipeline();
 					      		        
 					        p.addLast("encoder",new CDOProtobufEncoder());
-					        p.addLast("decoder",new CDOProtobufDecoder());  					      					      				
+					        p.addLast("decoder",new CDOProtobufDecoder());  	
+					        p.addLast("stopHandle",new RPCStopHandler());
 						}            	 
 		             });
 	        }catch(Exception ex){
@@ -85,17 +94,13 @@ public class NettyStop {
 	    	return; 
 	    }
 	    retry++;//记录重试次数
+//	    final NettyStop nettyStop=this;
 	    ChannelFuture future = bootstrap.connect(remoteHost,remotePort);
 	    future.addListener(new ChannelFutureListener() {
 	      public void operationComplete(ChannelFuture f) throws Exception {
 	        if (f.isSuccess()) {	                   
-	            channel=f.channel();
-	         
-		  		CDOMessage stopServer=new CDOMessage();
-				Header header=new Header();
-				header.setType(ProtoProtocol.TYPE_STOPLOCALServer);	
-				stopServer.setHeader(header);
-				channel.writeAndFlush(stopServer);
+		          channel=f.channel();
+		          handle=channel.pipeline().get(RPCStopHandler.class);		         
 	        } else {
 	          f.channel().close();
 	          executor.execute(new Runnable() {								
