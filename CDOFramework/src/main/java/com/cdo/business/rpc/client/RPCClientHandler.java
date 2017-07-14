@@ -2,7 +2,7 @@ package com.cdo.business.rpc.client;
 
 
 import java.io.File;
-import java.net.InetSocketAddress;
+//import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,8 +22,7 @@ import com.google.protobuf.ByteString;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.timeout.IdleStateEvent;
-import io.netty.util.ReferenceCountUtil;
+//import io.netty.util.ReferenceCountUtil;
 
 public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 	private  Logger logger=Logger.getLogger(RPCClientHandler.class);
@@ -33,22 +32,10 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
     final CallsLinkedHashMap calls = new CallsLinkedHashMap();
     /** A counter for generating call IDs. */
     final AtomicInteger callIdCounter = new AtomicInteger();
-    boolean closeServer=false;
-    /**
-     * 通过 tcp来关闭server
-     */
-    public void stopLocalServer(){
-		CDOMessage stopServer=new CDOMessage();
-		Header header=new Header();
-		header.setType(ProtoProtocol.TYPE_STOPLOCALServer);	
-		stopServer.setHeader(header);
-		channel.writeAndFlush(stopServer);
-		closeServer=true;
-    }
     
     public RPCResponse handleTrans(CDO cdoRequest) {  
 
-    	//是否有文件传输
+    	/**优化数据，去掉 考虑文件传输
     	List<File> files=null;
     	try{
     		files=RPCFile.readFileFromCDO(cdoRequest);    		
@@ -64,7 +51,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 			cdoOutput.setCDOValue("cdoReturn",cdoReturn);
 			cdoOutput.setCDOValue("cdoResponse", cdoResponse);	    					 
 			return new RPCResponse(cdoOutput.toProtoBuilder().build());
-    	}
+    	}**/
     	
     	//CDO请求数据
     	int callId=callIdCounter.getAndIncrement() & Integer.MAX_VALUE;
@@ -78,7 +65,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 		CDOMessage reqMessage=new CDOMessage();
 		reqMessage.setHeader(reqHeader);
 		reqMessage.setBody(proto.build());
-		reqMessage.setFiles(files);
+//		reqMessage.setFiles(files);
 		
 		
         channel.writeAndFlush(reqMessage);
@@ -147,9 +134,7 @@ public class RPCClientHandler extends  ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    	if(!closeServer){        	
-        	logger.warn("通道["+ctx.channel()+"]channel出现异常:"+cause.getMessage()+",即将关闭channel通道",cause);
-         }
+       logger.warn("channel ["+ctx.channel()+"] error:"+cause.getMessage()+",channel will close",cause);
     	//出现channel异常 关闭channel连接    	
        try{if(channel!=null) channel.close();if(ctx!=null)ctx.close();}catch(Exception ex){};	
     }

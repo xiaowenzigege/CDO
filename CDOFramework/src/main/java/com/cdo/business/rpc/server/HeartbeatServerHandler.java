@@ -53,7 +53,7 @@ public class HeartbeatServerHandler extends SimpleChannelInboundHandler<CDOMessa
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
-            switch (e.state()) {//The connection is closed when there is no inbound traffic  for 30 seconds.see RPCServerInitializer,RPCClient
+            switch (e.state()) {//The connection is closed when there is no inbound traffic  for 60 seconds.see RPCServerInitializer,NettyClientFactory
                 case READER_IDLE:
                 	ctx.close();
                     break;

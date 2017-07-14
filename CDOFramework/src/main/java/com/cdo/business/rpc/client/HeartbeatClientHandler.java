@@ -19,7 +19,7 @@ public class HeartbeatClientHandler extends  ChannelInboundHandlerAdapter {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
-            switch (e.state()) {//  message when there is no outbound traffic for 5 seconds  see RPCClient,RPCServerInitializer         	
+            switch (e.state()) {//  message when there is no outbound traffic for 10 seconds  see NettyClientFactory,RPCServerInitializer         	
                 case WRITER_IDLE:                	
         			CDOMessage heartBeat=new CDOMessage();
         			try{
@@ -32,7 +32,7 @@ public class HeartbeatClientHandler extends  ChannelInboundHandlerAdapter {
         			}
                     break;
                 case READER_IDLE:
-                	// message when there is no inbound traffic for 30 seconds see RPCClient,RPCServerInitializer   
+                	// message when there is no inbound traffic for 60 seconds see NettyClientFactory,RPCServerInitializer   
                 	ctx.close();
                 default:
                     break;

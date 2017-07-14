@@ -47,10 +47,10 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	private boolean directNioChannel=SystemPropertyUtil.getBoolean(Constants.Business.DIRECT_NIO_CHANNEL,false);
 	
 	private Channel channel;
-	private LinkedTransferQueue<HandleData> lnkTransQueue;
+	private LinkedTransferQueue<GoogleCDO.CDOProto> lnkTransQueue;
 	
 	public RPCServerHandler(){
-		lnkTransQueue = new LinkedTransferQueue<HandleData>();
+		lnkTransQueue = new LinkedTransferQueue<GoogleCDO.CDOProto>();
 		exService=Executors.newFixedThreadPool(corePoolSize);
 		exService.submit(new Consumer());
 		if(logger.isInfoEnabled())
@@ -67,26 +67,50 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 		  switch(header.getType()){
 		  	  case ProtoProtocol.TYPE_CDO:
 					GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(msg.getBody());
-					List<File> listFile=msg.getFiles();	
+//					List<File> listFile=msg.getFiles();//优化速度,不考虑处理文件流	
 					if(directNioChannel)
-						process(proto, listFile);
+						process(proto, null);
 					else{
-						HandleData handleData=new HandleData();
-						handleData.setProto(proto);
-						handleData.setListFile(listFile);
-						lnkTransQueue.transfer(handleData);
+//						HandleData handleData=new HandleData();
+//						handleData.setProto(proto);
+//						handleData.setListFile(listFile);
+						lnkTransQueue.transfer(proto);
 					}
 		  		  break;
 		  	 default:
 		  		ctx.fireChannelRead(msg); 
 		  }		  	
 	}
-
 	private class Consumer implements Runnable{
 		@Override
 		public void run() {	
 			while(true){
-			HandleData handleData=null;
+				GoogleCDO.CDOProto proto=null;
+				try {
+					if(logger.isDebugEnabled())
+						logger.debug("Consumer is waiting to take element....Thread="+Thread.currentThread().getId());
+					proto=lnkTransQueue.take();
+					if(logger.isDebugEnabled())
+						logger.debug("Consumer received Element:"+proto+",Thread="+Thread.currentThread().getId());					
+				} catch (Exception  ex) {
+					if(logger.isInfoEnabled())
+						logger.info("Consumer Thread break,sleep 1 seconds,continue run()");
+					try{Thread.sleep(1000);}catch(Exception e){}									
+				}
+				if(proto!=null){
+					process(proto,null);
+					proto=null;
+				}
+			}
+		}	
+		
+	}
+	/**
+	private class Consumer implements Runnable{
+		@Override
+		public void run() {	
+			while(true){
+				HandleData handleData=null;
 				try {
 					if(logger.isDebugEnabled())
 						logger.debug("Consumer is waiting to take element....Thread="+Thread.currentThread().getId());
@@ -98,13 +122,15 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 						logger.info("Consumer Thread break,sleep 1 seconds,continue run()");
 					try{Thread.sleep(1000);}catch(Exception e){}									
 				}
-				if(handleData!=null)
+				if(handleData!=null){
 					process(handleData.getProto(), handleData.getListFile());
+					handleData=null;
+				}
 			}
 		}	
 		
 	}
-	
+	**/
 	private void process(GoogleCDO.CDOProto proto,List<File> listFile){
 		CDO cdoRequest=null;				
 		CDO cdoOutput=null;

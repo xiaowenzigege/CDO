@@ -1,7 +1,6 @@
 package com.cdo.business.rpc.client;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -140,7 +139,7 @@ public class NettyClientFactory {
 				        });			        
 			        p.addLast("encoder",new CDOProtobufEncoder());
 			        p.addLast("decoder",new CDOProtobufDecoder());  
-			        p.addLast("ideaHandler",new IdleStateHandler(60,5,0));
+			        p.addLast("ideaHandler",new IdleStateHandler(60,10,0));
 			        p.addLast("heartbeat",new HeartbeatClientHandler());
 			        p.addLast("handle",new RPCClientHandler());				
 				}            	 
