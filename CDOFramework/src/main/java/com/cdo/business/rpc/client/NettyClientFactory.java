@@ -154,8 +154,9 @@ public class NettyClientFactory {
 	private void doConnect(String serverAddress,String clientAddress) {
         String key=serverAddress+"-"+clientAddress;
         int retry=retryMap.get(key)==null?0:retryMap.get(key).intValue();
+        //在同一jvm 开启多个链路 连接 同一服务端，当连接数创建满了时,则不再需要重新创建连接.
         if(routeManager.isFullCircleQueue(serverAddress)){
-        	logger.info(" remote=["+serverAddress+"],local circle client queue is full,noretry conention");
+        	logger.info(" remote=["+serverAddress+"],queue conentions is full. ");
         	return;
         }
         retry++;//记录重试次数
@@ -181,24 +182,26 @@ public class NettyClientFactory {
 		
 	    future.addListener(new ChannelFutureListener() {
 		      public void operationComplete(ChannelFuture f) throws Exception {	
+		    	 String key=serverAddress+"-"+clientAddress;
 		         if (f.isSuccess()) {
 			    	  Channel channel=f.channel();			         			         			        
 			          RPCClientHandler handle=f.channel().pipeline().get(RPCClientHandler.class);
 			          //添加到路由
 			          boolean flag=routeManager.addRPCClientHandler(serverAddress, handle);	   
 			          if(!flag){
-			        	  logger.warn("add handle to CircleRPCQueue fail,close channel");
+			        	  logger.warn("add handle to CircleRPCQueue fail,maybe queue is full,channel will be closed ");
 			        	  channel.close();
 			          }else{
 			        	  logger.info("Started  Client Success  connection,channel="+channel);
 			          }
+			          //在规定次数内,重试连接成功,删除重试保存的数据
+			     	  retryMap.remove(key);
 		         } else {	          
 		        	 //连接没有成功...重新尝试连接.....	
-			          f.channel().close();
-			          String key=serverAddress+"-"+clientAddress;
+			          f.channel().close();			        
 			          if(retry==retryCount){
 			          	 retryMap.remove(key);
-			          	//不再重试...
+			          	//已到达规定的  重试次数...
 			          	logger.warn(" already connection  "+retryCount+" times   failed, remote=["+serverAddress+"],local="+clientAddress+",noretry conention ");
 			          	return;
 			          }else{
