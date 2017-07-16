@@ -260,11 +260,14 @@ public class CDO implements java.io.Serializable
 		throw new StateException(message+"["+prefixField+"] has been released by another program");
 	}
 	/**
-	 * 供非CDOField  CDOArrayField 基础字段调用，输出数据
+	 * 供所有CDO定义的字段调用该方法，输出数据
 	 * @param prefixField
 	 * @param fieldMap
 	 */
 	 void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
+		if(this.hmItem==null){
+			throwStateException(prefixField);
+		}		 
 		Entry<String, Field> entry=null;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
 			entry=it.next();

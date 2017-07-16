@@ -32,7 +32,11 @@ import io.netty.channel.SimpleChannelInboundHandler;
 //import io.netty.handler.timeout.IdleStateEvent;
 //import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.SystemPropertyUtil;
-
+/**
+ * 不考虑  处理CDO 文件流
+ * @author KenelLiu
+ *
+ */
 public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 
 	private static Logger logger=Logger.getLogger(RPCServerHandler.class);
@@ -50,11 +54,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	private LinkedTransferQueue<GoogleCDO.CDOProto> lnkTransQueue;
 	
 	public RPCServerHandler(){
-		lnkTransQueue = new LinkedTransferQueue<GoogleCDO.CDOProto>();
-		exService=Executors.newFixedThreadPool(corePoolSize);
-		exService.submit(new Consumer());
-		if(logger.isInfoEnabled())
-			logger.info("create newFixedThreadPool coresize="+corePoolSize);
+		
 	}
     /**
      * 防止   客户机与服务器之间的长连接   发生阻塞,业务数据采用线程池处理,长连接channel仅用于数据读取io数据
@@ -74,12 +74,30 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 //						HandleData handleData=new HandleData();
 //						handleData.setProto(proto);
 //						handleData.setListFile(listFile);
-						lnkTransQueue.transfer(proto);
+						try{
+							lnkTransQueue.transfer(proto);
+						}catch(InterruptedException ex){
+							logger.warn("add element to TransferQueue occured InterruptedException,retry add... ...");
+							tryAddElement(proto);
+						}
 					}
 		  		  break;
 		  	 default:
 		  		ctx.fireChannelRead(msg); 
 		  }		  	
+	}
+	
+	private void tryAddElement(GoogleCDO.CDOProto proto){
+		int retry=1;
+		while(retry<=3){
+			try{
+				lnkTransQueue.transfer(proto);
+				break;
+			}catch(InterruptedException ex){
+				retry++;
+				try{Thread.sleep(500);}catch(Exception e){};
+			}
+		}
 	}
 	private class Consumer implements Runnable{
 		@Override
@@ -88,18 +106,17 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 				GoogleCDO.CDOProto proto=null;
 				try {
 					if(logger.isDebugEnabled())
-						logger.debug("Consumer is waiting to take element....Thread="+Thread.currentThread().getId());
+						logger.debug("Consumer is waiting to take element.... chanel="+channel+",Thread="+Thread.currentThread().getId());
 					proto=lnkTransQueue.take();
 					if(logger.isDebugEnabled())
-						logger.debug("Consumer received Element:"+proto+",Thread="+Thread.currentThread().getId());					
+						logger.debug("Consumer received Element:"+proto+",chanel="+channel+",Thread="+Thread.currentThread().getId());					
 				} catch (Exception  ex) {
 					if(logger.isInfoEnabled())
-						logger.info("Consumer Thread break,sleep 1 seconds,continue run()");
-					try{Thread.sleep(1000);}catch(Exception e){}									
+						logger.info("Consumer Thread break,sleep 0.5 seconds,continue run()");
+					try{Thread.sleep(500);}catch(Exception e){}									
 				}
 				if(proto!=null){
-					process(proto,null);
-					proto=null;
+					process(proto,null);					
 				}
 			}
 		}	
@@ -136,7 +153,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 		CDO cdoOutput=null;
 		try{		
 	    	//响应里存在文件,即下载到客服端.是否有文件传输到客户端
-			List<File> files=null;
+//			List<File> files=null;
 			GoogleCDO.CDOProto.Builder resProtoBuiler=null;
 			String strServiceName=null;
 			String strTransName=null;
@@ -149,7 +166,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 				isAync=cdoRequest.exists(ITransService.ASYNCH_KEY)?cdoRequest.getBooleanValue(ITransService.ASYNCH_KEY):false;
 				//执行业务逻辑后  输出......
 				cdoOutput=handleTrans(cdoRequest,listFile,strServiceName,strTransName);	   
-	    		files=RPCFile.readFileFromCDO(cdoOutput.getCDOValue("cdoResponse"));		    		
+//	    		files=RPCFile.readFileFromCDO(cdoOutput.getCDOValue("cdoResponse"));		    		
 	    		resProtoBuiler=cdoOutput.toProtoBuilder();		    		
 	    	}catch(Throwable ex){
 			    //解释异常 ,..文件不存在,返回给错误给客户端
@@ -170,14 +187,15 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 			CDOMessage resMessage=new CDOMessage();
 			resMessage.setHeader(resHeader);
 			resMessage.setBody(resProtoBuiler.build());
-			resMessage.setFiles(files);
+//			resMessage.setFiles(files);
 			if(channel!=null)
 				channel.writeAndFlush(resMessage);	
 			else
 			   logger.warn("channel is null,can't send response data back.cdoRequest="+cdoRequest.toXML()+","+cdoOutput);
 		}finally{
 			cdoRequest.deepRelease();
-			cdoOutput.deepRelease();		
+			cdoOutput.deepRelease();	
+			proto=null;
 		}		
 	}	
 	/**
@@ -237,12 +255,23 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
     
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {        
-        super.channelInactive(ctx);      	
+        super.channelInactive(ctx);     
+        logger.warn("channel="+channel+" is Inactive,lnkTransQueue executor will be shutdown");
+        lnkTransQueue.clear();
+        lnkTransQueue=null;        
+        exService.shutdownNow();
     }
     
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
     	super.channelActive(ctx);	
+    	if(lnkTransQueue==null){
+			lnkTransQueue = new LinkedTransferQueue<GoogleCDO.CDOProto>();
+			exService=Executors.newFixedThreadPool(corePoolSize);
+			exService.submit(new Consumer());
+			if(logger.isInfoEnabled())
+				logger.info("channel="+channel+" is Active, lnkTransQueue executor create newFixedThreadPool coresize="+corePoolSize);
+    	}
     }
 
 }
