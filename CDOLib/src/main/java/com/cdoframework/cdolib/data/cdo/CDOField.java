@@ -56,7 +56,7 @@ public class CDOField extends FieldImpl
 		String prefix=prefixField+this.getName()+".";
 		this.cdoValue.toAvro(prefix,fieldMap);		
 	}
-	
+	/**
 	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
 		int curLevel=1;
 		if(prefixField.length()>0){
@@ -66,7 +66,7 @@ public class CDOField extends FieldImpl
 		String prefix=prefixField+this.getName()+".";
 		return this.cdoValue.toAvro(prefix,fieldMap,maxLevel);
 	}	
-	
+	**/
 	@Override
 	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
 		String prefix=prefixField+this.getName()+".";

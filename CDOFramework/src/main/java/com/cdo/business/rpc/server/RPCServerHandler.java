@@ -43,7 +43,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	private final  BusinessService serviceBus=BusinessService.getInstance();	
 	
 //	private ThreadPoolExecutor executor;
-	private int corePoolSize=Math.max(4,SystemPropertyUtil.getInt(Constants.Business.CoreSize,Runtime.getRuntime().availableProcessors()));
+	private int corePoolSize=Math.max(1,SystemPropertyUtil.getInt(Constants.Business.CoreSize,Runtime.getRuntime().availableProcessors()));
 	private ExecutorService exService=null;
 	//空闲线程存活的时间
 //	private int keepAliveTime=Math.max(60,SystemPropertyUtil.getInt(Constants.Business.IDLE_KeepAliveTime,60));
@@ -52,9 +52,9 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	
 	private Channel channel;
 	private LinkedTransferQueue<GoogleCDO.CDOProto> lnkTransQueue;
-	
+	private  Consumer[] consumer;
 	public RPCServerHandler(){
-		
+
 	}
     /**
      * 防止   客户机与服务器之间的长连接   发生阻塞,业务数据采用线程池处理,长连接channel仅用于数据读取io数据
@@ -99,62 +99,16 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 			}
 		}
 	}
-	private class Consumer implements Runnable{
-		@Override
-		public void run() {	
-			while(true){
-				GoogleCDO.CDOProto proto=null;
-				try {
-					if(logger.isDebugEnabled())
-						logger.debug("Consumer is waiting to take element.... chanel="+channel+",Thread="+Thread.currentThread().getId());
-					proto=lnkTransQueue.take();
-					if(logger.isDebugEnabled())
-						logger.debug("Consumer received Element:"+proto+",chanel="+channel+",Thread="+Thread.currentThread().getId());					
-				} catch (Exception  ex) {
-					if(logger.isInfoEnabled())
-						logger.info("Consumer Thread break,sleep 0.5 seconds,continue run()");
-					try{Thread.sleep(500);}catch(Exception e){}									
-				}
-				if(proto!=null){
-					process(proto,null);					
-				}
-			}
-		}	
-		
-	}
-	/**
-	private class Consumer implements Runnable{
-		@Override
-		public void run() {	
-			while(true){
-				HandleData handleData=null;
-				try {
-					if(logger.isDebugEnabled())
-						logger.debug("Consumer is waiting to take element....Thread="+Thread.currentThread().getId());
-					handleData=lnkTransQueue.take();
-					if(logger.isDebugEnabled())
-						logger.debug("Consumer received Element:"+handleData+",Thread="+Thread.currentThread().getId());					
-				} catch (Exception  ex) {
-					if(logger.isInfoEnabled())
-						logger.info("Consumer Thread break,sleep 1 seconds,continue run()");
-					try{Thread.sleep(1000);}catch(Exception e){}									
-				}
-				if(handleData!=null){
-					process(handleData.getProto(), handleData.getListFile());
-					handleData=null;
-				}
-			}
-		}	
-		
-	}
-	**/
-	private void process(GoogleCDO.CDOProto proto,List<File> listFile){
+	
+	
+	 void process(GoogleCDO.CDOProto proto,List<File> listFile){
 		CDO cdoRequest=null;				
 		CDO cdoOutput=null;
+		GoogleCDO.CDOProto.Builder resProtoBuiler=null;
 		try{		
 	    	//响应里存在文件,即下载到客服端.是否有文件传输到客户端
 //			List<File> files=null;
-			GoogleCDO.CDOProto.Builder resProtoBuiler=null;
+			
 			String strServiceName=null;
 			String strTransName=null;
 			boolean isAync=false; //是否是异步
@@ -194,7 +148,8 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 			   logger.warn("channel is null,can't send response data back.cdoRequest="+cdoRequest.toXML()+","+cdoOutput);
 		}finally{
 			cdoRequest.deepRelease();
-			cdoOutput.deepRelease();	
+			cdoOutput.deepRelease();
+			resProtoBuiler=null;
 			proto=null;
 		}		
 	}	
@@ -250,28 +205,54 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) {
-        channel = ctx.channel();
+        channel = ctx.channel();   
+        
+        if(corePoolSize==1){
+        	if(logger.isDebugEnabled())
+        		logger.debug("channel="+channel+" is channelRegistered, corePoolSize="+corePoolSize+",reset directNioChannel=true");
+        	directNioChannel=true;        	
+        }
+        if(directNioChannel){
+        	if(logger.isDebugEnabled())
+        		logger.debug("channel="+channel+" is channelRegistered, directNioChannel=true");
+        	return;
+        }
+        
+		lnkTransQueue = new LinkedTransferQueue<GoogleCDO.CDOProto>();
+		exService=Executors.newFixedThreadPool(corePoolSize);
+		consumer=new Consumer[corePoolSize]; 
+		for(int i=0;i<corePoolSize;i++){
+			consumer[i]=new Consumer(channel+",Consumer"+i,lnkTransQueue,this);
+			exService.submit(consumer[i]);
+		}		
+		if(logger.isInfoEnabled())
+			logger.info("channel="+channel+" is channelRegistered, lnkTransQueue executor create newFixedThreadPool coresize="+corePoolSize);
+    }
+    
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        ctx.fireChannelUnregistered();        
+        logger.warn("channel="+channel+" is channelUnregistered,lnkTransQueue executor will be shutdown");
+        if(directNioChannel){
+        	return;
+        }
+        lnkTransQueue.clear();
+		for(int i=0;i<consumer.length;i++){
+			consumer[i].setStop(true);	
+		    consumer[i]=null;   
+		}	               
+        lnkTransQueue=null;            
+        exService.shutdownNow();
     }
     
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {        
         super.channelInactive(ctx);     
-        logger.warn("channel="+channel+" is Inactive,lnkTransQueue executor will be shutdown");
-        lnkTransQueue.clear();
-        lnkTransQueue=null;        
-        exService.shutdownNow();
     }
     
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
     	super.channelActive(ctx);	
-    	if(lnkTransQueue==null){
-			lnkTransQueue = new LinkedTransferQueue<GoogleCDO.CDOProto>();
-			exService=Executors.newFixedThreadPool(corePoolSize);
-			exService.submit(new Consumer());
-			if(logger.isInfoEnabled())
-				logger.info("channel="+channel+" is Active, lnkTransQueue executor create newFixedThreadPool coresize="+corePoolSize);
-    	}
     }
 
 }

@@ -36,7 +36,7 @@ public class RPCClient extends ZKRPCClient{
 	  try {	
 		  RPCClientHandler rpcHandle=getRPCClient(strServiceName);
 		  if(rpcHandle==null){
-				int retryCount=1;//重试3次
+				int retryCount=1;//重试3次				
 				while(retryCount<=3){
 					rpcHandle=getRPCClient(strServiceName);
 					if(rpcHandle!=null) //创建链接成功，退出重试

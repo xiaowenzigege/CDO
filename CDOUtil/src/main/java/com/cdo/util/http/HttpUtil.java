@@ -161,8 +161,8 @@ public class HttpUtil {
 		long  maxConnectionLifetime=SystemPropertyUtil.getLong(Constants.HTTP.Max_Connection_Lifetime_MS, 1000*60);//默认 60秒 （单位毫秒）
 		long idleTimeout=SystemPropertyUtil.getLong(Constants.HTTP.IdleConnection_TimeOut_MS, 1000*10);//默认 10秒 （单位毫秒）
 		
-		int defaultMaxPerRoute= SystemPropertyUtil.getInt(Constants.HTTP.DefaultMaxPerRoute,200);//默认 30秒 （单位毫秒）
-		int maxTotal=SystemPropertyUtil.getInt(Constants.HTTP.MaxTotal, 400);
+		int defaultMaxPerRoute= SystemPropertyUtil.getInt(Constants.HTTP.DefaultMaxPerRoute,350);//默认 30秒 （单位毫秒）
+		int maxTotal=SystemPropertyUtil.getInt(Constants.HTTP.MaxTotal, 500);
 		
 		if(logger.isInfoEnabled())
 			logger.info("Initialize http pool connTimeout="+connTimeout+"ms,SoTimeout="+soTime+"ms,"

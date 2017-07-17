@@ -99,12 +99,13 @@ public abstract class FieldImpl implements Field
 		fieldMap.put(prefixField+this.getName(), buffer);		
 	}
 	
+	/**
 	@Override
 	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
 		toAvro(prefixField, fieldMap);
 		return 0;
 	}
-	
+	**/
 	@Override
 	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
 		GoogleCDO.CDOProto.Entry.Builder entry=GoogleCDO.CDOProto.Entry.newBuilder();

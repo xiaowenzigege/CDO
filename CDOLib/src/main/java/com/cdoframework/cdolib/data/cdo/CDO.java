@@ -162,10 +162,11 @@ public class CDO implements java.io.Serializable
 		}
 		LinkedHashMap<CharSequence,ByteBuffer> fieldMap=new LinkedHashMap<CharSequence, ByteBuffer>();
 		String prefixField="";	
-		int maxLevel=toAvro(prefixField,fieldMap,0);			
+		toAvro(prefixField,fieldMap);
+//		int maxLevel=toAvro(prefixField,fieldMap,0);			
 		AvroCDO arvo=new AvroCDO();			
 		arvo.setFields(fieldMap);						
-		arvo.setLevel(maxLevel);		
+//		arvo.setLevel(maxLevel);		
 		return arvo;
 	}
 
@@ -175,7 +176,7 @@ public class CDO implements java.io.Serializable
 	 * @param fieldMap
 	 * @param maxLevel
 	 * @return
-	 */
+	 *
 	int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
 		if(this.hmItem==null){
 			throwStateException(prefixField);		
@@ -190,13 +191,16 @@ public class CDO implements java.io.Serializable
 		}
 		return maxLevel;
 	}	
-	
+	/
 	/**
-	 * 供非CDOField 字段调用，输出数据
+	 * 供所有CDO定义的字段调用该方法，输出数据
 	 * @param prefixField
 	 * @param fieldMap
 	 */
 	 void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
+		if(this.hmItem==null){
+				throwStateException(prefixField);		
+		}			 
 		Entry<String, Field> entry=null;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
 			entry=it.next();

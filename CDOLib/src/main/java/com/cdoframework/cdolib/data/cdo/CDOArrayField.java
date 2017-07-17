@@ -77,7 +77,7 @@ public class CDOArrayField extends ArrayFieldImpl
 		}
 		
 	}	
-	
+	/**
 	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
 		int curLevel=1;
 		if(prefixField.length()>0){
@@ -92,6 +92,7 @@ public class CDOArrayField extends ArrayFieldImpl
 		}
 		return maxLevel;
 	}
+	**/
 	
 	@Override
 	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){

@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.bag.SynchronizedBag;
 import org.apache.log4j.Logger;
 
 import com.cdo.business.rpc.route.RouteManager;
@@ -50,6 +51,7 @@ public class NettyClientFactory {
 	//retryMap临时保存 remoteAddress-localAddress 的重试次数
 	private Map<String,Integer>  retryMap=new HashMap<String,Integer>();
 	//
+	private Map<String,byte[]> loclMap=new HashMap<String,byte[]>();
 	
 
 	private NettyClientFactory(){
@@ -81,17 +83,22 @@ public class NettyClientFactory {
 	 * @param remoteAddress
 	 */
     public    void  createMutiClient(final String remoteAddress){
-	   	 ExecutorService executor=Executors.newScheduledThreadPool(1);
-	   	 executor.submit(new Runnable() {			
-				@Override
-				public void run() {
-	   			for(int k=0;k<maxClientCount;k++){    				
-	   				connect(remoteAddress);	   				
-	   				try{Thread.sleep(2000);}catch(Exception ex){}
-	   			}
-				}
-			});
-	   	executor.shutdown(); 
+    	 byte[] lock=loclMap.get(remoteAddress)==null?new byte[0]:loclMap.get(remoteAddress);
+    	 loclMap.put(remoteAddress, lock);
+    	 synchronized(lock){
+		   	 ExecutorService executor=Executors.newScheduledThreadPool(1);
+		   	 executor.submit(new Runnable() {			
+					@Override
+					public void run() {
+		   			for(int k=0;k<maxClientCount;k++){    				
+		   				connect(remoteAddress);	   				
+		   				try{Thread.sleep(1000);}catch(Exception ex){}
+		   			}
+					}
+				});
+		   	executor.shutdown(); 
+		   	loclMap.remove(remoteAddress);
+    	 }
    }
 	/**
 	 * 一个jvm  创建一个 NettyClientFactory实例,初始化一个Bootstrap

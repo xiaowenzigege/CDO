@@ -117,9 +117,9 @@ public interface Field extends DataType
 	public  Buffer getBuffer();
 	
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap);
-	
+	/**
 	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel);
-
+	**/
 	
 	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto);
 	
