@@ -5,12 +5,15 @@ import org.apache.log4j.Logger;
 import com.cdo.business.BusinessService;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.resource.GlobalResource;
+import com.cdo.util.system.SystemUtil;
 import com.cdoframework.cdolib.base.Return;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
@@ -37,16 +40,28 @@ public class RPCServer {
 	public void start(){        
         int bossThread=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_BOSS,Runtime.getRuntime().availableProcessors()));
         int channelThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_WORK,Runtime.getRuntime().availableProcessors()*2));                
-        bossGroup = new NioEventLoopGroup(bossThread);
-        workerGroup = new NioEventLoopGroup(channelThread);        
+        
+        if(SystemUtil.isLinux()){
+            bossGroup = new NioEventLoopGroup(bossThread);
+            workerGroup = new NioEventLoopGroup(channelThread);         	
+        }else{
+            bossGroup = new EpollEventLoopGroup(bossThread);
+            workerGroup = new EpollEventLoopGroup(channelThread);
+        }
+             
         try {        
+     
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
              .option(ChannelOption.TCP_NODELAY, true)  
              .option(ChannelOption.SO_BACKLOG, 1024)
-             .childOption(ChannelOption.SO_KEEPALIVE, true)
-             .channel(NioServerSocketChannel.class)
-             .handler(new LoggingHandler(LogLevel.INFO))
+             .childOption(ChannelOption.SO_KEEPALIVE, true);
+             if(SystemUtil.isLinux()){
+            	 b.channel(EpollServerSocketChannel.class);
+             }else{
+            	 b.channel(NioServerSocketChannel.class);
+             }
+             b.handler(new LoggingHandler(LogLevel.INFO))
              .childHandler(new RPCServerInitializer());
                         	
             if(GlobalResource.cdoConfig==null)

@@ -46,6 +46,14 @@ public class SystemUtil {
 		return "Unknown";
 	}
 	
+	public static boolean isLinux(){
+		String system=System.getProperty("os.name").toLowerCase();
+		if(system.startsWith("linux")){
+			return true;
+		}else{
+			return false;
+		}
+	}
 	public static String getLocalServerIP(){
 		String SERVER_IP="";
 		List<String> list=new ArrayList<String>();

@@ -14,6 +14,7 @@ import com.cdo.business.rpc.route.RouteManager;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
 import com.cdo.util.constants.Constants;
+import com.cdo.util.system.SystemUtil;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -24,6 +25,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.epoll.EpollSocketChannel;
 //import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -110,7 +112,11 @@ public class NettyClientFactory {
 		        NioEventLoopGroup workerGroup = new NioEventLoopGroup(channelThread);		    	    		    	    
 			    bootstrap = new Bootstrap();			    
 			    bootstrap.group(workerGroup);
-			    bootstrap.channel(NioSocketChannel.class);		    	    
+			    if(SystemUtil.isLinux()){
+			    	bootstrap.channel(EpollSocketChannel.class);
+			    }else{
+			    	bootstrap.channel(NioSocketChannel.class);
+			    }
 //			    bootstrap.option(ChannelOption.TCP_NODELAY,true);	    	
 			    bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
 			    //连接断开后,需要处理连接 ,尝试重连
