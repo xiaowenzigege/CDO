@@ -457,9 +457,9 @@ public class FrameworkUtil
 									throw new Exception("AS to Date,DateTime,Time type, two value ard expected under the IN operator  ");
 								}
 								
-								Date dt = DateTime.parse(Utility.parseDateTimeValue(objValue1),com.cdoframework.cdolib.base.DataType.DATETIME_FORMAT_STRING).toDate();
-								Date dt1 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[0]),com.cdoframework.cdolib.base.DataType.DATETIME_FORMAT_STRING).toDate();
-								Date dt2 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[1]),com.cdoframework.cdolib.base.DataType.DATETIME_FORMAT_STRING).toDate();
+								Date dt = DateTime.parse(Utility.parseDateTimeValue(objValue1),com.cdoframework.cdolib.base.DataType.PATTERN_DATETIME).toDate();
+								Date dt1 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[0]),com.cdoframework.cdolib.base.DataType.PATTERN_DATETIME).toDate();
+								Date dt2 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[1]),com.cdoframework.cdolib.base.DataType.PATTERN_DATETIME).toDate();
 								if(dt.compareTo(dt1)>=0 && dt.compareTo(dt2)<=0)
 								{
 									return true;
@@ -531,9 +531,9 @@ public class FrameworkUtil
 									throw new Exception("AS to Date,DateTime,Time type, two value ard expected under the IN operator  ");
 								}
 								
-								Date dt = DateTime.parse(Utility.parseDateTimeValue(objValue1),com.cdoframework.cdolib.base.DataType.DATETIME_FORMAT_STRING).toDate();
-								Date dt1 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[0]),com.cdoframework.cdolib.base.DataType.DATETIME_FORMAT_STRING).toDate();
-								Date dt2 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[1]),com.cdoframework.cdolib.base.DataType.DATETIME_FORMAT_STRING).toDate();
+								Date dt = DateTime.parse(Utility.parseDateTimeValue(objValue1),com.cdoframework.cdolib.base.DataType.PATTERN_DATETIME).toDate();
+								Date dt1 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[0]),com.cdoframework.cdolib.base.DataType.PATTERN_DATETIME).toDate();
+								Date dt2 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[1]),com.cdoframework.cdolib.base.DataType.PATTERN_DATETIME).toDate();
 								if(dt.compareTo(dt1)<0 || dt.compareTo(dt2)>0)
 								{
 									return true;
@@ -1135,7 +1135,7 @@ public class FrameworkUtil
 					{
 						try
 						{
-							strDT = DateTime.Now().toString(DataType.DATETIME_FORMAT_STRING);
+							strDT = DateTime.Now().toString(DataType.PATTERN_DATETIME);
 						}catch(Exception e)
 						{//保证不会出错							
 						}
@@ -1157,7 +1157,7 @@ public class FrameworkUtil
 					{
 						try
 						{
-							strDate = DateTime.Now().toString(DataType.DATE_FORMAT_STRING);
+							strDate = DateTime.Now().toString(DataType.PATTERN_DATE);
 						}catch(Exception e)
 						{//保证不会出错							
 						}
@@ -1176,7 +1176,7 @@ public class FrameworkUtil
 					{
 						try
 						{
-							strTime = DateTime.Now().toString(DataType.TIME_FORMAT_STRING);
+							strTime = DateTime.Now().toString(DataType.PATTERN_TIME);
 						}catch(Exception e)
 						{//保证不会出错							
 						}

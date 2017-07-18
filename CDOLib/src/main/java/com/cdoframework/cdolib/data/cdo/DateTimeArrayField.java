@@ -34,11 +34,11 @@ public class DateTimeArrayField extends ArrayFieldImpl
 	private static final long serialVersionUID = -1218499970415772864L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	private final int dataIndex=1;//数据保存的起始位置
-	private final int databuffer=DATETIME_FORMAT_STRING.length();//数据占用字节
+	private final int databuffer=PATTERN_DATETIME.length();//数据占用字节
 	private static String defaultWhiteSpace="";
 	
 	static{
-		for(int i=0;i<DATETIME_FORMAT_STRING.length();i++){//空格用于占位使用
+		for(int i=0;i<PATTERN_DATETIME.length();i++){//空格用于占位使用
 			defaultWhiteSpace=defaultWhiteSpace+" ";
 		}
 	}	
@@ -54,7 +54,7 @@ public class DateTimeArrayField extends ArrayFieldImpl
 			if(strsValue[i]==null){				
 				strsValue[i]=defaultWhiteSpace;				
 			}else if(Utility.checkDateTime(strsValue[i])==false){
-				throw new RuntimeException("Invalid datetime or Invalid datetime format,dateTime format is "+DATETIME_FORMAT_STRING);
+				throw new RuntimeException("Invalid datetime or Invalid datetime format,dateTime format is "+PATTERN_DATETIME);
 			}
 		}
 		allocate(strsValue);
@@ -80,7 +80,7 @@ public class DateTimeArrayField extends ArrayFieldImpl
 		}
 		else if(Utility.checkDateTime(strValue)==false)
 		{
-			throw new RuntimeException("Invalid datetime or Invalid datetime format,dateTime format is "+DATETIME_FORMAT_STRING);
+			throw new RuntimeException("Invalid datetime or Invalid datetime format,dateTime format is "+PATTERN_DATETIME);
 		}
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);

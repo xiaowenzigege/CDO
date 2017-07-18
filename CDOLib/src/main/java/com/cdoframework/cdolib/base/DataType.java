@@ -21,8 +21,8 @@ public interface DataType extends Serializable
 	byte INTEGER_TYPE			=4;
 	byte LONG_TYPE				=5;
 	byte FLOAT_TYPE				=6;
-	byte DOUBLE_TYPE				=7;
-	byte STRING_TYPE				=8;
+	byte DOUBLE_TYPE			=7;
+	byte STRING_TYPE			=8;
 	byte DATE_TYPE				=9;
 	byte TIME_TYPE				=10;
 	byte DATETIME_TYPE			=11;
@@ -33,27 +33,23 @@ public interface DataType extends Serializable
 	
 	
 	byte BOOLEAN_ARRAY_TYPE		=101;
-	byte BYTE_ARRAY_TYPE			=102;
+	byte BYTE_ARRAY_TYPE		=102;
 	byte SHORT_ARRAY_TYPE		=103;
 	byte INTEGER_ARRAY_TYPE		=104;
-	byte LONG_ARRAY_TYPE			=105;
+	byte LONG_ARRAY_TYPE		=105;
 	byte FLOAT_ARRAY_TYPE		=106;
 	byte DOUBLE_ARRAY_TYPE		=107;
 	byte STRING_ARRAY_TYPE		=108;
-	byte DATE_ARRAY_TYPE			=109;
-	byte TIME_ARRAY_TYPE			=110;
-	byte DATETIME_ARRAY_TYPE		=111;
+	byte DATE_ARRAY_TYPE		=109;
+	byte TIME_ARRAY_TYPE		=110;
+	byte DATETIME_ARRAY_TYPE	=111;
 	byte CDO_ARRAY_TYPE			=112;
 	byte EMPTY_CDO_ARRAY_TYPE	=115;  
 	
-	String	DATETIME_FORMAT_STRING		="yyyy-MM-dd HH:mm:ss";
-	String	DATE_FORMAT_STRING			="yyyy-MM-dd";
-	String	TIME_FORMAT_STRING			="HH:mm:ss";
-	
-	SimpleDateFormat DATETIME_FORMAT	=new SimpleDateFormat (DATETIME_FORMAT_STRING);
-	SimpleDateFormat DATE_FORMAT		=new SimpleDateFormat (DATE_FORMAT_STRING);
-	SimpleDateFormat TIME_FORMAT		=new SimpleDateFormat (TIME_FORMAT_STRING);	
-	
+	String	PATTERN_DATETIME	="yyyy-MM-dd HH:mm:ss";
+	String	PATTERN_DATE		="yyyy-MM-dd";
+	String	PATTERN_TIME		="HH:mm:ss";
+
 	//新增的写法
 	public enum Data{
 		NONE(NONE_TYPE,"none"),

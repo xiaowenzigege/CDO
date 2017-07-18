@@ -33,11 +33,11 @@ public class TimeField extends FieldImpl
 	private static final long serialVersionUID = 500768167125762567L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	private final int dataIndex=1;//数据保存的起始位置
-	private final int databuffer=TIME_FORMAT_STRING.length();//数据占用字节
+	private final int databuffer=PATTERN_TIME.length();//数据占用字节
 	private static String defaultWhiteSpace="";
 	
 	static{
-		for(int i=0;i<TIME_FORMAT_STRING.length();i++){//空格用于占位使用
+		for(int i=0;i<PATTERN_TIME.length();i++){//空格用于占位使用
 			defaultWhiteSpace=defaultWhiteSpace+" ";
 		}
 	}
@@ -46,7 +46,7 @@ public class TimeField extends FieldImpl
 	{
 		if(Utility.checkTime(strValue)==false)
 		{
-			throw new RuntimeException("Invalid time or Invalid time format,time format is "+TIME_FORMAT_STRING);
+			throw new RuntimeException("Invalid time or Invalid time format,time format is "+PATTERN_TIME);
 		}
 		allocate(strValue);
 	}

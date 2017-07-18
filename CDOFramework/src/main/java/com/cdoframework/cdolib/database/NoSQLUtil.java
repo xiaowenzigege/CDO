@@ -1927,7 +1927,7 @@ public class NoSQLUtil
 			{
 				try
 				{
-					strDT = DateTime.Now().toString(DataType.DATETIME_FORMAT_STRING);
+					strDT = DateTime.Now().toString(DataType.PATTERN_DATETIME);
 				}
 				catch (Exception e)
 				{// 保证不会出错
@@ -1950,7 +1950,7 @@ public class NoSQLUtil
 			{
 				try
 				{
-					strDate = DateTime.Now().toString(DataType.DATE_FORMAT_STRING);
+					strDate = DateTime.Now().toString(DataType.PATTERN_DATE);
 				}
 				catch (Exception e)
 				{// 保证不会出错
@@ -1970,7 +1970,7 @@ public class NoSQLUtil
 			{
 				try
 				{
-					strTime = DateTime.Now().toString(DataType.TIME_FORMAT_STRING);
+					strTime = DateTime.Now().toString(DataType.PATTERN_TIME);
 				}
 				catch (Exception e)
 				{// 保证不会出错

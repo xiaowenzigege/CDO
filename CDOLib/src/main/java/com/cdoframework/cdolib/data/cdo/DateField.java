@@ -64,11 +64,11 @@ public class DateField extends FieldImpl
 	private static final long serialVersionUID = 3768949346410764110L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	private final int dataIndex=1;//数据保存的起始位置
-	private final int databuffer=DATE_FORMAT_STRING.length();//数据占用字节
+	private final int databuffer=PATTERN_DATE.length();//数据占用字节
 	private static String defaultWhiteSpace="";
 	
 	static{
-		for(int i=0;i<DATE_FORMAT_STRING.length();i++){//10个空格用于占位使用
+		for(int i=0;i<PATTERN_DATE.length();i++){//10个空格用于占位使用
 			defaultWhiteSpace=defaultWhiteSpace+" ";
 		}
 	}
@@ -77,7 +77,7 @@ public class DateField extends FieldImpl
 	{
 		if(Utility.checkDate(strValue)==false)
 		{
-			throw new RuntimeException("Invalid date or Invalid date format,date format is "+DATE_FORMAT_STRING);
+			throw new RuntimeException("Invalid date or Invalid date format,date format is "+PATTERN_DATE);
 		}		
 		allocate(strValue);
 	}

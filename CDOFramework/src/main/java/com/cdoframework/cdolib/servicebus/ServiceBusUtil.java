@@ -426,9 +426,9 @@ public class ServiceBusUtil
 									throw new Exception("AS to Date,DateTime,Time type, two value ard expected under the IN operator  ");
 								}
 								
-								Date dt = DateTime.parse(Utility.parseDateTimeValue(objValue1),com.cdoframework.cdolib.base.DataType.DATETIME_FORMAT_STRING).toDate();
-								Date dt1 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[0]),com.cdoframework.cdolib.base.DataType.DATETIME_FORMAT_STRING).toDate();
-								Date dt2 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[1]),com.cdoframework.cdolib.base.DataType.DATETIME_FORMAT_STRING).toDate();
+								Date dt = DateTime.parse(Utility.parseDateTimeValue(objValue1),com.cdoframework.cdolib.base.DataType.PATTERN_DATETIME).toDate();
+								Date dt1 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[0]),com.cdoframework.cdolib.base.DataType.PATTERN_DATETIME).toDate();
+								Date dt2 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[1]),com.cdoframework.cdolib.base.DataType.PATTERN_DATETIME).toDate();
 								if(dt.compareTo(dt1)>=0 && dt.compareTo(dt2)<=0)
 								{
 									return true;
@@ -500,9 +500,9 @@ public class ServiceBusUtil
 									throw new Exception("AS to Date,DateTime,Time type, two value ard expected under the IN operator  ");
 								}
 								
-								Date dt = DateTime.parse(Utility.parseDateTimeValue(objValue1),com.cdoframework.cdolib.base.DataType.DATETIME_FORMAT_STRING).toDate();
-								Date dt1 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[0]),com.cdoframework.cdolib.base.DataType.DATETIME_FORMAT_STRING).toDate();
-								Date dt2 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[1]),com.cdoframework.cdolib.base.DataType.DATETIME_FORMAT_STRING).toDate();
+								Date dt = DateTime.parse(Utility.parseDateTimeValue(objValue1),com.cdoframework.cdolib.base.DataType.PATTERN_DATETIME).toDate();
+								Date dt1 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[0]),com.cdoframework.cdolib.base.DataType.PATTERN_DATETIME).toDate();
+								Date dt2 = DateTime.parse(Utility.parseDateTimeValue(strsDateTime[1]),com.cdoframework.cdolib.base.DataType.PATTERN_DATETIME).toDate();
 								if(dt.compareTo(dt1)<0 || dt.compareTo(dt2)>0)
 								{
 									return true;

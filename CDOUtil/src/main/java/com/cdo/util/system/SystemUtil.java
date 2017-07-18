@@ -9,9 +9,9 @@ import java.net.NetworkInterface;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
-
 public class SystemUtil {
 	private static Logger logger=Logger.getLogger(SystemUtil.class);
 	
@@ -47,7 +47,7 @@ public class SystemUtil {
 	}
 	
 	public static boolean isLinux(){
-		String system=System.getProperty("os.name").toLowerCase();
+		String system=System.getProperty("os.name").toLowerCase(Locale.UK).trim();	      
 		if(system.startsWith("linux")){
 			return true;
 		}else{

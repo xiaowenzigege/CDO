@@ -42,11 +42,11 @@ public class RPCServer {
         int channelThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_WORK,Runtime.getRuntime().availableProcessors()*2));                
         
         if(SystemUtil.isLinux()){
-            bossGroup = new NioEventLoopGroup(bossThread);
-            workerGroup = new NioEventLoopGroup(channelThread);         	
-        }else{
             bossGroup = new EpollEventLoopGroup(bossThread);
-            workerGroup = new EpollEventLoopGroup(channelThread);
+            workerGroup = new EpollEventLoopGroup(channelThread);       	
+        }else{
+            bossGroup = new NioEventLoopGroup(bossThread);
+            workerGroup = new NioEventLoopGroup(channelThread);  
         }
              
         try {        
@@ -68,7 +68,7 @@ public class RPCServer {
             	GlobalResource.bundleInitCDOEnv();
             int port=GlobalResource.cdoConfig.getInt("netty.server.port");
             startService();
-            logger.info("server start success ..........\r\n connection acceptor  threads="+bossThread+",channel threads="+channelThread);
+            logger.info("server start success ..........\r\n connection acceptor  threads="+bossThread+",channel threads="+channelThread+",serverBootStrap="+b);
             ChannelFuture f= b.bind(port).sync();
             f.channel().closeFuture().sync();
          }catch(Throwable ex){
