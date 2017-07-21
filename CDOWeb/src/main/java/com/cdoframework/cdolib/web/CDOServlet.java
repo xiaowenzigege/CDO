@@ -73,8 +73,7 @@ public abstract class CDOServlet extends HttpServlet
 		if(strValue==null)
 		{
 			strValue=request.getHeader(strName);
-		}
-
+		}		
 		return strValue;
 	}
 

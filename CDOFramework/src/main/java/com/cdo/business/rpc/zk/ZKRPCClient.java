@@ -12,19 +12,19 @@ import com.cdo.business.rpc.zk.ZkNodeData;
 
 public abstract class ZKRPCClient implements IClient{
 	/**<serviceName,ZkNodeData>**/
-	protected Map<String, ZkNodeData> serviceMap;
+	static Map<String, ZkNodeData> serviceMap;
 	/**注册到zk上的连接**/
 	protected String zkConnect;
 	/**自定义的zkId**/
 	protected String zkId;
 	
-	 void setServiceMap(Map<String, ZkNodeData> serviceMap){
-		this.serviceMap=serviceMap;
+	 void setServiceMap(Map<String, ZkNodeData> paramMap){
+		serviceMap=paramMap;
 	}
 	
 	public Map<String, ZkNodeData> getServiceMap(){
 		
-		return this.serviceMap;
+		return serviceMap;
 	}
 	
 	public String getZKConnect() {

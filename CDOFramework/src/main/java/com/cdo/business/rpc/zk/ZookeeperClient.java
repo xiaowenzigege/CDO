@@ -163,10 +163,11 @@ public class ZookeeperClient {
     	 updateServerList(clientWatch);
       }
         // 替换server列表  
-      	rpcClient.setServiceMap(newServiceMap);  
+      	rpcClient.setServiceMap(newServiceMap); 
       	watchRootNode(clientWatch);    
     }  
  
+    
     private void watchRootNode(ClientWatch clientWatch){
         try {
         	zk.exists("/" + groupNode, clientWatch);
