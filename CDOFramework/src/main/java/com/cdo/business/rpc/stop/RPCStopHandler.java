@@ -53,16 +53,31 @@ public class RPCStopHandler extends  ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {    
 	   ctx.fireChannelRead(msg);     
     }
-
+   
+   public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+       ctx.fireChannelUnregistered();
+       close(ctx);
+   }
+   
+   @Override
+   public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+       ctx.fireChannelInactive();
+       close(ctx);
+   }
+   
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    	logger.warn("Shutting down......");
-    	//出现channel异常 关闭channel连接    	
-       try{if(channel!=null) channel.close();if(ctx!=null)ctx.close();}catch(Exception ex){};	
-       this.nettyStop.close();
+    	close(ctx);
     }      
 	@Override
 	public String toString(){
 		return "channel="+channel;
 	}	
+	
+	private void close(ChannelHandlerContext ctx){
+       logger.info("Shutting down......");
+    	//出现channel异常 关闭channel连接    	
+       try{if(channel!=null) channel.close();if(ctx!=null)ctx.close();}catch(Exception ex){};	
+       this.nettyStop.close();
+	}
 }

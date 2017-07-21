@@ -25,6 +25,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
 //import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -109,7 +111,13 @@ public class NettyClientFactory {
 	 */
 	void init(int channelThread){		
 		try {
-		        NioEventLoopGroup workerGroup = new NioEventLoopGroup(channelThread);		    	    		    	    
+				EventLoopGroup workerGroup =null;	
+				
+		        if(SystemUtil.isLinux()){
+		            workerGroup = new EpollEventLoopGroup(channelThread);       	
+		        }else{		           
+		            workerGroup = new NioEventLoopGroup(channelThread);  
+		        }		        
 			    bootstrap = new Bootstrap();			    
 			    bootstrap.group(workerGroup);
 			    if(SystemUtil.isLinux()){
@@ -159,7 +167,8 @@ public class NettyClientFactory {
 		      });
 		    }catch(Exception ex){
 		      logger.error(ex.getMessage(), ex);
-		    }	    		 
+		    }	
+		logger.info("client work total channel="+channelThread+",bootstrap="+bootstrap);
 	}
 	
 	
@@ -169,7 +178,8 @@ public class NettyClientFactory {
         int retry=retryMap.get(key)==null?0:retryMap.get(key).intValue();
         //在同一jvm 开启多个链路 连接 同一服务端，当连接数创建满了时,则不再需要重新创建连接.
         if(routeManager.isFullCircleQueue(serverAddress)){
-        	logger.info(" remote=["+serverAddress+"],queue conentions is full. ");
+        	if(logger.isDebugEnabled())
+        		logger.debug(" remote=["+serverAddress+"],queue conentions is full. ");
         	return;
         }
         retry++;//记录重试次数
