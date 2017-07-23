@@ -66,6 +66,36 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 		  Header header=msg.getHeader();
 		  switch(header.getType()){
 		  	  case ProtoProtocol.TYPE_CDO:
+		  		CDO cdoOutput=new CDO(); 
+		  		CDO cdoResponse=null;
+		  		GoogleCDO.CDOProto.Builder resProtoBuiler=null;
+		  		try{
+		  		GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(msg.getBody());
+		  		cdoResponse=ParseProtoCDO.ProtoParse.parse(proto);
+				CDO cdoReturn=new CDO();
+				cdoReturn.setIntegerValue("nCode",0);
+				cdoReturn.setStringValue("strText","test sucess");
+				cdoReturn.setStringValue("strInfo","test sucess");
+				
+				cdoOutput.setCDOValue("cdoReturn",cdoReturn);
+				cdoOutput.setCDOValue("cdoResponse",cdoResponse);	
+				
+				resProtoBuiler=cdoOutput.toProtoBuilder();
+				resProtoBuiler.setCallId(proto.getCallId());				
+				Header resHeader=new Header();
+				resHeader.setType(ProtoProtocol.TYPE_CDO);
+				CDOMessage resMessage=new CDOMessage();
+				resMessage.setHeader(resHeader);
+				resMessage.setBody(resProtoBuiler.build());
+				channel.writeAndFlush(resMessage);
+		  		}finally{
+		  			cdoOutput.deepRelease();
+		  			resProtoBuiler=null;
+		  			logger.info("原路返回........");
+		  		}
+				break;
+//				
+/**		  		  
 					GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(msg.getBody());
 //					List<File> listFile=msg.getFiles();//优化速度,不考虑处理文件流	
 					if(directNioChannel)
@@ -81,7 +111,8 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 							tryAddElement(proto);
 						}
 					}
-		  		  break;
+					**/
+		  		 
 		  	 default:
 		  		ctx.fireChannelRead(msg); 
 		  }		  	

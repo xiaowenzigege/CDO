@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.codec.binary.Base64;
+
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
@@ -31,14 +31,14 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.ByteArrayEntity;
+//import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.content.ByteArrayBody;
+//import org.apache.http.entity.mime.HttpMultipartMode;
+//import org.apache.http.entity.mime.content.ByteArrayBody;
 //import org.apache.http.entity.mime.MultipartEntityBuilder;
 //import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.entity.mime.content.ContentBody;
+//import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -48,11 +48,11 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
 import com.cdo.util.bean.CDOHTTPResponse;
-import com.cdo.util.common.Zipper;
+//import com.cdo.util.common.Zipper;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.exception.HttpException;
 import com.cdo.util.resource.GlobalResource;
-import com.cdo.util.serial.Serializable;
+//import com.cdo.util.serial.Serializable;
 import com.cdoframework.cdolib.data.cdo.CDO;
 /**
  * 
@@ -198,8 +198,7 @@ public class HttpClient {
 			if (this.transMode ==TRANSMODE_BODY) {
 				//作为body传输
 				if (this.body!= null) {
-//					entity=new StringEntity(this.body, Constants.Encoding.CHARSET_UTF8);
-					entity = new ByteArrayEntity(this.body.getBytes(Constants.Encoding.CHARSET_UTF8));
+					entity=new StringEntity(this.body, Constants.Encoding.CHARSET_UTF8);					
 				}
 			} else {
 				if(this.uploadFiles!=null){
@@ -218,13 +217,11 @@ public class HttpClient {
 					}
 					if(getTransCDO()!=null){
 						entity = new MultipartEntity();
-					   ((MultipartEntity)entity).addPart(Constants.CDO.HTTP_CDO_REQUEST,
-							   new StringBody(Base64.encodeBase64String(Serializable.protoCDO2Byte(getTransCDO()))));				  
+					   ((MultipartEntity)entity).addPart(Constants.CDO.HTTP_CDO_REQUEST,new StringBody(getTransCDO().toXML()));				  
 					}
 				}else{					
-					//只有CDO 采用 http+protobuf二进制传输
 					if(getTransCDO()!=null){
-						entity = new ByteArrayEntity(Serializable.protoCDO2Byte(getTransCDO()));					   				 
+						entity =new StringEntity(getTransCDO().toXML(), Constants.Encoding.CHARSET_UTF8);					   				 
 					}else{
 						//普通请求
 						entity = new UrlEncodedFormEntity(paramsList,Charset.forName(Constants.Encoding.CHARSET_UTF8));	
@@ -297,10 +294,12 @@ public class HttpClient {
 			//----读取响应报头信息	 用于区分普通请求响应  还是cdo响应---//
 			LinkedHashMap<String, FileInfo> linkMap=readHeader(response.getAllHeaders());
 			try{					
-				if(linkMap.size()==1){//仅有 cdo输出,对象为Serializable.protoCDO2Byte(cdoOutput)的字节				 
-					cdoHttpResponse.setResponseBytes(response.getEntity()==null?null:EntityUtils.toByteArray(response.getEntity()));					
+				if(linkMap.size()==1){//仅有 cdo输出			 
+					cdoHttpResponse.setResponseBytes(response.getEntity()==null?null:EntityUtils.toByteArray(response.getEntity()));
+					return cdoHttpResponse;
 				}else if(linkMap.size()>1){//cdo和下载文件   混合输出,第一个输出为cdo,后续为文件依次输出//	
 					outMixData(response, linkMap, cdoHttpResponse);
+					return cdoHttpResponse;
 				}else{
 					 //普通http请求     判断响应是否为下载文件请求				
 		    		 Header header = response.getFirstHeader("Content-Disposition"); 					

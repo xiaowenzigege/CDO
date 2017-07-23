@@ -5,6 +5,7 @@ import java.nio.charset.CodingErrorAction;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
@@ -12,8 +13,10 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.Consts;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
 //import org.apache.http.client.config.CookieSpecs;
 //import org.apache.http.client.config.RequestConfig;
 //import org.apache.http.config.ConnectionConfig;
@@ -28,6 +31,7 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 //import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 //import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.entity.StringEntity;
 //import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 //import org.apache.http.impl.client.HttpClientBuilder;
@@ -39,6 +43,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 //import org.apache.http.ssl.SSLContexts;
 import org.apache.log4j.Logger;
 
@@ -331,11 +336,45 @@ public class HttpUtil {
 	 * @throws ResponseException
 	 */
 	public static Response postBody(String url,String strContent,Map<String, String> header) throws ResponseException{
-		com.cdo.util.http.HttpClient client=new com.cdo.util.http.HttpClient(url); 
+/**		
+ *      com.cdo.util.http.HttpClient client=new com.cdo.util.http.HttpClient(url); 
 		client.setHeaders(header);
 		client.setTransMode(com.cdo.util.http.HttpClient.TRANSMODE_BODY);
 		client.setBody(strContent);
-		return client.execute();	
+ * 	
+ */
+		HttpClient client=null;
+		HttpPost request=null;
+		try {
+			// 创建POST请求
+			request = new HttpPost(url);
+			if(header!=null){
+				Set<String> headerKeys = header.keySet();
+				for (String headKey : headerKeys) {
+					request.addHeader(headKey, header.get(headKey));
+				}
+			}
+			if(strContent!=null && strContent.trim().length()>0){
+				// 编码参数
+				StringEntity entity = new StringEntity(strContent,Constants.Encoding.CHARSET_UTF8);
+				request.setEntity(entity);
+			}		
+			// 发送请求
+			client = getHttpClient();
+			HttpResponse res = client.execute(request);				
+			Response response=new Response();
+			response.setStatusCode(res.getStatusLine().getStatusCode());
+			response.setAllHeaders(res.getAllHeaders());
+			response.setResponseBytes(res.getEntity()==null?null:EntityUtils.toByteArray(res.getEntity()));
+			return response;				
+		} catch (Exception e) {			
+			logger.error("请求发生异常:"+e.getMessage(),e);
+		}finally{
+			if(request!=null){try{request.releaseConnection();}catch(Exception ex){}}
+			if(client!=null){try{client.getConnectionManager().closeExpiredConnections();}catch(Exception ex){}}
+		}
+		return null;
 	}	
+	
 	
 }

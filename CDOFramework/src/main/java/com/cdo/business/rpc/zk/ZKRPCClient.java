@@ -1,5 +1,6 @@
 package com.cdo.business.rpc.zk;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.cdo.business.client.IClient;
@@ -12,14 +13,15 @@ import com.cdo.business.rpc.zk.ZkNodeData;
 
 public abstract class ZKRPCClient implements IClient{
 	/**<serviceName,ZkNodeData>**/
-	static Map<String, ZkNodeData> serviceMap;
+	static Map<String, ZkNodeData> serviceMap=new HashMap<String, ZkNodeData>();
 	/**注册到zk上的连接**/
 	protected String zkConnect;
 	/**自定义的zkId**/
 	protected String zkId;
 	
 	 void setServiceMap(Map<String, ZkNodeData> paramMap){
-		serviceMap=paramMap;
+		serviceMap.clear();
+		serviceMap.putAll(paramMap);
 	}
 	
 	public Map<String, ZkNodeData> getServiceMap(){

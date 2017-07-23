@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.bag.SynchronizedBag;
 import org.apache.log4j.Logger;
 
-import com.cdo.business.rpc.route.RouteManager;
+import com.cdo.business.rpc.route.CircleRPCQueue;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
 import com.cdo.util.constants.Constants;
@@ -57,7 +57,8 @@ public class NettyClientFactory {
 	//
 	private Map<String,byte[]> loclMap=new HashMap<String,byte[]>();
 	
-
+	private   static Map<String, CircleRPCQueue<RPCClientHandler>> routeMap=new HashMap<String,CircleRPCQueue<RPCClientHandler>>();
+	
 	private NettyClientFactory(){
 		channelThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_WORK,Runtime.getRuntime().availableProcessors()));
 		retryInterval=Math.max(5, SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_RETRY_INTERVAL,5));
@@ -71,6 +72,8 @@ public class NettyClientFactory {
 	public static final NettyClientFactory getDefaultInstance(){
 		return clientFactory;
 	}
+	
+	
 	/**
 	 * 根据remoteAddress 创建一个长连接
 	 * @param remoteAddress
@@ -104,6 +107,11 @@ public class NettyClientFactory {
 		   	loclMap.remove(remoteAddress);
     	 }
    }
+
+    Map<String, CircleRPCQueue<RPCClientHandler>> getRouteMap(){
+    	return routeMap;
+    }
+    
 	/**
 	 * 一个jvm  创建一个 NettyClientFactory实例,初始化一个Bootstrap
 	 * @param channelThread  共享的线程池组	 

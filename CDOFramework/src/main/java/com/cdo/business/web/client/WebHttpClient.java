@@ -44,18 +44,12 @@ public class WebHttpClient implements IWebClient{
 		if ((this.strUrl == null) || (this.strUrl.equals(""))){
 			throw new HttpException(" target strUrl  is null ");
 		}			
-//		String strCDOXml = "";
+		String strCDOXml = "";
 		CDOHTTPResponse httpRes=null;
 		try {
 			CDOHTTPClient httpClient = new CDOHTTPClient(this.strUrl);	
 			httpClient.setTransCDO(cdoRequest);
 //			//普通参数
-//			Map<String,String> paramMap = new HashMap<String,String>();
-//			paramMap.put("strTransName", cdoRequest.getStringValue("strTransName"));
-//			paramMap.put(Constants.CDO.HTTP_CDO_REQUEST, cdoRequest.toXML());
-//			//设置普通参数
-//			httpClient.setNameValuePair(paramMap);
-//			httpClient.setTransCDO(true);
 			//cdo有文件上传,设置文件参数 和设置 头信息				
 			if(cdoRequest.getSerialFileCount()>0){
 				 Map<String,File> uploadFiles=new HashMap<String,File>();
@@ -87,23 +81,14 @@ public class WebHttpClient implements IWebClient{
 			        + ";Send Http Request ERROR:" + httpRes);
 		}
 		CDO cdoReturn=null;
-		try {
-			/** 由原来http+xml  替换为 http+protobuf
+		try {			
 			strCDOXml =httpRes.getResponseText();			
 			if (strCDOXml != null && !strCDOXml.trim().equals("")) {				            			    
-				CDO cdoReturn=new CDO();
+				cdoReturn=new CDO();
 				ParseHTTPXmlCDO.xmlToCDO(strCDOXml, cdoReturn, cdoResponse);								
 				httpRes.copyFile2CDO(cdoResponse);
 			    return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));			
-		  }
-			CDO cdoOutput=Serializable.byte2ProtoCDO();  
-			CDO cdoReturn=cdoOutput.getCDOValue("cdoReturn");
-			* */
-			cdoReturn=new CDO();
-			ParseHTTPProtoCDO.HTTPProtoParse.parse(httpRes.getResponseBytes(),cdoResponse,cdoReturn);
-			//有文件传输,仅设置文件句柄，文件在磁盘上，或者通过外部开发者自己控制，写入到指定设备[内存，磁盘，输出流上]
-			httpRes.copyFile2CDO(cdoResponse);			
-			return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));	
+		  }		
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
 			return Return.valueOf(-1, "ERROR:" + ex.getMessage());
@@ -113,13 +98,9 @@ public class WebHttpClient implements IWebClient{
 			if(cdoReturn!=null)
 				cdoReturn.deepRelease();
 		}
-//		logger.error("返回数据: strCDOXml IS NULL,please check network connection");
-//		return Return.valueOf(-1, "ERROR:return strCDOXml IS NULL,please check network connection");
+		logger.error("返回数据: strCDOXml IS NULL,please check network connection");
+		return Return.valueOf(-1, "ERROR:return strCDOXml IS NULL,please check network connection");
 	}
 
-	@Override
-	public Return asyncHandleTrans(CDO cdoRequest,CDO cdoResponse){		
-		cdoRequest.setBooleanValue(ITransService.ASYNCH_KEY, true);
-		return this.handleTrans(cdoRequest, cdoResponse);		
-	}
+
 }

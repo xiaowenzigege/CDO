@@ -1,4 +1,4 @@
-package com.cdo.business.rpc.route;
+package com.cdo.business.rpc.client;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,8 +7,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.log4j.Logger;
 
-import com.cdo.business.rpc.client.NettyClientFactory;
-import com.cdo.business.rpc.client.RPCClientHandler;
+import com.cdo.business.rpc.route.CircleRPCQueue;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.server.Server;
 import com.cdo.util.server.ServerScheduling;
@@ -19,7 +18,7 @@ public class RouteManager {
 	/**
 	 * String=remoteAddress   CircleRPCQueue=同一个客户端与同一个服务端，建立多个长连接
 	 */
-	private   Map<String, CircleRPCQueue<RPCClientHandler>> routeMap;
+
 	private final static RouteManager instance=new RouteManager();
 	private static final Logger logger=Logger.getLogger(RouteManager.class); 	
 	private  ReadWriteLock routeLock = new ReentrantReadWriteLock();
@@ -39,14 +38,14 @@ public class RouteManager {
 	 */
 	private RouteManager(){
 		maxClientCount=Math.max(1, SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_CONNECT_ConnCount,1));
-		routeMap=new HashMap<String, CircleRPCQueue<RPCClientHandler>>();
 	}
 	
 	public boolean containKey(String serverAddress){
-		return routeMap.containsKey(serverAddress);
+		return NettyClientFactory.getDefaultInstance().getRouteMap().containsKey(serverAddress);
 	}
 	
 	public boolean isFullCircleQueue(String serverAddress){
+		Map<String, CircleRPCQueue<RPCClientHandler>> routeMap=NettyClientFactory.getDefaultInstance().getRouteMap();
 		return routeMap.get(serverAddress)==null?false:routeMap.get(serverAddress).isFull();
 	}
 	/**
@@ -56,7 +55,8 @@ public class RouteManager {
 	 */
 	public boolean removeRPCClient(String serverAddress,RPCClientHandler handle){
 		try{
-			routeLock.writeLock().lock();
+			Map<String, CircleRPCQueue<RPCClientHandler>> routeMap=NettyClientFactory.getDefaultInstance().getRouteMap();
+			routeLock.writeLock().lock();			
 			CircleRPCQueue<RPCClientHandler> circleQueue=routeMap.get(serverAddress);
 			if(circleQueue!=null){
 				return circleQueue.deleteRPCHandle(handle);		
@@ -75,6 +75,7 @@ public class RouteManager {
 	 */
 	public boolean addRPCClientHandler(String serverAddress,RPCClientHandler handle){	
 		try{
+			Map<String, CircleRPCQueue<RPCClientHandler>> routeMap=NettyClientFactory.getDefaultInstance().getRouteMap();
 			routeLock.writeLock().lock();
 			CircleRPCQueue<RPCClientHandler> circleQueue=routeMap.get(serverAddress)==null?
 						new CircleRPCQueue<RPCClientHandler>(maxClientCount):routeMap.get(serverAddress);
@@ -97,7 +98,8 @@ public class RouteManager {
 	 */
 	public RPCClientHandler route(ServerScheduling serverScheduling){
 		Server server=serverScheduling.getServer();		
-		String remoteAddress=server.getHostPost();			
+		String remoteAddress=server.getHostPost();		
+		Map<String, CircleRPCQueue<RPCClientHandler>> routeMap=NettyClientFactory.getDefaultInstance().getRouteMap();
 		//获取数据
 		CircleRPCQueue<RPCClientHandler> rpcClients=routeMap.get(server.getHostPost());
 		if(rpcClients==null || rpcClients.getQueueSize()==0){

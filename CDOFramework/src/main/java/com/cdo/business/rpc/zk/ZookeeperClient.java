@@ -20,7 +20,7 @@ import org.apache.zookeeper.data.Stat;
 
 import com.cdo.business.rpc.client.NettyClientFactory;
 import com.cdo.business.rpc.client.RPCClient;
-import com.cdo.business.rpc.route.RouteManager;
+import com.cdo.business.rpc.client.RouteManager;
 import com.cdo.business.rpc.stop.NettyStop;
 import com.cdo.util.algorithm.RoundRobinScheduling;
 import com.cdo.util.cache.LRUCache;
@@ -160,14 +160,13 @@ public class ZookeeperClient {
 		} catch (Exception e) {			
 			
 		}
-    	 updateServerList(clientWatch);
+    	 updateServerList(clientWatch);;
       }
         // 替换server列表  
-      	rpcClient.setServiceMap(newServiceMap); 
+      	rpcClient.setServiceMap(newServiceMap);  
       	watchRootNode(clientWatch);    
     }  
  
-    
     private void watchRootNode(ClientWatch clientWatch){
         try {
         	zk.exists("/" + groupNode, clientWatch);
