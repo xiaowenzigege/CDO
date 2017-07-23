@@ -1,4 +1,4 @@
-package com.cdo.business.rpc.server;
+package com.cdo.business.rpc.server.proto;
 
 import java.util.concurrent.TransferQueue;
 

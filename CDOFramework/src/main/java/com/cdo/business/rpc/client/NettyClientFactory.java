@@ -10,11 +10,15 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.bag.SynchronizedBag;
 import org.apache.log4j.Logger;
 
+import com.cdo.business.rpc.client.proto.RPCClientHandler;
+import com.cdo.business.rpc.client.xml.XMLRPCClientHandler;
 import com.cdo.business.rpc.route.CircleRPCQueue;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.system.SystemUtil;
+import com.cdo.xml.handle.CDOXmlDecoder;
+import com.cdo.xml.handle.CDOXmlEncoder;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -57,7 +61,7 @@ public class NettyClientFactory {
 	//
 	private Map<String,byte[]> loclMap=new HashMap<String,byte[]>();
 	
-	private   static Map<String, CircleRPCQueue<RPCClientHandler>> routeMap=new HashMap<String,CircleRPCQueue<RPCClientHandler>>();
+	private   static Map<String, CircleRPCQueue<ClientHandler>> routeMap=new HashMap<String,CircleRPCQueue<ClientHandler>>();
 	
 	private NettyClientFactory(){
 		channelThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_WORK,Runtime.getRuntime().availableProcessors()));
@@ -108,7 +112,7 @@ public class NettyClientFactory {
     	 }
    }
 
-    Map<String, CircleRPCQueue<RPCClientHandler>> getRouteMap(){
+   public Map<String, CircleRPCQueue<ClientHandler>> getRouteMap(){
     	return routeMap;
     }
     
@@ -150,7 +154,7 @@ public class NettyClientFactory {
 				            String serverAddress=remoteAddress.getHostString()+":"+remoteAddress.getPort();
 				            String clientAddress=localAddress.getHostString()+":"+localAddress.getPort();
 				            //删除对应的失效的长连接
-				            boolean flag=routeManager.removeRPCClient(serverAddress, ctx.channel().pipeline().get(RPCClientHandler.class));
+				            boolean flag=routeManager.removeRPCClient(serverAddress, ctx.channel().pipeline().get(XMLRPCClientHandler.class));
 				            if(!flag){
 					        	  logger.warn("delete handle to CircleRPCQueue fail,maybe not found in queue");					        	  
 					          }
@@ -166,11 +170,11 @@ public class NettyClientFactory {
 								});	  
 				          }
 				        });			        
-			        p.addLast("encoder",new CDOProtobufEncoder());
-			        p.addLast("decoder",new CDOProtobufDecoder());  
+			        p.addLast("encoder",new CDOXmlEncoder());
+			        p.addLast("decoder",new CDOXmlDecoder());  
 			        p.addLast("ideaHandler",new IdleStateHandler(60,10,0));
 			        p.addLast("heartbeat",new HeartbeatClientHandler());
-			        p.addLast("handle",new RPCClientHandler());				
+			        p.addLast("handle",new XMLRPCClientHandler());				
 				}            	 
 		      });
 		    }catch(Exception ex){
@@ -216,7 +220,7 @@ public class NettyClientFactory {
 		    	 String key=serverAddress+"-"+clientAddress;
 		         if (f.isSuccess()) {
 			    	  Channel channel=f.channel();			         			         			        
-			          RPCClientHandler handle=f.channel().pipeline().get(RPCClientHandler.class);
+			    	  XMLRPCClientHandler handle=f.channel().pipeline().get(XMLRPCClientHandler.class);
 			          //添加到路由
 			          boolean flag=routeManager.addRPCClientHandler(serverAddress, handle);	   
 			          if(!flag){

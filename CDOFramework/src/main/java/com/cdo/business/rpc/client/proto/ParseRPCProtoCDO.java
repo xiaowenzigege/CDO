@@ -1,11 +1,11 @@
-package com.cdo.business.rpc.client;
+package com.cdo.business.rpc.client.proto;
 
 
 import com.cdo.google.handle.ParseProtoCDO;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.data.cdo.CDO;
 /**
- * @see {@link com.cdo.business.rpc.server.RPCServerHandler}
+ * @see {@link com.cdo.business.rpc.server.proto.RPCServerHandler}
  * @author KenelLiu
  *   解释  响应的ProtoCDO
  *   响应数据为CDO序列化，该CDO 仅包含[cdoReturn,cdoResponse]2个cdo对象,

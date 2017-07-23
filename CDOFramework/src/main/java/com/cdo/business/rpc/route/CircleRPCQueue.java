@@ -1,6 +1,6 @@
 package com.cdo.business.rpc.route;
 
-import com.cdo.business.rpc.client.RPCClientHandler;
+import com.cdo.business.rpc.client.ClientHandler;
 import com.cdo.util.algorithm.CircleQueue;
 import com.cdo.util.exception.QueueLengthException;
 
@@ -33,12 +33,12 @@ public class CircleRPCQueue<E> extends CircleQueue<E> {
 	 * @throws QueueLengthException
 	 */
 	@SuppressWarnings("unchecked")
-	public boolean deleteRPCHandle(RPCClientHandler handle) {		        
-        RPCClientHandler dataHandle=null;
+	public boolean deleteRPCHandle(ClientHandler handle) {		        
+		ClientHandler dataHandle=null;
 	    for(int i=0;i<getCapacity();i++){
 	    	 if(queue[i]==null)
 	    		 continue;
-	    	 dataHandle=(RPCClientHandler)queue[i];
+	    	 dataHandle=(ClientHandler)queue[i];
 	    	 if(dataHandle.equals(handle)){
 	    		 queue[i]=null;
 	    		 count--;

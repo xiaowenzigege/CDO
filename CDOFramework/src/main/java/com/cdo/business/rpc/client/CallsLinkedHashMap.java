@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.cdo.business.rpc.client.proto.RPCResponse;
+import com.cdo.business.rpc.client.xml.XMLResponse;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdo.util.constants.Constants;
 import com.cdoframework.cdolib.data.cdo.CDO;
@@ -18,9 +20,9 @@ public class CallsLinkedHashMap {
 	private final long minute=60*1000;
 	//默认设置5分钟
 	private final int  maxTimeOut=Math.max(15,SystemPropertyUtil.getInt(Constants.Business.TIME_OUT,15));
-	public void put(Integer callId,Call call){
+	public void put(Integer callId,Call call,IRPCResponse response){
 		calls.put(callId, call);	
-		setTimeOut();
+		setTimeOut(response);
 	}
 	
 	public Call get(Integer callId){
@@ -31,7 +33,7 @@ public class CallsLinkedHashMap {
 		return calls.remove(callId);
 	}
 	
-	private void setTimeOut(){
+	private void setTimeOut(IRPCResponse response){
 		Iterator<Map.Entry<Integer, Call>> it= calls.entrySet().iterator();
 		List<Integer> callIdList=new ArrayList<Integer>();
 		while(it.hasNext()){
@@ -48,11 +50,18 @@ public class CallsLinkedHashMap {
 			Call call = calls.get(callId);
 			calls.remove(callId);
 			
-			CDO cdoOutput=new CDO();
-			setOutCDO(cdoOutput, "等待超过"+maxTimeOut+"分钟  未获取到响应,客户端设置超时.");
-			GoogleCDO.CDOProto.Builder proto=cdoOutput.toProtoBuilder();
-			proto.setCallId(callId);
-	        call.setRPCResponse(new RPCResponse(proto.build()));	    	
+			if(response instanceof RPCResponse) {
+				CDO cdoOutput=new CDO();
+				setOutCDO(cdoOutput, "等待超过"+maxTimeOut+"分钟  未获取到响应,客户端设置超时.");
+				GoogleCDO.CDOProto.Builder proto=cdoOutput.toProtoBuilder();
+				proto.setCallId(callId);
+		        call.setRPCResponse(new RPCResponse(proto.build()));				
+			}else if(response instanceof XMLResponse){
+				CDO cdoOutput=new CDO();
+				setOutCDO(cdoOutput, "等待超过"+maxTimeOut+"分钟  未获取到响应,客户端设置超时.");
+				call.setRPCResponse(new XMLResponse(callId, cdoOutput.toXML()));
+			}
+    	
     	} 		
 	}
 	

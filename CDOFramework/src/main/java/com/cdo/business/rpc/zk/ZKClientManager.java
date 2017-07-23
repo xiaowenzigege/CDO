@@ -7,7 +7,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.cdo.business.client.IClient;
-import com.cdo.business.rpc.client.RPCClient;
+import com.cdo.business.rpc.client.proto.RPCClient;
+import com.cdo.business.rpc.client.xml.XMLRPCClient;
 import com.cdo.util.exception.ZookeeperException;
 
 public class ZKClientManager {
@@ -48,7 +49,7 @@ public class ZKClientManager {
 				logger.warn("zkId["+zkId+"] is alreay ");
 				return ;
 			}
-			ZKRPCClient rpcClient=new RPCClient();
+			ZKRPCClient rpcClient=new XMLRPCClient();
 			ZookeeperClient zkClient=new ZookeeperClient(zkConnect,rpcClient);
 			zkClient.connectZookeeper();			
 			rpcClient.setZKId(zkId);

@@ -100,6 +100,12 @@ public class ServiceBus implements IServiceBus
 	{
 		return this.strDefaultDataGroupId;
 	}
+	
+	public HashMap<String,IService> getHmService(){
+		
+		return this.hmService;
+	} 
+	
 
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 	

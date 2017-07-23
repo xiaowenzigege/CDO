@@ -1,9 +1,10 @@
-package com.cdo.business.rpc.client;
+package com.cdo.business.rpc.client.proto;
 
 import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.cdo.business.rpc.RPCFile;
+import com.cdo.business.rpc.client.ClientHandler;
 import com.cdo.business.rpc.route.CircleRPCQueue;
 import com.cdo.business.rpc.zk.ZKRPCClient;
 import com.cdo.business.rpc.zk.ZkNodeData;
@@ -34,10 +35,9 @@ public class RPCClient extends ZKRPCClient{
 		}
 	   String strServiceName=cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);
 	  
-	  CDO cdoReturn=null;
-	  try {	
-		  long startTime=System.nanoTime();
-		  RPCClientHandler rpcHandle=getRPCClient(strServiceName);
+	   CDO cdoReturn=null;
+	   try {	
+		  ClientHandler rpcHandle=getRPCClient(strServiceName);
 		  if(rpcHandle==null){
 				int retryCount=1;//重试3次				
 				while(retryCount<=3){
@@ -48,11 +48,8 @@ public class RPCClient extends ZKRPCClient{
 					retryCount++;
 				}
 			}	
-		   logger.info("getRPCClient ="+(System.nanoTime()-startTime));
-		   startTime=System.nanoTime();
-		   RPCResponse response=rpcHandle.handleTrans(cdoRequest);
-		   logger.info("send and response ="+(System.nanoTime()-startTime));
-		   startTime=System.nanoTime();
+		  
+		   RPCResponse response=(RPCResponse)rpcHandle.handleTrans(cdoRequest);
 			//cdo 内容
 		   GoogleCDO.CDOProto proto=response.getCdoProto();
 		   cdoReturn=new CDO();
@@ -60,7 +57,6 @@ public class RPCClient extends ZKRPCClient{
 		   ParseRPCProtoCDO.ProtoRPCParse.parse(proto, cdoResponse, cdoReturn);
 			//设置响应文件
 		   RPCFile.setFile2CDO(cdoResponse, response.getListFile());
-		   logger.info("parse content ="+(System.nanoTime()-startTime));
 		   
 		   return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));
 	  	}catch(NotEstablishConnectException ex){
@@ -76,29 +72,6 @@ public class RPCClient extends ZKRPCClient{
 		}		  
 	}	
 	
-	private  RPCClientHandler getRPCClient(String strServiceName) throws NotEstablishConnectException{
-		Map<String, ZkNodeData>  zkServerMap=getServiceMap();
-		if(zkServerMap==null || zkServerMap.get(strServiceName)==null || zkServerMap.get(strServiceName).getRobinScheduling()==null){
-			logger.warn("Service["+strServiceName+"] not registered on zk server");
-			throw new NotEstablishConnectException("Service["+strServiceName+"] not registered on zk server");	
-		}					
-		RoundRobinScheduling roundSchedule=zkServerMap.get(strServiceName).getRobinScheduling();
-		Server server=roundSchedule.getServer();		
-		String remoteAddress=server.getHostPost();	
-		CircleRPCQueue<RPCClientHandler> rpcClients=NettyClientFactory.getDefaultInstance().getRouteMap().get(server.getHostPost());
-		if(rpcClients==null || rpcClients.getQueueSize()==0){
-			//还未创立对象，或者队列里还没有长连接，创建连接
-			NettyClientFactory.getDefaultInstance().createMutiClient(remoteAddress);
-			return null;
-		}
-		RPCClientHandler handle=rpcClients.getCircleFront();
-		if(handle!=null){
-			return handle;
-		}	
-	    //若队列里的该连接 为null，即有可能连接中断被移除,需重新创建连接
-		NettyClientFactory.getDefaultInstance().connect(remoteAddress);	
-		return null; 
-	}
 
 
 

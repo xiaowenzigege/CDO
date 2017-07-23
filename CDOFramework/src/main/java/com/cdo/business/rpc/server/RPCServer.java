@@ -3,6 +3,8 @@ package com.cdo.business.rpc.server;
 import org.apache.log4j.Logger;
 
 import com.cdo.business.BusinessService;
+import com.cdo.business.rpc.server.proto.RPCServerInitializer;
+import com.cdo.business.rpc.server.xml.XMLRPCServerInitializer;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.resource.GlobalResource;
 import com.cdo.util.system.SystemUtil;
@@ -62,7 +64,7 @@ public class RPCServer {
             	 b.channel(NioServerSocketChannel.class);
              }
              b.handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new RPCServerInitializer());
+             .childHandler(new XMLRPCServerInitializer());
                         	
             if(GlobalResource.cdoConfig==null)
             	GlobalResource.bundleInitCDOEnv();

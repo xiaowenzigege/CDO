@@ -137,4 +137,6 @@ public interface IServiceBus extends com.cdoframework.cdolib.base.IActiveObject
 	/**本机服务调用通过zk 调用其他机器上的服务**/
 	public IClient  getRPCClient(String zkId);
 	
+	public HashMap<String,IService> getHmService();
+	
 }

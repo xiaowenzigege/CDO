@@ -11,7 +11,7 @@ import com.cdoframework.cdolib.data.cdo.ParseXmlCDO;
 
 public class ParseHTTPXmlCDO extends ParseXmlCDO {
 
-	 static void xmlToCDO(String strXML,CDO cdoReturn,CDO cdoResponse)
+	public static void xmlToCDO(String strXML,CDO cdoReturn,CDO cdoResponse)
 	{
 		XMLElement xmlNode=new XMLElement();
 		xmlNode.parseString(strXML);

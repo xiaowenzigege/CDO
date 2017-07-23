@@ -16,7 +16,7 @@ public interface ITransService extends IServiceObject
 	String	SERVICENAME_KEY="strServiceName";
 	String	TRANSNAME_KEY="strTransName";	
 	//表示是异步发送的数据
-	String  ASYNCH_KEY="$$Async$$";
+	String  CALL_ID_KEY="$CallId$";
 		
 	/**
 	 * 初始化服务对象操作

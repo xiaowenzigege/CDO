@@ -9,7 +9,7 @@ public class Call {
 	private int callId;
 	private boolean done;	
 	private long sendTime;
-	private RPCResponse response;
+	private IRPCResponse response;
 	
 	public Call(int callId){
 		this.callId=callId;
@@ -26,12 +26,12 @@ public class Call {
         notify();                                
     }
     
-    public synchronized void setRPCResponse(RPCResponse response) {
+    public synchronized void setRPCResponse(IRPCResponse response) {
         this.response=response;
         callComplete();
     }
       
-    public synchronized RPCResponse getRPCResponse() {
+    public synchronized IRPCResponse getRPCResponse() {
         return response;
      }
 

@@ -1,5 +1,8 @@
 package com.cdoframework.cdolib.servicebus;
 
+import java.util.List;
+import java.util.Map;
+
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 
@@ -32,6 +35,7 @@ public interface IService
 
 	String getServiceName();
 	
+	Map<String, List<ITransService>> getTransServiceMap();
 	Return start();
 	void stop();
 	void destroy();	

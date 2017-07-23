@@ -63,6 +63,10 @@ public class Service implements IService
 	{
 		this.btEngin = btEngin;
 	}
+	public Map<String, List<ITransService>> getTransServiceMap(){
+		return this.hmServiceMap;
+	}
+	
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//私有方法 所有仅在本类或派生类中使用的函数在此定义为private方法-------------------------------------------
