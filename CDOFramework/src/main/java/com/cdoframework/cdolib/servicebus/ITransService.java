@@ -15,8 +15,8 @@ public interface ITransService extends IServiceObject
 {
 	String	SERVICENAME_KEY="strServiceName";
 	String	TRANSNAME_KEY="strTransName";	
-	//表示是异步发送的数据
-	String  CALL_ID_KEY="$CallId$";
+	//表示需要实例化多个时,可选参数把包名带上 此时SERVICENAME_KEY 为类名 PACKAGE_KEY为包名
+	String  PACKAGE_KEY="$PACK$";
 		
 	/**
 	 * 初始化服务对象操作
@@ -71,6 +71,8 @@ public interface ITransService extends IServiceObject
 	 * @param child
 	 */
 	void inject(ITransService child); 
+	
+
 	
 	Return validate(CDO cdoRequest);
 	

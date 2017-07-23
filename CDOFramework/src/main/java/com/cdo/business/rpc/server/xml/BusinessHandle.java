@@ -44,8 +44,7 @@ public class BusinessHandle {
 	    			cdoOutput=new CDO();
 	    		setFailOutCDO(cdoOutput, "strServiceName="+strServiceName+",strTransName="+strTransName+" RPCServer 发生异常:"+ex.getMessage());	    		
 	    	}
-	    	//同步调用,回写结果
-	    	cdoOutput.getCDOValue("cdoReturn").setIntegerValue(ITransService.CALL_ID_KEY, callId);	    			
+	    	//同步调用,回写结果	    		    		
 			XMLHeader resHeader=new XMLHeader();
 			resHeader.setType(ProtoProtocol.TYPE_CDO);
 			XMLMessage resMessage=new XMLMessage();
@@ -75,10 +74,17 @@ public class BusinessHandle {
 	 */
 	private CDO handleTrans(CDO cdoRequest,String strServiceName,String strTransName){		
 		CDO cdoOutput=new CDO();
-		CDO cdoResponse=new CDO();;		
+		CDO cdoResponse=new CDO();
+		Return ret=null;
 		try{							
 			//处理业务
-			Return ret=BusinessService.getInstance().handleTrans(cdoRequest, cdoResponse);
+			if(cdoRequest.exists(ITransService.PACKAGE_KEY)){
+				String classPath=cdoRequest.getStringValue(ITransService.PACKAGE_KEY)+"."+cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);					
+				ITransService transService=(ITransService)Class.forName(classPath).newInstance();
+				ret=transService.processTrans(cdoRequest, cdoResponse);	
+			}else{
+				ret=BusinessService.getInstance().handleTrans(cdoRequest, cdoResponse);
+			}
 			if(ret==null){			
 				setFailOutCDO(cdoOutput," ret is null,Request method :strServiceName="+strServiceName+",strTransName="+strTransName);	
 				logger.error("ret is null,Request method:strServiceName="+strServiceName+",strTransName="+strTransName);

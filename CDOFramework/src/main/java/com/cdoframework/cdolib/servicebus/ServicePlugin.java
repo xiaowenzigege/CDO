@@ -257,10 +257,12 @@ public class ServicePlugin implements IServicePlugin
 				if(logger.isInfoEnabled()){logger.info("init trans service "+ transService.getClassPath());}
 				ITransService transServiceObject=((ITransService)Class.forName(transService.getClassPath())
 								.newInstance());
+				
 				transServiceObject.setServicePlugin(this);
 				transServiceObject.setServiceBus(serviceBus);
 				transServiceObject.setServiceName(transService.getId());
 				transServiceObject.setService(service);
+				
 				Return ret=transServiceObject.init();
 				if(ret.getCode()!=0)
 				{
@@ -268,7 +270,7 @@ public class ServicePlugin implements IServicePlugin
 				}
 
 				service.addTransService(transServiceObject);
-				
+								
 
 				//zkId 对应保存className
 				ZkParameter zkParameter=zkProducerMap.get(transService.getId());

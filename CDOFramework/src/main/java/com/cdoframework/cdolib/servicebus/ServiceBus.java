@@ -225,6 +225,7 @@ public class ServiceBus implements IServiceBus
 				com.cdoframework.cdolib.base.CycleList<IDataEngine> clDataEngine=dgs[i].init();
 	
 				this.hmDataGroup.put(dgs[i].getId(),clDataEngine);
+				
 			}
 		}catch(Exception e){
 			this.hmDataGroup.clear();

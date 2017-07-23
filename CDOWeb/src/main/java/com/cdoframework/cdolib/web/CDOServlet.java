@@ -41,6 +41,7 @@ import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.data.cdo.FileField;
+import com.cdoframework.cdolib.servicebus.ITransService;
 /**
  * 
  * @author KenelLiu
@@ -119,9 +120,15 @@ public  class CDOServlet extends HttpServlet
 		CDO cdoResponse=new CDO();
 		Return ret=null;
 		try{
-			if(cdoRequest!=null)
-				ret=BusinessService.getInstance().handleTrans(cdoRequest, cdoResponse);
-			else 
+			if(cdoRequest!=null){
+				if(cdoRequest.exists(ITransService.PACKAGE_KEY)){
+					String classPath=cdoRequest.getStringValue(ITransService.PACKAGE_KEY)+"."+cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);					
+					ITransService transService=(ITransService)Class.forName(classPath).newInstance();
+					ret=transService.processTrans(cdoRequest, cdoResponse);	
+				}else{
+					ret=BusinessService.getInstance().handleTrans(cdoRequest, cdoResponse);
+				}
+			}else 
 				throw new IOException("cdoRequest is null");
 		}catch (Throwable e){
 			log.error("error:"+e.getMessage(),e);
