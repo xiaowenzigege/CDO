@@ -530,11 +530,7 @@ public class ServiceBus implements IServiceBus
 
 	//事件定义,所有在本类中定义并调用，由派生类实现或重载的事件类方法(一般为on...ed)在此定义---------------------
 	private void onTransStarted(String strServiceName,String strTransName,CDO cdoRequest){
-		if(logger.isInfoEnabled()){			
-			String strTransName2 = strTransName.toUpperCase();
-			if(strTransName2.startsWith("GET") || strTransName2.startsWith("FIND") || strTransName2.startsWith("RETRIEVE")){
-				return;
-			}			
+		if(logger.isInfoEnabled()){					
 			logger.info(new StringBuilder().append("Starting handle ").append(" ServceName=").append(strServiceName).append(" transName=").append(strTransName).append("\r\n").append(cdoRequest.toString()).toString());			
 		}
 	}
