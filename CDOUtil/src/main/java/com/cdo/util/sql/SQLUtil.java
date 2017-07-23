@@ -24,20 +24,10 @@ public class SQLUtil {
 		 * 
 		 * @param rs
 		 */
-		public static void closeResultSet(ResultSet rs)
-		{
+		public static void closeResultSet(ResultSet rs){
 			if(rs==null)
-			{
 				return;
-			}
-
-			try
-			{
-				rs.close();
-			}
-			catch(Exception e)
-			{
-			}
+			try{rs.close();}catch(Exception e){}
 		}
 
 		/**
@@ -45,20 +35,11 @@ public class SQLUtil {
 		 * 
 		 * @param stat
 		 */
-		public  static void closePreparedStatement(PreparedStatement stat)
-		{
+		public  static void closePreparedStatement(PreparedStatement stat){
 			if(stat==null)
-			{
 				return;
-			}
 
-			try
-			{
-				stat.close();
-			}
-			catch(Exception e)
-			{
-			}
+			try{stat.close();}catch(Exception e){}
 		}
 		
 		/**
@@ -66,44 +47,26 @@ public class SQLUtil {
 		 * 
 		 * @param stat
 		 */
-		public static void closeStatement(Statement stat)
-		{
+		public static void closeStatement(Statement stat){
 			if(stat==null)
-			{
 				return;
-			}
 
-			try
-			{
-				stat.close();
-			}
-			catch(Exception e)
-			{
-			}
+			try{stat.close();}catch(Exception e){}
 		}
 		/**
 		 * 关闭Connection
 		 * 
 		 * @param conn
 		 */
-		public static void closeConnection(Connection conn)
-		{
+		public static void closeConnection(Connection conn){
 			if(conn==null)
-			{
 				return;
-			}
-			try
-			{
-				conn.close();
-			}
-			catch(Exception e)
-			{
-			}
+			try{conn.close();}catch(Exception e){}
 		}	
 		
 
 		/**
-		 * 读取数据放入  cdo中
+		 * 读取数据放入  cdoField中
 		 * @param rs
 		 * @param cdoResponse
 		 * @param strCharset
@@ -128,7 +91,15 @@ public class SQLUtil {
 			readRecord(rs,strsFieldName,nsFieldType,nsPrecision,nsScale,cdoField,strDBCharset);
 		
 		}
-		
+		/**
+		 * 
+		 * @param rs
+		 * @param cdoResponse 放入cdo数组
+		 * @param cdosKey
+		 * @param strDBCharset
+		 * @throws SQLException
+		 * @throws IOException
+		 */
 		public static void readRecordSet(ResultSet rs,CDO cdoResponse,String cdosKey,String strDBCharset) throws SQLException,IOException{
 
 			ResultSetMetaData meta=rs.getMetaData();
@@ -160,7 +131,18 @@ public class SQLUtil {
 			}
 			cdoResponse.setCDOListValue(cdosKey, alRecord);
 	}
-		
+		/**
+		 * 读取记录
+		 * @param rs
+		 * @param strsFieldName
+		 * @param naFieldType
+		 * @param nsPrecision
+		 * @param nsScale
+		 * @param strCharset
+		 * @return
+		 * @throws SQLException
+		 * @throws IOException
+		 */
 		private  static CDO readRecord(ResultSet rs,String[] strsFieldName,int[] naFieldType,int[] nsPrecision,int[] nsScale,String strCharset) throws SQLException,IOException
 		{
 			CDO cdoRecord=new CDO();
@@ -375,8 +357,6 @@ public class SQLUtil {
 				}
 			}
 			return pst;
-		}
-		
-		
+		}		
 		
 	}
