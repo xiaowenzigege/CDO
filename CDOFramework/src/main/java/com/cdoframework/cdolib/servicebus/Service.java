@@ -79,6 +79,7 @@ public class Service implements IService
 		{
 			return null;
 		}
+		/**
 		NoSQLTrans noSqlTrans = transDefine.getNoSqlTrans();
 		if(noSqlTrans!=null)
 		{
@@ -92,6 +93,7 @@ public class Service implements IService
 				return Return.valueOf(-1,e.getLocalizedMessage());
 			}
 		}
+		**/
 		SQLTrans sqlTrans = transDefine.getSqlTrans();
 		if(sqlTrans==null)
 		{
@@ -173,10 +175,8 @@ public class Service implements IService
 	 */
 	public Return handleTrans(CDO cdoRequest,CDO cdoResponse)
 	{
-		long beginTime = System.currentTimeMillis();
-		String strTransName = cdoRequest.getStringValue(ITransService.TRANSNAME_KEY);
-		//处理  service事前 同步任务
-		Return ret = null;
+
+		/**目前 无处理  service事前 同步任务
 		try
 		{
 			ret = FilterHandler.getInstance().handlePreEvent(strServiceName,strTransName,cdoRequest);
@@ -209,10 +209,15 @@ public class Service implements IService
 		if(ret!=null && ret.getCode()==2){
 			//需要缓存,但未从缓存中取得值,
 			bCacheable = true;
-		}		
-		//未取得缓存值, 执行Trans
-		ret = null;		
+		}	
+		**/	
+		//未取得缓存值, 
+//		ret = null;		
+		//执行Trans
 		// 根据serviceName直接定位Service
+		long beginTime = System.currentTimeMillis();
+		String strTransName = cdoRequest.getStringValue(ITransService.TRANSNAME_KEY);		
+		Return ret = null;
 		List<ITransService> transServices = this.hmServiceMap.get(strServiceName);
 		// 处理所有的TransService 和 ActiveService调用，ts==null 直接调用DataServiceTrans
 		if(transServices != null) {
@@ -242,7 +247,7 @@ public class Service implements IService
 			}
 		}
 		long endTimeDataTrans = System.currentTimeMillis();
-		
+		/** 目前无 事后 事件处理
 		if(ret !=null )
 		{
 			//处理缓存
@@ -268,10 +273,11 @@ public class Service implements IService
 				logger.error("When handle filer of "+strServiceName+"."+strTransName,e);
 			}
 		}	
+		**/
 		if(loggerStatistics.isInfoEnabled()) {
 			long duration = System.currentTimeMillis() - beginTime;
 			long durationData = endTimeDataTrans- beginTimeDataTrans;
-			loggerStatistics.info("transDuration,"+duration+","+strServiceName+"."+strTransName+","+durationData);
+			loggerStatistics.info(strServiceName+"."+strTransName+",process time="+duration+"ms,"+","+durationData);
 		}
 		return ret;
 	}

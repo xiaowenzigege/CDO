@@ -85,5 +85,5 @@ public interface ITransService extends IServiceObject
 	 */
 	public Connection getConnection(String strDataGroupId) throws SQLException;
 
-	
+	public String getDBCharset(String strDataGroupId);
 }

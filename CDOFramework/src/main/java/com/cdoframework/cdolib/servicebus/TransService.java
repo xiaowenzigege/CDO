@@ -195,4 +195,10 @@ public abstract class TransService implements ITransService
 		IDataEngine dataEngine=clDataEngine.get();
 		return dataEngine.getConnection();
 	}
+	@Override
+	public String getDBCharset(String strDataGroupId){
+		CycleList<IDataEngine> clDataEngine=this.serviceBus.getHMDataGroup().get(strDataGroupId);
+		IDataEngine dataEngine=clDataEngine.get();
+		return dataEngine.getCharset();
+	}
 }
