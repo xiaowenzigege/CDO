@@ -126,7 +126,7 @@ public  class CDOServlet extends HttpServlet
 					ITransService transService=(ITransService)Class.forName(classPath).newInstance();
 					ret=transService.processTrans(cdoRequest, cdoResponse);	
 				}else{
-					ret=BusinessService.getInstance().handleTrans(cdoRequest, cdoResponse);
+					ret=BusinessService.getInstance().getServiceBus().handleTrans(cdoRequest, cdoResponse);
 				}
 			}else 
 				throw new IOException("cdoRequest is null");
