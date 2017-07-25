@@ -27,7 +27,7 @@ public class CDOXmlEncoder extends MessageToByteEncoder<XMLMessage>{
 			}
 		}finally{			
 			ReferenceCountUtil.release(msg);
-			msg=null;
+			msg=null;			
 		}
 	}
 

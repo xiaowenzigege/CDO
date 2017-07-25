@@ -3,13 +3,13 @@ package com.cdoframework.cdolib.datasync.handTrans;
 
 import org.apache.log4j.Logger;
 
+import com.cdo.business.BusinessService;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.datasync.Task;
 import com.cdoframework.cdolib.datasync.TaskInfo;
 import com.cdoframework.cdolib.datasync.exception.ExecuteException;
-import com.cdoframework.cdolib.datasync.util.DataSynServiceBus;
-import com.cdoframework.cdolib.servicebus.ServiceBus;
+import com.cdoframework.cdolib.servicebus.IServiceBus;
 
 /**
  * HandTrans 操作Task任务实现类
@@ -46,8 +46,7 @@ public class ImplDBSQLTrans extends Task<Boolean>
 			}
 			CDO cdoResponse = cdoRequest.getCDOValue("cdoResponse");
 			
-			DataSynServiceBus dataSynServiceBus = DataSynServiceBus.newInstance();
-			ServiceBus serviceBus = dataSynServiceBus.getServiceBus();
+			IServiceBus serviceBus =BusinessService.getInstance().getServiceBus();
 			
 			if(serviceBus != null)
 			{

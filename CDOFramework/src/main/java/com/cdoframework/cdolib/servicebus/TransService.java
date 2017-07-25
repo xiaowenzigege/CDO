@@ -15,9 +15,7 @@ import org.apache.log4j.Logger;
 import com.cdoframework.cdolib.annotation.TransName;
 import com.cdoframework.cdolib.base.CycleList;
 import com.cdoframework.cdolib.base.Return;
-import com.cdoframework.cdolib.base.Validator;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.database.IDataEngine;
 public abstract class TransService implements ITransService
 {
@@ -26,11 +24,12 @@ public abstract class TransService implements ITransService
 	protected IServiceBus serviceBus=null;
 	protected IServicePlugin servicePlugin=null;
 	protected IService service = null;
-	protected Map<String ,Collection<Validator.FieldBean>> validateMap = new HashMap<String ,Collection<Validator.FieldBean>>();
+	
 	protected Map<String, Method> transMap = new HashMap<String, Method>();
 
 	final public void setServiceBus(IServiceBus serviceBus)
 	{
+		
 		this.serviceBus=serviceBus;
 	}
 
@@ -86,6 +85,9 @@ public abstract class TransService implements ITransService
 		this.strServiceName = strServiceName;
 	}
 	
+	protected Return validate(CDO cdoRequest){
+		return Return.OK;
+	}
 	/**
 	 * 取服务名
 	 * @return
@@ -102,74 +104,11 @@ public abstract class TransService implements ITransService
 	public void handleEvent(CDO cdoEvent)
 	{
 	}
-	
-	public Return validate(CDO cdoRequest)
-	{
-		String strTransName = "";
-	 
-		try
-		{
-			strTransName = cdoRequest.getStringValue("strTransName");
-		}catch(Exception e)
-		{
-			return Return.valueOf(-1,"参数strTransName不存在");
-		}
-		String vs = Validator.validate(validateMap.get(strTransName),cdoRequest); 
-		if("".equalsIgnoreCase(vs)){  
-			return this.validateArray(cdoRequest,strTransName);
-		}else
-		{
-			return Return.valueOf(-1, vs);
-		}
-	}
-	
+		
 
-	private Return validateArray(CDO cdoRequest,String strTransName){
-  
-		 	for(Iterator<Map.Entry<String, Field>> it=cdoRequest.iterator();it.hasNext();){
-		 		Entry<String,Field> entry=it.next();
-		 		Field f=entry.getValue();
-		 	    String name =entry.getKey().toLowerCase();
-		 	    String key = (strTransName!=null?(strTransName.toLowerCase()+"."):"")+name;
-		 	    Object value = f.getObjectValue();
-		 	    if(value instanceof CDO){
-		 		  Return ret =	validate((CDO)value,validateMap.get(key));
-		 	    	if( ret.getCode() == -1){
-		 	    		return ret; 
-		 	    	} 
-		 		  
-		 	    }else if(value instanceof CDO[]  ){
-		 	     for(CDO d :(CDO[])value){ 
-		 	    	Return ret =	validate(d,validateMap.get(key));
-		 	    	if( ret.getCode() == -1){
-		 	    		return ret;  
-		 	    	}  
-		 	      }
-		 	   } 
-		 	}  
-		 return Return.OK;		
-	}
-	
-	protected Return validate(CDO cdoRequest ,Collection<Validator.FieldBean> validatorCollection )
-	{
-		 if(validatorCollection == null)
-			 return Return.OK; 
-		String vs = Validator.validate(validatorCollection,cdoRequest); 
-		if("".equalsIgnoreCase(vs)){
-			return Return.OK;
-		}else
-		{
-			return Return.valueOf(-1, vs);
-		}
-	}
-	
-	protected void addvalidate()
-	{		
-	}
-	
 	@Override
 	public final Return processTrans(CDO cdoRequest, CDO cdoResponse) {
-		String strTransName = cdoRequest.getStringValue("strTransName");
+		String strTransName = cdoRequest.getStringValue(ITransService.TRANSNAME_KEY);
 		Method method = null;
 		if((method = transMap.get(strTransName)) != null) {
 			try {

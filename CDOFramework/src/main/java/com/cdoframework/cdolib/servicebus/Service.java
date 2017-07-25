@@ -223,10 +223,6 @@ public class Service implements IService
 		if(transServices != null) {
 			for(ITransService transService : transServices){
 				if(transService.containsTrans(strTransName)){
-					Return validateReturn = transService.validate(cdoRequest);
-					if (!Return.OK.equals(validateReturn)) {
-						return validateReturn;
-					}
 					ret = transService.processTrans(cdoRequest, cdoResponse);
 					if(logger.isDebugEnabled()){
 						logger.debug("注解方式执行："+ transService.getServiceName()+ "."+ strTransName);

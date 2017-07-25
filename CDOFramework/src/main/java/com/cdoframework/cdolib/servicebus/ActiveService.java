@@ -16,9 +16,7 @@ import com.cdoframework.cdolib.annotation.TransName;
 import com.cdoframework.cdolib.base.CycleList;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.ThreadExt;
-import com.cdoframework.cdolib.base.Validator;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.database.IDataEngine;
 
 public abstract class ActiveService extends ThreadExt implements IActiveService
@@ -27,67 +25,11 @@ public abstract class ActiveService extends ThreadExt implements IActiveService
 	
 	protected Map<String, Method> activeMap = new HashMap<String, Method>();
 	
-	public Return validate(CDO cdoRequest)
+	protected Return validate(CDO cdoRequest)
 	{
-		String strTransName = "";
-	 
-		try
-		{
-			strTransName = cdoRequest.getStringValue("strTransName");
-		}catch(Exception e)
-		{
-			logger.error("validate:"+e.getMessage(),e);
-			return Return.valueOf(-1,"参数strTransName不存在");
-		}
-		String vs = Validator.validate(validateMap.get(strTransName),cdoRequest); 
-		if("".equalsIgnoreCase(vs)){  
-			return this.validateArray(cdoRequest,strTransName);
-		}else
-		{
-			return Return.valueOf(-1, vs);
-		}
+		return Return.OK;
 	}
 	
-	protected Map<String ,Collection<Validator.FieldBean>> validateMap = new HashMap<String ,Collection<Validator.FieldBean>>();
-
-	private Return  validateArray(CDO cdoRequest,String strTransName){
-	 	for(Iterator<Map.Entry<String, Field>> it=cdoRequest.iterator();it.hasNext();){
-	 		Entry<String,Field> entry=it.next();
-	 		Field f=entry.getValue();
-	 	    String name =entry.getKey().toLowerCase();
-	 	    String key = (strTransName!=null?(strTransName.toLowerCase()+"."):"")+name;
-	 	    Object value = f.getObjectValue();
-	 	    if(value instanceof CDO){
-	 		  Return ret =	validate((CDO)value,validateMap.get(key));
-	 	    	if( ret.getCode() == -1){
-	 	    		return ret; 
-	 	    	} 
-	 		  
-	 	    }else if(value instanceof CDO[]  ){
-	 	     for(CDO d :(CDO[])value){ 
-	 	    	Return ret =	validate(d,validateMap.get(key));
-	 	    	if( ret.getCode() == -1){
-	 	    		return ret;  
-	 	    	}  
-	 	      }
-	 	   } 
-	 	} 
-	 	return Return.OK;		 	
-	}
-	
-	protected Return validate(CDO cdoRequest ,Collection<Validator.FieldBean> validatorCollection )
-	{
-		 if(validatorCollection == null)
-			 return Return.OK; 
-		String vs = Validator.validate(validatorCollection,cdoRequest); 
-		if("".equalsIgnoreCase(vs)){
-			return Return.OK;
-		}else
-		{
-			return Return.valueOf(-1, vs);
-		}
-	}	
-
 	protected IServiceBus serviceBus=null;
 	protected IServicePlugin servicePlugin=null;
 	private String strServiceName;

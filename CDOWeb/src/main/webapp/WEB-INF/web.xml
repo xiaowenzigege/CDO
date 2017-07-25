@@ -13,30 +13,13 @@
     
     <servlet>
         <servlet-name>cdo_web_servlet</servlet-name>
-        <servlet-class>com.cdo.business.web.servlet.CDOWebBusiness</servlet-class>      
-    </servlet>
-    <servlet>
-        <servlet-name>cdo_json_servlet</servlet-name>
-        <servlet-class>com.cdo.business.web.servlet.CDOJSONBusiness</servlet-class>
-    </servlet>
-	<servlet>
-	    <servlet-name>cdo_service_check</servlet-name>
-	    <servlet-class>com.cdo.business.web.servlet.CDO_Service_Check</servlet-class>
-	</servlet>    
+        <servlet-class>com.cdoframework.cdolib.web.CDOServlet</servlet-class>      
+    </servlet>   
     
     <servlet-mapping>
         <servlet-name>cdo_web_servlet</servlet-name>
         <url-pattern>*.cdo</url-pattern>
-    </servlet-mapping>
-  
-    <servlet-mapping>
-        <servlet-name>cdo_json_servlet</servlet-name>
-        <url-pattern>*.json</url-pattern>
-    </servlet-mapping>
-	<servlet-mapping>
-	    <servlet-name>cdo_service_check</servlet-name>
-	    <url-pattern>/cdo_service_check</url-pattern>
-	</servlet-mapping> 
+    </servlet-mapping>     
 
     <context-param>
         <param-name>log4jConfigLocation</param-name>

@@ -72,10 +72,7 @@ public interface ITransService extends IServiceObject
 	 */
 	void inject(ITransService child); 
 	
-
-	
-	Return validate(CDO cdoRequest);
-	
+	/**同一服务,是否已经包含该transName**/
 	boolean containsTrans(String strTransName);
 	/**
 	 * 提供普通数据库connection, 非bigTable 分库分表连接
@@ -84,6 +81,10 @@ public interface ITransService extends IServiceObject
 	 * @throws SQLException
 	 */
 	public Connection getConnection(String strDataGroupId) throws SQLException;
-
+	/**
+	 * 获取数据库的编码字符
+	 * @param strDataGroupId
+	 * @return
+	 */
 	public String getDBCharset(String strDataGroupId);
 }
