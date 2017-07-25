@@ -90,7 +90,7 @@ public  class CDOServlet extends HttpServlet
 	{
 			// 构造请求对象
 		CDO cdoRequest=null;
-		String strCDORequest=null;
+
 		Map<String, File> mapFileMap=null;
 		String strTransName=null;
 		try
@@ -99,9 +99,7 @@ public  class CDOServlet extends HttpServlet
 			if(serialFile!=null && serialFile.trim().equals("1")){
 				//表示有文件对象需要上传 
 				mapFileMap=new HashMap<String,File>();
-				strCDORequest=processUploadFile(request, mapFileMap);
-				
-				cdoRequest=CDO.fromXML(strCDORequest);	
+				cdoRequest=processUploadFile(request, mapFileMap);
 				if(mapFileMap!=null){
 					for(Iterator<Map.Entry<String, File>> iterator=mapFileMap.entrySet().iterator();iterator.hasNext();){
 						Entry<String, File> entry=iterator.next();
@@ -224,9 +222,7 @@ public  class CDOServlet extends HttpServlet
 			log.error("wirte response errr"+e.getMessage(), e);
 		}finally{
 			if(inStream!=null){try{inStream.close();}catch(Exception ex){};}
-			if(out != null){
-				out.close();		
-			}
+			if(out != null){try{out.close();}catch(Exception ex){};}
 		}
 	}	
 	
@@ -302,20 +298,15 @@ public  class CDOServlet extends HttpServlet
 
 	    }
 	
-	protected String processUploadFile(HttpServletRequest request,Map<String,File> mapFile) throws ServletException, IOException {  
-		   String strCDORequest=null;
+	protected CDO processUploadFile(HttpServletRequest request,Map<String,File> mapFile) throws ServletException, IOException {  
 	        try {    
-	            String saveDirPath =GlobalResource.cdoConfig==null?null:GlobalResource.cdoConfig.getString(Constants.CDO.HTTP_UPLOAD_FILE_PATH);
-	            String tmpDirPath =GlobalResource.cdoConfig==null?null:GlobalResource.cdoConfig.getString(Constants.CDO.TEMP_FILE_PATH);
-	            long maxSize=maxFileSize;
-	            if(GlobalResource.cdoConfig!=null && GlobalResource.cdoConfig.getString(Constants.CDO.UPLOAD_FILE_MAX_SIZE)!=null){
-	            	maxSize=Long.parseLong(GlobalResource.cdoConfig.getString(Constants.CDO.UPLOAD_FILE_MAX_SIZE));
-	            }
+	            String saveDirPath =System.getProperty(Constants.CDO.HTTP_UPLOAD_FILE_PATH,
+	            		this.getServletContext().getRealPath("/cdoUploadPath"));
 	            
-	            if(saveDirPath==null || saveDirPath.trim().equals(""))
-	            	saveDirPath = this.getServletContext().getRealPath("/cdoUploadPath");
-	            if(tmpDirPath==null || tmpDirPath.trim().equals(""))
-	            	tmpDirPath=System.getProperty("java.io.tmpdir");
+	            String tmpDirPath =System.getProperty("java.io.tmpdir");
+	            
+
+	            long maxSize=Long.parseLong(System.getProperty(Constants.CDO.UPLOAD_FILE_MAX_SIZE, maxFileSize+""));
 
 	            if(log.isDebugEnabled()){
 		            log.debug(" tmpDir= [" + tmpDirPath + "]"+" saveDir= [" + saveDirPath + "]");  		          		         
@@ -373,16 +364,16 @@ public  class CDOServlet extends HttpServlet
 	                   	if(log.isDebugEnabled())
 	                		log.debug("fieldName[" + fieldName + "] value[" + fileItem.getString() + "]"); 
 	                	if(fieldName.equals(Constants.CDO.HTTP_CDO_REQUEST)){
-	                		 strCDORequest=fileItem.getString();	              
+	                		 return CDO.fromXML(fileItem.getString());
 	                	}
 	                } 
 	            }
-	            if(strCDORequest==null)
-	            	  throw new IOException("param["+Constants.CDO.HTTP_CDO_REQUEST+"] is not exists.... ");  
+	           
+	           throw new IOException("param["+Constants.CDO.HTTP_CDO_REQUEST+"] is not exists.... ");  
 	        } catch(Exception e) {  
 	        	log.error("解释上传文件数据失败....."+e.getMessage(), e);
 	        	throw new IOException(e.getMessage(),e);
 	        }  
-	        return strCDORequest;
+	        
 	    }  
 }

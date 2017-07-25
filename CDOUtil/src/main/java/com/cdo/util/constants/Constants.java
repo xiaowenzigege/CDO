@@ -98,9 +98,8 @@ public class Constants {
 		public final static String HTTP_CDO_UPLOADFILE_KEY="$CDOSerialFile$";
 		
 		public final static String HTTP_CDO_RESPONSE="$$CDOResponse$$";
-		public final static String HTTP_UPLOAD_FILE_PATH="uploadPath";
-		public final static String TEMP_FILE_PATH="tmpPath";
-		public final static String UPLOAD_FILE_MAX_SIZE="uploadFileMaxSize";
+		public final static String HTTP_UPLOAD_FILE_PATH="cdo.uploadPath";	
+		public final static String UPLOAD_FILE_MAX_SIZE="cdo.uploadFile.MaxSize";
 		
 	}
 }

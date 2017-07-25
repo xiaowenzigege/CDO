@@ -51,7 +51,7 @@ import com.cdo.util.bean.CDOHTTPResponse;
 //import com.cdo.util.common.Zipper;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.exception.HttpException;
-import com.cdo.util.resource.GlobalResource;
+//import com.cdo.util.resource.GlobalResource;
 //import com.cdo.util.serial.Serializable;
 import com.cdoframework.cdolib.data.cdo.CDO;
 /**
@@ -387,9 +387,7 @@ public class HttpClient {
 		}
 		//--------------下载到文件，临时存储的位置-------------------//
 		private String getTmpPath(){
-	   		 String tmpDirPath =GlobalResource.cdoConfig==null?null:GlobalResource.cdoConfig.getString(Constants.CDO.TEMP_FILE_PATH);
-		     if(tmpDirPath==null || tmpDirPath.trim().equals(""))
-		            tmpDirPath=System.getProperty("java.io.tmpdir");
+	   		 String tmpDirPath=System.getProperty("java.io.tmpdir");			            
 		     File tmpDir= new File(tmpDirPath); 
 		     if(!tmpDir.exists() || !tmpDir.isDirectory())  
 		           tmpDir.mkdirs();  
