@@ -9,7 +9,7 @@ package com.cdo.avro.protocol;
 /** avro cdo rpc  */
 @org.apache.avro.specific.AvroGenerated
 public interface AvroCDOProtocol {
-  public static final org.apache.avro.Protocol PROTOCOL = org.apache.avro.Protocol.parse("{\"protocol\":\"AvroCDOProtocol\",\"namespace\":\"com.cdo.avro.protocol\",\"doc\":\"avro cdo rpc \",\"types\":[{\"type\":\"record\",\"name\":\"AvroCDO\",\"fields\":[{\"name\":\"level\",\"type\":\"int\"},{\"name\":\"fields\",\"type\":{\"type\":\"map\",\"values\":\"bytes\"}}]}],\"messages\":{\"handleTrans\":{\"request\":[{\"name\":\"avroCDOReq\",\"type\":\"AvroCDO\"}],\"response\":\"AvroCDO\"}}}");
+  public static final org.apache.avro.Protocol PROTOCOL = org.apache.avro.Protocol.parse("{\"protocol\":\"AvroCDOProtocol\",\"namespace\":\"com.cdo.avro.protocol\",\"doc\":\"avro cdo rpc \",\"types\":[{\"type\":\"record\",\"name\":\"AvroCDO\",\"fields\":[{\"name\":\"callId\",\"type\":\"int\"},{\"name\":\"fields\",\"type\":{\"type\":\"map\",\"values\":\"bytes\"}}]}],\"messages\":{\"handleTrans\":{\"request\":[{\"name\":\"avroCDOReq\",\"type\":\"AvroCDO\"}],\"response\":\"AvroCDO\"}}}");
   /**
    */
   com.cdo.avro.protocol.AvroCDO handleTrans(com.cdo.avro.protocol.AvroCDO avroCDOReq) throws org.apache.avro.AvroRemoteException;

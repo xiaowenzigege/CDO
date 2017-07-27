@@ -10,10 +10,10 @@ import org.apache.avro.specific.SpecificData;
 @SuppressWarnings("all")
 @org.apache.avro.specific.AvroGenerated
 public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase implements org.apache.avro.specific.SpecificRecord {
-  private static final long serialVersionUID = -3416507115673375877L;
-  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"AvroCDO\",\"namespace\":\"com.cdo.avro.protocol\",\"fields\":[{\"name\":\"level\",\"type\":\"int\"},{\"name\":\"fields\",\"type\":{\"type\":\"map\",\"values\":\"bytes\"}}]}");
+  private static final long serialVersionUID = -983455236191613109L;
+  public static final org.apache.avro.Schema SCHEMA$ = new org.apache.avro.Schema.Parser().parse("{\"type\":\"record\",\"name\":\"AvroCDO\",\"namespace\":\"com.cdo.avro.protocol\",\"fields\":[{\"name\":\"callId\",\"type\":\"int\"},{\"name\":\"fields\",\"type\":{\"type\":\"map\",\"values\":\"bytes\"}}]}");
   public static org.apache.avro.Schema getClassSchema() { return SCHEMA$; }
-  @Deprecated public int level;
+  @Deprecated public int callId;
   @Deprecated public java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> fields;
 
   /**
@@ -25,11 +25,11 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
 
   /**
    * All-args constructor.
-   * @param level The new value for level
+   * @param callId The new value for callId
    * @param fields The new value for fields
    */
-  public AvroCDO(java.lang.Integer level, java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> fields) {
-    this.level = level;
+  public AvroCDO(java.lang.Integer callId, java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> fields) {
+    this.callId = callId;
     this.fields = fields;
   }
 
@@ -37,7 +37,7 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
   // Used by DatumWriter.  Applications should not call.
   public java.lang.Object get(int field$) {
     switch (field$) {
-    case 0: return level;
+    case 0: return callId;
     case 1: return fields;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
@@ -47,26 +47,26 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
   @SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
-    case 0: level = (java.lang.Integer)value$; break;
+    case 0: callId = (java.lang.Integer)value$; break;
     case 1: fields = (java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer>)value$; break;
     default: throw new org.apache.avro.AvroRuntimeException("Bad index");
     }
   }
 
   /**
-   * Gets the value of the 'level' field.
-   * @return The value of the 'level' field.
+   * Gets the value of the 'callId' field.
+   * @return The value of the 'callId' field.
    */
-  public java.lang.Integer getLevel() {
-    return level;
+  public java.lang.Integer getCallId() {
+    return callId;
   }
 
   /**
-   * Sets the value of the 'level' field.
+   * Sets the value of the 'callId' field.
    * @param value the value to set.
    */
-  public void setLevel(java.lang.Integer value) {
-    this.level = value;
+  public void setCallId(java.lang.Integer value) {
+    this.callId = value;
   }
 
   /**
@@ -117,7 +117,7 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
   public static class Builder extends org.apache.avro.specific.SpecificRecordBuilderBase<AvroCDO>
     implements org.apache.avro.data.RecordBuilder<AvroCDO> {
 
-    private int level;
+    private int callId;
     private java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer> fields;
 
     /** Creates a new Builder */
@@ -131,8 +131,8 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
      */
     private Builder(com.cdo.avro.protocol.AvroCDO.Builder other) {
       super(other);
-      if (isValidValue(fields()[0], other.level)) {
-        this.level = data().deepCopy(fields()[0].schema(), other.level);
+      if (isValidValue(fields()[0], other.callId)) {
+        this.callId = data().deepCopy(fields()[0].schema(), other.callId);
         fieldSetFlags()[0] = true;
       }
       if (isValidValue(fields()[1], other.fields)) {
@@ -147,8 +147,8 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
      */
     private Builder(com.cdo.avro.protocol.AvroCDO other) {
             super(SCHEMA$);
-      if (isValidValue(fields()[0], other.level)) {
-        this.level = data().deepCopy(fields()[0].schema(), other.level);
+      if (isValidValue(fields()[0], other.callId)) {
+        this.callId = data().deepCopy(fields()[0].schema(), other.callId);
         fieldSetFlags()[0] = true;
       }
       if (isValidValue(fields()[1], other.fields)) {
@@ -158,39 +158,39 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
     }
 
     /**
-      * Gets the value of the 'level' field.
+      * Gets the value of the 'callId' field.
       * @return The value.
       */
-    public java.lang.Integer getLevel() {
-      return level;
+    public java.lang.Integer getCallId() {
+      return callId;
     }
 
     /**
-      * Sets the value of the 'level' field.
-      * @param value The value of 'level'.
+      * Sets the value of the 'callId' field.
+      * @param value The value of 'callId'.
       * @return This builder.
       */
-    public com.cdo.avro.protocol.AvroCDO.Builder setLevel(int value) {
+    public com.cdo.avro.protocol.AvroCDO.Builder setCallId(int value) {
       validate(fields()[0], value);
-      this.level = value;
+      this.callId = value;
       fieldSetFlags()[0] = true;
       return this;
     }
 
     /**
-      * Checks whether the 'level' field has been set.
-      * @return True if the 'level' field has been set, false otherwise.
+      * Checks whether the 'callId' field has been set.
+      * @return True if the 'callId' field has been set, false otherwise.
       */
-    public boolean hasLevel() {
+    public boolean hasCallId() {
       return fieldSetFlags()[0];
     }
 
 
     /**
-      * Clears the value of the 'level' field.
+      * Clears the value of the 'callId' field.
       * @return This builder.
       */
-    public com.cdo.avro.protocol.AvroCDO.Builder clearLevel() {
+    public com.cdo.avro.protocol.AvroCDO.Builder clearCallId() {
       fieldSetFlags()[0] = false;
       return this;
     }
@@ -238,7 +238,7 @@ public class AvroCDO extends org.apache.avro.specific.SpecificRecordBase impleme
     public AvroCDO build() {
       try {
         AvroCDO record = new AvroCDO();
-        record.level = fieldSetFlags()[0] ? this.level : (java.lang.Integer) defaultValue(fields()[0]);
+        record.callId = fieldSetFlags()[0] ? this.callId : (java.lang.Integer) defaultValue(fields()[0]);
         record.fields = fieldSetFlags()[1] ? this.fields : (java.util.Map<java.lang.CharSequence,java.nio.ByteBuffer>) defaultValue(fields()[1]);
         return record;
       } catch (Exception e) {

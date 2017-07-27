@@ -41,7 +41,7 @@ public class TaskInfo
 		str.append("[nType:").append(this.nType).append("|strKey:").append(this.strKey)
 			.append("|objValue:").append(this.objValue).append("|nExpireTime:").append(this.nExpireTime).append("]");
 		if(cdoRequest != null)
-			str.append(cdoRequest.toJSONString());
+			str.append(cdoRequest.toJSON());
 		return str.toString();
 	}
 	public int getNType()

@@ -1,26 +1,15 @@
-/**
- * www.cdoforum.com 2007版权所有
- *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/TimeArrayField.java,v 1.4 2008/03/12 10:30:55 Frank Exp $
- *
- * $Log: TimeArrayField.java,v $
- * Revision 1.4  2008/03/12 10:30:55  Frank
- * *** empty log message ***
- *
- */
-
 package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
- * @author Frank
- * modify by @author KenelLiu 
+ * 重新构造
+ * @author KenelLiu
+ *
  */
 public class TimeArrayField extends ArrayFieldImpl
 {
@@ -121,7 +110,7 @@ public class TimeArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-
+	@Override
 	public void toXML(StringBuilder strbXML)
 	{
 		String[] strsValue=getValue();
@@ -137,7 +126,7 @@ public class TimeArrayField extends ArrayFieldImpl
 		}
 		strbXML.append("\"/>");
 	}
-	
+	@Override
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		String[] strsValue=getValue();
@@ -155,7 +144,7 @@ public class TimeArrayField extends ArrayFieldImpl
 		}
 		strbXML.append("\"/>\r\n");
 	}	
-
+	@Override
 	public String toJSON()
 	{
 		String[] strsValue=getValue();
@@ -171,20 +160,6 @@ public class TimeArrayField extends ArrayFieldImpl
 		return str_JSON.toString();
 	}
 
-	public String toJSONString()
-	{
-		String[] strsValue=getValue();
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append("[");
-		int _length=strsValue.length;
-		for(int i=0;i<strsValue.length;i=i+1)
-		{
-			String _sign=(i==_length-1)?"\\\"":"\\\",";
-			str_JSON.append("\\\"").append(strsValue[i]).append(_sign);
-		}
-		str_JSON.append("],");
-		return str_JSON.toString();
-	}
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
 	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------

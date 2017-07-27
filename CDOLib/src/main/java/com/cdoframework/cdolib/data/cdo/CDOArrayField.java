@@ -12,7 +12,7 @@ import com.cdoframework.cdolib.base.Utility;
 import com.google.protobuf.ByteString;
 
 /**
- * 
+ * 重新构造
  * @author KenelLiu
  *
  */
@@ -70,29 +70,23 @@ public class CDOArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
+	@Override
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
+		if(this.cdosValue.size()==0){
+			//表示无数据											
+			ByteBuffer buffer=ByteBuffer.allocate(2);
+			buffer.put((byte)DataType.EMPTY_CDO_ARRAY_TYPE);
+			buffer.flip();
+			fieldMap.put(prefixField+this.getName()+"[-1].EMPTY",buffer);
+			return;
+		}	
 		for(int i=0;i<this.cdosValue.size();i=i+1){
 			String prefix=prefixField+this.getName()+"["+i+"].";
-			this.cdosValue.get(i).toAvro(prefix,fieldMap);
+			this.cdosValue.get(i).toAvro(prefix,fieldMap);			
 		}
 		
 	}	
-	/**
-	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
-		int curLevel=1;
-		if(prefixField.length()>0){
-			curLevel=(prefixField.split("\\.").length+1);
-		}							
-		maxLevel=maxLevel>curLevel?maxLevel:curLevel;				
-		for(int i=0;i<this.cdosValue.size();i=i+1){
-			String prefix=prefixField+this.getName()+"["+i+"].";
-			curLevel=this.cdosValue.get(i).toAvro(prefix,fieldMap,maxLevel);
-			if(curLevel>maxLevel)
-				maxLevel=curLevel;
-		}
-		return maxLevel;
-	}
-	**/
+	
 	
 	@Override
 	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
@@ -105,39 +99,15 @@ public class CDOArrayField extends ArrayFieldImpl
 			entry.setValue(ByteString.copyFrom(buffer));
 			buffer.flip();
 			cdoProto.addFields(entry);
+			return;
 		}		
 		for(int i=0;i<this.cdosValue.size();i=i+1){
 			String prefix=prefixField+this.getName()+"["+i+"].";
 			this.cdosValue.get(i).toProto(prefix,cdoProto);
 		}
 	}
-	/**
+	
 	@Override
-	public int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){
-		int curLevel=1;
-		if(prefixField.length()>0){
-			curLevel=(prefixField.split("\\.").length+1);
-		}							
-		maxLevel=maxLevel>curLevel?maxLevel:curLevel;
-		if(this.cdosValue.size()==0){
-			//表示无数据								
-			GoogleCDO.CDOProto.Entry.Builder entry=GoogleCDO.CDOProto.Entry.newBuilder();
-			ByteBuffer buffer=ByteBuffer.allocate(2);
-			buffer.put((byte)DataType.EMPTY_CDO_ARRAY_TYPE);
-			entry.setName(prefixField+this.getName()+"[-1].EMPTY");
-			entry.setValue(ByteString.copyFrom(buffer));
-			buffer.flip();
-			cdoProto.addFields(entry);
-		}
-		for(int i=0;i<this.cdosValue.size();i=i+1){
-			String prefix=prefixField+this.getName()+"["+i+"].";
-			curLevel=this.cdosValue.get(i).toProto(prefix,cdoProto,maxLevel);
-			if(curLevel>maxLevel)
-				maxLevel=curLevel;
-		}
-		return maxLevel;
-	}		
-	**/
 	public void toXML(StringBuilder strbXML)
 	{
 		strbXML.append("<CDOAF N=\"").append(this.getName()).append("\">");
@@ -148,6 +118,7 @@ public class CDOArrayField extends ArrayFieldImpl
 		strbXML.append("</CDOAF>");
 	}
 	
+	@Override
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		String strIndent=Utility.makeSameCharString('\t',nIndentSize);
@@ -159,6 +130,21 @@ public class CDOArrayField extends ArrayFieldImpl
 		}
 		strbXML.append(strIndent).append("</CDOAF>\r\n");
 	}
+	
+	@Override
+	public String toJSON()
+	{
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append("[");
+		int _length=this.cdosValue.size();
+		for(int i=0;i<_length;i=i+1)
+		{
+			String _sign=(i==_length-1)?"":",";
+			str_JSON.append("").append(this.cdosValue.get(i).toJSON()).append(_sign);
+		}
+		str_JSON.append("],");
+		return str_JSON.toString();
+	}	
 	
 	public Object getObjectValue()
 	{
@@ -234,31 +220,6 @@ public class CDOArrayField extends ArrayFieldImpl
 
 		setValue(cdosValue);
 	}
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append("[");
-		int _length=this.cdosValue.size();
-		for(int i=0;i<_length;i=i+1)
-		{
-			String _sign=(i==_length-1)?"":",";
-			str_JSON.append("").append(this.cdosValue.get(i).toJSON()).append(_sign);
-		}
-		str_JSON.append("],");
-		return str_JSON.toString();
-	}
+	
 
-	public String toJSON()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append("[");
-		int _length=this.cdosValue.size();
-		for(int i=0;i<_length;i=i+1)
-		{
-			String _sign=(i==_length-1)?"":",";
-			str_JSON.append("").append(this.cdosValue.get(i).toJSON()).append(_sign);
-		}
-		str_JSON.append("],");
-		return str_JSON.toString();
-	}	
 }

@@ -1,27 +1,15 @@
-/**
- * www.cdoforum.com 2007版权所有
- *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/DoubleField.java,v 1.4 2008/03/12 10:28:13 Frank Exp $
- *
- * $Log: DoubleField.java,v $
- * Revision 1.4  2008/03/12 10:28:13  Frank
- * *** empty log message ***
-
- *
- */
-
 package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
- * @author Frank
- * modify by @author KenelLiu 
+ * 重新构造
+ * @author KenelLiu
+ *
  */
 public class DoubleField extends FieldImpl
 {
@@ -74,14 +62,14 @@ public class DoubleField extends FieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	
+	@Override
 	public void toXML(StringBuilder strbXML)
 	{
 		double dblValue=getValue();
 		strbXML.append("<DBLF N=\"").append(this.getName()).append("\"");
 		strbXML.append(" V=\"").append(dblValue).append("\"/>");
 	}
-
+	@Override
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		double dblValue=getValue();
@@ -90,7 +78,7 @@ public class DoubleField extends FieldImpl
 		strbXML.append(strIndent).append("<DBLF N=\"").append(this.getName()).append("\"");
 		strbXML.append(" V=\"").append(dblValue).append("\"/>\r\n");
 	}
-	
+	@Override
 	public String toJSON()
 	{
 		double dblValue=getValue();
@@ -99,13 +87,6 @@ public class DoubleField extends FieldImpl
 		return str_JSON.toString();
 	}
 
-	public String toJSONString()
-	{
-		double dblValue=getValue();
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(dblValue).append(",");
-		return str_JSON.toString();
-	}	
 
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------

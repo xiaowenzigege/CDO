@@ -1,23 +1,16 @@
-/**
- * www.cdoforum.com 2007版权所有
- *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/BooleanField.java,v 1.1 2008/03/22 13:32:54 Frank Exp $
- *
-
- */
 
 package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
- * @author Frank
- * modify by @author KenelLiu 
+ * 重新构造
+ * @author KenelLiu
+ *
  */
 public class BooleanField extends FieldImpl
 {
@@ -94,13 +87,6 @@ public class BooleanField extends FieldImpl
 		strbXML.append(" V=\"").append(getValue()).append("\"/>\r\n");
 	}	
 	
-
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(getValue()).append(",");
-		return str_JSON.toString();
-	}
 
 	public String toJSON()
 	{

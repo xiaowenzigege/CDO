@@ -95,13 +95,14 @@ public class FileField extends FieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
+	@Override
 	public void toXML(StringBuilder strbXML)
 	{
 		String path=this.fileValue==null?" file is null":this.fileValue.getPath();
 		strbXML.append("<FILE N=\"").append(this.getName()).append("\"");
 		strbXML.append(" V=\"").append(Function.FormatTextForXML(path)).append("\"/>");
 	}
-	
+	@Override
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		String path=this.fileValue==null?" file is null":this.fileValue.getPath();
@@ -112,12 +113,6 @@ public class FileField extends FieldImpl
 		strbXML.append(" V=\"").append(Function.FormatTextForXML(path)).append("\"/>\r\n");
 	}
 	@Override
-	public void toXMLLog(StringBuilder strbXML) {
-		String path=this.fileValue==null?" file is null":this.fileValue.getPath();
-		strbXML.append("<STRF N=\"").append(this.getName()).append("\"");		
-		strbXML.append(" V=\"").append(Function.FormatTextForXML(path)).append("\"/>");
-		
-	}	
 	public String toJSON()
 	{
 		StringBuffer str_JSON=new StringBuffer();
@@ -125,16 +120,6 @@ public class FileField extends FieldImpl
 		str_JSON.append("\"").append(this.getName()).append("\"").append(":\"").append(Function.FormatTextForJson(path)).append("\",");
 		return str_JSON.toString();
 	}
-
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		String path=this.fileValue==null?" file is null":this.fileValue.getPath();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":\\\"").append(Function.FormatTextForJson(path)).append(
-						"\\\",");
-		return str_JSON.toString();
-	}
-
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 

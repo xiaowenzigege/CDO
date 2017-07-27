@@ -1,15 +1,3 @@
-/**
- * www.cdoforum.com 2007版权所有
- *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/StringArrayField.java,v 1.4 2008/03/12 10:30:56 Frank Exp $
- *
- * $Log: StringArrayField.java,v $
- * Revision 1.4  2008/03/12 10:30:56  Frank
- * *** empty log message ***
- *
- *
- */
-
 package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.Buffer;
@@ -23,8 +11,9 @@ import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.util.Function;
 
 /**
- * @author Frank
- * modify by @author KenelLiu
+ * 重新构造
+ * @author KenelLiu
+ *
  */
 public class StringArrayField extends ArrayFieldImpl
 {
@@ -171,14 +160,19 @@ public class StringArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
+	@Override
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){	
 		allocate(this.strsValue);		
 		super.toAvro(prefixField, fieldMap);
 	}	
+	
+	@Override
 	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
 		allocate(this.strsValue);
 		super.toProto(prefixField, cdoProto);
 	}
+	
+	@Override
 	public void toXML(StringBuilder strbXML)
 	{	
 		strbXML.append("<STRAF N=\"").append(this.getName()).append("\">");
@@ -189,6 +183,7 @@ public class StringArrayField extends ArrayFieldImpl
 		strbXML.append("</STRAF>");
 	}
 	
+	@Override
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		String strIndent=Utility.makeSameCharString('\t',nIndentSize);
@@ -200,34 +195,8 @@ public class StringArrayField extends ArrayFieldImpl
 		}
 		strbXML.append(strIndent).append("</STRAF>\r\n");
 	}	
-	@Override
-	public void toXMLLog(StringBuilder strbXML) {
-		
-
-		String value="";
-		strbXML.append("<STRAF N=\"").append(this.getName()).append("\">");
-		for(int i=0;i<this.strsValue.length;i=i+1)
-		{
-			value=this.strsValue[i];
-			if(value.length()>100){
-				value=value.substring(0, 100)+"......";
-			}
-			strbXML.append("<STR>").append(Function.FormatTextForXML(value)).append("</STR>");
-		}
-		strbXML.append("</STRAF>");		
-		
-	}		
 	
-	public Object getObjectValue()
-	{
-		return strsValue;
-	}
-
-	public Object getObjectValueAt(int nIndex)
-	{
-		return strsValue[nIndex];
-	}
-
+	@Override
 	public String toJSON()
 	{
 		StringBuffer str_JSON=new StringBuffer();
@@ -241,21 +210,8 @@ public class StringArrayField extends ArrayFieldImpl
 		str_JSON.append("],");
 		return str_JSON.toString();
 	}
-
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append("[");
-		int _length=strsValue.length;
-		for(int i=0;i<this.strsValue.length;i=i+1)
-		{
-			String _sign=(i==_length-1)?"\\\"":"\\\",";
-			str_JSON.append("\\\"").append(Function.FormatTextForJson(this.strsValue[i])).append(_sign);
-		}
-		str_JSON.append("],");
-		return str_JSON.toString();
-	}	
 	
+	@Override
 	public String toString(){
 
 		StringBuffer str_JSON=new StringBuffer();
@@ -275,6 +231,19 @@ public class StringArrayField extends ArrayFieldImpl
 		str_JSON.append("],");
 		return str_JSON.toString();
 	}
+	
+	public Object getObjectValue()
+	{
+		return strsValue;
+	}
+
+	public Object getObjectValueAt(int nIndex)
+	{
+		return strsValue[nIndex];
+	}
+
+
+
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 

@@ -1,9 +1,3 @@
-/**
- * www.cdoforum.com 2007版权所有
- *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/ByteField.java,v 1.4 2008/03/12 10:28:13 Frank Exp $
-
- */
 
 package com.cdoframework.cdolib.data.cdo;
 
@@ -13,11 +7,10 @@ import java.util.Map;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
-import com.google.protobuf.ByteString;
-
 /**
- * @author Frank
- * modify by @author KenelLiu 
+ * 重新构造
+ * @author KenelLiu
+ *
  */
 public class ByteField extends FieldImpl
 {
@@ -55,22 +48,23 @@ public class ByteField extends FieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
+	@Override
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
 		allocate();		
 		super.toAvro(prefixField, fieldMap);
 	}	
-	
+	@Override
 	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
 		allocate();	
 		super.toProto(prefixField, cdoProto);
 	}
-	
+	@Override
 	public void toXML(StringBuilder strbXML)
 	{		
 		strbXML.append("<BYF N=\"").append(this.getName()).append("\"");
 		strbXML.append(" V=\"").append(this.byValue).append("\"/>");
 	}
-	
+	@Override
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		String strIndent=Utility.makeSameCharString('\t',nIndentSize);
@@ -79,14 +73,7 @@ public class ByteField extends FieldImpl
 		strbXML.append(" V=\"").append(this.byValue).append("\"/>\r\n");
 	}
 
-	
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(this.byValue).append(",");
-		return str_JSON.toString();
-	}
-
+	@Override
 	public String toJSON()
 	{
 		StringBuffer str_JSON=new StringBuffer();
@@ -94,6 +81,7 @@ public class ByteField extends FieldImpl
 		return str_JSON.toString();
 	}	
 	
+	@Override
 	public Object getObjectValue()
 	{
 		return new Byte(byValue);

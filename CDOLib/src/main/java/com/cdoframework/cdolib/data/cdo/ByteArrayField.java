@@ -1,23 +1,15 @@
-/**
- * www.cdoforum.com 2007版权所有
- *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/ByteArrayField.java,v 1.4 2008/03/12 10:30:58 Frank Exp $
- *
- *
- */
-
 package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
- * @author Frank
- * modify by @author KenelLiu 
+ * 重新构造
+ * @author KenelLiu
+ *
  */
 public class ByteArrayField extends ArrayFieldImpl
 {
@@ -130,7 +122,7 @@ public class ByteArrayField extends ArrayFieldImpl
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 
-	
+	@Override
 	public void toXML(StringBuilder strbXML)
 	{			
 		strbXML.append("<BYAF N=\"").append(this.getName()).append("\"");;
@@ -156,6 +148,8 @@ public class ByteArrayField extends ArrayFieldImpl
 		strbXML.append(tmpBuild);			
 		strbXML.append("\"/>");		
 	}
+	
+	@Override
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		String strIndent=Utility.makeSameCharString('\t',nIndentSize);
@@ -184,14 +178,7 @@ public class ByteArrayField extends ArrayFieldImpl
 		strbXML.append("\"/>\r\n");
 	}
 	
-	public void toXMLLog(StringBuilder strbXML){
-		byte[] bysValue=getValue();
-		strbXML.append("<BYAF N=\"").append(this.getName()).append("\"");;
-		strbXML.append(" V=\"");
-		strbXML.append(bysValue);		
-		strbXML.append("\"/>");		
-	}
-
+	@Override
 	public String toJSON()
 	{
 		StringBuffer str_JSON=new StringBuffer();
@@ -207,16 +194,7 @@ public class ByteArrayField extends ArrayFieldImpl
 		return str_JSON.toString();
 	}	
 	
-	
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		byte[] bysValue=getValue();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append("[");
-		str_JSON.append("").append(bysValue);
-		str_JSON.append("],");
-		return str_JSON.toString();
-	}
+
 	
 	public String toString()
 	{

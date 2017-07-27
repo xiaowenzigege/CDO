@@ -1,23 +1,16 @@
-/**
- * www.cdoforum.com 2007版权所有
- *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/IntegerField.java,v 1.4 2008/03/12 10:28:13 Frank Exp $
- *
- *
- */
 
 package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
- * @author Frank
- * modify by @author KenelLiu 
+ * 重新构造
+ * @author KenelLiu
+ *
  */
 public class IntegerField extends FieldImpl
 {
@@ -71,14 +64,14 @@ public class IntegerField extends FieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	
+	@Override
 	public void toXML(StringBuilder strbXML)
 	{
 		int nValue=getValue();
 		strbXML.append("<NF N=\"").append(this.getName()).append("\"");
 		strbXML.append(" V=\"").append(nValue).append("\"/>");
 	}
-	
+	@Override
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		int nValue=getValue();
@@ -87,7 +80,7 @@ public class IntegerField extends FieldImpl
 		strbXML.append(strIndent).append("<NF N=\"").append(this.getName()).append("\"");
 		strbXML.append(" V=\"").append(nValue).append("\"/>\r\n");
 	}
-
+	@Override
 	public String toJSON()
 	{
 		int nValue=getValue();
@@ -95,14 +88,6 @@ public class IntegerField extends FieldImpl
 		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(nValue).append(",");
 		return str_JSON.toString();
 	}
-
-	public String toJSONString()
-	{
-		int nValue=getValue();
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(nValue).append(",");
-		return str_JSON.toString();
-	}	
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 

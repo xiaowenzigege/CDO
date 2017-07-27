@@ -1,23 +1,15 @@
-/**
- * www.cdoforum.com 2007版权所有
- *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/FloatField.java,v 1.4 2008/03/12 10:28:13 Frank Exp $
- *
- *
- */
-
 package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
- * @author Frank
- * modify by @author KenelLiu 
+ * 重新构造
+ * @author KenelLiu
+ *
  */
 public class FloatField extends FieldImpl
 {
@@ -72,14 +64,14 @@ public class FloatField extends FieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------	
-	
+	@Override
 	public void toXML(StringBuilder strbXML)
 	{
 		float fValue=getValue();
 		strbXML.append("<FF N=\"").append(this.getName()).append("\"");
 		strbXML.append(" V=\"").append(fValue).append("\"/>");
 	}
-
+	@Override
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		float fValue=getValue();
@@ -88,20 +80,12 @@ public class FloatField extends FieldImpl
 		strbXML.append(strIndent).append("<FF N=\"").append(this.getName()).append("\"");
 		strbXML.append(" V=\"").append(fValue).append("\"/>\r\n");
 	}
-
+	@Override
 	public String toJSON()
 	{
 		float fValue=getValue();
 		StringBuffer str_JSON=new StringBuffer();
 		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(fValue).append(",");
-		return str_JSON.toString();
-	}
-
-	public String toJSONString()
-	{
-		float fValue=getValue();
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(fValue).append(",");
 		return str_JSON.toString();
 	}	
 

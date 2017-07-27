@@ -2,16 +2,14 @@ package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 
 /**
- * @author Frank
- * 重新构造，全部采用 buffer进行管理
+ * 重新构造
  * @author KenelLiu
- *  
+ *
  */
 public class BooleanArrayField extends ArrayFieldImpl
 {
@@ -112,7 +110,7 @@ public class BooleanArrayField extends ArrayFieldImpl
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-
+	@Override
 	public void toXML(StringBuilder strbXML)
 	{
 		strbXML.append("<BAF N=\"").append(this.getName()).append("\"");
@@ -129,6 +127,7 @@ public class BooleanArrayField extends ArrayFieldImpl
 		strbXML.append("\"/>");
 	}
 	
+	@Override
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		String strIndent=Utility.makeSameCharString('\t',nIndentSize);
@@ -147,21 +146,6 @@ public class BooleanArrayField extends ArrayFieldImpl
 		strbXML.append("\"/>\r\n");
 	}
 
-	@Override
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append("[");		
-		boolean[] bsValue=getValue(); 
-		int _length=bsValue.length;
-		for(int i=0;i<bsValue.length;i=i+1)
-		{
-			String _sign=(i==_length-1)?"":",";
-			str_JSON.append("").append(bsValue[i]).append(_sign);
-		}
-		str_JSON.append("],");
-		return str_JSON.toString();
-	}
 
 	@Override
 	public String toJSON()

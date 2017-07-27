@@ -4,7 +4,11 @@ import java.nio.ByteBuffer;
 
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.data.cdo.CDO.FieldId;
-
+/**
+ * 
+ * @author KenelLiu
+ *
+ */
 public class CDOBuffer {
 
 

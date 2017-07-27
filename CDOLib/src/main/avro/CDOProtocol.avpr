@@ -5,7 +5,7 @@
  "types": [
      {"name": "AvroCDO", "type": "record",
       "fields": [
-	   {"name":"level","type":"int"},
+	   {"name":"callId","type":"int"},
 	   {"name":"fields","type":{"type":"map", "values":"bytes"}}
       ]
      }

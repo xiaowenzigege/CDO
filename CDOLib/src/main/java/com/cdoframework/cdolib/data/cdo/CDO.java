@@ -1,12 +1,3 @@
-/**
- * www.cdoforum.com 2007版权所有
- ** empty log message ***
- *
- *CDO 维护一个通用数据类型
- *key dot符号[即 .]，表示cdo的层级关系 
- *
- */
-
 package com.cdoframework.cdolib.data.cdo;
 
 
@@ -30,15 +21,10 @@ import com.cdo.exception.StateException;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
+
 /**
- * @author Frank
- * modify by @author KenelLiu
- * delete 2 list[vecTerm,objectExt]
- * change map<String,ObjectExt>  to  LinkedHashMap<String,Field>
- * change toXml  travel
- * add avro Serializable
- * add support file
- 
+ *CDO 维护一个通用数据类型
+ *key dot符号[即 .]，表示cdo的层级关系 
  */
 public class CDO implements java.io.Serializable
 {
@@ -65,20 +51,16 @@ public class CDO implements java.io.Serializable
 		String strIndexFieldId;
 	};
 
-	
-	//静态对象,所有static在此声明并初始化------------------------------------------------------------------------
-
-	 void setFileCount(int fileCount) {
-		this.fileCount = fileCount;
-	}
-
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
 	private HashMap<String,Field> hmItem;
 	
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
-
+	 void setFileCount(int fileCount) {
+		this.fileCount = fileCount;
+	}
+	 
 	//内部方法---------------------------------------------------------------------------------------------------
 	protected void putItem(String strKey,Field objExt){
 		hmItem.put(strKey,objExt);
@@ -151,9 +133,9 @@ public class CDO implements java.io.Serializable
 		return fieldId;
 	}
 
-	//---------------------- 序列化方法    cdo2xml  cdo2Avro cdo2proto------------------------//
+	//---------------------- 序列化方法    cdo2xml  cdo2Avro cdo2proto,cdo2Json------------------------//
 	/**
-	 * 转换成avro
+	 * 将CDO转换成apache avro对象
 	 * @return
 	 */
 	public  AvroCDO toAvro(){	
@@ -162,38 +144,14 @@ public class CDO implements java.io.Serializable
 		}
 		LinkedHashMap<CharSequence,ByteBuffer> fieldMap=new LinkedHashMap<CharSequence, ByteBuffer>();
 		String prefixField="";	
-		toAvro(prefixField,fieldMap);
-//		int maxLevel=toAvro(prefixField,fieldMap,0);			
+		toAvro(prefixField,fieldMap);		
 		AvroCDO arvo=new AvroCDO();			
-		arvo.setFields(fieldMap);						
-//		arvo.setLevel(maxLevel);		
+		arvo.setFields(fieldMap);				
 		return arvo;
 	}
 
 	/**
-	 * 供 CDOField 调用,返回最大层级
-	 * @param prefixField
-	 * @param fieldMap
-	 * @param maxLevel
-	 * @return
-	 *
-	int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
-		if(this.hmItem==null){
-			throwStateException(prefixField);		
-		}		
-		Entry<String, Field> entry=null;
-		int curLevel=0;
-		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
-			entry=it.next();
-			curLevel=entry.getValue().toAvro(prefixField, fieldMap,maxLevel);
-			if(curLevel>maxLevel)
-				maxLevel=curLevel;
-		}
-		return maxLevel;
-	}	
-	/
-	/**
-	 * 供所有CDO定义的字段调用该方法，输出数据
+	 * 将保存在CDO字段调用该方法,转换成key,fieldMap
 	 * @param prefixField
 	 * @param fieldMap
 	 */
@@ -207,42 +165,36 @@ public class CDO implements java.io.Serializable
 			entry.getValue().toAvro(prefixField, fieldMap);
 		}
 	}
-	
+	/**
+	 * 将CDO转换成GoogleCDO.CDOProto.Builder对象
+	 * @return
+	 */
 	public GoogleCDO.CDOProto.Builder toProtoBuilder(){
 		if(this.hmItem==null){
 			return null;
 		}
 		GoogleCDO.CDOProto.Builder cdoProto=GoogleCDO.CDOProto.newBuilder();
 		String prefixField="";	
-		toProto(prefixField,cdoProto);	
-//		int maxLevel=
-//		cdoProto.setLevel(maxLevel);		
+		toProto(prefixField,cdoProto);		
 		return cdoProto;
 	}
 	
-	
 	/**
-	 * 供 CDOField,CDOArrayField 调用,返回最大层级
+	 *将保存在CDO字段调用该方法,转换成GoogleCDO.CDOProto.Builder
 	 * @param prefixField
 	 * @param fieldMap
-	 * @param maxLevel
-	 * @return
-	 *
-	int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){
+	 */
+	 void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
 		if(this.hmItem==null){
 			throwStateException(prefixField);
-		}
+		}		 
 		Entry<String, Field> entry=null;
-		int curLevel=0;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
 			entry=it.next();
-			curLevel=entry.getValue().toProto(prefixField,cdoProto,maxLevel);
-			if(curLevel>maxLevel)
-				maxLevel=curLevel;
+			entry.getValue().toProto(prefixField, cdoProto);
 		}
-		return maxLevel;
 	}	
-	**/
+	 
 	private void throwStateException(String prefixField){
 		String message="The CDO";
 		if(prefixField.endsWith(".")){
@@ -261,25 +213,14 @@ public class CDO implements java.io.Serializable
 				 message="The CDO Array ";
 			}
 		}
-		throw new StateException(message+"["+prefixField+"] has been released by another program");
+		throw new StateException(message+"["+prefixField+"] has been released by another program.");
 	}
-	/**
-	 * 供所有CDO定义的字段调用该方法，输出数据
-	 * @param prefixField
-	 * @param fieldMap
-	 */
-	 void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
-		if(this.hmItem==null){
-			throwStateException(prefixField);
-		}		 
-		Entry<String, Field> entry=null;
-		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
-			entry=it.next();
-			entry.getValue().toProto(prefixField, cdoProto);
-		}
-	}	
+
 	
-	 
+	/**
+	 * 将CDO 对象转换成 xml  
+	 * @return
+	 */
 	public String toXML()
 	{
 		if(this.hmItem==null){
@@ -289,15 +230,11 @@ public class CDO implements java.io.Serializable
 		strbXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");				
 		strbXML.append("<CDO>");
 		appendFieldXML(strbXML);
-		strbXML.append("</CDO>");
-		String strXML=strbXML.toString();
-		
-		return strXML;
+		strbXML.append("</CDO>");		
+		return strbXML.toString();
 	}
 
-
-	 String toXML(StringBuilder strbXML)
-	{		
+	 String toXML(StringBuilder strbXML){		 
 		 if(this.hmItem==null){
 				return strbXML.toString();
 		 }		
@@ -319,25 +256,11 @@ public class CDO implements java.io.Serializable
 		}
 	}
 	
-	 
-	public String toXMLLog()
-	{
-		if(this.hmItem==null){
-			return null;
-		}
-		StringBuilder strbXML=new StringBuilder(500);
-		strbXML.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");				
-		strbXML.append("<CDO>");
-		Entry<String, Field> entry=null;
-		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
-			entry=it.next();
-			entry.getValue().toXMLLog(strbXML);
-		}				
-		strbXML.append("</CDO>");				
-		return strbXML.toString();
-	}
-	
-	
+
+	/**
+	 * 将CDO转换成有换行符的XML 
+	 * @return
+	 */
 	public String toXMLWithIndent(){
 		if(this.hmItem==null){
 			return null;
@@ -388,30 +311,6 @@ public class CDO implements java.io.Serializable
 			str_JSON.append(entry.getValue().toJSON());
 		}
 		
-		// ugly 方法去掉最后一个","
-		int _lastComma=str_JSON.lastIndexOf(",");
-		int _length=str_JSON.length();
-		if(_lastComma==_length-1)
-		{
-			str_JSON.replace(_lastComma,_lastComma+1,"");
-		}
-
-		str_JSON.append("}");
-		return str_JSON.toString();
-	}
-
-	public String toJSONString()
-	{
-		if(this.hmItem==null){
-			return null;
-		}
-		StringBuffer str_JSON=new StringBuffer("{");
-		
-		Entry<String, Field> entry=null;
-		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
-			entry=it.next();
-			str_JSON.append(entry.getValue().toJSONString());
-		}
 		// ugly 方法去掉最后一个","
 		int _lastComma=str_JSON.lastIndexOf(",");
 		int _length=str_JSON.length();
@@ -1533,7 +1432,7 @@ public class CDO implements java.io.Serializable
 	}
 	
 	/**
-	 * toString 采用类似 JSON格式
+	 * toString 使用JSON格式形式输出
 	 */
 	public String toString()
 	{

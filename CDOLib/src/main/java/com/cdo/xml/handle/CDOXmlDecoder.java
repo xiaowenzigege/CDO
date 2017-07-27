@@ -43,7 +43,8 @@ public class CDOXmlDecoder extends ByteToMessageDecoder {
 				if(magic!=XMLProtocol.MAGIC_NUMBER){		
 					in.resetReaderIndex();				
 					return; 
-				}
+				}				
+				
 				//读取支持的消息类型
 				byte type=in.readByte();			
 				if(!checkMsgType(type)){

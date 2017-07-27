@@ -1,13 +1,3 @@
-/**
- * www.cdoforum.com 2007版权所有
- *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/CDOField.java,v 1.4 2008/03/12 10:28:13 Frank Exp $
- *
- * $Log: CDOField.java,v $
- * Revision 1.4  2008/03/12 10:28:13  Frank
- * *** empty log message ***
- *
- */
 
 package com.cdoframework.cdolib.data.cdo;
 
@@ -16,11 +6,10 @@ import java.util.Map;
 
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.Utility;
-//import com.google.protobuf.ByteString;
-
 /**
- * @author Frank
- * modify by @author KenelLiu 
+ * 重新构造
+ * @author KenelLiu
+ *
  */
 public class CDOField extends FieldImpl
 {
@@ -52,46 +41,27 @@ public class CDOField extends FieldImpl
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 	
+	@Override
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){				
 		String prefix=prefixField+this.getName()+".";
 		this.cdoValue.toAvro(prefix,fieldMap);		
 	}
-	/**
-	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
-		int curLevel=1;
-		if(prefixField.length()>0){
-			curLevel=(prefixField.split("\\.").length+1);
-		}			
-		maxLevel=maxLevel>curLevel?maxLevel:curLevel;				
-		String prefix=prefixField+this.getName()+".";
-		return this.cdoValue.toAvro(prefix,fieldMap,maxLevel);
-	}	
-	**/
+
 	@Override
 	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
 		String prefix=prefixField+this.getName()+".";
 		this.cdoValue.toProto(prefix,cdoProto);	
 	}
 	
-	/**
 	@Override
-	public int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){		
-		int curLevel=1;
-		if(prefixField.length()>0){
-			curLevel=(prefixField.split("\\.").length+1);
-		}			
-		maxLevel=maxLevel>curLevel?maxLevel:curLevel;				
-		String prefix=prefixField+this.getName()+".";
-		return this.cdoValue.toProto(prefix,cdoProto,maxLevel);
-	}	
-	**/
 	public void toXML(StringBuilder strbXML)
 	{
 		strbXML.append("<CDOF N=\"").append(this.getName()).append("\">");
 		this.cdoValue.toXML(strbXML);
-		strbXML.append("</CDOF>\r\n");
+		strbXML.append("</CDOF>");
 	}
 	
+	@Override
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		String strIndent=Utility.makeSameCharString('\t',nIndentSize);
@@ -100,6 +70,16 @@ public class CDOField extends FieldImpl
 		this.cdoValue.toXMLWithIndent("\t",strbXML);
 		strbXML.append(strIndent).append("</CDOF>\r\n");
 	}
+	
+	@Override
+	public String toJSON()
+	{
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(this.cdoValue.toJSON())
+						.append(",");
+		return str_JSON.toString();
+	}
+
 	public Object getObjectValue()
 	{
 		return cdoValue;
@@ -149,20 +129,6 @@ public class CDOField extends FieldImpl
 		this.cdoValue	=cdoValue;
 	}
 
-	
-	public String toJSON()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append(this.cdoValue.toJSON())
-						.append(",");
-		return str_JSON.toString();
-	}
 
-	public String toJSONString()
-	{
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":").append(this.cdoValue.toJSON())
-						.append(",");
-		return str_JSON.toString();
-	}	
+
 }

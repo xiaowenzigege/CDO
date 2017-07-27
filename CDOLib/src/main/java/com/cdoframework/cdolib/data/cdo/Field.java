@@ -36,10 +36,9 @@ import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.DataType;
 
 /**
- * @author Frank
- * modify by @author KenelLiu
- * add method toXMLLog  toString  toAvro 
- * add buffer
+ * 重新构造,采用buffer进行管理CDO 定义字段
+ * @author KenelLiu
+ *
  */
 public interface Field extends DataType
 {
@@ -66,16 +65,42 @@ public interface Field extends DataType
 	public String getName();
 	
 	public  Object getObjectValue();
-	
+	/**
+	 * 字段key:value内容转换成json格式
+	 * @return
+	 */
 	public  String toJSON();
-	public  String toJSONString();
+	
+	/**
+	 * 输出string,为json格式.
+	 * @return
+	 */
 	public  String toString();
-	
+	/**
+	 * CDO里字段转换成 xml文件 格式
+	 * @param strbXML
+	 */
 	public void toXML(StringBuilder strbXML);
-	public void toXMLLog(StringBuilder strbXML);
+	/**
+	 * CDO里字段转换成 xml文件 格式
+	 * @param strbXML
+	 */
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML);
-	
-	
+	/**
+	 * CDO字段转换成 apache avro格式
+	 * @param prefixField
+	 * @param fieldMap
+	 */
+	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap);
+	/**
+	 * CDO字段转换成 google protobuf格式
+	 * @param prefixField
+	 * @param fieldMap
+	 */
+	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto);
+	/**
+	 * 释放对象
+	 */
 	public void release();
 	
 	
@@ -83,7 +108,7 @@ public interface Field extends DataType
 	 * [CDOField,CDOArrayField]字段  由CDO构成，CDO保存的数据是由 以下基础数据字段组成
 	 * 即对基础字段序列化即可
 	 * 
-	 * 数据存储采用buffer 字节存储。以便使用apache avro,google proto 字节序列化,反序列化
+	 * 数据存储采用buffer 字节存储。方便转化成 xml,json,apache avro,google proto 等字节序列化,反序列化
 	 * I 类型-数据
 	 * 	 boolean,short,int,long,float,double,date,dataTime,Time,String 序列化
 	 *   第一个字节  字段类型参数	
@@ -115,16 +140,5 @@ public interface Field extends DataType
 	                    对CDO里嵌套CDO包含的文件对象，考虑复杂度,性能,实际用途均会忽略掉文件传输.	                         	                                                                                   
 	 */
 	public  Buffer getBuffer();
-	
-	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap);
-	/**
-	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel);
-	**/
-	
-	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto);
-	
-	/**
-	public int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel);
-	**/
-	
+
 }

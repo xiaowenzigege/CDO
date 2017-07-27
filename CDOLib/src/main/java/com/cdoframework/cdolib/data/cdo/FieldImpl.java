@@ -1,9 +1,3 @@
-/**
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/Field.java,v 1.3 2008/03/22 13:32:54 Frank Exp $
- *
- *
- */
-
 package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.Buffer;
@@ -15,8 +9,8 @@ import com.google.protobuf.ByteString;
 
 
 /**
- * 
- * @author Kenel  Liu
+ * 重新构造
+ * @author KenelLiu
  *
  */
 public abstract class FieldImpl implements Field
@@ -82,15 +76,9 @@ public abstract class FieldImpl implements Field
 		strName=strFieldName;
 	}
 
-	
+		
 	@Override
-	public void toXMLLog(StringBuilder strbXML) {
-		toXML(strbXML);		
-	}
-	
-	@Override
-	public String toString() {
-//		return toJSONString();		
+	public String toString() {	
 		return toJSON();		
 	}
 	
@@ -98,14 +86,7 @@ public abstract class FieldImpl implements Field
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
 		fieldMap.put(prefixField+this.getName(), buffer);		
 	}
-	
-	/**
-	@Override
-	public int toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap,int maxLevel){
-		toAvro(prefixField, fieldMap);
-		return 0;
-	}
-	**/
+
 	@Override
 	public void toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto){
 		GoogleCDO.CDOProto.Entry.Builder entry=GoogleCDO.CDOProto.Entry.newBuilder();
@@ -115,13 +96,6 @@ public abstract class FieldImpl implements Field
 		cdoProto.addFields(entry);
 	}
 	
-	/**
-	@Override
-	public int toProto(String prefixField,GoogleCDO.CDOProto.Builder cdoProto,int maxLevel){
-		toProto(prefixField, cdoProto);
-		return 0;
-	}	
-	**/
 	@Override
 	public Buffer getBuffer() {		
 		return buffer;

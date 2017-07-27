@@ -1,28 +1,17 @@
-/**
- * www.cdoforum.com 2007版权所有
- *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/StringField.java,v 1.4 2008/03/12 10:30:56 Frank Exp $
- *
- * $Log: StringField.java,v $
- * Revision 1.4  2008/03/12 10:30:56  Frank
- * *** empty log message ***
- *
- */
-
 package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.Map;
 
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.util.Function;
 
 /**
- * @author Frank
- * modify by @author KenelLiu
+ * 重新构造
+ * @author KenelLiu
+ *
  */
 public class StringField extends FieldImpl
 {
@@ -103,14 +92,14 @@ public class StringField extends FieldImpl
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 
-	
+	@Override
 	public void toXML(StringBuilder strbXML)
 	{
 		String strValue=getValue();
 		strbXML.append("<STRF N=\"").append(this.getName()).append("\"");
 		strbXML.append(" V=\"").append(Function.FormatTextForXML(strValue)).append("\"/>");
 	}
-	
+	@Override
 	public void toXMLWithIndent(int nIndentSize,StringBuilder strbXML)
 	{
 		String strValue=getValue();
@@ -119,17 +108,8 @@ public class StringField extends FieldImpl
 		strbXML.append(strIndent).append("<STRF N=\"").append(this.getName()).append("\"");
 		strbXML.append(" V=\"").append(Function.FormatTextForXML(strValue)).append("\"/>\r\n");
 	}
+
 	@Override
-	public void toXMLLog(StringBuilder strbXML) {
-		String strValue=getValue();
-		if(strValue.length()>50){
-			strValue=strValue.substring(0, 50)+"......";
-		}
-		strbXML.append("<STRF N=\"").append(this.getName()).append("\"");		
-		strbXML.append(" V=\"").append(Function.FormatTextForXML(strValue)).append("\"/>");
-		
-	}	
-	
 	public String toJSON()
 	{
 		String strValue=getValue();
@@ -137,16 +117,7 @@ public class StringField extends FieldImpl
 		str_JSON.append("\"").append(this.getName()).append("\"").append(":\"").append(Function.FormatTextForJson(strValue)).append("\",");
 		return str_JSON.toString();
 	}
-
-	public String toJSONString()
-	{
-		String strValue=getValue();
-		StringBuffer str_JSON=new StringBuffer();
-		str_JSON.append("\\\"").append(this.getName()).append("\\\"").append(":\\\"").append(Function.FormatTextForJson(strValue)).append(
-						"\\\",");
-		return str_JSON.toString();
-	}
-	
+	@Override
 	public String toString()
 	{		
 		String strValue=getValue();

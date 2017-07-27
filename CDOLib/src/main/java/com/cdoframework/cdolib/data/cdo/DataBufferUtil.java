@@ -1,16 +1,16 @@
 package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import nanoxml.XMLElement;
-
 import com.cdoframework.cdolib.base.DataType;
-
+/**
+ * 
+ * @author KenelLiu
+ *
+ */
 public class DataBufferUtil {
 
 	

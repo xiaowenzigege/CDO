@@ -1,20 +1,12 @@
-/**
- * www.cdoforum.com 2007版权所有
- *
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOLib/Source/com/cdoframework/cdolib/data/cdo/ArrayField.java,v 1.2 2008/03/12 10:30:57 Frank Exp $
- *
- * $Log: ArrayField.java,v $
- * Revision 1.2  2008/03/12 10:30:57  Frank
- * *** empty log message ***
- *
- */
+
 
 package com.cdoframework.cdolib.data.cdo;
 
 
 /**
- * @author Frank
- * modify by @author KenelLiu 
+ * 重新构造
+ * @author KenelLiu
+ *
  */
 public interface ArrayField extends Field
 {
