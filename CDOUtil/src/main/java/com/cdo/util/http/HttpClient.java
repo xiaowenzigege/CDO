@@ -227,8 +227,7 @@ public class HttpClient {
 						entity = new UrlEncodedFormEntity(paramsList,Charset.forName(Constants.Encoding.CHARSET_UTF8));	
 					}	
 				}
-				
-				
+								
 
 				/**4.5
 				 * 

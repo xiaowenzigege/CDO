@@ -287,6 +287,22 @@ public class HttpUtil {
 		return client.execute();	
 	}
 	
+	/**
+	 * 
+	 * @param url
+	 * @param httpMethod  
+	 * @param params
+	 * @param header
+	 * @return
+	 * @throws ResponseException
+	 */
+	public static Response doMethod(String url,String httpMethod,Map<String, String> params,Map<String, String> header) throws ResponseException{
+		com.cdo.util.http.HttpClient client=new com.cdo.util.http.HttpClient(url); 
+		client.setHeaders(header);
+		client.setNameValuePair(params);			
+		client.setMethod(httpMethod);
+		return client.execute();	
+	}
 	
 	//-------------------普通获取get --------------------//
 	/**
@@ -375,6 +391,35 @@ public class HttpUtil {
 		}
 		return null;
 	}	
+	
+	//-------------------- body-----------------------------//
+	/**
+	 * 
+	 * @param url
+	 * @param strContent
+	 * @return  Response responseText  返回文本
+	 * @throws ResponseException
+	 */
+	public static Response doMethodBody(String url,String strContent,String httpMehtod) throws ResponseException{
+		return doMethodBody(url,strContent,httpMehtod,null);
+	}
+	/**
+	 * 
+	 * @param url
+	 * @param strContent
+	 * @param header
+	 * @return  Response responseText  返回文本
+	 * @throws ResponseException
+	 */
+	public static Response doMethodBody(String url,String strContent,String httpMehtod,Map<String, String> header) throws ResponseException{
+	
+		com.cdo.util.http.HttpClient client=new com.cdo.util.http.HttpClient(url); 
+		client.setHeaders(header);
+		client.setTransMode(com.cdo.util.http.HttpClient.TRANSMODE_BODY);
+		client.setBody(strContent);
+		client.setMethod(httpMehtod);
+		return client.execute();  	
+	}
 	
 	
 }
