@@ -44,12 +44,10 @@ public class WebHttpClient implements IWebClient{
 		if ((this.strUrl == null) || (this.strUrl.equals(""))){
 			throw new HttpException(" target strUrl  is null ");
 		}			
-		String strCDOXml = "";
 		CDOHTTPResponse httpRes=null;
 		try {
 			CDOHTTPClient httpClient = new CDOHTTPClient(this.strUrl);	
 			httpClient.setTransCDO(cdoRequest);
-//			//普通参数
 			//cdo有文件上传,设置文件参数 和设置 头信息				
 			if(cdoRequest.getSerialFileCount()>0){
 				 Map<String,File> uploadFiles=new HashMap<String,File>();
@@ -80,26 +78,19 @@ public class WebHttpClient implements IWebClient{
 			return Return.valueOf(-1, " http Status:" + httpRes.getStatusCode()
 			        + ";Send Http Request ERROR:" + httpRes);
 		}
-		CDO cdoReturn=null;
-		try {			
-			strCDOXml =httpRes.getResponseText();			
-			if (strCDOXml != null && !strCDOXml.trim().equals("")) {				            			    
-				cdoReturn=new CDO();
-				ParseHTTPXmlCDO.xmlToCDO(strCDOXml, cdoReturn, cdoResponse);								
-				httpRes.copyFile2CDO(cdoResponse);
-			    return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));			
-		  }		
+		try {
+			CDO cdoReturn=new CDO();
+			ParseHTTPProtoCDO.HTTPProtoParse.parse(httpRes.getResponseBytes(), cdoResponse,cdoReturn);
+			//有文件传输,仅设置文件句柄，文件在磁盘上，或者通过外部开发者自己控制，写入到指定设备[内存，磁盘，输出流上]
+			httpRes.copyFile2CDO(cdoResponse);			
+			return new Return(cdoReturn.getIntegerValue("nCode"),cdoReturn.getStringValue("strText"), cdoReturn.getStringValue("strInfo"));	
 		} catch (Exception ex) {
 			logger.error(ex.getMessage(), ex);
 			return Return.valueOf(-1, "ERROR:" + ex.getMessage());
 		}finally{
 			httpRes.setResponseBytes(null);
 			httpRes=null;
-			if(cdoReturn!=null)
-				cdoReturn.deepRelease();
 		}
-		logger.error("返回数据: strCDOXml IS NULL,please check network connection");
-		return Return.valueOf(-1, "ERROR:return strCDOXml IS NULL,please check network connection");
 	}
 
 

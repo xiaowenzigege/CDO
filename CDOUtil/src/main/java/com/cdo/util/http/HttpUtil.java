@@ -13,6 +13,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.Consts;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.HttpClient;
@@ -31,6 +32,7 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 //import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 //import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 //import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -51,6 +53,8 @@ import com.cdo.util.bean.Response;
 import com.cdo.util.constants.Constants;
 import com.cdo.util.exception.HttpException;
 import com.cdo.util.exception.ResponseException;
+import com.cdo.util.serial.Serializable;
+import com.cdoframework.cdolib.data.cdo.CDO;
 
 import io.netty.util.internal.SystemPropertyUtil;
 /**
@@ -352,15 +356,36 @@ public class HttpUtil {
 	 * @throws ResponseException
 	 */
 	public static Response postBody(String url,String strContent,Map<String, String> header) throws ResponseException{
-/**		
- *      com.cdo.util.http.HttpClient client=new com.cdo.util.http.HttpClient(url); 
-		client.setHeaders(header);
-		client.setTransMode(com.cdo.util.http.HttpClient.TRANSMODE_BODY);
-		client.setBody(strContent);
- * 	
- */
+
+		return postBody(url, strContent, null, header);
+	}	
+	/**
+	 * 
+	 * @param url
+	 * @param cdoRequest
+	 * @return
+	 * @throws ResponseException
+	 */
+	public static Response postBody(String url,CDO cdoRequest) throws ResponseException{
+		return postBody(url,cdoRequest,null);
+	}
+	/**
+	 * 
+	 * @param url
+	 * @param cdoRequest
+	 * @param header
+	 * @return
+	 * @throws ResponseException
+	 */
+	public static Response postBody(String url,CDO cdoRequest,Map<String, String> header) throws ResponseException{
+		return postBody(url, null, cdoRequest, header);
+	}	
+	
+	private static Response postBody(String url,String strContent,CDO cdoRequest,Map<String, String> header) throws ResponseException{
+
 		HttpClient client=null;
 		HttpPost request=null;
+		HttpEntity entity=null;
 		try {
 			// 创建POST请求
 			request = new HttpPost(url);
@@ -370,10 +395,15 @@ public class HttpUtil {
 					request.addHeader(headKey, header.get(headKey));
 				}
 			}
-			if(strContent!=null && strContent.trim().length()>0){
+			if(cdoRequest!=null){
 				// 编码参数
-				StringEntity entity = new StringEntity(strContent,Constants.Encoding.CHARSET_UTF8);
+				entity = new ByteArrayEntity(cdoRequest.toProtoBuilder().build().toByteArray());
 				request.setEntity(entity);
+			}else{
+				if(strContent!=null && strContent.trim().length()>0){
+					entity = new StringEntity(strContent,Constants.Encoding.CHARSET_UTF8);
+					request.setEntity(entity);
+				}
 			}		
 			// 发送请求
 			client = getHttpClient();
@@ -391,7 +421,6 @@ public class HttpUtil {
 		}
 		return null;
 	}	
-	
 	//-------------------- body-----------------------------//
 	/**
 	 * 

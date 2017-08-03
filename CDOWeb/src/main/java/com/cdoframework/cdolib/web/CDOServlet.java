@@ -2,13 +2,11 @@
 
 package com.cdoframework.cdolib.web;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -35,7 +33,7 @@ import org.apache.log4j.Logger;
 
 import com.cdo.business.BusinessService;
 import com.cdo.util.constants.Constants;
-import com.cdo.util.resource.GlobalResource;
+import com.cdo.util.serial.Serializable;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
@@ -46,7 +44,13 @@ import com.cdoframework.cdolib.servicebus.IServiceBus;
 /**
  * 
  * @author KenelLiu
- *
+ *  创建多列时，可以使用 这样方法调用
+ *  if(cdoRequest.exists(ITransService.PACKAGE_KEY)){		
+		String classPath=cdoRequest.getStringValue(ITransService.PACKAGE_KEY)+"."+cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);					
+		TransService transService=(TransService)Class.forName(classPath).newInstance();
+		transService.inject(transService);
+		ret=transService.processTrans(cdoRequest, cdoResponse);	
+	}
  */
 public  class CDOServlet extends HttpServlet
 {
@@ -77,9 +81,7 @@ public  class CDOServlet extends HttpServlet
 	{
 			// 构造请求对象
 		CDO cdoRequest=null;
-
 		Map<String, File> mapFileMap=null;
-		String strTransName=null;
 		try
 		{
 			String serialFile=request.getHeader(Constants.CDO.HTTP_CDO_UPLOADFILE_KEY);
@@ -94,11 +96,13 @@ public  class CDOServlet extends HttpServlet
 					}
 				}
 			}else{
-				cdoRequest=parseInputStream2CDO(request.getInputStream());
+				cdoRequest=processProtobufEntity(request);
 			}
 		}catch(Exception e){						
 			log.error("error:"+e.getMessage(),e);
 			outPutFail(response," Request Parameter Error :"+e.getMessage());
+			if(cdoRequest!=null)
+				cdoRequest.deepRelease();			
 			return;						
 		}	
 		// 执行事务
@@ -106,34 +110,23 @@ public  class CDOServlet extends HttpServlet
 		Return ret=null;
 		try{
 			if(cdoRequest==null)
-				throw new IOException("cdoRequest is null");
-			
+				throw new IOException("cdoRequest is null");			
 			ret=serviceBus.handleTrans(cdoRequest, cdoResponse);
-			/**
-			if(cdoRequest.exists(ITransService.PACKAGE_KEY)){
-				
-				String classPath=cdoRequest.getStringValue(ITransService.PACKAGE_KEY)+"."+cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);					
-				TransService transService=(TransService)Class.forName(classPath).newInstance();
-				transService.inject(transService);
-				ret=transService.processTrans(cdoRequest, cdoResponse);	
-			}else{
-				ret=BusinessService.getInstance().getServiceBus().handleTrans(cdoRequest, cdoResponse);
-			}
-			**/
 		}catch (Throwable e){
 			log.error("error:"+e.getMessage(),e);
 			outPutFail(response," Service Internal Error :"+e.getMessage());
+			if(cdoRequest!=null)
+				cdoRequest.deepRelease();	
 			return; 				
 		}			
 		if(ret==null)
 		{			
-			outPutFail(response," Request method not found:strTransName="+strTransName);
+			outPutFail(response," ret is null,may be Request method not found,cdoRequest="+cdoRequest);
 			return;			
 		}		
 		// 输出结果
-		try{	
-			String strOutput="";
-			CDO cdoOutput=new CDO();
+		CDO cdoOutput=new CDO();
+		try{						
 			CDO cdoReturn=new CDO();
 			cdoReturn.setIntegerValue("nCode",ret.getCode());
 			cdoReturn.setStringValue("strText",ret.getText());
@@ -141,143 +134,145 @@ public  class CDOServlet extends HttpServlet
 
 			cdoOutput.setCDOValue("cdoReturn",cdoReturn);
 			cdoOutput.setCDOValue("cdoResponse", cdoResponse);
-			strOutput=cdoOutput.toXML();			
+			
 			//TODO 可增加网页类cache  CacheUtil.handleReqCache(request, response, ret);
-			outputReponse(response, strOutput,cdoResponse);
+			outputReponse(response, cdoOutput,cdoResponse);
 		}finally{
 			//业务处理完毕 释放CDO
-			cdoRequest.deepRelease();
-			cdoResponse.deepRelease();							
+			cdoRequest.deepRelease();			
 		}		
 	}
+
 	private void outPutFail(HttpServletResponse response,String message) throws IOException{
 		// 输出结果
-		outPut(response, -1, message);
-	}
-	
-
-	private void outPut(HttpServletResponse response,int nCode,String message) throws IOException{
-		// 输出结果
-		String strOutput="";
 		CDO cdoOutput=new CDO();
 		CDO cdoReturn=new CDO();
-		cdoReturn.setIntegerValue("nCode",nCode);
+		cdoReturn.setIntegerValue("nCode",-1);
 		cdoReturn.setStringValue("strText",message);
 		cdoReturn.setStringValue("strInfo",message);
 		cdoOutput.setCDOValue("cdoReturn",cdoReturn);
 		cdoOutput.setCDOValue("cdoResponse",new CDO());
-		strOutput=cdoOutput.toXML();		
+		
 		response.setHeader("Cache-control","no-cache,no-store");
-		outputReponse(response, strOutput,cdoOutput);
+		outputReponse(response, cdoOutput,cdoOutput);
 	}
 	
 
 	
 	// 事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------
 
- 
-	/**
-	 * 安全输出http响应
-	 * @param response
-	 * @param strOutput
-	 * @throws IOException 
-	 */
-	private void outputReponse(HttpServletResponse response, String strOutput,CDO cdoResponse) throws IOException {
-		
-		//----设置header----
-		File[] files=setResponseHeader(response, strOutput, cdoResponse);		
-		ServletOutputStream out=null;
-		InputStream inStream=null;
-		try {		
-			out=response.getOutputStream();			
-			byte[] cdoResXml=strOutput.getBytes();
-			//输出cdo xml
-			out.write(cdoResXml);	
-			//输出文件
-			for(int i=0;i<files.length;i++){
-		         /*创建输入流*/
-                inStream = new FileInputStream(files[i]);
-                byte[] buf = new byte[Constants.Byte.maxSize*2];             
-                int readLength;
-                while (((readLength = inStream.read(buf)) != -1)) {
-                	out.write(buf, 0, readLength);
-                }
-                inStream.close(); 
-			}						
-			out.flush();
-		} catch (Exception e) {
-			log.error("wirte response errr"+e.getMessage(), e);
-		}finally{
-			if(inStream!=null){try{inStream.close();}catch(Exception ex){};}
-			if(out != null){try{out.close();}catch(Exception ex){};}
+		/**
+		 * 安全输出http响应
+		 * @param response
+		 * @param cdoOutput
+		 * @throws IOException 
+		 */
+		private void outputReponse(HttpServletResponse response, CDO cdoOutput,CDO cdoResponse) throws IOException {
+			
+			ServletOutputStream out=null;
+			InputStream inStream=null;
+			try {		
+				//转换成字节
+				byte[] byteOutput=cdoOutput.toProtoBuilder().build().toByteArray();
+				//----设置header----		
+				File[] files=setResponseHeader(response, byteOutput, cdoResponse);
+				//输出内容
+				out=response.getOutputStream();			
+				out.write(byteOutput);	
+				//输出文件
+				for(int i=0;i<files.length;i++){
+			         /*创建输入流*/
+	                inStream = new FileInputStream(files[i]);
+	                byte[] buf = new byte[Constants.Byte.maxSize*2];             
+	                int readLength;
+	                while (((readLength = inStream.read(buf)) != -1)) {
+	                	out.write(buf, 0, readLength);
+	                }
+	                inStream.close(); 
+				}						
+				out.flush();
+			} catch (Exception e) {
+				log.error("wirte response errr"+e.getMessage(), e);
+			}finally{
+				if(inStream!=null){try{inStream.close();}catch(Exception ex){};}
+				if(out != null)try{out.close();}catch(Exception ex){};}	
+				cdoOutput.deepRelease();
 		}
-	}	
-	
-	private File[] setResponseHeader(HttpServletResponse response, String strOutput,CDO cdoResponse) throws UnsupportedEncodingException{
-		response.setContentType("application/octet-stream;charset=UTF-8");
-		response.setHeader("Accept-Ranges", "bytes");
 		
-		byte[] cdoResXml=strOutput.getBytes("UTF-8");
-		int cdoXmlLen=cdoResXml.length;
-		long totalLen=cdoXmlLen;
-		
-		StringBuilder sbFieldName=new StringBuilder(15);
-		StringBuilder sbLength=new StringBuilder();
-		StringBuilder sbFileName=new StringBuilder(15);
-		sbFieldName.append(Constants.CDO.HTTP_CDO_RESPONSE);
-		sbLength.append(cdoXmlLen);	
-		sbFileName.append("xml");
-		
-		List<File> listFiles=new ArrayList<File>();
-		if(cdoResponse!=null && cdoResponse.getSerialFileCount()>0){
-    		 Iterator<Map.Entry<String,Field>> it=cdoResponse.entrySet().iterator();    		 
-    		 while(it.hasNext()){
-    			 Map.Entry<String,Field> entry=it.next();
-    			 Field objExt=entry.getValue();
-    			 if(objExt.getType().getDataType()==DataType.FILE_TYPE){  
-    				 FileField f=(FileField)objExt;
-    				 sbFieldName.append(","+entry.getKey());
-    				 sbLength.append(","+f.getValue().length());
-    				 sbFileName.append(","+f.getValue().getName());
-    				 totalLen=totalLen+f.getValue().length();
-    				 listFiles.add(f.getValue());
-    			 }
-    		 }	    		
+		private File[] setResponseHeader(HttpServletResponse response, byte[] byteOutput,CDO cdoResponse) throws UnsupportedEncodingException{
+			response.setContentType("application/octet-stream;charset=UTF-8");
+			response.setHeader("Accept-Ranges", "bytes");
+			/**
+			byte[] cdoResXml=strOutput.getBytes("UTF-8");
+			int cdoXmlLen=cdoResXml.length;
+			long totalLen=cdoXmlLen;
+			**/
+			int cdoXmlLen=byteOutput.length;
+			long totalLen=cdoXmlLen;
+			
+			StringBuilder sbFieldName=new StringBuilder(15);
+			StringBuilder sbLength=new StringBuilder();
+			StringBuilder sbFileName=new StringBuilder(15);
+			sbFieldName.append(Constants.CDO.HTTP_CDO_RESPONSE);
+			sbLength.append(cdoXmlLen);	
+			sbFileName.append("xml");
+			
+			List<File> listFiles=new ArrayList<File>();
+			if(cdoResponse!=null && cdoResponse.getSerialFileCount()>0){
+	    		 Iterator<Map.Entry<String,Field>> it=cdoResponse.entrySet().iterator();    		 
+	    		 while(it.hasNext()){
+	    			 Map.Entry<String,Field> entry=it.next();
+	    			 Field objExt=entry.getValue();
+	    			 if(objExt.getType().getDataType()==DataType.FILE_TYPE){  
+	    				 FileField f=(FileField)objExt;
+	    				 sbFieldName.append(","+entry.getKey());
+	    				 sbLength.append(","+f.getValue().length());
+	    				 sbFileName.append(","+f.getValue().getName());
+	    				 totalLen=totalLen+f.getValue().length();
+	    				 listFiles.add(f.getValue());
+	    			 }
+	    		 }	    		
+			}
+			response.setHeader(sbFieldName.toString(), sbLength.toString()+";"+sbFileName);
+//			response.setHeader("Content-Length", ""+totalLen);  在resin http/1.1 会处理字节存在问题,不设置长度
+			return listFiles.toArray(new File[listFiles.size()]);
 		}
-		response.setHeader(sbFieldName.toString(), sbLength.toString()+";"+sbFileName);
-//		response.setHeader("Content-Length", ""+totalLen);  在resin http/1.1 会处理字节存在问题,不设置长度
-		return listFiles.toArray(new File[listFiles.size()]);
-	}
-
-
-	
-	 private CDO parseInputStream2CDO(InputStream inputStream) 
-	    {
-	    	// 读取http中的（xml）数据流
-	    	BufferedReader bufferReader=null;
-	    	ByteArrayInputStream byteInStream=null;
-	    	StringBuilder messageXml =null;    	
-	    	try{
-	    		messageXml=new StringBuilder(100);
-	    		bufferReader=new BufferedReader(new InputStreamReader(inputStream,Constants.Encoding.CHARSET_UTF8));	  	   
-		  	    String line = null;  
-		  	    while ((line = bufferReader.readLine()) != null) {   
-		  	    		messageXml.append(line);   
-		  	          }	  	    		  	    
-		  	   return CDO.fromXML(messageXml.toString());
-	    	}catch(Throwable ex){
-	    		log.error("读取解释request流异常:"+ex.getMessage(),ex);
-	    		return null;
-	    	}finally{
-	    		try{if(byteInStream!=null) byteInStream.close();}catch(Exception ex){}
-	    		try{if(bufferReader!=null) bufferReader.close();}catch(Exception ex){}
-	    		try{if(messageXml!=null) messageXml.delete(0, messageXml.length());}catch(Exception ex){}
-	    		messageXml=null;			
-	    	}
-
-	    }
-	
-	protected CDO processUploadFile(HttpServletRequest request,Map<String,File> mapFile) throws ServletException, IOException {  
+	 /**
+	  * 使用http+proto格式	
+	  * @param request
+	  * @return
+	  * @throws IOException
+	  */
+	 private CDO processProtobufEntity(HttpServletRequest request) throws  IOException {  		  
+			 ServletInputStream sis=null;  
+			 ByteArrayOutputStream baos=null;
+			try {    
+		        	final int BUFFER_SIZE = 4*Constants.Byte.defaultSize;
+		            byte[] buffer = new byte[ BUFFER_SIZE];
+		            sis = request .getInputStream();
+		            int length = 0;
+		            baos = new ByteArrayOutputStream();	        	        
+		            while(( length =  sis.read( buffer))>0){   
+		                  baos.write( buffer, 0, length);
+		            } 	           
+		            return Serializable.byte2ProtoCDO(baos.toByteArray());     
+		        } catch(Throwable e) {  
+		           throw new IOException(e.getMessage(),e);        
+		        }finally{
+		        	if(sis!=null){try{sis.close();}catch(Exception ex){}}
+		        	if(baos!=null){try{baos.close();}catch(Exception ex){}}
+		        }  	      
+		   }
+	 
+	 /**
+	  * 文件上传  使用 常规的muti part格式
+	  * @param request
+	  * @param mapFile
+	  * @return
+	  * @throws ServletException
+	  * @throws IOException
+	  */
+	private  CDO processUploadFile(HttpServletRequest request,Map<String,File> mapFile) throws ServletException, IOException {  
 	        try {    
 	            String saveDirPath =System.getProperty(Constants.CDO.HTTP_UPLOAD_FILE_PATH,
 	            		this.getServletContext().getRealPath("/cdoUploadPath"));
@@ -309,7 +304,7 @@ public  class CDOServlet extends HttpServlet
 	            factory.setFileCleaningTracker(fileCleaningTracker);  
 	  
 	            ServletFileUpload upload = new ServletFileUpload(factory);  
-	  
+	            
 	            //设置文件上传进度监听器  
 //	            FileProcessListener processListener = new FileProcessListener(request.getSession());  
 //	            upload.setProgressListener(processListener);  	  
@@ -342,7 +337,7 @@ public  class CDOServlet extends HttpServlet
 	                }else{
 	                   	if(log.isDebugEnabled())
 	                		log.debug("fieldName[" + fieldName + "] value[" + fileItem.getString() + "]"); 
-	                	if(fieldName.equals(Constants.CDO.HTTP_CDO_REQUEST)){
+	                	if(fieldName.equals(Constants.CDO.HTTP_CDO_REQUEST)){	                		
 	                		 return CDO.fromXML(fileItem.getString());
 	                	}
 	                } 

@@ -31,6 +31,7 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.ByteArrayEntity;
 //import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -215,20 +216,18 @@ public class HttpClient {
 					for(NameValuePair pair:this.paramsList){	
 							((MultipartEntity)entity).addPart(pair.getName(), new StringBody(pair.getValue(),Charset.forName(Constants.Encoding.CHARSET_UTF8)));								
 					}
-					if(getTransCDO()!=null){
-						entity = new MultipartEntity();
+					//设置CDO 参数
+					if(getTransCDO()!=null){					
 					   ((MultipartEntity)entity).addPart(Constants.CDO.HTTP_CDO_REQUEST,new StringBody(getTransCDO().toXML()));				  
 					}
 				}else{					
 					if(getTransCDO()!=null){
-						entity =new StringEntity(getTransCDO().toXML(), Constants.Encoding.CHARSET_UTF8);					   				 
+						entity = new ByteArrayEntity(getTransCDO().toProtoBuilder().build().toByteArray());
 					}else{
 						//普通请求
 						entity = new UrlEncodedFormEntity(paramsList,Charset.forName(Constants.Encoding.CHARSET_UTF8));	
 					}	
-				}
-								
-
+				}								
 				/**4.5
 				 * 
 				 *  MultipartEntityBuilder reqEntity=MultipartEntityBuilder.create();				 * 
