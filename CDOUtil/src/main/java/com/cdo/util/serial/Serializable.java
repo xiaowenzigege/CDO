@@ -16,7 +16,7 @@ import org.json.JSONException;
 
 import com.cdo.avro.handle.ParseAvroCDO;
 import com.cdo.avro.protocol.AvroCDO;
-import com.cdo.google.handle.ParseProtoCDO;
+import com.cdo.google.ParseProtoCDO;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.util.JsonUtil;

@@ -4,7 +4,7 @@ package com.cdo.business.web.client;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import com.cdo.google.handle.ParseProtoCDO;
+import com.cdo.google.ParseProtoCDO;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.google.protobuf.InvalidProtocolBufferException;

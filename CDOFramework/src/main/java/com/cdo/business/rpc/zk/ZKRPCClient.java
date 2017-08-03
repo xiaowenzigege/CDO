@@ -1,6 +1,7 @@
 package com.cdo.business.rpc.zk;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -27,14 +28,19 @@ public abstract class ZKRPCClient implements IClient{
 	protected String zkConnect;
 	/**自定义的zkId**/
 	protected String zkId;
-	
-	 void setServiceMap(Map<String, ZkNodeData> paramMap){
-		serviceMap.clear();
+
+	void setServiceMap(Map<String, ZkNodeData> paramMap){		
 		serviceMap.putAll(paramMap);
+		//清除不存在的服务
+		for(Iterator<String> it=serviceMap.keySet().iterator();it.hasNext();){
+			String key=it.next();
+			if(!paramMap.containsKey(key)){
+				serviceMap.remove(key);
+			}
+		}
 	}
 	
-	public Map<String, ZkNodeData> getServiceMap(){
-		
+	public Map<String, ZkNodeData> getServiceMap(){		
 		return serviceMap;
 	}
 	
@@ -61,20 +67,44 @@ public abstract class ZKRPCClient implements IClient{
 				throw new NotEstablishConnectException("Service["+strServiceName+"] not registered on zk server");	
 			}					
 			RoundRobinScheduling roundSchedule=zkServerMap.get(strServiceName).getRobinScheduling();
+			NettyClientFactory nettyClientFactory=NettyClientFactory.getDefaultInstance();
+			
 			Server server=roundSchedule.getServer();		
 			String remoteAddress=server.getHostPost();	
-			CircleRPCQueue<ClientHandler> rpcClients=NettyClientFactory.getDefaultInstance().getRouteMap().get(server.getHostPost());
+			CircleRPCQueue<ClientHandler> rpcClients=nettyClientFactory.getRouteMap().get(server.getHostPost());
 			if(rpcClients==null || rpcClients.getQueueSize()==0){
-				//还未创立对象，或者队列里还没有长连接，创建连接
-				NettyClientFactory.getDefaultInstance().createMutiClient(remoteAddress);
+				//还未创立对象，或者队列里还没有长连接，则一次性创建配置项里的连接
+				nettyClientFactory.createMutiClient(remoteAddress);
+				int retryCount=0;
+				while(retryCount<5){
+					//创建连接需要时间,因此等待尝试5次,
+					try{Thread.sleep(1000+500*retryCount);}catch(Exception em){}
+					rpcClients=nettyClientFactory.getRouteMap().get(server.getHostPost());					
+					if(rpcClients!=null){
+						return rpcClients.getCircleFront();
+					}
+					retryCount++;
+				}
 				return null;
 			}
 			ClientHandler handle=rpcClients.getCircleFront();
 			if(handle!=null){
 				return handle;
 			}	
-		    //若队列里的该连接 为null，即有可能连接中断被移除,需重新创建连接
-			NettyClientFactory.getDefaultInstance().connect(remoteAddress);	
+			//handle=null,表明连接不存在或已断开,则重新创建连接
+			nettyClientFactory.connect(remoteAddress);	
+			/**
+			 * 同一个远程remote address,本地有多个连接 在循环队列里的连接 远程remote address. 若 连接为null,需要创建,
+			 * 依次在队列获取 连接，若队列循环完毕，还未有可用连接,则返回			 * 
+			 */
+			int retryCount=0;
+			while(retryCount<rpcClients.getCapacity()){
+				handle=rpcClients.getCircleFront();
+				if(handle!=null)
+					return handle;
+				nettyClientFactory.connect(remoteAddress);	
+				retryCount++;
+			}
 			return null; 
 		}
 

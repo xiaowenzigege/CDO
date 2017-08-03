@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 import com.cdo.google.handle.CDOMessage;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
-import com.cdo.google.handle.Header;
 import com.cdo.google.handle.ProtoProtocol;
 import com.cdo.util.constants.Constants;
 

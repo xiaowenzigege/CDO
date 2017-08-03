@@ -11,11 +11,11 @@ import org.apache.log4j.Logger;
 import com.cdo.business.rpc.client.Call;
 import com.cdo.business.rpc.client.CallsLinkedHashMap;
 import com.cdo.business.rpc.client.ClientHandler;
+import com.cdo.google.Header;
 //import com.cdo.business.rpc.RPCFile;
 //import com.cdo.util.common.UUidGenerator;
 //import com.google.protobuf.ByteString;
 import com.cdo.google.handle.CDOMessage;
-import com.cdo.google.handle.Header;
 import com.cdo.google.handle.ProtoProtocol;
 import com.cdo.google.protocol.GoogleCDO;
 
@@ -114,7 +114,7 @@ public class RPCClientHandler extends  ClientHandler {
 	    			int callId=proto.getCallId();
 	    			Call call = calls.get(callId);
 	    	        calls.remove(callId);    	        
-	    	        call.setRPCResponse(new RPCResponse(proto, cdoMessage.getFiles()));	
+	    	        call.setRPCResponse(new RPCResponse(proto, null));	
 	    	      break;
 	    	    default:
 	    	    	ctx.fireChannelRead(msg);
