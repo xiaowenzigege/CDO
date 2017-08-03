@@ -41,6 +41,7 @@ import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.data.cdo.FileField;
+import com.cdoframework.cdolib.servicebus.IServiceBus;
 //import com.cdoframework.cdolib.servicebus.ITransService;
 /**
  * 
@@ -56,25 +57,11 @@ public  class CDOServlet extends HttpServlet
 
 	private static Logger log=Logger.getLogger(CDOServlet.class);
 	private final static long maxFileSize=1024*1024*50;	
-	// 静态对象,所有static在此声明并初始化------------------------------------------------------------------------
 
-	// 内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
-	protected ServletConfig servletConfig;
+	private IServiceBus serviceBus;
 
-	// 属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
-
-	// 引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
-
-	// 内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
-	protected String getRequestParameter(HttpServletRequest request,String strName)
-	{
-		String strValue=request.getParameter(strName);
-		if(strValue==null)
-		{
-			strValue=request.getHeader(strName);
-		}
-
-		return strValue;
+	public CDOServlet(){
+		serviceBus=BusinessService.getInstance().getServiceBus();
 	}
 
 	// 公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
@@ -121,7 +108,7 @@ public  class CDOServlet extends HttpServlet
 			if(cdoRequest==null)
 				throw new IOException("cdoRequest is null");
 			
-			ret=BusinessService.getInstance().getServiceBus().handleTrans(cdoRequest, cdoResponse);
+			ret=serviceBus.handleTrans(cdoRequest, cdoResponse);
 			/**
 			if(cdoRequest.exists(ITransService.PACKAGE_KEY)){
 				
@@ -263,14 +250,6 @@ public  class CDOServlet extends HttpServlet
 	}
 
 
-	// 构造函数,所有构造函数在此定义------------------------------------------------------------------------------
-
-	public CDOServlet()
-	{
-		// 请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
-	}
-	
-	
 	
 	 private CDO parseInputStream2CDO(InputStream inputStream) 
 	    {
