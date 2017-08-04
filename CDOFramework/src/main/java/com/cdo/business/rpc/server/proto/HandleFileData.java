@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.cdo.google.protocol.GoogleCDO;
 
-public class HandleData {
+public class HandleFileData {
 	private GoogleCDO.CDOProto proto;
 	private List<File> listFile;
 	

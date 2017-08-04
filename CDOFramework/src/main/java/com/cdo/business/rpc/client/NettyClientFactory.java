@@ -63,6 +63,8 @@ public class NettyClientFactory {
 	
 	private   static Map<String, CircleRPCQueue<ClientHandler>> routeMap=new HashMap<String,CircleRPCQueue<ClientHandler>>();
 	
+	private  Class<? extends  io.netty.channel.socket.SocketChannel> channelClass; 
+	 
 	private NettyClientFactory(){
 		channelThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_WORK,Runtime.getRuntime().availableProcessors()));
 		retryInterval=Math.max(5, SystemPropertyUtil.getInt(Constants.Netty.THREAD_CLIENT_RETRY_INTERVAL,5));
@@ -126,57 +128,54 @@ public class NettyClientFactory {
 				EventLoopGroup workerGroup =null;	
 				
 		        if(SystemUtil.isLinux()){
-		            workerGroup = new EpollEventLoopGroup(channelThread);       	
+		            workerGroup = new EpollEventLoopGroup(channelThread);    
+		            channelClass=EpollSocketChannel.class;
 		        }else{		           
 		            workerGroup = new NioEventLoopGroup(channelThread);  
+		            channelClass=NioSocketChannel.class;
 		        }		        
 			    bootstrap = new Bootstrap();			    
-			    bootstrap.group(workerGroup);
-			    if(SystemUtil.isLinux()){
-			    	bootstrap.channel(EpollSocketChannel.class);
-			    }else{
-			    	bootstrap.channel(NioSocketChannel.class);
-			    }
-//			    bootstrap.option(ChannelOption.TCP_NODELAY,true);	    	
-			    bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-			    //连接断开后,需要处理连接 ,尝试重连
-			    bootstrap.handler(new ChannelInitializer<SocketChannel>(){
-				@Override
-				protected void initChannel(SocketChannel ch) throws Exception {
-			        ChannelPipeline p = ch.pipeline();			       
-			        p.addLast(new ChannelInboundHandlerAdapter() {
-				          @Override
-				          public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-				            super.channelInactive(ctx);	
-				            SocketChannel socketChannel=(SocketChannel)ctx.channel();		
-				            InetSocketAddress remoteAddress=socketChannel.remoteAddress();	
-				            InetSocketAddress localAddress=socketChannel.localAddress();	
-				            String serverAddress=remoteAddress.getHostString()+":"+remoteAddress.getPort();
-				            String clientAddress=localAddress.getHostString()+":"+localAddress.getPort();
-				            //删除对应的失效的长连接
-				            boolean flag=routeManager.removeRPCClient(serverAddress, ctx.channel().pipeline().get(XMLRPCClientHandler.class));
-				            if(!flag){
-					        	  logger.warn("delete handle to CircleRPCQueue fail,maybe not found in queue");					        	  
-					          }
-				            logger.warn( "ctx is channelInactive,after 5 secondes retry connection remote=["+serverAddress+"],local="+clientAddress);
-				            executor.execute(new Runnable() {								
-									@Override
-									public void run() {
-										try{
-											TimeUnit.SECONDS.sleep(retryInterval);
-										}catch(Exception ex){}										
-										doConnect(serverAddress,clientAddress);								
-									}
-								});	  
-				          }
-				        });			        
-			        p.addLast("encoder",new CDOXmlEncoder());
-			        p.addLast("decoder",new CDOXmlDecoder());  
-			        p.addLast("ideaHandler",new IdleStateHandler(60,10,0));
-			        p.addLast("heartbeat",new HeartbeatClientHandler());
-			        p.addLast("handle",new XMLRPCClientHandler());				
-				}            	 
-		      });
+			    bootstrap.group(workerGroup)
+			    		.channel(channelClass)
+			    		.option(ChannelOption.SO_KEEPALIVE, true)
+			    		.handler(new ChannelInitializer<SocketChannel>(){
+							@Override
+							protected void initChannel(SocketChannel ch) throws Exception {
+						        ChannelPipeline p = ch.pipeline();			       
+						        p.addLast(new ChannelInboundHandlerAdapter() {
+							          @Override
+							          public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+							            super.channelInactive(ctx);	
+							            SocketChannel socketChannel=(SocketChannel)ctx.channel();		
+							            InetSocketAddress remoteAddress=socketChannel.remoteAddress();	
+							            InetSocketAddress localAddress=socketChannel.localAddress();	
+							            String serverAddress=remoteAddress.getHostString()+":"+remoteAddress.getPort();
+							            String clientAddress=localAddress.getHostString()+":"+localAddress.getPort();
+							            //删除对应的失效的长连接
+							            boolean flag=routeManager.removeRPCClient(serverAddress, ctx.channel().pipeline().get(XMLRPCClientHandler.class));
+							            if(!flag){
+								        	  logger.warn("delete handle to CircleRPCQueue fail,maybe not found in queue");					        	  
+								          }
+							            logger.warn( "ctx is channelInactive,after 5 secondes retry connection remote=["+serverAddress+"],local="+clientAddress);
+							            executor.execute(new Runnable() {								
+												@Override
+												public void run() {
+													try{
+														TimeUnit.SECONDS.sleep(retryInterval);
+													}catch(Exception ex){}										
+													doConnect(serverAddress,clientAddress);								
+												}
+											});	  
+							          }
+							        });		
+						        
+						p.addLast("encoder",new CDOProtobufEncoder());
+						p.addLast("decoder",new CDOProtobufDecoder());  
+				        p.addLast("ideaHandler",new IdleStateHandler(60,10,0));
+				        p.addLast("heartbeat",new HeartbeatClientHandler());
+				        p.addLast("handle",new RPCClientHandler());				
+					}            	 
+			      });
 		    }catch(Exception ex){
 		      logger.error(ex.getMessage(), ex);
 		    }	

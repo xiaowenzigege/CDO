@@ -38,17 +38,20 @@ public class RPCServer {
 	static BusinessService app=null;
     protected Thread shutdownHook = null;
        
+    private  Class<? extends  io.netty.channel.socket.ServerSocketChannel> channelClass; 
     
 	public void start(){        
         int bossThread=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_BOSS,Runtime.getRuntime().availableProcessors()));
         int channelThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_WORK,Runtime.getRuntime().availableProcessors()*2));                
-        
+       
         if(SystemUtil.isLinux()){
             bossGroup = new EpollEventLoopGroup(bossThread);
-            workerGroup = new EpollEventLoopGroup(channelThread);       	
+            workerGroup = new EpollEventLoopGroup(channelThread);
+            channelClass=EpollServerSocketChannel.class;
         }else{
             bossGroup = new NioEventLoopGroup(bossThread);
             workerGroup = new NioEventLoopGroup(channelThread);  
+            channelClass=NioServerSocketChannel.class;
         }
              
         try {        
@@ -57,14 +60,10 @@ public class RPCServer {
             b.group(bossGroup, workerGroup)
              .option(ChannelOption.TCP_NODELAY, true)  
              .option(ChannelOption.SO_BACKLOG, 1024)
-             .childOption(ChannelOption.SO_KEEPALIVE, true);
-             if(SystemUtil.isLinux()){
-            	 b.channel(EpollServerSocketChannel.class);
-             }else{
-            	 b.channel(NioServerSocketChannel.class);
-             }
-             b.handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new XMLRPCServerInitializer());
+             .childOption(ChannelOption.SO_KEEPALIVE, true)
+             .channel(channelClass)
+             .handler(new LoggingHandler(LogLevel.INFO))
+             .childHandler(new RPCServerInitializer());
                         	
             if(GlobalResource.cdoConfig==null)
             	GlobalResource.bundleInitCDOEnv();

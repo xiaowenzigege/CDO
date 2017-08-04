@@ -1,13 +1,17 @@
 package com.cdo.business.rpc.client.proto;
 
+import java.io.File;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.log4j.Logger;
 
 import com.cdo.business.rpc.client.Call;
 import com.cdo.business.rpc.client.CallsLinkedHashMap;
 import com.cdo.business.rpc.client.ClientHandler;
 import com.cdo.google.Header;
-import com.cdo.google.handle.CDOMessage;
+import com.cdo.google.fileHandle.CDOFileMessage;
+import com.cdo.business.rpc.RPCFile;
 import com.cdo.google.handle.ProtoProtocol;
 import com.cdo.google.protocol.GoogleCDO;
 
@@ -15,28 +19,50 @@ import com.cdoframework.cdolib.data.cdo.CDO;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
-public class RPCClientHandler extends  ClientHandler {
-	private  Logger logger=Logger.getLogger(RPCClientHandler.class);
+public class RPCFileClientHandler extends  ClientHandler {
+	private  Logger logger=Logger.getLogger(RPCFileClientHandler.class);
 
-    private  Channel channel; 
+    private  Channel channel;
+//    private ByteString clientId; 
     final CallsLinkedHashMap calls = new CallsLinkedHashMap();
     /** A counter for generating call IDs. */
     final AtomicInteger callIdCounter = new AtomicInteger();
     
-    public RPCResponse handleTrans(CDO cdoRequest) {      	
+    public RPCResponse handleTrans(CDO cdoRequest) {  
+    	
+    	List<File> files=null;
+    	try{
+    		files=RPCFile.readFileFromCDO(cdoRequest);    		
+    	}catch(Exception ex){
+		    //文件不存在直接返回 ,跟RPCServerHandler 返回给客户端保持一致风格
+    		logger.error(ex.getMessage(), ex);
+    		CDO cdoOutput=new CDO();
+			CDO cdoResponse=new CDO();
+			CDO cdoReturn=new CDO();
+			cdoReturn.setIntegerValue("nCode",-1);
+			cdoReturn.setStringValue("strText","RPCClient "+ex.getMessage());
+			cdoReturn.setStringValue("strInfo","RPCClient "+ex.getMessage());
+			cdoOutput.setCDOValue("cdoReturn",cdoReturn);
+			cdoOutput.setCDOValue("cdoResponse", cdoResponse);	    					 
+			return new RPCResponse(cdoOutput.toProtoBuilder().build());
+    	}
+    	
     	//CDO请求数据
     	int callId=callIdCounter.getAndIncrement() & Integer.MAX_VALUE;
         final Call call =new Call(callId);    
     	GoogleCDO.CDOProto.Builder proto=cdoRequest.toProtoBuilder();
-    	proto.setCallId(callId);
-		//构造proto message发送数据
+    	proto.setCallId(callId);	
+		//构造发送message 类型数据
 		Header reqHeader=new Header();
 		reqHeader.setType(ProtoProtocol.TYPE_CDO);
-		CDOMessage reqMessage=new CDOMessage();
+		CDOFileMessage reqMessage=new CDOFileMessage();
 		reqMessage.setHeader(reqHeader);
-		reqMessage.setBody(proto.build());				
+		reqMessage.setBody(proto.build());
+		reqMessage.setFiles(files);
+		
 		
         channel.writeAndFlush(reqMessage);
+
         //同步调用
         calls.put(callId, call,new RPCResponse());        
         boolean interrupted = false;
@@ -54,28 +80,29 @@ public class RPCClientHandler extends  ClientHandler {
             Thread.currentThread().interrupt();
           }          
          reqMessage=null;
-         return (RPCResponse)call.getRPCResponse();         
+         return (RPCResponse)call.getRPCResponse();
+         
        }
     }
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) {
         channel = ctx.channel();
-        //clientId=ByteString.copyFrom(UUidGenerator.ClientId.getClientId());
+//      clientId=ByteString.copyFrom(UUidGenerator.ClientId.getClientId());
 
     }
     
    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {    
-    	if(msg instanceof CDOMessage){ 
-    		CDOMessage cdoMessage=(CDOMessage)msg;    	
+    	if(msg instanceof CDOFileMessage){ 
+    		CDOFileMessage cdoMessage=(CDOFileMessage)msg;    	
 		    switch(cdoMessage.getHeader().getType()){
 		    	case ProtoProtocol.TYPE_CDO:
 	        		GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(cdoMessage.getBody());
 	    			int callId=proto.getCallId();
 	    			Call call = calls.get(callId);
 	    	        calls.remove(callId);    	        
-	    	        call.setRPCResponse(new RPCResponse(proto,null));	
+	    	        call.setRPCResponse(new RPCResponse(proto,cdoMessage.getFiles()));	
 	    	      break;
 	    	    default:
 	    	    	ctx.fireChannelRead(msg);
