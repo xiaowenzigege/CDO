@@ -81,10 +81,15 @@ public  class CDOServlet extends HttpServlet
 	{
 			// 构造请求对象
 		CDO cdoRequest=null;
-		Map<String, File> mapFileMap=null;
+		Return ret=null;
+		Map<String, File> mapFileMap=null;		
+		// 输出响应数据
+		CDO cdoOutput=new CDO();
+		CDO cdoReturn=new CDO();
+		CDO cdoResponse=new CDO();		
 		try
 		{
-			String serialFile=request.getHeader(Constants.CDO.HTTP_CDO_UPLOADFILE_KEY);
+			String serialFile=request.getHeader(Constants.CDO.HTTP_CDO_UPLOAD_FILE_FLAG);
 			if(serialFile!=null && serialFile.trim().equals("1")){
 				//表示有文件对象需要上传 
 				mapFileMap=new HashMap<String,File>();
@@ -98,66 +103,37 @@ public  class CDOServlet extends HttpServlet
 			}else{
 				cdoRequest=processProtobufEntity(request);
 			}
-		}catch(Exception e){						
-			log.error("error:"+e.getMessage(),e);
-			outPutFail(response," Request Parameter Error :"+e.getMessage());
-			if(cdoRequest!=null)
-				cdoRequest.deepRelease();			
-			return;						
-		}	
-		// 执行事务
-		CDO cdoResponse=new CDO();
-		Return ret=null;
-		try{
-			if(cdoRequest==null)
-				throw new IOException("cdoRequest is null");			
-			ret=serviceBus.handleTrans(cdoRequest, cdoResponse);
-		}catch (Throwable e){
-			log.error("error:"+e.getMessage(),e);
-			outPutFail(response," Service Internal Error :"+e.getMessage());
-			if(cdoRequest!=null)
-				cdoRequest.deepRelease();	
-			return; 				
-		}			
-		if(ret==null)
-		{			
-			outPutFail(response," ret is null,may be Request method not found,cdoRequest="+cdoRequest);
-			return;			
-		}		
-		// 输出结果
-		CDO cdoOutput=new CDO();
-		try{						
-			CDO cdoReturn=new CDO();
-			cdoReturn.setIntegerValue("nCode",ret.getCode());
-			cdoReturn.setStringValue("strText",ret.getText());
-			cdoReturn.setStringValue("strInfo",ret.getInfo());
+		
+		  if(cdoRequest==null)
+				throw new IOException("cdoRequest is null");		
+		  ret=serviceBus.handleTrans(cdoRequest, cdoResponse);		
+		  if(ret==null)
+			  throw new IOException("ret is null,may be Request method not found,cdoRequest="+cdoRequest);
+		
+		  
+		  cdoReturn.setIntegerValue("nCode",ret.getCode());
+		  cdoReturn.setStringValue("strText",ret.getText());
+		  cdoReturn.setStringValue("strInfo",ret.getInfo());
 
-			cdoOutput.setCDOValue("cdoReturn",cdoReturn);
-			cdoOutput.setCDOValue("cdoResponse", cdoResponse);
+		  cdoOutput.setCDOValue("cdoReturn",cdoReturn);
+		  cdoOutput.setCDOValue("cdoResponse", cdoResponse);			
+		  //输出	
+		  outputReponse(response, cdoOutput,cdoResponse);
+		}catch(Throwable e){						
+			log.error("error:"+e.getMessage(),e);
+			cdoReturn.setIntegerValue("nCode",-1);
+			cdoReturn.setStringValue("strText"," handle Service Error :"+e.getMessage());
+			cdoReturn.setStringValue("strInfo"," handle Service Error :"+e.getMessage());
 			
-			//TODO 可增加网页类cache  CacheUtil.handleReqCache(request, response, ret);
+			cdoOutput.setCDOValue("cdoReturn",cdoReturn);
+			cdoOutput.setCDOValue("cdoResponse",cdoResponse);
+			//输出	
 			outputReponse(response, cdoOutput,cdoResponse);
 		}finally{
-			//业务处理完毕 释放CDO
-			cdoRequest.deepRelease();			
+			if(cdoRequest!=null)
+				cdoRequest.deepRelease();	
 		}		
 	}
-
-	private void outPutFail(HttpServletResponse response,String message) throws IOException{
-		// 输出结果
-		CDO cdoOutput=new CDO();
-		CDO cdoReturn=new CDO();
-		cdoReturn.setIntegerValue("nCode",-1);
-		cdoReturn.setStringValue("strText",message);
-		cdoReturn.setStringValue("strInfo",message);
-		cdoOutput.setCDOValue("cdoReturn",cdoReturn);
-		cdoOutput.setCDOValue("cdoResponse",new CDO());
-		
-		response.setHeader("Cache-control","no-cache,no-store");
-		outputReponse(response, cdoOutput,cdoOutput);
-	}
-	
-
 	
 	// 事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------
 
@@ -191,7 +167,7 @@ public  class CDOServlet extends HttpServlet
 	                inStream.close(); 
 				}						
 				out.flush();
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				log.error("wirte response errr"+e.getMessage(), e);
 			}finally{
 				if(inStream!=null){try{inStream.close();}catch(Exception ex){};}
@@ -201,12 +177,8 @@ public  class CDOServlet extends HttpServlet
 		
 		private File[] setResponseHeader(HttpServletResponse response, byte[] byteOutput,CDO cdoResponse) throws UnsupportedEncodingException{
 			response.setContentType("application/octet-stream;charset=UTF-8");
+			response.setHeader("Cache-control","no-cache,no-store");
 			response.setHeader("Accept-Ranges", "bytes");
-			/**
-			byte[] cdoResXml=strOutput.getBytes("UTF-8");
-			int cdoXmlLen=cdoResXml.length;
-			long totalLen=cdoXmlLen;
-			**/
 			int cdoXmlLen=byteOutput.length;
 			long totalLen=cdoXmlLen;
 			
@@ -274,13 +246,13 @@ public  class CDOServlet extends HttpServlet
 	  */
 	private  CDO processUploadFile(HttpServletRequest request,Map<String,File> mapFile) throws ServletException, IOException {  
 	        try {    
-	            String saveDirPath =System.getProperty(Constants.CDO.HTTP_UPLOAD_FILE_PATH,
+	            String saveDirPath =System.getProperty(Constants.CDO.HTTP_CDO_UPLOAD_FILE_PATH,
 	            		this.getServletContext().getRealPath("/cdoUploadPath"));
 	            
 	            String tmpDirPath =System.getProperty("java.io.tmpdir");
 	            
 
-	            long maxSize=Long.parseLong(System.getProperty(Constants.CDO.UPLOAD_FILE_MAX_SIZE, maxFileSize+""));
+	            long maxSize=Long.parseLong(System.getProperty(Constants.CDO.HTTP_CDO_UPLOAD_FILE_MaxSize, maxFileSize+""));
 
 	            if(log.isDebugEnabled()){
 		            log.debug(" tmpDir= [" + tmpDirPath + "]"+" saveDir= [" + saveDirPath + "]");  		          		         

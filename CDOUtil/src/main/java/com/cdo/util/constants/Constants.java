@@ -94,12 +94,13 @@ public class Constants {
 	
 	//CDO传输数据的变量
 	public static class CDO{
-		public final static String HTTP_CDO_REQUEST="$$CDORequest$$";
-		public final static String HTTP_CDO_UPLOADFILE_KEY="$CDOSerialFile$";
+		public final static String HTTP_CDO_REQUEST="$Request$";
+		public final static String HTTP_CDO_RESPONSE="$Response$";
 		
-		public final static String HTTP_CDO_RESPONSE="$$CDOResponse$$";
-		public final static String HTTP_UPLOAD_FILE_PATH="cdo.uploadPath";	
-		public final static String UPLOAD_FILE_MAX_SIZE="cdo.uploadFile.MaxSize";
+		public final static String HTTP_CDO_UPLOAD_FILE_FLAG="$SerialFile$";		
+		
+		public final static String HTTP_CDO_UPLOAD_FILE_PATH="cdo.uploadPath";	
+		public final static String HTTP_CDO_UPLOAD_FILE_MaxSize="cdo.uploadFile.MaxSize";		
 		
 	}
 }

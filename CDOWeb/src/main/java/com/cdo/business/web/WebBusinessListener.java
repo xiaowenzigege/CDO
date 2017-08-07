@@ -50,8 +50,6 @@ public class WebBusinessListener implements ServletContextListener,ServletReques
     	}catch(Throwable ex){
     		logger.error("加载指定日志配置 ["+file+"] 异常:"+ex.getMessage(),ex);    		
     	}
-    	
-    	ThreadPoolFactory.getInstatnce();
 		Return ret = Return.OK;
 		BusinessService app = BusinessService.getInstance();		
 		try

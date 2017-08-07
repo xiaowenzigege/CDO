@@ -59,7 +59,7 @@ public class WebHttpClient implements IWebClient{
 	    			 if(objExt.getType().getDataType()==DataType.FILE_TYPE){
 	    				 uploadFiles.put(entry.getKey(),((FileField)entry.getValue()).getValue());
 	    				 //设置普通参表示有文件上传
-	    				 headers.put(Constants.CDO.HTTP_CDO_UPLOADFILE_KEY, "1");//表示CDO里包含有文件
+	    				 headers.put(Constants.CDO.HTTP_CDO_UPLOAD_FILE_FLAG, "1");//表示CDO里包含有文件
 	    			 }
 	    		 }
 	    		 httpClient.setHeaders(headers);
