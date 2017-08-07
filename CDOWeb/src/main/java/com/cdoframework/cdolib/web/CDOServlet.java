@@ -132,6 +132,7 @@ public  class CDOServlet extends HttpServlet
 		}finally{
 			if(cdoRequest!=null)
 				cdoRequest.deepRelease();	
+			cdoOutput.deepRelease();
 		}		
 	}
 	
@@ -171,8 +172,7 @@ public  class CDOServlet extends HttpServlet
 				log.error("wirte response errr"+e.getMessage(), e);
 			}finally{
 				if(inStream!=null){try{inStream.close();}catch(Exception ex){};}
-				if(out != null)try{out.close();}catch(Exception ex){};}	
-				cdoOutput.deepRelease();
+				if(out != null)try{out.close();}catch(Exception ex){};}					
 		}
 		
 		private File[] setResponseHeader(HttpServletResponse response, byte[] byteOutput,CDO cdoResponse) throws UnsupportedEncodingException{
