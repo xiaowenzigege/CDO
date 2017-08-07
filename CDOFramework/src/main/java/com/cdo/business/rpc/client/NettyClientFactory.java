@@ -137,6 +137,7 @@ public class NettyClientFactory {
 			    bootstrap = new Bootstrap();			    
 			    bootstrap.group(workerGroup)
 			    		.channel(channelClass)
+			    		.option(ChannelOption.TCP_NODELAY, true)  
 			    		.option(ChannelOption.SO_KEEPALIVE, true)
 			    		.handler(new ChannelInitializer<SocketChannel>(){
 							@Override
@@ -219,7 +220,7 @@ public class NettyClientFactory {
 		    	 String key=serverAddress+"-"+clientAddress;
 		         if (f.isSuccess()) {
 			    	  Channel channel=f.channel();			         			         			        
-			    	  XMLRPCClientHandler handle=f.channel().pipeline().get(XMLRPCClientHandler.class);
+			    	  RPCClientHandler handle=f.channel().pipeline().get(RPCClientHandler.class);
 			          //添加到路由
 			          boolean flag=routeManager.addRPCClientHandler(serverAddress, handle);	   
 			          if(!flag){

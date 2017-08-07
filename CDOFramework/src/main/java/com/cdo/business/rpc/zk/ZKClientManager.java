@@ -49,7 +49,7 @@ public class ZKClientManager {
 				logger.warn("zkId["+zkId+"] is alreay ");
 				return ;
 			}
-			ZKRPCClient rpcClient=new XMLRPCClient();
+			ZKRPCClient rpcClient=new RPCClient();
 			ZookeeperClient zkClient=new ZookeeperClient(zkConnect,rpcClient);
 			zkClient.connectZookeeper();			
 			rpcClient.setZKId(zkId);

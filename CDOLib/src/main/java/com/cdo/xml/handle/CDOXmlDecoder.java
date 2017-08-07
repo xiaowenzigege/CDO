@@ -89,9 +89,9 @@ public class CDOXmlDecoder extends ByteToMessageDecoder {
 						CDO cdoRequest=new CDO();
 						cdoRequest.setStringValue("decoder  exception", ex.getMessage());
 						message.setBody(cdoRequest.toXML()); 
-					}
-				 out.add(message);
-				} 		   
+					}				 
+				} 	
+				out.add(message);
 			}
 	}
 	

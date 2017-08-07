@@ -6,7 +6,7 @@ public interface Protocol {
 	 //魔数
 	 final short MAGIC_NUMBER=0xCDF;
 	 /**
-	  * 消息为 TYPE_HEARTBEAT_REQ,TYPE_HEARTBEAT_RES 心跳检测类型,则无实际内容传输，即不存在CDO对象
+	  * 消息为 TYPE_HEARTBEAT_REQ,TYPE_HEARTBEAT_RES 心跳检测类型,则无实际内容传输，即不存在CDO对象	  * 
 	  */
 	 final byte  TYPE_CDO=0x00;
 	 final byte  TYPE_HEARTBEAT_REQ=0x01;

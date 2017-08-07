@@ -1,12 +1,4 @@
 package com.cdo.google.handle;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -19,19 +11,15 @@ import com.google.protobuf.MessageLite;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.util.ReferenceCountUtil;
 /**
  * 
  * @author KenelLiu
- * 纯CDO,不包含文件
- * CDO 协议=魔数(2个字节)+消息类型(1个字节)+对象内容长度(3个字节)
+ *  CDO 协议=魔数(2个字节)+消息类型(1个字节)+对象内容长度(3个字节)
  */
 public class CDOProtobufDecoder extends ByteToMessageDecoder {
-	 private static Logger log=Logger.getLogger(CDOProtobufEncoder.class);
+	 private static Logger log=Logger.getLogger(CDOProtobufDecoder.class);
 	 
-	 
-	 CDOMessage message;
-	 
+	CDOMessage message;	 
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in,
 			List<Object> out) throws Exception {
@@ -54,7 +42,7 @@ public class CDOProtobufDecoder extends ByteToMessageDecoder {
 					return;
 				}			
 				//读取cdo内容长度
-				int len=readBodyLen(in);
+				int len=readBodyLen(in);			
 				//创建对象
 				message=new CDOMessage();
 				Header header=new Header();
@@ -83,7 +71,7 @@ public class CDOProtobufDecoder extends ByteToMessageDecoder {
 			           MessageLite result= GoogleCDO.CDOProto.getDefaultInstance().getParserForType().parseFrom(array, offset, readableLen);
 			           message.setBody(result); 
 			           bodyByteBuf.release();
-			           
+			         
 					}catch(Throwable ex){
 						log.error("decoder error:"+ex.getMessage(), ex);
 						CDO cdoRequest=new CDO();
@@ -91,7 +79,9 @@ public class CDOProtobufDecoder extends ByteToMessageDecoder {
 						message.setBody(cdoRequest.toProtoBuilder().build()); 
 					}
 				} 		   
-		  }
+				//数据解释完毕
+				out.add(message);
+			}
 	}
 	
 	//进行检查消息类型
@@ -124,6 +114,4 @@ public class CDOProtobufDecoder extends ByteToMessageDecoder {
 	   }
 	   return len;	   
    }
-  
- 
 }

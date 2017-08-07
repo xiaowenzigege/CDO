@@ -1,16 +1,12 @@
 package com.cdo.google.handle;
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.List;
-
 import org.apache.log4j.Logger;
-
 import com.cdo.google.Header;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.util.ReferenceCountUtil;
+
 
 /**
  * 	CDO 协议=魔数(2个字节)+消息类型(1个字节)+对象内容长度(3个字节)

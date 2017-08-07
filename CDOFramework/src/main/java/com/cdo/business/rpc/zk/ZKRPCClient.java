@@ -78,7 +78,7 @@ public abstract class ZKRPCClient implements IClient{
 				int retryCount=0;
 				while(retryCount<5){
 					//创建连接需要时间,因此等待尝试5次,
-					try{Thread.sleep(1000+500*retryCount);}catch(Exception em){}
+					try{Thread.sleep(1500+500*retryCount);}catch(Exception em){}
 					rpcClients=nettyClientFactory.getRouteMap().get(server.getHostPost());					
 					if(rpcClients!=null){
 						return rpcClients.getCircleFront();

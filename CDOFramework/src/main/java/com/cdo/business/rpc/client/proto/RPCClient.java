@@ -39,12 +39,12 @@ public class RPCClient extends ZKRPCClient{
 	   try {	
 		  ClientHandler rpcHandle=getRPCClient(strServiceName);
 		  if(rpcHandle==null){
-				int retryCount=1;//重试3次				
-				while(retryCount<=3){
+				int retryCount=1;//重试5次				
+				while(retryCount<=5){
 					rpcHandle=getRPCClient(strServiceName);
 					if(rpcHandle!=null) //创建链接成功，退出重试
 						break;
-					try{Thread.sleep(1000+500*retryCount);}catch(Exception em){}
+					try{Thread.sleep(1500+500*retryCount);}catch(Exception em){}
 					retryCount++;
 				}
 			}	
