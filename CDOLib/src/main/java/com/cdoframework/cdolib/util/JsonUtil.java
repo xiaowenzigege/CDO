@@ -1,12 +1,6 @@
 package com.cdoframework.cdolib.util;
 
 import java.io.File;
-//import java.text.DateFormat;
-//import java.text.SimpleDateFormat;
-//import java.util.Date;
-//import java.util.HashMap;
-//import java.util.stream.Collectors;
-//import com.cdoframework.cdolib.base.DateTime;
 import java.util.ArrayList;
 
 import java.util.Iterator;
@@ -19,15 +13,17 @@ import org.json.JSONObject;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
 
+/**
+ * json 与cdo 互相转换工具类
+ * @author KenelLiu
+ *
+ */
 public class JsonUtil {
-//	private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-//	private static DateFormat df = new SimpleDateFormat(DATE_TIME_FORMAT);
 
 	//---json中 value 数据类型 都转换成String,将json转换成CDO --/
 	final static byte JSON2CDO_String=1;
 	//==使用class定义的value 数据类型 [即在class中标识key类型即可],将jsong转换成CDO ==/	
 	final static byte JSON2CDO_Class=2;
-
 	
 	final static String Class_Byte="BYTE";
 	final static String Class_Short="SHORT";
@@ -227,7 +223,7 @@ public class JsonUtil {
 		}
 		//设置普通类型数组
 		if(commonList!=null){
-			setCommontArray(cdoParent, key,commonList, json2CDOType, cls);
+			setCommonArray(cdoParent, key,commonList, json2CDOType, cls);
 		}
 
 	}
@@ -362,7 +358,7 @@ public class JsonUtil {
 	 * @param cls
 	 * @throws JSONException
 	 */
-	private static void setCommontArray(CDO cdoRequest,String key,List<String> commonList,byte json2CDOType,Class<?>  cls) throws JSONException{
+	private static void setCommonArray(CDO cdoRequest,String key,List<String> commonList,byte json2CDOType,Class<?>  cls) throws JSONException{
 		String[] values=commonList.toArray(new String[commonList.size()]);
 		try{
 		switch (json2CDOType) {
