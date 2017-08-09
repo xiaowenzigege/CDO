@@ -1,14 +1,15 @@
 package com.cdo.avro.handle;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.avro.Schema;
+//import java.io.File;
+//import java.io.FileInputStream;
+//import java.io.IOException;
+//import java.io.InputStream;
+//import java.util.HashMap;
+//import java.util.Map;
+//import org.apache.avro.Schema;
 
 public class AvroUtils {
+	/**
 	private static Map<String, Schema> schemas = new HashMap<String, Schema>();
 	
     private AvroUtils(){}
@@ -73,4 +74,5 @@ public class AvroUtils {
 	    FileInputStream fis = new FileInputStream(file);
 	    return parseSchema(fis);
 	}
+	**/
 }

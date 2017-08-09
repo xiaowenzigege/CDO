@@ -12,7 +12,7 @@ public class Constants {
 	public static class Netty{
 		//服务端 RPCServer
 		public static final String THREAD_SERVER_BOSS="io.netty.eventLoopThreads";//netty主线程，默认 Runtime.getRuntime().availableProcessors()*1
-		public static final String THREAD_SERVER_WORK="io.netty.thread.channel";//处理netty主线程工作线程,默认Runtime.getRuntime().availableProcessors()*2
+		public static final String THREAD_SERVER_WORK="io.netty.thread.channel";//处理netty主线程工作线程,默认Runtime.getRuntime().availableProcessors()*2				
 		//客户端 RPCClient  工作线程
 		public static final String THREAD_CLIENT_WORK="io.netty.client.eventLoopThreads";//默认Runtime.getRuntime().availableProcessors()
 		// 重试间隔时间
@@ -25,14 +25,12 @@ public class Constants {
 	
 	//业务处理线程
 	public static class Business{	
-		//客户端  [同步/异步]调用线程
-		public static final String ASYNC="business.async";//默认是异步调用	
         //后端是否使用rpc提供服务 		
 		public static final String RPC="business.rpc";//是否使用RPC调用
 		//RPC同步调用 接口  超时时间  10 分钟
 		public static final String TIME_OUT="business.timeOut";			
 		//RPC调用服务端  使用io channel进行处理 业务 .是否直接调用nio 处理业务
-		public static final String DIRECT_NIO_CHANNEL="business.direct.nioChannel";		
+		public static final String DIRECT_NIO_CHANNEL="business.direct.nioChannel";	
 		//线程数量
 		public static final String CoreSize="business.coreSize";
 		//最大线程数
@@ -45,6 +43,9 @@ public class Constants {
 		public static final String Threshold="business.threshold";
 	}
 	
+	public static class Consumer{
+		public static final String COUNT="business.consumer.count";
+	}
 	public static class HTTP{
 		public static final String SoTimeout_MS="http.soTimeout";
 		public static final String ConnectionTimeout_MS="http.connection.timeOut";		

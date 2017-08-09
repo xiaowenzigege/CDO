@@ -23,7 +23,7 @@ import io.netty.util.internal.SystemPropertyUtil;
 public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 
 	private static Logger logger=Logger.getLogger(RPCServerHandler.class);
-	private int corePoolSize=Math.max(1,SystemPropertyUtil.getInt(Constants.Business.CoreSize,Runtime.getRuntime().availableProcessors()));
+	private int consumerCount=Math.max(1,SystemPropertyUtil.getInt(Constants.Consumer.COUNT,Runtime.getRuntime().availableProcessors()));
 	private ExecutorService exService=null;
 	//使用 io channel处理业务，则是   一个服务器对应了大量的客户端
 //	private boolean directNioChannel=SystemPropertyUtil.getBoolean(Constants.Business.DIRECT_NIO_CHANNEL,false);
@@ -82,13 +82,13 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
         
 		lnkTransQueue = new LinkedTransferQueue<GoogleCDO.CDOProto>();
 		exService=Executors.newCachedThreadPool();
-		consumer=new Consumer[corePoolSize]; 
-		for(int i=0;i<corePoolSize;i++){
+		consumer=new Consumer[consumerCount]; 
+		for(int i=0;i<consumerCount;i++){
 			consumer[i]=new Consumer(channel+",Consumer"+i,lnkTransQueue,this);
 			exService.submit(consumer[i]);
 		}		
 		if(logger.isInfoEnabled())
-			logger.info("channel="+channel+" is channelRegistered, lnkTransQueue  size="+corePoolSize);
+			logger.info("channel="+channel+" is channelRegistered, lnkTransQueue  create consumer count="+consumerCount);
     }
     
     @Override

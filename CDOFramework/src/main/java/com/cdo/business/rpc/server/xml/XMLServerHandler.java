@@ -42,7 +42,7 @@ public class XMLServerHandler extends SimpleChannelInboundHandler<XMLMessage> {
 
 	private static Logger logger=Logger.getLogger(XMLServerHandler.class);
 
-	private int corePoolSize=Math.max(1,SystemPropertyUtil.getInt(Constants.Business.CoreSize,Runtime.getRuntime().availableProcessors()));
+	private int consumerCount=Math.max(1,SystemPropertyUtil.getInt(Constants.Consumer.COUNT,Runtime.getRuntime().availableProcessors()));
 	private ExecutorService exService=null;
 	//使用 io channel处理业务，则是   一个服务器对应了大量的客户端
 	private boolean directNioChannel=SystemPropertyUtil.getBoolean(Constants.Business.DIRECT_NIO_CHANNEL,false);
@@ -99,9 +99,9 @@ public class XMLServerHandler extends SimpleChannelInboundHandler<XMLMessage> {
     public void channelRegistered(ChannelHandlerContext ctx) {
         channel = ctx.channel();   
         
-        if(corePoolSize==1){
+        if(consumerCount==1){
         	if(logger.isDebugEnabled())
-        		logger.debug("channel="+channel+" is channelRegistered, corePoolSize="+corePoolSize+",reset directNioChannel=true");
+        		logger.debug("channel="+channel+" is channelRegistered, consumerCount="+consumerCount+",reset directNioChannel=true");
         	directNioChannel=true;        	
         }
         if(directNioChannel){
@@ -111,14 +111,14 @@ public class XMLServerHandler extends SimpleChannelInboundHandler<XMLMessage> {
         }
         
 		lnkTransQueue = new LinkedTransferQueue<BusinessHandle>();
-		exService=Executors.newFixedThreadPool(corePoolSize);
-		consumer=new XmlConsumer[corePoolSize]; 
-		for(int i=0;i<corePoolSize;i++){
+		exService=Executors.newCachedThreadPool();
+		consumer=new XmlConsumer[consumerCount]; 
+		for(int i=0;i<consumerCount;i++){
 			consumer[i]=new XmlConsumer(channel+",Consumer"+i,lnkTransQueue);
 			exService.submit(consumer[i]);
 		}		
 		if(logger.isInfoEnabled())
-			logger.info("channel="+channel+" is channelRegistered, lnkTransQueue executor create newFixedThreadPool coresize="+corePoolSize);
+			logger.info("channel="+channel+" is channelRegistered, lnkTransQueue  create consumer count="+consumerCount);
     }
     
     @Override

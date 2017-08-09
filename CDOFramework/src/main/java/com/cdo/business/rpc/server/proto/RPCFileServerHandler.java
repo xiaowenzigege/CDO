@@ -38,12 +38,8 @@ import io.netty.util.internal.SystemPropertyUtil;
 public class RPCFileServerHandler extends SimpleChannelInboundHandler<CDOFileMessage> {
 
 	private static Logger logger=Logger.getLogger(RPCFileServerHandler.class);
-	private int corePoolSize=Math.max(1,SystemPropertyUtil.getInt(Constants.Business.CoreSize,Runtime.getRuntime().availableProcessors()));
+	private int consumerCount=Math.max(1,SystemPropertyUtil.getInt(Constants.Consumer.COUNT,Runtime.getRuntime().availableProcessors()));
 	private ExecutorService exService=null;
-	//空闲线程存活的时间
-//	private int keepAliveTime=Math.max(60,SystemPropertyUtil.getInt(Constants.Business.IDLE_KeepAliveTime,60));
-	//使用 io channel处理业务，则是   一个服务器对应了大量的客户端
-//	private boolean directNioChannel=SystemPropertyUtil.getBoolean(Constants.Business.DIRECT_NIO_CHANNEL,false);
 	
 	private Channel channel;
 	private LinkedTransferQueue<HandleFileData> lnkTransQueue;
@@ -100,13 +96,13 @@ public class RPCFileServerHandler extends SimpleChannelInboundHandler<CDOFileMes
         channel = ctx.channel();                  
 		lnkTransQueue = new LinkedTransferQueue<HandleFileData>();
 		exService=Executors.newCachedThreadPool();
-		consumer=new FileConsumer[corePoolSize]; 
-		for(int i=0;i<corePoolSize;i++){
+		consumer=new FileConsumer[consumerCount]; 
+		for(int i=0;i<consumerCount;i++){
 			consumer[i]=new FileConsumer(channel+",Consumer"+i,lnkTransQueue,this);
 			exService.submit(consumer[i]);
 		}		
 		if(logger.isInfoEnabled())
-			logger.info("channel="+channel+" is channelRegistered, lnkTransQueue executor create newFixedThreadPool coresize="+corePoolSize);
+			logger.info("channel="+channel+" is channelRegistered, lnkTransQueue  create consumer count="+consumerCount);
     }
     
     @Override
