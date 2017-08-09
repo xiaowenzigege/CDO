@@ -74,7 +74,10 @@ public interface IServicePlugin
 	String getPluginName();
 
 	INoSQLDataEngine getNoSQLDataEngine(String strNoSQLDBId);
+	
 	Return handleTrans(CDO cdoRequest,CDO cdoResponse);
+	
 	Return handleDataTrans(CDO cdoRequest,CDO cdoResponse);
-	Return handleDataTrans(String strServiceName,CDO cdoRequest,CDO cdoResponse);
+	
+	
 }

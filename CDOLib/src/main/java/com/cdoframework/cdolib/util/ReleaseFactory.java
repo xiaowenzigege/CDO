@@ -35,6 +35,7 @@ public class ReleaseFactory {
 		logger.info("Initialize Release thread pool succeed. ThreadPool: corePoolSize = " 
 		+ corePoolSize + ", queueSize = " + queueSize 
 		+ ", maxPoolSize = " + maxPoolSize);
+	
 	}
 	
 	/**

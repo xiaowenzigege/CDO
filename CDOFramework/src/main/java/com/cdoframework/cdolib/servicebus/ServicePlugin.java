@@ -368,95 +368,50 @@ public class ServicePlugin implements IServicePlugin
 	// 接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 	public Return handleTrans(CDO cdoRequest,CDO cdoResponse)
 	{
-		String strServiceName	= null;
-		String strTransName		= null;
-		try
-		{
-			strServiceName=cdoRequest.getStringValue("strServiceName");
-		}
-		catch(Exception e)
-		{
-			logger.error("handleTrans:"+e.getMessage(),e);
-			return null;
-		}
-		try
-		{
-			strTransName=cdoRequest.getStringValue("strTransName");
-		}
-		catch(Exception e)
-		{
-			logger.error("handleTrans:"+e.getMessage(),e);
-			return null;
-		}
-		return this.handleTrans(strServiceName,strTransName,cdoRequest,cdoResponse);
-	}
-	
-	public Return handleTrans(String strServiceName,String strTransName,CDO cdoRequest,CDO cdoResponse)
-	{
-		Return ret = null;
+
+		String strServiceName=cdoRequest.exists(ITransService.SERVICENAME_KEY)?cdoRequest.getStringValue(ITransService.SERVICENAME_KEY):null;
+		String strTransName=cdoRequest.exists(ITransService.TRANSNAME_KEY)?cdoRequest.getStringValue(ITransService.TRANSNAME_KEY):null;	
+		if(strServiceName==null||strTransName==null ||
+				strServiceName.length()==0|| strTransName.length()==0){
+			logger.error("[strServiceName,strTransName] can not be empty,strServiceName="+strServiceName+",strTransName="+strTransName);
+			return Return.valueOf(-1, "[strServiceName,strTransName] can not be empty", "[strServiceName,strTransName] can not be empty");
+		}		
 		IService service = this.hmService.get(strServiceName);
-		if(service==null)
-		{
-			try
-			{
-				onTransUnsupported(cdoRequest);
-			}
-			catch(Exception e)
-			{
-			}
+		if(service==null){
+			//service 未找到
+			logger.error("can not find service named "+strServiceName+",Trans not supported:"+strServiceName+'.'+strTransName);			
 			return Return.valueOf(-1,"can not find service named "+strServiceName);
 		}
-	
-		ret = service.handleTrans(cdoRequest,cdoResponse);
+		Return ret = service.handleTrans(cdoRequest,cdoResponse);
 		if(ret==null)
-		{// Trans不支持
-			try
-			{
-				onTransUnsupported(cdoRequest);
-			}
-			catch(Exception e)
-			{
-			}
-			return Return.valueOf(-1,"can not find service named "+strServiceName+"."+strTransName);
+		{// Trans 不支持 或 未找到
+			logger.error(" Return is null,maybe not find trans named "+strTransName+",Trans not supported:"+strServiceName+'.'+strTransName);	
+			return Return.valueOf(-1, strServiceName+"."+strTransName+" Return is null,maybe not find trans  named");
 		}
-
-
 		return ret;
 	}
+	
+
 
 	public Return handleDataTrans(CDO cdoRequest,CDO cdoResponse)
 	{
-		String strServiceName=null;
-		try
-		{
-			strServiceName=cdoRequest.getStringValue("strServiceName");
-		}
-		catch(Exception e)
-		{
-		}
-		if(strServiceName==null)
-		{
-			return Return.valueOf(-1,"There's no parameter strServiceName");
-		}
+		String strServiceName=cdoRequest.exists(ITransService.SERVICENAME_KEY)?cdoRequest.getStringValue(ITransService.SERVICENAME_KEY):null;
+		String strTransName=cdoRequest.exists(ITransService.TRANSNAME_KEY)?cdoRequest.getStringValue(ITransService.TRANSNAME_KEY):null;	
+		if(strServiceName==null||strTransName==null ||
+				strServiceName.length()==0|| strTransName.length()==0){
+			logger.error("[strServiceName,strTransName] can not be empty,strServiceName="+strServiceName+",strTransName="+strTransName);
+			return Return.valueOf(-1, "[strServiceName,strTransName] can not be empty", "[strServiceName,strTransName] can not be empty");
+		}		
 
 		IService service = this.hmService.get(strServiceName);
 		if(service==null)
 		{
-			this.onTransUnsupported(cdoRequest);
+			logger.error("can not find service named "+strServiceName+",Trans not supported:"+strServiceName+'.'+strTransName);			
+			return Return.valueOf(-1,"can not find service named "+strServiceName);
 		}
 		return service.handleDataTrans(cdoRequest,cdoResponse);
 	}
 
-
-	public Return handleDataTrans(String strServiceName,CDO cdoRequest,CDO cdoResponse)
-	{
-		IService service = this.hmService.get(strServiceName);
-		if(service==null)
-		{
-			this.onTransUnsupported(cdoRequest);
-		}
-		return service.handleDataTrans(cdoRequest,cdoResponse);
-	}
 
 	public String getParameter(String strName,String strDefaultValue)
 	{
@@ -485,17 +440,7 @@ public class ServicePlugin implements IServicePlugin
 	// 事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------
 
 	// 事件定义,所有在本类中定义并调用，由派生类实现或重载的事件类方法(一般为on...ed)在此定义---------------------
-	public void onTransUnsupported(CDO cdoRequest)
-	{
-		try
-		{
-			logger.error(":Trans not supported:"+cdoRequest.getStringValue("strTransName"));
-		}
-		catch(Exception e)
-		{
-			
-		}
-	}
+
 	// 构造函数,所有构造函数在此定义------------------------------------------------------------------------------
 
 	public ServicePlugin()

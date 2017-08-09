@@ -29,7 +29,7 @@ public class Service implements IService
 
 	//静态对象,所有static在此声明并初始化------------------------------------------------------------------------
 	private static Logger logger = Logger.getLogger(Service.class);
-	private static Logger loggerStatistics = Logger.getLogger("transStatistics");
+	private static Logger logerStatis = Logger.getLogger("transStatistics");
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
 //	private ArrayList<ITransService> alTransService;//静态服务对象集合
 	private ArrayList<IActiveService> alActiveService;//动态服务对象集合
@@ -106,8 +106,8 @@ public class Service implements IService
 		}
 		catch(Exception e)
 		{
-			logger.error("executeDataServiceTrans:"+e.getMessage(),e);
-			return Return.valueOf(-1,e.getLocalizedMessage());
+			logger.error("handle DataService ["+strTransName+"] occured error:"+e.getMessage(),e);
+			return Return.valueOf(-1,e.getMessage(),e);
 		}
 	}
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
@@ -173,6 +173,43 @@ public class Service implements IService
 	/**
 	 * @see {@link com.cdoframework.cdolib.servicebus.IService#handleTrans(com.cdoframework.cdolib.data.cdo.CDO, com.cdoframework.cdolib.data.cdo.CDO)}}
 	 */
+	public Return handleTrans(CDO cdoRequest,CDO cdoResponse){
+		// 根据serviceName直接定位Service
+		long beginTime =0l;
+		if(logerStatis.isInfoEnabled())
+			beginTime=System.currentTimeMillis();
+		String strTransName = cdoRequest.getStringValue(ITransService.TRANSNAME_KEY);		
+		Return ret = null;
+		List<ITransService> transServices = this.hmServiceMap.get(strServiceName);
+		//在TransService或 ActiveService调用  strTransName方法,若在class里未找到执行方法，则直接调用DataService  
+		if(transServices != null) {
+			for(ITransService transService : transServices){
+				if(transService.containsTrans(strTransName)){
+					ret = transService.processTrans(cdoRequest, cdoResponse);
+					if(ret != null) {
+						break;
+					}
+				}
+			}
+		}				
+		if(ret==null){
+			try{
+				ret = this.executeDataServiceTrans(strTransName,cdoRequest,cdoResponse);
+			}catch(Exception e){
+				logger.error("When handle data service "+strServiceName+"."+strTransName,e);
+				return Return.valueOf(-1,e.getMessage(),e);
+			}
+		}
+		
+		if(logerStatis.isInfoEnabled()) {
+			long duration = System.currentTimeMillis() - beginTime;
+			logerStatis.info(" handle "+strServiceName+"."+strTransName+",process time="+duration+"ms");
+		}
+		return ret;
+	}
+	/**
+	 * @see {@link com.cdoframework.cdolib.servicebus.IService#handleTrans(com.cdoframework.cdolib.data.cdo.CDO, com.cdoframework.cdolib.data.cdo.CDO)}}
+	 *
 	public Return handleTrans(CDO cdoRequest,CDO cdoResponse)
 	{
 
@@ -210,8 +247,8 @@ public class Service implements IService
 			//需要缓存,但未从缓存中取得值,
 			bCacheable = true;
 		}	
-		**/	
-		//未取得缓存值, 
+		**
+		未取得缓存值, 
 //		ret = null;		
 		//执行Trans
 		// 根据serviceName直接定位Service
@@ -269,7 +306,7 @@ public class Service implements IService
 				logger.error("When handle filer of "+strServiceName+"."+strTransName,e);
 			}
 		}	
-		**/
+		
 		if(loggerStatistics.isInfoEnabled()) {
 			long duration = System.currentTimeMillis() - beginTime;
 			long durationData = endTimeDataTrans- beginTimeDataTrans;
@@ -277,8 +314,7 @@ public class Service implements IService
 		}
 		return ret;
 	}
-
-
+**/
 	/* (non-Javadoc)
 	 * @see com.cdoframework.cdolib.servicebus.IService#handleEvent(com.cdoframework.cdolib.data.cdo.CDO)
 	 */
