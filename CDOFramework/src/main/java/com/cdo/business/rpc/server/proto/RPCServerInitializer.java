@@ -1,5 +1,7 @@
 package com.cdo.business.rpc.server.proto;
 
+import java.util.concurrent.ExecutorService;
+
 import com.cdo.business.rpc.server.HeartbeatServerHandler;
 import com.cdo.google.handle.CDOProtobufDecoder;
 import com.cdo.google.handle.CDOProtobufEncoder;
@@ -13,9 +15,9 @@ import io.netty.handler.timeout.IdleStateHandler;
 
 public class RPCServerInitializer extends ChannelInitializer<SocketChannel> {
     
-   
-    public RPCServerInitializer() {
-             
+	ExecutorService exService;
+    public RPCServerInitializer(ExecutorService exService) {
+             this.exService=exService;
     }
 
     @Override
@@ -26,7 +28,7 @@ public class RPCServerInitializer extends ChannelInitializer<SocketChannel> {
         p.addLast("decoder",new CDOProtobufDecoder());  
         p.addLast("ideaHandler",new IdleStateHandler(60,15,0));       
         p.addLast("heartbeat",new HeartbeatServerHandler());
-        p.addLast("handle",new RPCServerHandler());  
+        p.addLast("handle",new RPCServerHandler(this.exService));  
 
     }
 

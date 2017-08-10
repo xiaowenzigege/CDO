@@ -126,14 +126,15 @@ public class NettyClientFactory {
 	void init(int channelThread){		
 		try {
 				EventLoopGroup workerGroup =null;	
-				
+			
 		        if(SystemUtil.isLinux()){
 		            workerGroup = new EpollEventLoopGroup(channelThread);    
 		            channelClass=EpollSocketChannel.class;
 		        }else{		           
 		            workerGroup = new NioEventLoopGroup(channelThread);  
 		            channelClass=NioSocketChannel.class;
-		        }		        
+		        }	
+
 			    bootstrap = new Bootstrap();			    
 			    bootstrap.group(workerGroup)
 			    		.channel(channelClass)
@@ -153,9 +154,11 @@ public class NettyClientFactory {
 							            String serverAddress=remoteAddress.getHostString()+":"+remoteAddress.getPort();
 							            String clientAddress=localAddress.getHostString()+":"+localAddress.getPort();
 							            //删除对应的失效的长连接
-							            boolean flag=routeManager.removeRPCClient(serverAddress, ctx.channel().pipeline().get(XMLRPCClientHandler.class));
+							            boolean flag=routeManager.removeRPCClient(serverAddress, ctx.channel().pipeline().get(RPCClientHandler.class));
 							            if(!flag){
 								        	  logger.warn("delete handle to CircleRPCQueue fail,maybe not found in queue");					        	  
+								          }else{
+								        	  logger.info("delete handle from CircleRPCQueue sucess ");
 								          }
 							            logger.warn( "ctx is channelInactive,after 5 secondes retry connection remote=["+serverAddress+"],local="+clientAddress);
 							            executor.execute(new Runnable() {								

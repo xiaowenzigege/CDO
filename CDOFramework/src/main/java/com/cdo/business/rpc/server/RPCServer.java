@@ -1,5 +1,8 @@
 package com.cdo.business.rpc.server;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.apache.log4j.Logger;
 
 import com.cdo.business.BusinessService;
@@ -43,7 +46,7 @@ public class RPCServer {
 	public void start(){        
         int bossThread=Math.max(1,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_BOSS,Runtime.getRuntime().availableProcessors()));
         int channelThread=Math.max(2,SystemPropertyUtil.getInt(Constants.Netty.THREAD_SERVER_WORK,Runtime.getRuntime().availableProcessors()*2));                
-       
+        
         if(SystemUtil.isLinux()){
             bossGroup = new EpollEventLoopGroup(bossThread);
             workerGroup = new EpollEventLoopGroup(channelThread);
@@ -53,9 +56,13 @@ public class RPCServer {
             workerGroup = new NioEventLoopGroup(channelThread);  
             channelClass=NioServerSocketChannel.class;
         }
-             
+        /**
+        bossGroup = new NioEventLoopGroup(bossThread);
+        workerGroup = new NioEventLoopGroup(channelThread);  
+        channelClass=NioServerSocketChannel.class;
+        **/
         try {        
-     
+        	ExecutorService exService=Executors.newCachedThreadPool();
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
              .option(ChannelOption.TCP_NODELAY, true)  
@@ -63,7 +70,7 @@ public class RPCServer {
              .childOption(ChannelOption.SO_KEEPALIVE, true)
              .channel(channelClass)
              .handler(new LoggingHandler(LogLevel.INFO))
-             .childHandler(new RPCServerInitializer());
+             .childHandler(new RPCServerInitializer(exService));
                         	
             if(GlobalResource.cdoConfig==null)
             	GlobalResource.bundleInitCDOEnv();

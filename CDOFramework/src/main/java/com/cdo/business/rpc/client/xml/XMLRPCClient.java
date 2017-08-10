@@ -66,5 +66,8 @@ public class XMLRPCClient extends ZKRPCClient{
 				cdoReturn.deepRelease();
 		}		  
 	}	
-	
+	 @Override
+	 public Return asyncHandleTrans(CDO cdoRequest){
+		 return null;
+	 }
 }

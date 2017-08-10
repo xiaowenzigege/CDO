@@ -17,6 +17,7 @@ public interface ITransService extends IServiceObject
 	String	TRANSNAME_KEY="strTransName";	
 	//表示需要实例化多个时,可选参数把包名带上 此时SERVICENAME_KEY 为类名 PACKAGE_KEY为包名
 	String  PACKAGE_KEY="$PACK$";
+	int     ASYN_CALL_ID=-99;
 		
 	/**
 	 * 初始化服务对象操作

@@ -1,5 +1,6 @@
 package com.cdo.business.rpc.client;
 
+import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -10,4 +11,8 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 		 
 		return null;
 	 }
+	
+	public Return asyncHandleTrans(CDO cdoRequest){
+		return null;
+	}
 }

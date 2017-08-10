@@ -22,7 +22,9 @@ import com.cdoframework.cdolib.servicebus.ITransService;
  *
  */
 public class RPCClient extends ZKRPCClient{
-	private final static Logger logger=Logger.getLogger(RPCClient.class);		
+	private final static Logger logger=Logger.getLogger(RPCClient.class);	
+	
+	
 	/**
 	 * @see {@link com.cdo.business.rpc.server.RPCServer#handleTrans(CDO,CDO)}
 	 * @param cdoRequest
@@ -72,8 +74,34 @@ public class RPCClient extends ZKRPCClient{
 		}		  
 	}	
 	
-
-
+	 @Override
+	 public Return asyncHandleTrans(CDO cdoRequest){
+			if(!cdoRequest.exists(ITransService.SERVICENAME_KEY)){
+				return new Return(-1,"Service Name is null,plealse check strServiceName value");	
+			}
+		   String strServiceName=cdoRequest.getStringValue(ITransService.SERVICENAME_KEY);;
+		   try {	
+			  ClientHandler rpcHandle=getRPCClient(strServiceName);
+			  if(rpcHandle==null){
+					int retryCount=1;//重试5次				
+					while(retryCount<=5){
+						rpcHandle=getRPCClient(strServiceName);
+						if(rpcHandle!=null) //创建链接成功，退出重试
+							break;
+						try{Thread.sleep(1500+500*retryCount);}catch(Exception em){}
+						retryCount++;
+					}
+				}				  						   
+			   return rpcHandle.asyncHandleTrans(cdoRequest);
+		  	}catch(NotEstablishConnectException ex){
+				logger.warn("Service["+strServiceName+"] not registered on zk server");
+				return new Return(-99,"Service["+strServiceName+"] not registered on zk server");		  
+			} catch (Throwable e) {			
+				String strTransName=cdoRequest.exists(ITransService.TRANSNAME_KEY)?cdoRequest.getStringValue(ITransService.TRANSNAME_KEY):"null";					
+				logger.error("Request method :strServiceName="+strServiceName+",strTransName="+strTransName+",error="+e.getMessage(),e);
+				return new Return(-1,e.getMessage(),e.getMessage());
+			}	
+	 }
 
 	
 }

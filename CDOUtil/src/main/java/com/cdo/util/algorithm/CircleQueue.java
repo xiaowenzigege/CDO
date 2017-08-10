@@ -54,7 +54,12 @@ public class CircleQueue<E> {
 	@SuppressWarnings("unchecked")
 	public E getCircleFront(){	        
 	          if (!isEmpty()) {
-	        	  E obj =(E)(queue[index]);	        	
+	        	  E obj=null;
+	        	  try{
+	        		  obj =(E)(queue[index]);
+	        	  }catch(ArrayIndexOutOfBoundsException ex){
+	        		  obj =(E)(queue[0]);//并发出现异常 返回第一个，不做同步,同步导致并发下降.	        		  
+	        	  }	        	
 	        	  index++;
 	        	  index = index% capacity;
 	        	  return obj;

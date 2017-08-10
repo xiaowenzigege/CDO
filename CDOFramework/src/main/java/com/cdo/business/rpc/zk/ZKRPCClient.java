@@ -14,6 +14,8 @@ import com.cdo.business.rpc.zk.ZkNodeData;
 import com.cdo.util.algorithm.RoundRobinScheduling;
 import com.cdo.util.exception.NotEstablishConnectException;
 import com.cdo.util.server.Server;
+import com.cdoframework.cdolib.base.Return;
+import com.cdoframework.cdolib.data.cdo.CDO;
 /**
  * 根据serviceName,通过权重轮询获取 提供该服务的remoteAddress
  * @author kenelLiu
@@ -23,25 +25,19 @@ import com.cdo.util.server.Server;
 public abstract class ZKRPCClient implements IClient{
 	private Logger logger=Logger.getLogger(ZKRPCClient.class);
 	/**<serviceName,ZkNodeData>**/
-	static Map<String, ZkNodeData> serviceMap=new HashMap<String, ZkNodeData>();
+	protected Map<String, ZkNodeData> serviceMap;
 	/**注册到zk上的连接**/
 	protected String zkConnect;
 	/**自定义的zkId**/
 	protected String zkId;
-
-	void setServiceMap(Map<String, ZkNodeData> paramMap){		
-		serviceMap.putAll(paramMap);
-		//清除不存在的服务
-		for(Iterator<String> it=serviceMap.keySet().iterator();it.hasNext();){
-			String key=it.next();
-			if(!paramMap.containsKey(key)){
-				serviceMap.remove(key);
-			}
-		}
+	
+	 void setServiceMap(Map<String, ZkNodeData> serviceMap){
+		this.serviceMap=serviceMap;
 	}
 	
-	public Map<String, ZkNodeData> getServiceMap(){		
-		return serviceMap;
+	public Map<String, ZkNodeData> getServiceMap(){
+		
+		return this.serviceMap;
 	}
 	
 	public String getZKConnect() {
@@ -60,6 +56,8 @@ public abstract class ZKRPCClient implements IClient{
 		this.zkId=zkId;
 	}
 	 
+	public abstract  Return asyncHandleTrans(CDO cdoRequest);
+	
 	protected  ClientHandler getRPCClient(String strServiceName) throws NotEstablishConnectException{
 			Map<String, ZkNodeData>  zkServerMap=getServiceMap();
 			if(zkServerMap==null || zkServerMap.get(strServiceName)==null || zkServerMap.get(strServiceName).getRobinScheduling()==null){

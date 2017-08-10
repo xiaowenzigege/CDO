@@ -1,5 +1,6 @@
 package com.cdo.business.rpc.client.proto;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.log4j.Logger;
 
@@ -10,8 +11,10 @@ import com.cdo.google.Header;
 import com.cdo.google.handle.CDOMessage;
 import com.cdo.google.handle.ProtoProtocol;
 import com.cdo.google.protocol.GoogleCDO;
-
+import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
+import com.cdoframework.cdolib.servicebus.ITransService;
+
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -19,14 +22,19 @@ public class RPCClientHandler extends  ClientHandler {
 	private  Logger logger=Logger.getLogger(RPCClientHandler.class);
 
     private  Channel channel; 
-    final CallsLinkedHashMap calls = new CallsLinkedHashMap();
+//    final CallsLinkedHashMap calls = new CallsLinkedHashMap();
+    final ConcurrentHashMap<Integer, Call> calls=new ConcurrentHashMap<Integer, Call>();
     /** A counter for generating call IDs. */
     final AtomicInteger callIdCounter = new AtomicInteger();
     
     public RPCResponse handleTrans(CDO cdoRequest) {      	
     	//CDO请求数据
-    	int callId=callIdCounter.getAndIncrement() & Integer.MAX_VALUE;
-        final Call call =new Call(callId);    
+    	int callId=0;
+    	synchronized (calls) {
+    		callId=callIdCounter.getAndIncrement() & Integer.MAX_VALUE;
+		}
+
+    	final Call call =new Call(callId);    
     	GoogleCDO.CDOProto.Builder proto=cdoRequest.toProtoBuilder();
     	proto.setCallId(callId);
 		//构造proto message发送数据
@@ -38,7 +46,8 @@ public class RPCClientHandler extends  ClientHandler {
 		
         channel.writeAndFlush(reqMessage);
         //同步调用
-        calls.put(callId, call,new RPCResponse());        
+//        calls.put(callId, call,new RPCResponse());    
+        calls.put(callId, call);   
         boolean interrupted = false;
         synchronized (call) {
           while (!call.done()) {
@@ -58,6 +67,20 @@ public class RPCClientHandler extends  ClientHandler {
        }
     }
 
+	public Return asyncHandleTrans(CDO cdoRequest){
+    	GoogleCDO.CDOProto.Builder proto=cdoRequest.toProtoBuilder();
+    	proto.setCallId(ITransService.ASYN_CALL_ID);
+		//构造proto message发送数据
+		Header reqHeader=new Header();
+		reqHeader.setType(ProtoProtocol.TYPE_CDO);
+		CDOMessage reqMessage=new CDOMessage();
+		reqMessage.setHeader(reqHeader);
+		reqMessage.setBody(proto.build());						
+        channel.writeAndFlush(reqMessage);
+		
+       return new Return(Return.OK.getCode(),"async send data sucess", "async send data sucess");
+	}
+	
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) {
         channel = ctx.channel();
@@ -74,8 +97,9 @@ public class RPCClientHandler extends  ClientHandler {
 	        		GoogleCDO.CDOProto proto=(GoogleCDO.CDOProto)(cdoMessage.getBody());
 	    			int callId=proto.getCallId();
 	    			Call call = calls.get(callId);
-	    	        calls.remove(callId);    	        
-	    	        call.setRPCResponse(new RPCResponse(proto,null));	
+	    	        calls.remove(callId);//todo 考虑超时 移除	   
+	    	        if(call!=null)
+	    	        	call.setRPCResponse(new RPCResponse(proto,null));
 	    	      break;
 	    	    default:
 	    	    	ctx.fireChannelRead(msg);

@@ -16,10 +16,9 @@ import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.servicebus.IServiceBus;
-import com.cdoframework.cdolib.servicebus.ITransService;
 
-public class Consumer implements Runnable {
-	private static Logger logger=Logger.getLogger(Consumer.class);
+public class LnkTransferQueueConsumer implements Runnable {
+	private static Logger logger=Logger.getLogger(LnkTransferQueueConsumer.class);
 	private boolean stop=false;
 	private String name;
 	private TransferQueue<GoogleCDO.CDOProto> lnkTransQueue;
@@ -33,7 +32,7 @@ public class Consumer implements Runnable {
 		this.stop = stop;
 	}
 
-	public Consumer(String name,TransferQueue<GoogleCDO.CDOProto> lnkTransQueue,RPCServerHandler handle){
+	public LnkTransferQueueConsumer(String name,TransferQueue<GoogleCDO.CDOProto> lnkTransQueue,RPCServerHandler handle){
 		this.name=name;
 		this.lnkTransQueue=lnkTransQueue;
 		this.handle=handle;
@@ -60,11 +59,7 @@ public class Consumer implements Runnable {
 				}
 			}
 			if(proto!=null){
-				if(proto.getCallId()==ITransService.ASYN_CALL_ID){
-					asynProcess(proto);
-				}else{
-					process(proto);
-				}
+				process(proto);					
 			}
 		}
 	}
@@ -122,27 +117,6 @@ public class Consumer implements Runnable {
 				cdoRequest.deepRelease();
 				cdoOutput.deepRelease();
 	    	} 	    		
-		}
-	 
-	 
-	 void asynProcess(GoogleCDO.CDOProto proto){		 
-			//输入数据
-			CDO cdoRequest=null;			
-			CDO cdoResponse=new CDO();	
-			Return ret=null;
-			//解释cdo
-	    	try{
-				cdoRequest=ParseProtoCDO.ProtoParse.parse(proto);					
-				//处理业务
-				ret=serviceBus.handleTrans(cdoRequest, cdoResponse);					 											    		
-	    	}catch(Throwable ex){
-			    //处理出现异常 ,返回给错误给客户端
-	    		logger.error(ex.getMessage(), ex);		    							
-	    	}finally{		  
-				cdoRequest.deepRelease();
-				cdoResponse.deepRelease();
-				ret=null;
-	    	} 	    		
-		}
+		}	
 	
 }

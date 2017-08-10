@@ -31,8 +31,8 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 	private Channel channel;
 	private LinkedTransferQueue<GoogleCDO.CDOProto> lnkTransQueue;
 	private  Consumer[] consumer;
-	public RPCServerHandler(){
-
+	public RPCServerHandler(ExecutorService exService){
+		this.exService=exService;
 	}
     /**
      * 防止   客户机与服务器之间的长连接   发生阻塞,业务数据采用线程池处理,长连接channel仅用于数据读取io数据
@@ -81,7 +81,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
         channel = ctx.channel();   
         
 		lnkTransQueue = new LinkedTransferQueue<GoogleCDO.CDOProto>();
-		exService=Executors.newCachedThreadPool();
+		
 		consumer=new Consumer[consumerCount]; 
 		for(int i=0;i<consumerCount;i++){
 			consumer[i]=new Consumer(channel+",Consumer"+i,lnkTransQueue,this);
@@ -101,7 +101,7 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 		    consumer[i]=null;   
 		}	               
         lnkTransQueue=null;            
-        exService.shutdownNow();
+//        exService.shutdownNow();
     }
     
     @Override
