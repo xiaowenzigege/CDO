@@ -175,7 +175,7 @@ public class NettyClientFactory {
 						        
 						p.addLast("encoder",new CDOProtobufEncoder());
 						p.addLast("decoder",new CDOProtobufDecoder());  
-				        p.addLast("ideaHandler",new IdleStateHandler(60,10,0));
+				        p.addLast("ideaHandler",new IdleStateHandler(90,10,0));
 				        p.addLast("heartbeat",new HeartbeatClientHandler());
 				        p.addLast("handle",new RPCClientHandler());				
 					}            	 

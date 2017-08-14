@@ -10,6 +10,7 @@ import com.cdo.google.handle.ProtoProtocol;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.ReferenceCountUtil;
 
 public class HeartbeatServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 
@@ -55,11 +56,20 @@ public class HeartbeatServerHandler extends SimpleChannelInboundHandler<CDOMessa
         if (evt instanceof IdleStateEvent) {
             IdleStateEvent e = (IdleStateEvent) evt;
             switch (e.state()) {//The connection is closed when there is no inbound traffic  for 60 seconds.see RPCServerInitializer,NettyClientFactory
-                case READER_IDLE:
-                	ctx.close();
-                    break;
-                case WRITER_IDLE:                	
+                case WRITER_IDLE: 
+        			CDOMessage heartBeat=new CDOMessage();
+        			try{
+	        			Header header=new Header();
+	        			header.setType(ProtoProtocol.TYPE_HEARTBEAT_REQ);
+	        			heartBeat.setHeader(header);
+	        			ctx.writeAndFlush(heartBeat);
+        			}finally{
+        				ReferenceCountUtil.release(heartBeat);        				
+        			}
         			break;
+                case READER_IDLE:
+                	//ctx.close();
+                    break;	
                 default:
                     break;
             }
