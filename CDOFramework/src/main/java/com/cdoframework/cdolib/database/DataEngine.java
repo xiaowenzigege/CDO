@@ -25,9 +25,15 @@ import com.cdoframework.cdolib.base.DateTime;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.Time;
 import com.cdoframework.cdolib.base.Utility;
+import com.cdoframework.cdolib.data.cdo.BooleanField;
+import com.cdoframework.cdolib.data.cdo.ByteArrayField;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.CDOArrayField;
+import com.cdoframework.cdolib.data.cdo.DateField;
+import com.cdoframework.cdolib.data.cdo.DateTimeField;
 import com.cdoframework.cdolib.data.cdo.Field;
+import com.cdoframework.cdolib.data.cdo.StringField;
+import com.cdoframework.cdolib.data.cdo.TimeField;
 import com.cdoframework.cdolib.database.xsd.BlockType;
 import com.cdoframework.cdolib.database.xsd.BlockTypeItem;
 import com.cdoframework.cdolib.database.xsd.Delete;
@@ -384,11 +390,7 @@ public class DataEngine implements IDataEngine
 			{
 				String strParaName=anaSQL.alParaName.get(i);
 				Field  object=cdoRequest.getObject(strParaName);
-				Object objValue=object.getObjectValue();
-				if(objValue==null){
-					ps.setNull(i+1,java.sql.Types.NULL);
-					continue;
-				}
+
 				int nType=object.getType().getDataType();
 				switch(nType)
 				{
@@ -399,73 +401,50 @@ public class DataEngine implements IDataEngine
 					case DataType.FLOAT_TYPE:
 					case DataType.DOUBLE_TYPE:						
 					{
-						
+						Object objValue=object.getObjectValue();
 						ps.setObject(i+1,objValue);
 						break;
 					}
 					case DataType.STRING_TYPE:
 					{
-						String strValue=(String)objValue;
+						String strValue=((StringField)object).getValue();
 						strValue=Utility.encodingText(strValue,strSystemCharset,strCharset);
 						ps.setString(i+1,strValue);
 						break;
 					}
-					case DataType.DATE_TYPE:
+					case DataType.DATETIME_TYPE:
 					{
-						String strValue=(String)objValue;
-						if(strValue.length()==0)
-						{
-							ps.setNull(i+1,java.sql.Types.TIMESTAMP);
-						}
-						else
-						{
-							Date date=new Date((String)objValue);
-							ps.setTimestamp(i+1,date.getTimestamp());
-						}
+						long value=((DateTimeField)object).getLongValue();
+						ps.setTimestamp(i+1, new java.sql.Timestamp(value));
+						break;
+					}					
+					case DataType.DATE_TYPE:
+					{						
+						long value=((DateField)object).getLongValue();
+						ps.setDate(i+1, new java.sql.Date(value));
 						break;
 					}
 					case DataType.TIME_TYPE:
 					{
-						String strValue=(String)objValue;
-						if(strValue.length()==0)
-						{
-							ps.setNull(i+1,java.sql.Types.TIMESTAMP);
-						}
-						else
-						{
-							Time time=new Time((String)objValue);
-							ps.setTimestamp(i+1,time.getTimestamp());
-						}
-						break;
-					}
-					case DataType.DATETIME_TYPE:
-					{
-						String strValue=(String)objValue;
-						if(strValue.length()==0)
-						{
-							ps.setNull(i+1,java.sql.Types.TIMESTAMP);
-						}
-						else
-						{
-							DateTime datetime=new DateTime((String)objValue);
-							ps.setTimestamp(i+1,datetime.getTimestamp());
-						}
+						long value=((TimeField)object).getLongValue();
+						ps.setTime(i+1, new java.sql.Time(value));
 						break;
 					}
 					case DataType.BOOLEAN_TYPE:
 					{
-						ps.setBoolean(i+1,(Boolean)objValue);
+						boolean value=((BooleanField)object).getValue();
+						ps.setBoolean(i+1,value);
 						break;
 					}
-
 					case DataType.BYTE_ARRAY_TYPE:
 					{
-						ps.setBytes(i+1,(byte[])objValue);
+						byte[] bytes=((ByteArrayField)object).getValue();
+						ps.setBytes(i+1,bytes);
 						break;
 					}
 					default:
 					{
-						throw new SQLException("Unsupported type's object "+objValue);
+						throw new SQLException("SQL Unsupported type's object ["+object+"],type="+nType+",key="+strParaName);
 					}
 				}
 			}
@@ -635,20 +614,21 @@ public class DataEngine implements IDataEngine
 					break;
 				}
 				case Types.DATE:
+				{
+					 java.sql.Date date=rs.getDate(i+1);
+					 cdoRecord.setDateValue(strFieldName, date.getTime());					
+					break;
+				}				
 				case Types.TIME:
+				{
+					java.sql.Time time=rs.getTime(i+1);
+					cdoRecord.setTimeValue(strFieldName, time.getTime());	
+					break;
+				}	
 				case Types.TIMESTAMP:
 				{
-					try
-					{
-						String strValue="";
-						DateTime dtValue=new DateTime(rs.getTimestamp(i+1));
-						strValue=dtValue.toString("yyyy-MM-dd HH:mm:ss");
-						cdoRecord.setDateTimeValue(strFieldName,strValue);						
-					}
-					catch(Exception e)
-					{						
-					}
-					
+					java.sql.Timestamp dateTime=rs.getTimestamp(i+1);
+					cdoRecord.setDateTimeValue(strFieldName, dateTime.getTime());
 					break;
 				}
 				case Types.BINARY:

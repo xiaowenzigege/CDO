@@ -68,7 +68,7 @@ public class HeartbeatServerHandler extends SimpleChannelInboundHandler<CDOMessa
         			}
         			break;
                 case READER_IDLE:
-                	//ctx.close();
+                	ctx.close();
                     break;	
                 default:
                     break;

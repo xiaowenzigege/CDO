@@ -365,7 +365,24 @@ public class DataBufferUtil {
 		
 		throw new RuntimeException(field.getType().getFieldType()+" cannot be cast to date,field name="+field.getName());
 	}
-
+	
+	static long getDateValue(Field field)
+	{
+		switch(field.getType().getDataType())
+		{
+			case DataType.DATE_TYPE:
+			{
+				return ((DateField)field).getLongValue();
+			}
+			case DataType.DATETIME_TYPE:
+			{
+				return ((DateTimeField)field).getLongValue();
+			}
+		}
+		
+		throw new RuntimeException(field.getType().getFieldType()+" cannot be cast to date,field name="+field.getName());
+	}
+	
 	static String getTime(Field field)
 	{
 		Object objValue=field.getObjectValue();
@@ -386,7 +403,23 @@ public class DataBufferUtil {
 		
 		throw new RuntimeException(field.getType().getFieldType()+" cannot be cast to time,field name="+field.getName());
 	}
-
+	
+	static long getTimeValue(Field field)
+	{
+		switch(field.getType().getDataType())
+		{
+			case DataType.TIME_TYPE:
+			{
+				return ((TimeField)field).getLongValue();
+			}
+			case DataType.DATETIME_TYPE:
+			{
+				 return ((DateTimeField)field).getLongValue();
+			}
+		}
+		
+		throw new RuntimeException(field.getType().getFieldType()+" cannot be cast to time,field name="+field.getName());
+	}
 	static String getDateTime(Field field)
 	{
 		
@@ -399,6 +432,19 @@ public class DataBufferUtil {
 			case DataType.DATETIME_TYPE:
 			{
 				return objValue.toString();
+			}
+		}		
+		throw new RuntimeException(field.getType().getFieldType()+" cannot be cast to dateTime,field name="+field.getName());
+	}
+	
+	static long getDateTimeValue(Field field)
+	{
+		
+		switch(field.getType().getDataType())
+		{
+			case DataType.DATETIME_TYPE:
+			{
+				return ((DateTimeField)field).getLongValue();
 			}
 		}		
 		throw new RuntimeException(field.getType().getFieldType()+" cannot be cast to dateTime,field name="+field.getName());

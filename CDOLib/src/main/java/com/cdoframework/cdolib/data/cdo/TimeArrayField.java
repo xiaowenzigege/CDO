@@ -2,6 +2,7 @@ package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
@@ -23,56 +24,93 @@ public class TimeArrayField extends ArrayFieldImpl
 	private static final long serialVersionUID = -9060053020629106038L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	private final int dataIndex=1;//数据保存的起始位置
-	private final int databuffer=PATTERN_TIME.length();//数据占用字节
-	private static String defaultWhiteSpace="";
-	
-	static{
-		for(int i=0;i<PATTERN_TIME.length();i++){//空格用于占位使用
-			defaultWhiteSpace=defaultWhiteSpace+" ";
-		}
-	}	
+	private final int databuffer=8;//数据占用字节
+
 	public void setValue(String[] strsValue)
 	{
 		if(strsValue==null)
 		{
 			strsValue=new String[0];
 		}
+		long[] lsValue=new long[strsValue.length];
 		for(int i=0;i<strsValue.length;i++)
 		{
-			if(strsValue[i]==null){
-				strsValue[i]=defaultWhiteSpace;
-			}else if(Utility.checkTime(strsValue[i])==false){
-				throw new RuntimeException("Invalid time or Invalid time format,time format is "+PATTERN_TIME);
+			try{
+				lsValue[i]=java.sql.Time.valueOf(strsValue[i]).getTime();
+			}catch(Exception ex){
+				throw new RuntimeException("arr index="+i+",["+strsValue[i]+"] Invalid date or Invalid date format,date format must is "+PATTERN_TIME);
 			}
 		}
-		allocate(strsValue);
+		allocate(lsValue);	
 	}
-
+	
+	public void setLongValue(long[] lsValue){
+		if(lsValue==null){
+			lsValue=new long[0];
+		}
+		allocate(lsValue);
+	}
+	
 	public String[] getValue()
 	{
-		return DataBufferUtil.getDateArrayValue(buffer, dataIndex, databuffer);
+		int len=getLength();
+		String[] result=new String[len];
+		buffer.position(dataIndex);
+		SimpleDateFormat sdf=new SimpleDateFormat(PATTERN_TIME);
+		for(int i=0;i<result.length;i++){			
+			result[i]=sdf.format(new java.util.Date(buffer.getLong()));
+		}
+		buffer.clear();
+		return result;
 	}
-
+	public long[] getLongValue()
+	{				
+		int len=getLength();
+		long[] result=new long[len];
+		buffer.position(dataIndex);
+		for(int i=0;i<result.length;i++){			
+			result[i]=buffer.getLong();
+		}
+		buffer.clear();
+		return result;
+	}
+	
 	public String getValueAt(int nIndex)
 	{
+		long v=getLongValueAt(nIndex);
+		SimpleDateFormat sdf=new SimpleDateFormat(PATTERN_TIME);
+		return sdf.format(new java.util.Date(v));
+	}
+	
+	public long getLongValueAt(int nIndex)
+	{
 		checkArrayIndex(nIndex);
-		return DataBufferUtil.getDateArrayValueAt(nIndex, buffer, dataIndex, databuffer);
+		
+		int pos=dataIndex+databuffer*nIndex;
+		buffer.position(pos);
+		long v=buffer.getLong();
+		buffer.clear();
+		return v;
 	}
 	
 	public void setValueAt(int nIndex,String strValue)
 	{
-		if(strValue==null)
-		{
-			strValue="";
-		}
-		else if(Utility.checkTime(strValue)==false)
-		{
-			throw new RuntimeException("Invalid time or Invalid time format,time format is "+PATTERN_TIME);
-		}
-
+		long v=0;
+		try{			
+			v=java.sql.Time.valueOf(strValue).getTime();
+		}catch(Exception ex){
+			throw new RuntimeException("arr index="+nIndex+",["+strValue+"] Invalid date or Invalid date format,date format must is "+PATTERN_TIME);
+		}				
+		setLongValueAt(nIndex, v);	
+	}
+	
+	public void setLongValueAt(int nIndex,long lValue)
+	{
+		checkArrayIndex(nIndex);
+		
 		int pos=dataIndex+databuffer*nIndex;
 		buffer.position(pos);
-		buffer.put(strValue.getBytes());
+		buffer.putLong(lValue);		
 		buffer.clear();
 	}
 	
@@ -95,13 +133,13 @@ public class TimeArrayField extends ArrayFieldImpl
 		return buffer;
 	}
 
-	private void allocate(String[] strsValue){
+	private void allocate(long[] lsValue){
 
-		buffer=DataBufferUtil.allocate(strsValue.length, DataType.TIME_ARRAY_TYPE, buffer, dataIndex, databuffer);
+		buffer=DataBufferUtil.allocate(lsValue.length, DataType.TIME_ARRAY_TYPE, buffer, dataIndex, databuffer);
 		//设置起始位置  
 		buffer.position(dataIndex);
-		for(int i=0;i<strsValue.length;i++){
-			buffer.put(strsValue[i].getBytes());
+		for(int i=0;i<lsValue.length;i++){
+			buffer.putLong(lsValue[i]);
 		}
 		buffer.flip();
 	}	
@@ -176,7 +214,7 @@ public class TimeArrayField extends ArrayFieldImpl
 		
 		setType(Data.TIME_ARRAY);
 		
-		setValue(new String[0]);
+		setLongValue(new long[0]);
 	}
 
 	public TimeArrayField(String strFieldName,String[] strsValue)
@@ -187,12 +225,17 @@ public class TimeArrayField extends ArrayFieldImpl
 		
 		setType(Data.TIME_ARRAY);
 		
-		if(strsValue==null)
-		{
-			strsValue=new String[0];
-		}
-
 		setValue(strsValue);
+	}
+	public TimeArrayField(String strFieldName,long[] lsValue)
+	{
+
+		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
+		super(strFieldName);
+		
+		setType(Data.TIME_ARRAY);
+		
+		setLongValue(lsValue);
 	}
 	
 	 TimeArrayField(String strFieldName,ByteBuffer buffer)

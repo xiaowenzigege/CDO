@@ -65,7 +65,7 @@ public class ExampleCDO {
 			cdo.setDateTimeValue("dateTime1", "2012-05-01 20:00:00");
 			cdo.setDateTimeArrayValue("dateTimeArr", new String[]{"2012-05-01 20:00:00","2013-05-01 21:00:00","2014-05-01 22:00:00"});
 			cdo.setFileValue("file", new File("D:/test/excel.xlsx"));
-			/**
+			
 			for(int i=0;i<5;i++){
 
 				System.out.println(((ByteArrayField)cdo.getField("bytes")).getValue());
@@ -140,7 +140,7 @@ public class ExampleCDO {
 				System.out.println(((DoubleArrayField)cdo.getField("doubleArr")).getValue()[0]);
 				System.out.println(((DoubleArrayField)cdo.getField("doubleArr")).getValue()[0]);				
 			}	
-			**/
+			
 			CDO cdoOut=new CDO();
 			cdoOut.copyFrom(cdo);
 			cdoOut.setCDOValue("cdo", cdo.clone());

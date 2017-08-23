@@ -3,6 +3,7 @@ package com.cdoframework.cdolib.data.cdo;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
@@ -24,34 +25,37 @@ public class DateTimeField extends FieldImpl
 	private static final long serialVersionUID = 885706546812383630L;
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	private final int dataIndex=1;//数据保存的起始位置
-	private final int databuffer=PATTERN_DATETIME.length();//数据占用字节
-	private static String defaultWhiteSpace="";
+	private final int databuffer=8;//数据占用字节
 	
-	static{
-		for(int i=0;i<PATTERN_DATETIME.length();i++){//空格用于占位使用
-			defaultWhiteSpace=defaultWhiteSpace+" ";
-		}
-	}
 	public void setValue(String strValue)
 	{
-		if(Utility.checkDateTime(strValue)==false)
-		{
-			throw new RuntimeException("Invalid dateTime or Invalid dateTime format,dateTime format is "+PATTERN_DATETIME);
-		}		
-		allocate(strValue);
+		try{			
+			allocate(java.sql.Timestamp.valueOf(strValue).getTime());
+		}catch(Exception ex){
+			throw new RuntimeException("["+strValue+"] Invalid datetime or Invalid datetime format,datetime format must is "+PATTERN_DATETIME);
+		}
 
+	}
+	
+	public void setLongValue(long lValue){		
+		allocate(lValue);
+		
 	}
 	
 	public String getValue()
 	{
-		byte[] bsValue=new byte[databuffer];
-		buffer.position(dataIndex);
-		buffer.limit(buffer.capacity());
-		(buffer.slice()).get(bsValue);
-		buffer.clear();
-		return new String(bsValue).trim();
+		long v=getLongValue();
+		SimpleDateFormat sdf=new SimpleDateFormat(PATTERN_DATETIME);		
+		return sdf.format(new java.util.Date(v));
 	}
-
+	
+	public long getLongValue(){
+		buffer.position(dataIndex);
+		long v= buffer.getLong();
+		buffer.clear();
+		return v;
+	}
+	
 	public Object getObjectValue()
 	{
 		return getValue();
@@ -62,15 +66,15 @@ public class DateTimeField extends FieldImpl
 		return buffer;
 	}
 	
-	private void allocate(String strValue){
+	private void allocate(long lValue){		
 		if(buffer==null){
 			int len=dataIndex+databuffer;
 			buffer=ByteBuffer.allocate(len);
 			buffer.put((byte)DataType.DATETIME_TYPE);
 		}
 		buffer.position(dataIndex);
-		buffer.put(strValue.getBytes());
-		buffer.flip();
+		buffer.putLong(lValue);
+		buffer.flip();		
 	}	
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 
@@ -118,7 +122,7 @@ public class DateTimeField extends FieldImpl
 		
 		setType(Data.DATETIME);
 		
-		allocate(defaultWhiteSpace);
+		setLongValue(0);
 	}
 
 	public DateTimeField(String strFieldName,String strValue)
@@ -128,14 +132,21 @@ public class DateTimeField extends FieldImpl
 		super(strFieldName);
 		
 		setType(Data.DATETIME);
-		
-		if(strValue==null)
-		{
-			strValue="";
-		}
+
 		setValue(strValue);
 	}
 
+	public DateTimeField(String strFieldName,long lValue)
+	{
+
+		//请在此加入初始化代码,内部对象和属性对象负责创建或赋初值,引用对象初始化为null，初始化完成后在设置各对象之间的关系
+		super(strFieldName);
+		
+		setType(Data.DATETIME);
+
+		setLongValue(lValue);
+	}
+	
 	 DateTimeField(String strFieldName,ByteBuffer buffer)
 	{
 
