@@ -303,24 +303,27 @@ public class CDO implements java.io.Serializable
 		if(this.hmItem==null){
 			return null;
 		}
-		StringBuffer str_JSON=new StringBuffer("{");
+		
+		StringBuilder strJSON=new StringBuilder(500);
+		strJSON.append("{");
+//		StringBuffer str_JSON=new StringBuffer("{");
 		
 		Entry<String, Field> entry=null;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
 			entry=it.next();
-			str_JSON.append(entry.getValue().toJSON());
+			strJSON.append(entry.getValue().toJSON());
 		}
 		
 		// ugly 方法去掉最后一个","
-		int _lastComma=str_JSON.lastIndexOf(",");
-		int _length=str_JSON.length();
+		int _lastComma=strJSON.lastIndexOf(",");
+		int _length=strJSON.length();
 		if(_lastComma==_length-1)
 		{
-			str_JSON.replace(_lastComma,_lastComma+1,"");
+			strJSON.replace(_lastComma,_lastComma+1,"");
 		}
 
-		str_JSON.append("}");
-		return str_JSON.toString();
+		strJSON.append("}");
+		return strJSON.toString();
 	}
 	
 
@@ -1582,21 +1585,23 @@ public class CDO implements java.io.Serializable
 		if(this.hmItem==null){
 			return null;
 		}
-		StringBuffer str_String=new StringBuffer("{");
+//		StringBuffer str_String=new StringBuffer("{");
+		StringBuilder strJSON=new StringBuilder(500);
+		strJSON.append("{");
 		
 		Entry<String, Field> entry=null;
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
 			entry=it.next();
-			str_String.append(entry.getValue().toString());
+			strJSON.append(entry.getValue().toString());
 		}		
-		int _lastComma=str_String.lastIndexOf(",");
-		int _length=str_String.length();
+		int _lastComma=strJSON.lastIndexOf(",");
+		int _length=strJSON.length();
 		if(_lastComma==_length-1)
 		{
-			str_String.replace(_lastComma,_lastComma+1,"");
+			strJSON.replace(_lastComma,_lastComma+1,"");
 		}
-		str_String.append("}");
-		return str_String.toString();
+		strJSON.append("}");
+		return strJSON.toString();
 	}	
 	
 }
