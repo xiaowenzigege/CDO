@@ -824,14 +824,10 @@ public class ServiceBus implements IServiceBus
 			String  zkId="";
 			for(Iterator<Map.Entry<String, List<ZkParameter>>> it=zkServiceMap.entrySet().iterator();it.hasNext();){
 				  zkId=zkId+it.next().getKey()+",";
-			}
-			
-			
+			}						
 			for(int i=0;i<5;i++){
 				logger.warn("zkId ["+zkId.substring(0,zkId.length()-1)+"] on ZkProducer is not defined,please check  ZkProducer element");
 			}
-			//logger.error("zkId ["+zkId.substring(0,zkId.length()-1)+"] on ZkProducer is not defined,please check  ZkProducer element");
-			//System.exit(-1);
 		}
 	}
 	

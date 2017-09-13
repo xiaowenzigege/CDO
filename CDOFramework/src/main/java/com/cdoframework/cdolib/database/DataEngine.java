@@ -20,10 +20,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.log4j.Logger;
 
 import com.cdoframework.cdolib.base.DataType;
-import com.cdoframework.cdolib.base.Date;
-import com.cdoframework.cdolib.base.DateTime;
 import com.cdoframework.cdolib.base.Return;
-import com.cdoframework.cdolib.base.Time;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.BooleanField;
 import com.cdoframework.cdolib.data.cdo.ByteArrayField;
@@ -993,8 +990,19 @@ public class DataEngine implements IDataEngine
 		// 获取循环数据
 //		int nFromIndex=this.getIntegerValue(sqlFor.getFromIndex(),cdoRequest);
 //		int nCount=this.getIntegerValue(sqlFor.getCount(),cdoRequest);
-		int nFromIndex=DataEngineHelp.getIntegerValue(sqlFor.getFromIndex(),cdoRequest);
-		int nCount=DataEngineHelp.getIntegerValue(sqlFor.getCount(),cdoRequest);
+		int nFromIndex=0;
+		int nCount=0;
+		if(sqlFor.getFromIndex()!=null)
+			nFromIndex=DataEngineHelp.getIntegerValue(sqlFor.getFromIndex(),cdoRequest);
+		if(sqlFor.getCount()!=null)
+			nCount=DataEngineHelp.getIntegerValue(sqlFor.getCount(),cdoRequest);	
+		if(sqlFor.getCdosKey()!=null){
+			String cdosKey=sqlFor.getCdosKey();
+			if(cdosKey.startsWith("{") && cdosKey.endsWith("}")){
+				cdosKey=cdosKey.substring(1,cdosKey.length()-1);
+			}
+			nCount=cdoRequest.exists(cdosKey)?cdoRequest.getCDOArrayValue(cdosKey).length:nCount;
+		}
 		String strIndexId=sqlFor.getIndexId();
 		strIndexId=strIndexId.substring(1,strIndexId.length()-1);
 
@@ -1132,8 +1140,20 @@ public class DataEngine implements IDataEngine
 		// 获取循环数据
 //		int nFromIndex=this.getIntegerValue(forItem.getFromIndex(),cdoRequest);
 //		int nCount=this.getIntegerValue(forItem.getCount(),cdoRequest);
-		int nFromIndex=DataEngineHelp.getIntegerValue(forItem.getFromIndex(),cdoRequest);
-		int nCount=DataEngineHelp.getIntegerValue(forItem.getCount(),cdoRequest);		
+		int nFromIndex=0;
+		int nCount=0;
+		if(forItem.getFromIndex()!=null)
+			nFromIndex=DataEngineHelp.getIntegerValue(forItem.getFromIndex(),cdoRequest);
+		if(forItem.getCount()!=null)
+			nCount=DataEngineHelp.getIntegerValue(forItem.getCount(),cdoRequest);	
+		if(forItem.getCdosKey()!=null){
+			String cdosKey=forItem.getCdosKey();
+			if(cdosKey.startsWith("{") && cdosKey.endsWith("}")){
+				cdosKey=cdosKey.substring(1,cdosKey.length()-1);
+			}
+			nCount=cdoRequest.exists(cdosKey)?cdoRequest.getCDOArrayValue(cdosKey).length:nCount;
+		}
+			
 		String strIndexId=forItem.getIndexId();
 		strIndexId=strIndexId.substring(1,strIndexId.length()-1);
 
@@ -1825,7 +1845,6 @@ public class DataEngine implements IDataEngine
 			int[] nsScale=new int[1];
 			for(int i=0;i<strsFieldName.length;i++)
 			{
-//				strsFieldName[i]=meta.getColumnName(i+1);
 				strsFieldName[i]=meta.getColumnLabel(i+1);
 				nsFieldType[i]=meta.getColumnType(i+1);
 				nsPrecision[i]=meta.getPrecision(i+1);

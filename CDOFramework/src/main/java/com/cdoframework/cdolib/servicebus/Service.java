@@ -31,11 +31,10 @@ public class Service implements IService
 	private static Logger logger = Logger.getLogger(Service.class);
 	private static Logger logerStatis = Logger.getLogger("transStatistics");
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
-//	private ArrayList<ITransService> alTransService;//静态服务对象集合
 	private ArrayList<IActiveService> alActiveService;//动态服务对象集合
 	private Map<String,TransDefine> hmTransDefine;
 	private HashMap<String,CycleList<IDataEngine>> hmAllDataGroup;//关系数据库引擎容器
-//	private BusinessClient businessClient;//支持分布式部署时用
+
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
@@ -334,8 +333,7 @@ public class Service implements IService
 	}
 
 	public void destroy()
-	{
-		// TODO Auto-generated method stub
+	{		
 		
 	}
 
@@ -377,7 +375,6 @@ public class Service implements IService
 
 	public Service()
 	{
-//		alTransService	= new ArrayList<ITransService>(1);
 		alActiveService	= new ArrayList<IActiveService>(1);
 		hmTransDefine	= new HashMap<String,TransDefine>(30); 
 		hmAllDataGroup	= new HashMap<String,CycleList<IDataEngine>>(1);	

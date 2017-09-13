@@ -331,28 +331,50 @@ public class SQLUtil {
 		}
 		
 	
-	public static  PreparedStatement getPreparedStatement(PreparedStatement pst, List _params) throws SQLException {	
-
+	public static  PreparedStatement getPreparedStatement(PreparedStatement pst, List<Object> _params) throws SQLException {			
 			if (_params != null) {
 				for (int i = 1; i <= _params.size(); i++) {
 					Object param = _params.get(i - 1);
 
-					if (param == null)
+					if (param == null){
 						pst.setNull(i, java.sql.Types.VARCHAR);
-					if (param instanceof String)
+						continue;
+					}
+					if (param instanceof String){
 						pst.setString(i, (String) param);
-					if (param instanceof Integer)
+						continue;
+					}
+					if (param instanceof Short){
+						pst.setShort(i, ((Short) param).shortValue());
+						continue;
+					}
+					if (param instanceof Integer){
 						pst.setInt(i, ((Integer) param).intValue());
-					if (param instanceof Long)
+						continue;
+					}
+					if (param instanceof Long){
 						pst.setLong(i, ((Long) param).longValue());
-					if (param instanceof Float)
-						pst.setFloat(i, ((Float) param).floatValue());
-					if (param instanceof Double)
-						pst.setDouble(i, ((Double) param).doubleValue());
-					if (param instanceof java.util.Date)
+						continue;
+					}
+					if (param instanceof java.util.Date){
 						pst.setTimestamp(i, new java.sql.Timestamp(((java.util.Date)param).getTime()));
+						continue;
+					}
 	                if(param instanceof BigDecimal) {
 						pst.setBigDecimal(i,(BigDecimal)param);
+						continue;
+					}					
+					if (param instanceof Boolean){
+						pst.setBoolean(i, (Boolean)param);
+						continue;
+					}
+					if (param instanceof Float){
+						pst.setFloat(i, ((Float) param).floatValue());
+						continue;
+					}
+					if (param instanceof Double){
+						pst.setDouble(i, ((Double) param).doubleValue());
+						continue;
 					}
 				}
 			}

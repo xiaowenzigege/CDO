@@ -541,14 +541,14 @@ public class CDO implements java.io.Serializable
     	FieldId fieldId=this.parseFieldId(strFieldId);
     	if(fieldId==null)
     	{//无效FieldId
-    		logger.warn("Invalid FieldId "+strFieldId+" cdo:"+this.toString());
+    		logger.warn("Invalid FieldId ["+strFieldId+"],cdo data:"+this.toString());
 			throw new RuntimeException("Invalid FieldId "+strFieldId);
     	}
     	
     	objExt=getObject(fieldId,this);
     	if(objExt==null)
     	{
-    		logger.warn("Invalid FieldId "+strFieldId+" cdo:"+this.toString());
+    		logger.warn("Invalid FieldId ["+strFieldId+"],cdo data:"+this.toString());
 			throw new RuntimeException("Invalid FieldId "+strFieldId);
     	}
     	

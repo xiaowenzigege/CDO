@@ -25,15 +25,31 @@ implements java.io.Serializable
     /**
      * Field fromIndex.
      */
-    private java.lang.String fromIndex;
+    private java.lang.String fromIndex = "0";
 
     /**
      * Field count.
      */
-    private java.lang.String count;
+    private java.lang.String count = "0";
+
+    /**
+     * Field cdosKey.
+     */
+    private java.lang.String cdosKey;
 
     public SQLFor() {
         super();
+        setFromIndex("0");
+        setCount("0");
+    }
+
+    /**
+     * Returns the value of field 'cdosKey'.
+     * 
+     * @return the value of field 'CdosKey'.
+     */
+    public java.lang.String getCdosKey() {
+        return this.cdosKey;
     }
 
     /**
@@ -103,6 +119,15 @@ implements java.io.Serializable
      */
     public void marshal(final org.xml.sax.ContentHandler handler) throws java.io.IOException, org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
         org.exolab.castor.xml.Marshaller.marshal(this, handler);
+    }
+
+    /**
+     * Sets the value of field 'cdosKey'.
+     * 
+     * @param cdosKey the value of field 'cdosKey'.
+     */
+    public void setCdosKey(final java.lang.String cdosKey) {
+        this.cdosKey = cdosKey;
     }
 
     /**

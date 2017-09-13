@@ -222,391 +222,9 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		ret.setText(returnObject.getText());
 	}
 
-	// 去掉{和}，并得到是否为FieldId
-	protected boolean handleFieldIdText(String strFieldIdText,StringBuilder strbOutput)
-	{
-		// modified at 2006-12-21
-		if(strFieldIdText==null||strFieldIdText.length()==0)
-		{
-			return false;
-		}
-		strbOutput.setLength(0);
+	
 
-		char chFirst=strFieldIdText.charAt(0);
-		int nIndex=0;
-		int nLength=strFieldIdText.length();
-		while(true)
-		{
-			if(nIndex>=nLength)
-			{
-				break;
-			}
 
-			char ch=strFieldIdText.charAt(nIndex);
-			if(ch=='{'||ch=='}')
-			{
-				if(nIndex==nLength-1)
-				{
-					break;
-				}
-				if(strFieldIdText.charAt(nIndex+1)==ch)
-				{
-					strbOutput.append(ch);
-				}
-			}
-			else
-			{
-				strbOutput.append(ch);
-			}
-			nIndex++;
-		}
-
-		if(chFirst=='{'&&strbOutput.charAt(0)!='{')
-		{// 为FieldId
-			return true;
-		}
-		else
-		{// 为一般文本
-			return false;
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected byte getByteValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return Byte.parseByte(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getByteValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected short getShortValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return Short.parseShort(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getShortValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected int getIntegerValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return Integer.parseInt(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getIntegerValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected float getFloatValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return Float.parseFloat(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getFloatValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected double getDoubleValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return Double.parseDouble(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getDoubleValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected long getLongValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return Long.parseLong(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getLongValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected String getStringValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return strbFieldIdText.toString();
-		}
-		else
-		{
-			return cdoRequest.getStringValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected boolean getBooleanValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return Boolean.parseBoolean(strbFieldIdText.toString());
-		}
-		else
-		{
-			return cdoRequest.getBooleanValue(strbFieldIdText.toString());
-		}
-	}	
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected String getDateValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return strbFieldIdText.toString();
-		}
-		else
-		{
-			return cdoRequest.getDateValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected String getTimeValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return strbFieldIdText.toString();
-		}
-		else
-		{
-			return cdoRequest.getTimeValue(strbFieldIdText.toString());
-		}
-	}
-
-	/**
-	 * 根据FieldIdText得到值
-	 * 
-	 * @param strFieldIdText
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected String getDateTimeValue(String strFieldIdText,CDO cdoRequest)
-	{
-		// 解析strFieldIdText,判断出是否为FieldId
-		StringBuilder strbFieldIdText=new StringBuilder();
-		boolean bIsFieldId=handleFieldIdText(strFieldIdText,strbFieldIdText);
-
-		if(bIsFieldId==false)
-		{
-			return strbFieldIdText.toString();
-		}
-		else
-		{
-			return cdoRequest.getDateTimeValue(strbFieldIdText.toString());
-		}
-	}
-
-	protected Object getFieldValue(String strFieldId,CDO cdoRequest)
-	{
-		if(strFieldId.indexOf('{')>=0)
-		{
-			strFieldId=getFieldId(strFieldId,cdoRequest);
-		}
-		return cdoRequest.getObjectValue(strFieldId);
-	}
-
-	/**
-	 * 根据FieldId text获得FieldId，允许嵌套
-	 * 
-	 * @param strFieldIdText
-	 * @return
-	 */
-	protected String getFieldId(String strFieldIdText,CDO cdoRequest)
-	{
-		int nStartIndex=strFieldIdText.indexOf('{');
-		if(nStartIndex<0)
-		{
-			return strFieldIdText;
-		}
-
-		// 存在{}
-		int nEndIndex=Utility.findMatchedChar(nStartIndex,strFieldIdText);
-		String strSubFieldId=strFieldIdText.substring(nStartIndex+1,nEndIndex);
-		String strSubFieldValue=getFieldValue(strSubFieldId,cdoRequest).toString();
-
-		return getFieldId(strFieldIdText.substring(0,nStartIndex)+strSubFieldValue
-						+strFieldIdText.substring(nEndIndex+1),cdoRequest);
-	}
-
-	protected void setVar(SetVar sv,CDO cdoRequest)
-	{
-		DataEngineHelp.setVar(sv, cdoRequest);
-//		String strVarId=sv.getVarId();
-//		String strFieldId=strVarId.substring(1,strVarId.length()-1);
-//		switch(sv.getType().getType())
-//		{
-//			case SetVarTypeType.BYTE_TYPE:
-//				cdoRequest.setByteValue(strFieldId,Byte.parseByte(sv.getValue()));
-//				break;
-//			case SetVarTypeType.SHORT_TYPE:
-//				cdoRequest.setShortValue(strFieldId,Short.parseShort(sv.getValue()));
-//				break;
-//			case SetVarTypeType.INTEGER_TYPE:
-//				cdoRequest.setIntegerValue(strFieldId,Integer.parseInt(sv.getValue()));
-//				break;
-//			case SetVarTypeType.LONG_TYPE:
-//				cdoRequest.setLongValue(strFieldId,Long.parseLong(sv.getValue()));
-//				break;
-//			case SetVarTypeType.FLOAT_TYPE:
-//				cdoRequest.setFloatValue(strFieldId,Float.parseFloat(sv.getValue()));
-//				break;
-//			case SetVarTypeType.DOUBLE_TYPE:
-//				cdoRequest.setDoubleValue(strFieldId,Double.parseDouble(sv.getValue()));
-//				break;
-//			case SetVarTypeType.STRING_TYPE:
-//				cdoRequest.setStringValue(strFieldId,sv.getValue());
-//				break;
-//			case SetVarTypeType.DATE_TYPE:
-//				cdoRequest.setDateValue(strFieldId,sv.getValue());
-//				break;
-//			case SetVarTypeType.TIME_TYPE:
-//				cdoRequest.setTimeValue(strFieldId,sv.getValue());
-//				break;
-//			case SetVarTypeType.DATETIME_TYPE:
-//				cdoRequest.setDateTimeValue(strFieldId,sv.getValue());
-//				break;
-//			default:
-//				throw new RuntimeException("Invalid type "+sv.getType().toString());
-//		}
-	}
 
 	/**
 	 * 检查If的条件
@@ -680,8 +298,22 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	protected int handleSQLFor(SQLFor sqlFor,CDO cdoRequest,StringBuilder strbSQL)
 	{
 		// 获取循环数据
-		int nFromIndex=this.getIntegerValue(sqlFor.getFromIndex(),cdoRequest);
-		int nCount=this.getIntegerValue(sqlFor.getCount(),cdoRequest);
+//		int nFromIndex=this.getIntegerValue(sqlFor.getFromIndex(),cdoRequest);
+//		int nCount=this.getIntegerValue(sqlFor.getCount(),cdoRequest);
+		int nFromIndex=0;
+		int nCount=0;
+		if(sqlFor.getFromIndex()!=null)
+			nFromIndex=DataEngineHelp.getIntegerValue(sqlFor.getFromIndex(),cdoRequest);
+		if(sqlFor.getCount()!=null)
+			nCount=DataEngineHelp.getIntegerValue(sqlFor.getCount(),cdoRequest);	
+		if(sqlFor.getCdosKey()!=null){
+			String cdosKey=sqlFor.getCdosKey();
+			if(cdosKey.startsWith("{") && cdosKey.endsWith("}")){
+				cdosKey=cdosKey.substring(1,cdosKey.length()-1);
+			}
+			nCount=cdoRequest.exists(cdosKey)?cdoRequest.getCDOArrayValue(cdosKey).length:nCount;
+		}
+					
 		String strIndexId=sqlFor.getIndexId();
 		strIndexId=strIndexId.substring(1,strIndexId.length()-1);
 
@@ -808,11 +440,25 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	private int handleFor(HashMap<String,CycleList<IDataEngine>> hmDataGroup,DataService dataService,HashMap<String,DataAccess> hmDataAccess,SQLTrans trans,For forItem,CDO cdoRequest,CDO cdoResponse,Return ret) throws SQLException,IOException
 	{
 		// 获取循环数据
-		int nFromIndex=this.getIntegerValue(forItem.getFromIndex(),cdoRequest);
-		int nCount=this.getIntegerValue(forItem.getCount(),cdoRequest);
+//		int nFromIndex=this.getIntegerValue(forItem.getFromIndex(),cdoRequest);
+//		int nCount=this.getIntegerValue(forItem.getCount(),cdoRequest);
+		int nFromIndex=0;
+		int nCount=0;
+		if(forItem.getFromIndex()!=null)
+			nFromIndex=DataEngineHelp.getIntegerValue(forItem.getFromIndex(),cdoRequest);
+		if(forItem.getCount()!=null)
+			nCount=DataEngineHelp.getIntegerValue(forItem.getCount(),cdoRequest);	
+		if(forItem.getCdosKey()!=null){
+			String cdosKey=forItem.getCdosKey();
+			if(cdosKey.startsWith("{") && cdosKey.endsWith("}")){
+				cdosKey=cdosKey.substring(1,cdosKey.length()-1);
+			}
+			nCount=cdoRequest.exists(cdosKey)?cdoRequest.getCDOArrayValue(cdosKey).length:nCount;
+		}
+					
 		String strIndexId=forItem.getIndexId();
 		strIndexId=strIndexId.substring(1,strIndexId.length()-1);
-
+		
 		// 执行循环
 		for(int i=nFromIndex;i<nFromIndex+nCount;i++)
 		{
@@ -2645,20 +2291,10 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				String strKeyFieldName=selectRecordSet.getKeyFieldName();
 				if(strKeyFieldName.length()==0)
 				{// RecordSet输出到数组
-//					cdoRequest.setCDOArrayValue(strOutputId,cdoArrayField.getValue());
 					cdoRequest.setCDOListValue(strOutputId, cdoArrayField.getValue());
 				}
 				else
-				{// RecordSet输出到HashMap
-//					CDO[] cdosRecordSet=cdoArrayField.getValue();
-//					CDO cdoRecordSet=new CDO();
-//					for(int j=0;j<cdosRecordSet.length;j++)
-//					{
-//						cdoRecordSet.setCDOValue(cdosRecordSet[j].getObjectValue(strKeyFieldName).toString(),
-//										cdosRecordSet[j]);
-//					}
-//					cdoRequest.setCDOValue(strOutputId,cdoRecordSet);
-					
+				{// RecordSet输出到HashMap					
 					List<CDO> cdosRecordSet=cdoArrayField.getValue();
 					CDO cdoRecordSet=new CDO();
 					for(int j=0;j<cdosRecordSet.size();j++)
@@ -2671,8 +2307,8 @@ public class BigTableEngine// extends ParallelTaskProcessor
 			}
 			else if(blockItem.getSetVar()!=null)
 			{
-				SetVar sv=blockItem.getSetVar();
-				setVar(sv,cdoRequest);
+				SetVar sv=blockItem.getSetVar();				
+				DataEngineHelp.setVar(sv, cdoRequest);
 			}
 			else if(blockItem.getSelectConnection()!=null)
 			{//SelectTable选择BigTable的单个表
@@ -2763,11 +2399,9 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		{
 			// 生成Block对象
 			BlockType block=new BlockType();
-//			int nTransItemCount=trans.getSQLTransChoice(0).getSQLTransChoiceItemCount();
 			int nTransItemCount=trans.getSQLTransChoice().getSQLTransChoiceItemCount();
 			for(int i=0;i<nTransItemCount;i++)
 			{
-//				SQLTransChoiceItem transItem=trans.getSQLTransChoice(0).getSQLTransChoiceItem(i);
 				SQLTransChoiceItem transItem=trans.getSQLTransChoice().getSQLTransChoiceItem(i);
 				BlockTypeItem blockItem=null;
 				if(transItem.getInsert()!=null)

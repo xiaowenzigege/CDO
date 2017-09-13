@@ -88,4 +88,5 @@ public interface ITransService extends IServiceObject
 	 * @return
 	 */
 	public String getDBCharset(String strDataGroupId);
+	
 }
