@@ -1,11 +1,40 @@
 package com.cdoframework.cdolib.database;
 
+import org.apache.log4j.Logger;
+
+import com.cdoframework.cdolib.base.DataType;
+import com.cdoframework.cdolib.data.cdo.BooleanArrayField;
+import com.cdoframework.cdolib.data.cdo.BooleanField;
+import com.cdoframework.cdolib.data.cdo.ByteArrayField;
+import com.cdoframework.cdolib.data.cdo.ByteField;
 import com.cdoframework.cdolib.data.cdo.CDO;
+import com.cdoframework.cdolib.data.cdo.CDOArrayField;
+import com.cdoframework.cdolib.data.cdo.CDOField;
+import com.cdoframework.cdolib.data.cdo.DateArrayField;
+import com.cdoframework.cdolib.data.cdo.DateField;
+import com.cdoframework.cdolib.data.cdo.DateTimeArrayField;
+import com.cdoframework.cdolib.data.cdo.DateTimeField;
+import com.cdoframework.cdolib.data.cdo.DoubleArrayField;
+import com.cdoframework.cdolib.data.cdo.DoubleField;
+import com.cdoframework.cdolib.data.cdo.Field;
+import com.cdoframework.cdolib.data.cdo.FloatArrayField;
+import com.cdoframework.cdolib.data.cdo.FloatField;
+import com.cdoframework.cdolib.data.cdo.IntegerArrayField;
+import com.cdoframework.cdolib.data.cdo.IntegerField;
+import com.cdoframework.cdolib.data.cdo.LongArrayField;
+import com.cdoframework.cdolib.data.cdo.LongField;
+import com.cdoframework.cdolib.data.cdo.ShortArrayField;
+import com.cdoframework.cdolib.data.cdo.ShortField;
+import com.cdoframework.cdolib.data.cdo.StringArrayField;
+import com.cdoframework.cdolib.data.cdo.StringField;
+import com.cdoframework.cdolib.data.cdo.TimeArrayField;
+import com.cdoframework.cdolib.data.cdo.TimeField;
 import com.cdoframework.cdolib.database.xsd.SetVar;
 import com.cdoframework.cdolib.database.xsd.types.IfTypeType;
 import com.cdoframework.cdolib.database.xsd.types.SQLIfTypeType;
 
 public class DataEngineHelp {
+	private static final Logger logger=Logger.getLogger(DataEngineHelp.class);
 	
 	static void setVar(SetVar sv,CDO cdoRequest){
 		String strVarId=sv.getVarId();
@@ -993,5 +1022,71 @@ public class DataEngineHelp {
 			return cdoRequest.getDateTimeValue(strbFieldIdText.toString());
 		}
 	}
-    	
+    /**
+     * 解释数组长度使用
+     * @param strFieldIdText
+     * @param cdoRequest
+     * @return
+     */
+	static int getArrayLength(String strFieldIdText,CDO cdoRequest){
+		// 解析strFieldIdText,判断出是否为FieldId
+		StringBuilder strbFieldIdText=new StringBuilder();
+		handleFieldIdText(strFieldIdText,strbFieldIdText);
+		String arrKey= strbFieldIdText.toString();
+		if(!cdoRequest.exists(arrKey))
+			return 0;
+		 Field field=cdoRequest.getObject(arrKey);
+		switch(field.getType().getDataType()){
+			case DataType.BOOLEAN_ARRAY_TYPE:
+			{
+				return ((BooleanArrayField)field).getLength();
+			}
+			case DataType.BYTE_ARRAY_TYPE:
+			{
+				return ((ByteArrayField)field).getLength();
+			}
+			case DataType.SHORT_ARRAY_TYPE:
+			{
+				return ((ShortArrayField)field).getLength();
+			}
+			case DataType.INTEGER_ARRAY_TYPE:
+			{
+				return ((IntegerArrayField)field).getLength();
+			}
+			case DataType.LONG_ARRAY_TYPE:
+			{
+				return  ((LongArrayField)field).getLength();
+			}
+			case DataType.FLOAT_ARRAY_TYPE:
+			{
+				return ((FloatArrayField)field).getLength();
+			}
+			case DataType.DOUBLE_ARRAY_TYPE:
+			{
+				return ((DoubleArrayField)field).getLength();
+			}
+			case DataType.STRING_ARRAY_TYPE:
+			{
+				return ((StringArrayField)field).getLength();
+			}
+			case DataType.DATE_ARRAY_TYPE:
+			{
+				return ((DateArrayField)field).getLength();
+			}
+			case DataType.TIME_ARRAY_TYPE:
+			{
+				return ((TimeArrayField)field).getLength();
+			}
+			case DataType.DATETIME_ARRAY_TYPE:
+			{
+				return ((DateTimeArrayField)field).getLength();
+			}
+			case DataType.CDO_ARRAY_TYPE:
+			{
+				return ((CDOArrayField)field).getLength();
+			}
+		 }
+		logger.warn(field.getType().getFieldType()+" Type is not array");	
+		return 0;
+	}
 }

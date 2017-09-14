@@ -30,26 +30,25 @@ implements java.io.Serializable
     /**
      * Field count.
      */
-    private java.lang.String count = "0";
+    private java.lang.String count;
 
     /**
-     * Field cdosKey.
+     * Field arrKey.
      */
-    private java.lang.String cdosKey;
+    private java.lang.String arrKey;
 
     public For() {
         super();
         setFromIndex("0");
-        setCount("0");
     }
 
     /**
-     * Returns the value of field 'cdosKey'.
+     * Returns the value of field 'arrKey'.
      * 
-     * @return the value of field 'CdosKey'.
+     * @return the value of field 'ArrKey'.
      */
-    public java.lang.String getCdosKey() {
-        return this.cdosKey;
+    public java.lang.String getArrKey() {
+        return this.arrKey;
     }
 
     /**
@@ -122,12 +121,12 @@ implements java.io.Serializable
     }
 
     /**
-     * Sets the value of field 'cdosKey'.
+     * Sets the value of field 'arrKey'.
      * 
-     * @param cdosKey the value of field 'cdosKey'.
+     * @param arrKey the value of field 'arrKey'.
      */
-    public void setCdosKey(final java.lang.String cdosKey) {
-        this.cdosKey = cdosKey;
+    public void setArrKey(final java.lang.String arrKey) {
+        this.arrKey = arrKey;
     }
 
     /**

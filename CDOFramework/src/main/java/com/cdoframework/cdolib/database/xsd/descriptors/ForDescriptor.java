@@ -187,8 +187,8 @@ public class ForDescriptor extends com.cdoframework.cdolib.database.xsd.descript
             typeValidator.setWhiteSpace("preserve");
         }
         desc.setValidator(fieldValidator);
-        //-- cdosKey
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.String.class, "cdosKey", "cdosKey", org.exolab.castor.xml.NodeType.Attribute);
+        //-- arrKey
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.String.class, "arrKey", "ArrKey", org.exolab.castor.xml.NodeType.Attribute);
         desc.setImmutable(true);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             @Override
@@ -196,7 +196,7 @@ public class ForDescriptor extends com.cdoframework.cdolib.database.xsd.descript
                 throws IllegalStateException
             {
                 For target = (For) object;
-                return target.getCdosKey();
+                return target.getArrKey();
             }
             @Override
             public void setValue( java.lang.Object object, java.lang.Object value) 
@@ -204,7 +204,7 @@ public class ForDescriptor extends com.cdoframework.cdolib.database.xsd.descript
             {
                 try {
                     For target = (For) object;
-                    target.setCdosKey( (java.lang.String) value);
+                    target.setArrKey( (java.lang.String) value);
                 } catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
@@ -217,16 +217,20 @@ public class ForDescriptor extends com.cdoframework.cdolib.database.xsd.descript
         };
         desc.setSchemaType("string");
         desc.setHandler(handler);
+        desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
 
-        //-- validation code for: cdosKey
+        //-- validation code for: arrKey
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        fieldValidator.setMinOccurs(1);
         { //-- local scope
             org.exolab.castor.xml.validators.StringValidator typeValidator;
             typeValidator = new org.exolab.castor.xml.validators.StringValidator();
             fieldValidator.setValidator(typeValidator);
+            typeValidator.addPattern("\\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|\\.|\\[|\\])*\\}");
             typeValidator.setWhiteSpace("preserve");
+            typeValidator.setMinLength(1);
         }
         desc.setValidator(fieldValidator);
         //-- initialize element descriptors

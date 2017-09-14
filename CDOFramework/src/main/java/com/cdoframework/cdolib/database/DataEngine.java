@@ -988,24 +988,15 @@ public class DataEngine implements IDataEngine
 	protected int handleSQLFor(SQLFor sqlFor,CDO cdoRequest,StringBuilder strbSQL)
 	{
 		// 获取循环数据
-//		int nFromIndex=this.getIntegerValue(sqlFor.getFromIndex(),cdoRequest);
-//		int nCount=this.getIntegerValue(sqlFor.getCount(),cdoRequest);
 		int nFromIndex=0;
-		int nCount=0;
+		int nCount=DataEngineHelp.getArrayLength(sqlFor.getArrKey(), cdoRequest);
 		if(sqlFor.getFromIndex()!=null)
 			nFromIndex=DataEngineHelp.getIntegerValue(sqlFor.getFromIndex(),cdoRequest);
 		if(sqlFor.getCount()!=null)
 			nCount=DataEngineHelp.getIntegerValue(sqlFor.getCount(),cdoRequest);	
-		if(sqlFor.getCdosKey()!=null){
-			String cdosKey=sqlFor.getCdosKey();
-			if(cdosKey.startsWith("{") && cdosKey.endsWith("}")){
-				cdosKey=cdosKey.substring(1,cdosKey.length()-1);
-			}
-			nCount=cdoRequest.exists(cdosKey)?cdoRequest.getCDOArrayValue(cdosKey).length:nCount;
-		}
+		
 		String strIndexId=sqlFor.getIndexId();
 		strIndexId=strIndexId.substring(1,strIndexId.length()-1);
-
 		// 执行循环
 		for(int i=nFromIndex;i<nFromIndex+nCount;i++)
 		{
@@ -1138,21 +1129,12 @@ public class DataEngine implements IDataEngine
 					boolean bUseTransFlag,CDO cdoResponse,Return ret) throws SQLException,IOException
 	{
 		// 获取循环数据
-//		int nFromIndex=this.getIntegerValue(forItem.getFromIndex(),cdoRequest);
-//		int nCount=this.getIntegerValue(forItem.getCount(),cdoRequest);
 		int nFromIndex=0;
-		int nCount=0;
+		int nCount=DataEngineHelp.getArrayLength(forItem.getArrKey(), cdoRequest);
 		if(forItem.getFromIndex()!=null)
 			nFromIndex=DataEngineHelp.getIntegerValue(forItem.getFromIndex(),cdoRequest);
 		if(forItem.getCount()!=null)
 			nCount=DataEngineHelp.getIntegerValue(forItem.getCount(),cdoRequest);	
-		if(forItem.getCdosKey()!=null){
-			String cdosKey=forItem.getCdosKey();
-			if(cdosKey.startsWith("{") && cdosKey.endsWith("}")){
-				cdosKey=cdosKey.substring(1,cdosKey.length()-1);
-			}
-			nCount=cdoRequest.exists(cdosKey)?cdoRequest.getCDOArrayValue(cdosKey).length:nCount;
-		}
 			
 		String strIndexId=forItem.getIndexId();
 		strIndexId=strIndexId.substring(1,strIndexId.length()-1);

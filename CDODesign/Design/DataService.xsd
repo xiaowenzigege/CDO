@@ -6,6 +6,7 @@
 <!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
 <!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
 <!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
+<!-- 编辑使用 XMLSpy v2006 U (http://www.altova.com) 由 any (any) -->
 <!-- edited with XMLSPY v2004 rel. 4 U (http://www.xmlspy.com) by XXXXXX (ORiON) -->
 <!-- edited with XMLSpy v2005 sp1 U (http://www.xmlspy.com) by any (Ru-Board) -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
@@ -107,14 +108,21 @@
 							</xs:restriction>
 						</xs:simpleType>
 					</xs:attribute>
-					<xs:attribute name="Count" use="optional" default="0">
+					<xs:attribute name="Count" use="optional">
 						<xs:simpleType>
 							<xs:restriction base="xs:string">
 								<xs:pattern value="([0-9]{1,9})|(\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|\.|\[|\])*\})"/>
 							</xs:restriction>
 						</xs:simpleType>
 					</xs:attribute>
-					<xs:attribute name="cdosKey" type="xs:string" use="optional"/>
+					<xs:attribute name="ArrKey" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1"/>
+								<xs:pattern value="\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*\}"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
 				</xs:extension>
 			</xs:complexContent>
 		</xs:complexType>
@@ -290,14 +298,21 @@
 							</xs:restriction>
 						</xs:simpleType>
 					</xs:attribute>
-					<xs:attribute name="Count" use="optional" default="0">
+					<xs:attribute name="Count" use="optional">
 						<xs:simpleType>
 							<xs:restriction base="xs:string">
 								<xs:pattern value="([0-9]{1,9})|(\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|\.|\[|\])*\})"/>
 							</xs:restriction>
 						</xs:simpleType>
 					</xs:attribute>
-					<xs:attribute name="cdosKey" type="xs:string" use="optional"/>
+					<xs:attribute name="ArrKey" use="required">
+						<xs:simpleType>
+							<xs:restriction base="xs:string">
+								<xs:minLength value="1"/>
+								<xs:pattern value="\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|\.|\[|\])*\}"/>
+							</xs:restriction>
+						</xs:simpleType>
+					</xs:attribute>
 				</xs:extension>
 			</xs:complexContent>
 		</xs:complexType>
