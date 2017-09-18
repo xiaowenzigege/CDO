@@ -67,7 +67,7 @@ import com.cdoframework.cdolib.database.xsd.types.SQLTransTransFlagType;
 import com.cdoframework.cdolib.database.xsd.types.SetVarTypeType;
 
 /**
- * @author Administrator
+ * @author KenelLiu
  */
 public class BigTableEngine// extends ParallelTaskProcessor
 {
