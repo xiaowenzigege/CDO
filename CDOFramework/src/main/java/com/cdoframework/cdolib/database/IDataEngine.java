@@ -35,6 +35,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -273,4 +274,6 @@ public interface IDataEngine
 	public void onException(String strText,Exception e);
 
 	public void onSQLStatement(String strSQL);
+	
+	public void onExecuteSQL(String strSQL,ArrayList<String> alParaName,CDO cdoRequest);
 }

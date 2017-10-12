@@ -30,13 +30,12 @@ public class HeartbeatServerHandler extends SimpleChannelInboundHandler<CDOMessa
 				resMessage.setHeader(resHeader);
 				ctx.writeAndFlush(resMessage);			
 			    if(logger.isDebugEnabled())
-	    			logger.debug("server receive client heart ["+ctx.channel()+"] heart msg:"+msg);
+	    			logger.debug("server receive client heartbeat-Request  ["+ctx.channel()+"] heart msg:"+msg);			    
 				break;
 			case ProtoProtocol.TYPE_HEARTBEAT_RES: 
 				//服务端主动发起心跳检查,客户端回复心跳
 			    if(logger.isDebugEnabled())
-			    			logger.debug("server receive client address["+(InetSocketAddress)ctx.channel().remoteAddress()+"] heart msg:"+msg);
-			    //关闭服务
+			    	logger.debug("server receive client heartbeat-Response ["+ctx.channel()+"] heart msg:"+msg);
 			     break;
 			case ProtoProtocol.TYPE_STOPLOCALServer:
 		  		  RPCServer.stop();

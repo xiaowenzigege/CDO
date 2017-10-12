@@ -53,11 +53,11 @@ public class HeartbeatClientHandler extends  ChannelInboundHandlerAdapter {
 					resMessage.setHeader(resHeader);
 					ctx.writeAndFlush(resMessage);
 				    if(logger.isDebugEnabled())
-			    		logger.debug("client response server request heartbeat ["+ctx.channel()+"] heart msg:"+msg);
+			    		logger.debug("client  receive server heartbeat-Request ["+ctx.channel()+"] heart msg:"+msg);
     				break;
     			case 	ProtoProtocol.TYPE_HEARTBEAT_RES:
     				if(logger.isDebugEnabled())
-		    			 logger.debug("client receive server response ["+ctx.channel()+"] heart msg:"+msg);
+		    			logger.debug("client receive server heartbeat-Response ["+ctx.channel()+"] heart msg:"+msg);
     				break;
     			default:
     				ctx.fireChannelRead(msg);

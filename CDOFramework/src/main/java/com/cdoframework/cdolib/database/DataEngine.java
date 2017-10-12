@@ -445,7 +445,8 @@ public class DataEngine implements IDataEngine
 					}
 				}
 			}
-			logExecutedSql(cdoRequest, anaSQL);
+//			logExecutedSql(cdoRequest, anaSQL);
+			onExecuteSQL(anaSQL.strSQL, anaSQL.alParaName, cdoRequest);
 		}
 		catch(SQLException e)
 		{
@@ -456,21 +457,7 @@ public class DataEngine implements IDataEngine
 		return ps;
 	}
 
-	private void logExecutedSql(CDO cdoRequest, AnalyzedSQL anaSQL) {
-		if (log.isDebugEnabled()) {
-			StringBuilder sb = new StringBuilder("\n{");
-			for (int i = 0; i < anaSQL.alParaName.size(); i++) {
-				Field object = cdoRequest.getObject(anaSQL.alParaName.get(i));
-				Object objValue = object.getObjectValue();
-				int nType = object.getType().getDataType();
-				sb.append(nType==DataType.BYTE_ARRAY_TYPE?new String((byte[]) objValue):objValue);
-				sb.append(',');
-			}
-			sb.append('}');
-			log.debug(anaSQL.strSQL + sb.toString());
-		}
-	}
-	
+
 	public CDO readRecord(ResultSet rs,String[] strsFieldName,int[] naFieldType,int[] nsPrecision,int[] nsScale) throws SQLException,IOException
 	{
 		CDO cdoRecord=new CDO();
@@ -872,47 +859,7 @@ public class DataEngine implements IDataEngine
 						+strFieldIdText.substring(nEndIndex+1),cdoRequest);
 	}
 
-	protected void setVar(SetVar sv,CDO cdoRequest)
-	{
-		DataEngineHelp.setVar(sv, cdoRequest);
-//		String strVarId=sv.getVarId();
-//		String strFieldId=strVarId.substring(1,strVarId.length()-1);
-//		switch(sv.getType().getType())
-//		{
-//			case SetVarTypeType.BYTE_TYPE:
-//				cdoRequest.setByteValue(strFieldId,Byte.parseByte(sv.getValue()));
-//				break;
-//			case SetVarTypeType.SHORT_TYPE:
-//				cdoRequest.setShortValue(strFieldId,Short.parseShort(sv.getValue()));
-//				break;
-//			case SetVarTypeType.INTEGER_TYPE:
-//				cdoRequest.setIntegerValue(strFieldId,Integer.parseInt(sv.getValue()));
-//				break;
-//			case SetVarTypeType.LONG_TYPE:
-//				cdoRequest.setLongValue(strFieldId,Long.parseLong(sv.getValue()));
-//				break;
-//			case SetVarTypeType.FLOAT_TYPE:
-//				cdoRequest.setFloatValue(strFieldId,Float.parseFloat(sv.getValue()));
-//				break;
-//			case SetVarTypeType.DOUBLE_TYPE:
-//				cdoRequest.setDoubleValue(strFieldId,Double.parseDouble(sv.getValue()));
-//				break;
-//			case SetVarTypeType.STRING_TYPE:
-//				cdoRequest.setStringValue(strFieldId,sv.getValue());
-//				break;
-//			case SetVarTypeType.DATE_TYPE:
-//				cdoRequest.setDateValue(strFieldId,sv.getValue());
-//				break;
-//			case SetVarTypeType.TIME_TYPE:
-//				cdoRequest.setTimeValue(strFieldId,sv.getValue());
-//				break;
-//			case SetVarTypeType.DATETIME_TYPE:
-//				cdoRequest.setDateTimeValue(strFieldId,sv.getValue());
-//				break;
-//			default:
-//				throw new RuntimeException("Invalid type "+sv.getType().toString());
-//		}
-	}
+
 
 	/**
 	 * 检查If的条件
@@ -1406,7 +1353,7 @@ public class DataEngine implements IDataEngine
 			else if(blockItem.getSetVar()!=null)
 			{
 				SetVar sv=blockItem.getSetVar();
-				setVar(sv,cdoRequest);
+				DataEngineHelp.setVar(sv, cdoRequest);
 			}
 			else if(blockItem.getIf()!=null)
 			{
@@ -2410,6 +2357,10 @@ public class DataEngine implements IDataEngine
 
 	public void onSQLStatement(String strSQL)
 	{
+		
+	}
+	
+	public void onExecuteSQL(String strSQL,ArrayList<String> alParaName,CDO cdoRequest){
 		
 	}
 

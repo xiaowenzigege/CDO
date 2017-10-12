@@ -1,10 +1,10 @@
 package com.cdo.util.codec;
 import java.math.BigInteger;
-import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.commons.codec.binary.Base64;
 import com.cdo.util.exception.EncryptException;
 
 public class TokenUtil {
@@ -14,71 +14,95 @@ public class TokenUtil {
 	
 	/**
 	 * 
-	 * @param strId 在服务端获取到用户id明文，加密后给
-	 * strId有16位，没有16位，前面补0
-	 * @return
+	 * @param inputData  原始数据
+	 * @return  RSA加密数据
 	 * @throws EncryptException
 	 */
-	public static String genEncryptToken(String strId) throws EncryptException{
-			StringBuilder sb=new StringBuilder();			
-			int length=16-strId.length();
-			for(int i=0;i<length;i++){
-				sb.append("0");
-			}						
-			strId=sb+strId+";"+(System.currentTimeMillis()/1000);
+	public static String genRSAEncrypt(String inputData) throws EncryptException{
 	        byte[] b_modulus = new BigInteger(modulus,16).toByteArray();       
 	        byte[] b_publicExponent = new BigInteger(publicExponent,16).toByteArray();
 	        RSAPublicKey recoveryPubKey = RSA.getRSAPublicKeyBouncy(b_modulus, b_publicExponent);	        
-	        byte[] encrypt = RSA.encryptBouncy(recoveryPubKey,strId.getBytes());
-	        String strtext=RSA.byte2hex(encrypt);
-	        
-	        //TODO 存储最新的token值,如果tokenMap.MaxSize=5000,后期需要做个LRU算法 
-	        return strtext;
+	        byte[] encrypt = RSA.encryptBouncy(recoveryPubKey,inputData.getBytes());	                
+	        return RSA.byte2hex(encrypt);
 	}
 	
 	/**
-	 * @param token  为 终端客服传过来的密文
+	 * @param RSAData 为RSA加密数据
 	 * @return
 	 * @throws EncryptException
 	 * @throws TimeoutException 
 	 */
-	public static String genDecryptToken(String token) throws EncryptException, TimeoutException{
-		String strId="";
-		long start=0;		
+	public static String genRSADecrypt(String RSAData) throws EncryptException, TimeoutException{	
 		try{
 	        byte[] priModBytes = new BigInteger(modulus,16).toByteArray();
 	        byte[] priPriExpBytes = new BigInteger(primodulus,16).toByteArray();
 	        RSAPrivateKey recoveryPriKey = RSA.getRSAPrivateKeyBouncy(priModBytes, priPriExpBytes);   
-	        byte[] decoder=RSA.hex2byte(token);
+	        byte[] decoder=RSA.hex2byte(RSAData);
 	        byte[] decrypt = RSA.decryptBouncy(recoveryPriKey, decoder);
-	        String decToken=new String(decrypt);
-	        strId=decToken.split(";")[0];
-	        start=Long.parseLong(decToken.split(";")[1]);
+	        return new String(decrypt);
 		}catch(EncryptException ex){
-			throw new EncryptException("非法的token值,"+ex.getMessage());
-		}
-	   	 //则判断 token值 在有效时间里
-	     if((System.currentTimeMillis()/1000-start)>(3600*12)){
-	       	//超过了12小时 ，服务端未接受手机请求，需要手机端重新登录
-	       	throw new TimeoutException("长时间未操作,系统需要重新登录");
-	      }
-	       //检查id 是否存在缓存 或 数据库中
-	     return strId;
-      
-		
+			throw new EncryptException("invalidate RSAData="+RSAData+" "+ex.getMessage(),ex);
+		}		
 	} 
-
+	
+	
+	/**
+	 * 加密
+	 * @param inputStr 原始数据
+	 * @param AES_Key AES算法的密钥
+	 * @return
+	 * @throws EncryptException
+	 */
+	public static String genAESEncrypt(String inputStr,byte[] AES_Key) throws EncryptException{		
+		byte[] inputData = inputStr.getBytes();
+		try{
+			inputData = AES.encrypt(inputData, AES_Key);
+		}catch(Exception ex){
+			throw new EncryptException(ex.getMessage(),ex);
+		}
+		return Base64.encodeBase64String(inputData);
+	}
+	/**
+	 * 解密
+	 * @param AESData  AES算法的加密二进制数据,使用Base64.encodeBase64String转换成字符串
+	 * @param AES_Key AES算法的密钥
+	 * @return
+	 * @throws EncryptException
+	 */
+	public static String genAESDecrypt(String AESData,byte[] AES_Key) throws EncryptException{		
+		// 加密
+		byte[] inputData=null;
+		try{
+			inputData = Base64.decodeBase64(AESData);
+			inputData = AES.decrypt(inputData, AES_Key);
+		}catch(Exception ex){
+			throw new EncryptException("invalidate AESData="+AESData+" "+ex.getMessage(),ex);
+		}
+		return new String(inputData);
+	}
 	
     public static void main(String[] args) throws Exception {
-    	//"80f429dc90a0ce93ab29"; 80f429dc90a0ce93ab29
+    	/**
         KeyPair keyPair = RSA.generateKeyPairBouncy();
         RSAPublicKey pubKey = (RSAPublicKey) keyPair.getPublic();
         RSAPrivateKey priKey = (RSAPrivateKey) keyPair.getPrivate();
         System.out.println(" priKey:"+priKey);
         System.out.println(" pubKey:"+pubKey);
-    	long strId=2013122911111300L;
-    	String s=genEncryptToken(strId+"");
+        **/
+    	//--------RSA 算法------------------//
+    	String strId=2013122911111300L+"ADSFA"+System.currentTimeMillis();
+    	String s=genRSAEncrypt(strId+"");
     	System.out.println(s+","+s.length());
-    	System.out.println(genDecryptToken(s));
+    	System.out.println(genRSADecrypt(s));
+    	
+
+     	//---------AES 算法----------//
+    	byte[] AES_Key=AES.initKey();
+		String apiKey = "LTMXW2OkF0XG5Qx2TlKWIA";		
+		System.err.println("原文:\t" + apiKey);
+		String encode=genAESEncrypt(apiKey,AES_Key);
+		System.err.println("加密后:\t" + encode+",length="+encode.length());
+		String decode=genAESDecrypt(encode,AES_Key);
+		System.err.println("解密后:\t" + decode);
     }
 }

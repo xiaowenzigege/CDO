@@ -101,7 +101,6 @@ public class RPCServerHandler extends SimpleChannelInboundHandler<CDOMessage> {
 		    consumer[i]=null;   
 		}	               
         lnkTransQueue=null;            
-//        exService.shutdownNow();
     }
     
     @Override
