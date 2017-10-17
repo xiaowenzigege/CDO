@@ -8,7 +8,11 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+
+import com.cdo.util.exception.EncryptException;
+import com.sun.crypto.provider.AESKeyGenerator;
 
 public class AES {
 	/**
@@ -35,7 +39,7 @@ public class AES {
 		// 还原密钥
 		Key k = new SecretKeySpec(key, KEY_ALGORITHM);
 		Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-		// 初始化，设置为解密模式
+		// 初始化，设置为解密模式		
 		cipher.init(Cipher.DECRYPT_MODE, k);
 		// 执行操作
 		return cipher.doFinal(data);
@@ -55,13 +59,13 @@ public class AES {
 
 		// 还原密钥
 		Key k = new SecretKeySpec(key, KEY_ALGORITHM);
-
+		
 		Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-
 		// 初始化，设置为加密模式
 		cipher.init(Cipher.ENCRYPT_MODE, k);
 		// 执行操作
 		return cipher.doFinal(data);
+		
 	}
 
 	
@@ -76,7 +80,7 @@ public class AES {
 	 */
 	public static byte[] initKey(int size)  throws GeneralSecurityException {
 		// 实例化
-		KeyGenerator kg = KeyGenerator.getInstance(KEY_ALGORITHM);
+		KeyGenerator kg = KeyGenerator.getInstance(KEY_ALGORITHM,"BC");
 		/*
 		 * AES 要求密钥长度为 128位、192位或 256位
 		 */
