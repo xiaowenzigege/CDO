@@ -47,13 +47,16 @@ public class Constants {
 		public static final String COUNT="business.consumer.count";
 	}
 	public static class HTTP{
-		public static final String SoTimeout_MS="http.soTimeout";
-		public static final String ConnectionTimeout_MS="http.connection.timeOut";		
-		public static final String Max_Connection_Lifetime_MS="http.max.connection.lifeTime";
-		public static final String IdleConnection_TimeOut_MS="http.IdleConnection.timeOut";				
+		public static final String SocketTimeout_MS="http.socketTimeout";
+		public static final String ConnectionTimeout_MS="http.connectTimeout";	
+		public static final String RequestTimeout_MS="http.requestTimeout";
+		public static final String DefaultMaxPerRoute="http.defaultMaxPerRoute";
+		public static final String MaxTotal="http.maxTotal";
+		public static final String RetryTime="http.retryTime";
+		public static final String Version="http.version";
 		
-		public static final String DefaultMaxPerRoute="http.default.maxPerRoute";
-		public static final String MaxTotal="http.max.total";						
+		public static final String Max_Connection_Lifetime_MS="http.maxConnectionLifeTime";
+		public static final String IdleConnection_TimeOut_MS="http.IdleConnectionTimeout";				
 	}
 	//分页常量
 	public static class Page{		

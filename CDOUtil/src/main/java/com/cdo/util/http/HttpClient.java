@@ -189,6 +189,7 @@ public class HttpClient {
 	/**
 	 * 设置请求参数
 	 */
+	@SuppressWarnings("deprecation")
 	private void setRequestParam() {
 
 		HttpEntity  entity = null;		
