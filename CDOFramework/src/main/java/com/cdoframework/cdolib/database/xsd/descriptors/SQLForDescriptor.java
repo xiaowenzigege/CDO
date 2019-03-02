@@ -95,8 +95,8 @@ public class SQLForDescriptor extends com.cdoframework.cdolib.database.xsd.descr
         { //-- local scope
             org.exolab.castor.xml.validators.StringValidator typeValidator;
             typeValidator = new org.exolab.castor.xml.validators.StringValidator();
-            fieldValidator.setValidator(typeValidator);
-            typeValidator.addPattern("\\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*\\}");
+            fieldValidator.setValidator(typeValidator);            			
+			typeValidator.addPattern("\\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|\\.|\\[|\\])*\\}");
             typeValidator.setWhiteSpace("preserve");
             typeValidator.setMinLength(1);
         }
@@ -139,8 +139,8 @@ public class SQLForDescriptor extends com.cdoframework.cdolib.database.xsd.descr
         { //-- local scope
             org.exolab.castor.xml.validators.StringValidator typeValidator;
             typeValidator = new org.exolab.castor.xml.validators.StringValidator();
-            fieldValidator.setValidator(typeValidator);
-            typeValidator.addPattern("([0-9]{1,9})|(\\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*\\})");
+            fieldValidator.setValidator(typeValidator);        
+			typeValidator.addPattern("([0-9]{1,9})|(\\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|\\.|\\[|\\])*\\})");
             typeValidator.setWhiteSpace("preserve");
         }
         desc.setValidator(fieldValidator);
@@ -182,8 +182,8 @@ public class SQLForDescriptor extends com.cdoframework.cdolib.database.xsd.descr
         { //-- local scope
             org.exolab.castor.xml.validators.StringValidator typeValidator;
             typeValidator = new org.exolab.castor.xml.validators.StringValidator();
-            fieldValidator.setValidator(typeValidator);
-            typeValidator.addPattern("([0-9]{1,9})|(\\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|\\.|\\[|\\])*\\})");
+            fieldValidator.setValidator(typeValidator);            
+			typeValidator.addPattern("([0-9]{1,9})|(\\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|\\.|\\[|\\])*\\})");
             typeValidator.setWhiteSpace("preserve");
         }
         desc.setValidator(fieldValidator);
@@ -228,7 +228,8 @@ public class SQLForDescriptor extends com.cdoframework.cdolib.database.xsd.descr
             org.exolab.castor.xml.validators.StringValidator typeValidator;
             typeValidator = new org.exolab.castor.xml.validators.StringValidator();
             fieldValidator.setValidator(typeValidator);
-            typeValidator.addPattern("\\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*\\}");
+            //typeValidator.addPattern("\\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*\\}");
+			typeValidator.addPattern("\\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|\\.|\\[|\\])*\\}");
             typeValidator.setWhiteSpace("preserve");
             typeValidator.setMinLength(1);
         }
