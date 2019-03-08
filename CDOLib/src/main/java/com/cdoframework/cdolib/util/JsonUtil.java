@@ -1,6 +1,7 @@
 package com.cdoframework.cdolib.util;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import java.util.Iterator;
@@ -39,7 +40,7 @@ public class JsonUtil {
 	final static String Class_Date="DATE";
 	final static String Class_DateTime="DATETIME";
 	final static String Class_File="FILE";
-
+	final static String Class_CDO="CDO";
 	/**
 	 * json中 value 数据类型 都转换成String,将json转换成CDO
 	 * 
@@ -49,21 +50,31 @@ public class JsonUtil {
 	 * @throws Exception
 	 */
 	public static CDO json2CDO(String strJSON) throws JSONException{		
-		return json2CDO(strJSON, JSON2CDO_String,null);
+		return json2CDO(strJSON, JSON2CDO_String,null,null);
 	}
 	/**
 	 * 将 json字符串 转换成CDO对象	 * 
 	 * @param strJSON  json字符串
-	 * @param cls    定义 了strJSON中    key作为变量,key变量的类型为    key对应的value值实际数据类型。
+	 * @param cls    定义 了strJSON中    key为变量,key对应的value值实际数据类型。
 	 *      如 : strJSON={"key1":"value1","key2":20} 则 定义的class中   存在  int key2,String key1 变量,
 	 *        则  strJSON 转换key1成CDO 中string 对象,转换key2成CDO 中int 对象数据
 	 * @return
 	 * @throws JSONException
 	 */
 	public static CDO json2CDO(String strJSON,Class<?> cls) throws JSONException{		
-		return json2CDO(strJSON,JSON2CDO_Class,cls);
+		return json2CDO(strJSON,JSON2CDO_Class,cls,null);
 	}
-
+	/**
+	 * 
+	 * @param strJSON json字符串
+	 * @param cls  定义 了strJSON中  key对应值的 转换类型
+	 * @param defaultType
+	 * @return
+	 * @throws JSONException
+	 */
+	public static CDO json2CDO(String strJSON,Class<?> cls,String defaultType) throws JSONException{		
+		return json2CDO(strJSON,JSON2CDO_Class,cls,defaultType);
+	}
 	/**
 	 * 
 	 * @param strJSON
@@ -72,7 +83,7 @@ public class JsonUtil {
 	 * @return
 	 * @throws JSONException
 	 */
-	private static CDO json2CDO(String strJSON,byte json2CDOType,Class<?>  cls) throws JSONException {
+	private static CDO json2CDO(String strJSON,byte json2CDOType,Class<?>  cls,String defaultType) throws JSONException {
 		if(strJSON==null)
 			return null;
 		if(!strJSON.startsWith("{") && !strJSON.startsWith("\r{") && !strJSON.startsWith("\r\n{")){
@@ -80,7 +91,7 @@ public class JsonUtil {
 		} 
 		CDO cdoRequest = new CDO();		
 		JSONObject jsonObj = String2Json(strJSON); // 转换成jsonObjects
-		setCDOFromJson(jsonObj, cdoRequest,json2CDOType,cls);		
+		setCDOFromJson(jsonObj, cdoRequest,json2CDOType,cls,defaultType);		
 		return cdoRequest;
 	}
 	
@@ -168,7 +179,7 @@ public class JsonUtil {
 	 * 
 	 * @throws JSONException
 	 */
-	private static void setCDOFromJson(JSONObject jsonObj,CDO cdoRequest,byte json2CDOType,Class<?>  cls) throws JSONException {
+	private static void setCDOFromJson(JSONObject jsonObj,CDO cdoRequest,byte json2CDOType,Class<?>  cls,String defaultType) throws JSONException {
 		try {
 			String key = "";
 			Object obj = null;
@@ -179,18 +190,18 @@ public class JsonUtil {
 				if (obj instanceof JSONObject) {
 					subCDO = new CDO();
 					cdoRequest.setCDOValue(key, subCDO);
-					setCDOFromJson((JSONObject) obj, subCDO,json2CDOType,cls);
+					setCDOFromJson((JSONObject) obj, subCDO,json2CDOType,cls,defaultType);
 				} else if (obj instanceof JSONArray) {
 					//数组 里的数据 1为普通数据类型,2 json对象类型,3 不支持数组嵌套数组 ,混合数据
 					JSONArray jsonArr=(JSONArray) obj;
 					if(jsonArr.length()==0){	
-						setEmptyArray(cdoRequest, key, json2CDOType, cls);
-						return;
+						setEmptyArray(cdoRequest, key, json2CDOType, cls,defaultType);
+						continue;
 					}					
-				   setCDOListFromJson((JSONArray) obj,cdoRequest,key,json2CDOType,cls);
+				   setCDOListFromJson((JSONArray) obj,cdoRequest,key,json2CDOType,cls,defaultType);
 				} else {
 					//设置普通数据类型
-					setCommonField(cdoRequest, key, obj, json2CDOType, cls);
+					setCommonField(cdoRequest, key, obj, json2CDOType, cls,defaultType);
 				}
 			}
 		} catch (Exception e) {
@@ -199,7 +210,7 @@ public class JsonUtil {
 	}
 	
 	
-	private static void setCDOListFromJson(JSONArray jsonObj,CDO cdoParent,String key,byte json2CDOType,Class<?>  cls) throws Exception {
+	private static void setCDOListFromJson(JSONArray jsonObj,CDO cdoParent,String key,byte json2CDOType,Class<?>  cls,String defaultType) throws Exception {
 		Object obj = null;
 		List<String> commonList=null;
 		List<CDO> cdoList=null;
@@ -212,7 +223,7 @@ public class JsonUtil {
 				}				
 				CDO subCDO = new CDO();
 				cdoList.add(subCDO);
-				setCDOFromJson((JSONObject) obj, subCDO,json2CDOType,cls);
+				setCDOFromJson((JSONObject) obj, subCDO,json2CDOType,cls,defaultType);
 			} else if (obj instanceof JSONArray) {
 				throw new JSONException("unsupport json Array nesting, [[]] is unsupported");				
 			} else {
@@ -223,18 +234,18 @@ public class JsonUtil {
 		}
 		//设置普通类型数组
 		if(commonList!=null){
-			setCommonArray(cdoParent, key,commonList, json2CDOType, cls);
+			setCommonArray(cdoParent, key,commonList, json2CDOType, cls,defaultType);
 		}
 
 	}
 	
-	private static void setCommonField(CDO cdoRequest,String key,Object values,byte json2CDOType,Class<?>  cls) throws JSONException{
+	private static void setCommonField(CDO cdoRequest,String key,Object values,byte json2CDOType,Class<?>  cls,String defaultType) throws JSONException{
 		try{
 		switch (json2CDOType) {
 			case JSON2CDO_Class:
 				{
-					String type=cls.getDeclaredField(key).getType().getSimpleName().toUpperCase();
-					type=type.indexOf("[")>0?type.substring(0,type.indexOf("[")):type;
+					
+					String type=getClassType(cls, key, defaultType);									
 					switch(type){
 						case Class_Byte:
 							 cdoRequest.setByteValue(key,Utility.parseByteValue(values));
@@ -278,6 +289,7 @@ public class JsonUtil {
 						default:
 							throw new JSONException("unsupported json to cdo type,Json Key=["+key+"] Json value["+values+"] cast to "+cls.getDeclaredField(key).getType().getName());							
 					}
+					
 				}
 				break;
 			case JSON2CDO_String:
@@ -291,13 +303,12 @@ public class JsonUtil {
 		}
 
 	}
-	private static void setEmptyArray(CDO cdoRequest,String key,byte json2CDOType,Class<?>  cls) throws JSONException{
+	private static void setEmptyArray(CDO cdoRequest,String key,byte json2CDOType,Class<?>  cls,String defaultType) throws JSONException{
 		try{
 		switch (json2CDOType) {
 			case JSON2CDO_Class:
 				{
-					String type=cls.getDeclaredField(key).getType().getSimpleName().toUpperCase();
-					type=type.indexOf("[")>0?type.substring(0,type.indexOf("[")):type;
+					String type=getClassType(cls, key, defaultType);
 					switch(type){
 						case Class_Byte:
 							 cdoRequest.setByteArrayValue(key, new byte[0]);
@@ -335,6 +346,9 @@ public class JsonUtil {
 						case Class_DateTime:	
 							cdoRequest.setDateTimeArrayValue(key, new String[0]);
 							break;
+						case Class_CDO:
+							cdoRequest.setCDOArrayValue(key, new CDO[0]);
+							break;
 						default:
 							throw new JSONException("unsupported json to cdo type="+cls.getDeclaredField(key).getType().getName());							
 					}
@@ -358,14 +372,13 @@ public class JsonUtil {
 	 * @param cls
 	 * @throws JSONException
 	 */
-	private static void setCommonArray(CDO cdoRequest,String key,List<String> commonList,byte json2CDOType,Class<?>  cls) throws JSONException{
+	private static void setCommonArray(CDO cdoRequest,String key,List<String> commonList,byte json2CDOType,Class<?>  cls,String defaultType) throws JSONException{
 		String[] values=commonList.toArray(new String[commonList.size()]);
 		try{
 		switch (json2CDOType) {
 			case JSON2CDO_Class:
-				{
-					String type=cls.getDeclaredField(key).getType().getSimpleName().toUpperCase();
-					type=type.indexOf("[")>0?type.substring(0,type.indexOf("[")):type;
+				{					
+					String type=getClassType(cls, key, defaultType);
 					switch(type){
 						case Class_Byte:
 							 cdoRequest.setByteArrayValue(key,Utility.parseByteArrayValue(values));
@@ -417,5 +430,19 @@ public class JsonUtil {
 		}catch(Exception ex){
 			throw new JSONException(ex);
 		}
+	}
+	
+	private static String getClassType(Class<?> cls,String key,String defaultType) throws Exception{
+		String type="";
+		try{
+			type=cls.getDeclaredField(key).getType().getSimpleName().toUpperCase();			
+			type=type.indexOf("[")>0?type.substring(0,type.indexOf("[")):type;
+		  }catch(Exception e){	
+			 if(defaultType==null)
+				 	throw  e;
+			 else
+				 type=defaultType; 
+		 }	
+		return type;
 	}
 }
