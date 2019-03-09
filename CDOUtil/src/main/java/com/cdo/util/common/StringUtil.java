@@ -70,9 +70,10 @@ public class StringUtil{
 	}
 
   public static String htmlEncode(String str){
-    StringBuffer stringbuffer = new StringBuffer();
-    int j = str.length();
-    for (int i = 0; i < j; i++) {
+    
+    int len= str.length();
+    StringBuffer stringbuffer = new StringBuffer(len);
+    for (int i = 0; i < len; i++) {
       char c = str.charAt(i);
       switch (c) {
       case '\'':
@@ -117,11 +118,10 @@ public class StringUtil{
 		 stringbuffer.append("&nbsp;");
 		 break;        
       case '\r':
-        if ((i >= j - 1) || (str.charAt(i + 1) != '\n')) continue;
-        stringbuffer.append("<br>");
-        i++;
-
         break;
+      case '\n':
+    	  stringbuffer.append("<br/>");
+          break;        
       default:
         stringbuffer.append(c);
       }
