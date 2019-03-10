@@ -76,6 +76,13 @@ public interface Field extends DataType
 	 * @return
 	 */
 	public  String toString();
+	
+	/**
+	 * 输出string,为json格式.对字符串内容转义
+	 * @return
+	 */
+	public  String toHtmlJSON();
+	
 	/**
 	 * CDO里字段转换成 xml文件 格式
 	 * @param strbXML

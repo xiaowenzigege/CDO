@@ -1,5 +1,7 @@
 package com.cdo.util.common;
 
+import com.cdoframework.cdolib.util.Function;
+
 /**
  * 
  * @author KenelLiu
@@ -69,63 +71,7 @@ public class StringUtil{
 		return true;
 	}
 
-  public static String htmlEncode(String str){
-    
-    int len= str.length();
-    StringBuffer stringbuffer = new StringBuffer(len);
-    for (int i = 0; i < len; i++) {
-      char c = str.charAt(i);
-      switch (c) {
-      case '\'':
-        stringbuffer.append("&#039;");
-       // stringbuffer.append("&apos;");
-        break;
-      case '<':
-        stringbuffer.append("&lt;");
-        break;
-      case '>':
-        stringbuffer.append("&gt;");
-        break;
-      case '&':
-        stringbuffer.append("&amp;");
-        break;
-      case '"':
-        stringbuffer.append("&quot;");
-        break;
-      case '\\':
-        //stringbuffer.append("\\\\");
-    	stringbuffer.append("&#092;");    	 
-        break;
-      case '/':
-      	stringbuffer.append("&#47;");    	 
-          break;        
-      case '©':
-        stringbuffer.append("&copy;");
-        break;
-      case '®':
-        stringbuffer.append("&reg;");
-        break;
-      case '¥':
-        stringbuffer.append("&yen;");
-        break;
-      case '€':
-        stringbuffer.append("&euro;");
-        break;
-      case '™':
-        stringbuffer.append("&#153;");
-        break;
-	  case ' ':
-		 stringbuffer.append("&nbsp;");
-		 break;        
-      case '\r':
-        break;
-      case '\n':
-    	  stringbuffer.append("<br/>");
-          break;        
-      default:
-        stringbuffer.append(c);
-      }
-    }
-    return new String(stringbuffer.toString());
+  public static String htmlEncode(String str){    
+	  return Function.FormatTextForHTML(str);
   }    
 }

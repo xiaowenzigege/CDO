@@ -75,8 +75,10 @@ public abstract class FieldImpl implements Field
 		nType=Data.NONE;
 		strName=strFieldName;
 	}
-
-		
+	@Override
+	public String toHtmlJSON(){
+		return toJSON();
+	}	
 	@Override
 	public String toString() {	
 		return toJSON();		

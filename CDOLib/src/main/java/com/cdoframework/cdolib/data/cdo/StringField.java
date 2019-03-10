@@ -118,6 +118,15 @@ public class StringField extends FieldImpl
 		return str_JSON.toString();
 	}
 	@Override
+	public String toHtmlJSON()
+	{
+		String strValue=getValue();
+		StringBuffer str_JSON=new StringBuffer();
+		strValue=Function.FormatTextForHTML(Function.FormatTextForJson(strValue));
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":\"").append(strValue).append("\",");
+		return str_JSON.toString();
+	}	
+	@Override
 	public String toString()
 	{		
 		String strValue=getValue();

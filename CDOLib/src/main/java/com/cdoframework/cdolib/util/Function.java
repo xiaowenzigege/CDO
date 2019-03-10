@@ -151,4 +151,61 @@ public class Function
 		return strText;
 	}	
 
+	public static String FormatTextForHTML(String strData){
+	    int len= strData.length();
+	    StringBuilder sb= new StringBuilder(len);
+	    for (int i = 0; i < len; i++) {
+	      char c = strData.charAt(i);
+	      switch (c) {
+	      case '\'':
+	        sb.append("&#039;");	       
+	        break;
+	      case '<':
+	        sb.append("&lt;");
+	        break;
+	      case '>':
+	        sb.append("&gt;");
+	        break;
+	      case '&':
+	        sb.append("&amp;");
+	        break;
+	      case '"':
+	        sb.append("&quot;");
+	        break;
+	      case '\\':
+	        //sb.append("\\\\");
+	    	sb.append("&#092;");    	 
+	        break;
+	      case '/':
+	      	sb.append("&#47;");    	 
+	          break;        
+	      case '©':
+	        sb.append("&copy;");
+	        break;
+	      case '®':
+	        sb.append("&reg;");
+	        break;
+	      case '¥':
+	        sb.append("&yen;");
+	        break;
+	      case '€':
+	        sb.append("&euro;");
+	        break;
+	      case '™':
+	        sb.append("&#153;");
+	        break;
+		  case ' ':
+			 sb.append("&nbsp;");
+			 break;        
+	      case '\r':
+	        break;
+	      case '\n':
+	    	  sb.append("<br/>");
+	          break;        
+	      default:
+	        sb.append(c);
+	      }
+	    }
+	    return new String(sb.toString());		
+	}
 }

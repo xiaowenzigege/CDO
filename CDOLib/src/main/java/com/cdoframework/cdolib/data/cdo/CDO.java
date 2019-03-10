@@ -300,33 +300,13 @@ public class CDO implements java.io.Serializable
 	 */
 	public String toJSON()
 	{
-		if(this.hmItem==null){
-			return null;
-		}
-		
-		StringBuilder strJSON=new StringBuilder(500);
-		strJSON.append("{");
-//		StringBuffer str_JSON=new StringBuffer("{");
-		
-		Entry<String, Field> entry=null;
-		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
-			entry=it.next();
-			strJSON.append(entry.getValue().toJSON());
-		}
-		
-		// ugly 方法去掉最后一个","
-		int _lastComma=strJSON.lastIndexOf(",");
-		int _length=strJSON.length();
-		if(_lastComma==_length-1)
-		{
-			strJSON.replace(_lastComma,_lastComma+1,"");
-		}
-
-		strJSON.append("}");
-		return strJSON.toString();
+		return buffer2JSON(B2S_JSON);
 	}
 	
-
+	public String toHtmlJSON()
+	{
+		return buffer2JSON(B2S_HtmlJSON);
+	}
 //-----------------------------xml2CDO 反序列化方法    avro2CDO 参看AvroCDODeserialize-----------------------------------------------//
 	
 	public static CDO fromXML(String strXML)
@@ -1582,26 +1562,46 @@ public class CDO implements java.io.Serializable
 	 */
 	public String toString()
 	{
+		return buffer2JSON(B2S_String);
+	}	
+	
+	final static byte B2S_String=1;
+	final static byte B2S_JSON=2;
+	final static byte B2S_HtmlJSON=3;
+	
+	private String buffer2JSON(int type){
+		
 		if(this.hmItem==null){
 			return null;
 		}
-//		StringBuffer str_String=new StringBuffer("{");
-		StringBuilder strJSON=new StringBuilder(500);
-		strJSON.append("{");
 		
+		StringBuilder strJSON=new StringBuilder(500);
+		strJSON.append("{");		
 		Entry<String, Field> entry=null;
+		
 		for(Iterator<Map.Entry<String, Field>> it=this.entrySet().iterator();it.hasNext();){
 			entry=it.next();
-			strJSON.append(entry.getValue().toString());
+			switch(type){
+				case B2S_String:
+					strJSON.append(entry.getValue().toString());
+					break;
+				case B2S_JSON:
+					strJSON.append(entry.getValue().toJSON());
+					break;	
+				case B2S_HtmlJSON:
+					strJSON.append(entry.getValue().toHtmlJSON());
+					break;					
+			}			
 		}		
+		// ugly 方法去掉最后一个","
 		int _lastComma=strJSON.lastIndexOf(",");
 		int _length=strJSON.length();
 		if(_lastComma==_length-1)
 		{
 			strJSON.replace(_lastComma,_lastComma+1,"");
 		}
+
 		strJSON.append("}");
 		return strJSON.toString();
-	}	
-	
+	}
 }
