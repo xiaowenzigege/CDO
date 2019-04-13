@@ -1,46 +1,21 @@
 //required jquery.js 1.12+ ,json2.js//
-// ---------dateFormat------------//
-Date.prototype.Format = function(fmt){ 
-  var o = {   
-    "M+" : this.getMonth()+1,                 //月份   
-    "d+" : this.getDate(),                    //日   
-    "h+" : this.getHours(),                   //小时   
-    "m+" : this.getMinutes(),                 //分   
-    "s+" : this.getSeconds(),                 //秒   
-    "q+" : Math.floor((this.getMonth()+3)/3), //季度   
-    "S"  : this.getMilliseconds()             //毫秒   
-  };   
-  if(/(y+)/.test(fmt))   
-    fmt=fmt.replace(RegExp.$1,(this.getFullYear()+"").substr(4 - RegExp.$1.length));   
-  for(var k in o)   
-    if(new RegExp("("+ k +")").test(fmt))   
-    	fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));   
-  return fmt;   
-};
-// new Date().format("yyyy-MM-dd hh:mm:ss");  new Date().format("yyyy-MM-dd");     
-//------------------CDO------------//
 function CDO() {
-	this.hmItem ={};
-	
+	this.hmItem ={};	
 	this.exists=function(strKey) {
 		if(this.hmItem.hasOwnProperty(strKey)){
 			return true;
 		}
 		return false;
-	};
-	
+	};	
 	this.get=function (strKey) {
 		if(this.exists(strKey)){
 			return this.hmItem[strKey];			
 		}
 		return null;
-	};
-	
+	};	
 	this.put=function(strKey, objValue) {
 		this.hmItem[strKey]=objValue;
-	};	
-	
-	
+	};		
 	this.getFieldValue = function (strFieldId) {
 		return this.get(strFieldId);	
 	};
@@ -133,11 +108,16 @@ function CDO() {
 		 var value=this.getFieldValue(strFieldId);
 		 if(value==null) return null;
 		 var objType=$.type(value);
-		 if(objType!="string"){
-			 console.warn("getStringValue occur error,Invalid FieldId "+strFieldId+",value is not String"); 
-			 return null;
-		 }
-		 return this.encodeHtml(value);
+		 switch(objType){
+				case "boolean":
+				case "number":
+			    case "string":
+					value=this.encodeHtml(value+"");
+				break;
+				default:
+				  console.warn("getStringValue occur error,Invalid FieldId "+strFieldId+",value can't be cast to String"); 
+			}	
+		 return value;
 	};
 
 	this.getDateValue = function (strFieldId) {		
@@ -263,11 +243,16 @@ function CDO() {
 			this.checkArrVal(strFieldId,strsValue);
 			for(var i=0;i<strsValue.length;i++){
 				var objType=$.type(strsValue[i]);
-				if(objType!="string"){					
-					console.warn("getStringArrayValue occur error,Invalid FieldId "+strFieldId+",value is not StringArray,value="+JSON.stringify(strsValue)); 
-					return null;
-				}
-				strsValue[i]=this.encodeHtml(strsValue[i]);			
+				 switch(objType){
+						case "boolean":
+						case "number":
+						case "string":
+							strsValue[i]=this.encodeHtml(strsValue[i]+"");		
+							break;
+						default:
+							console.warn("getStringArrayValue occur error,Invalid FieldId "+strFieldId+",value can't be cast to StringArray,value="+JSON.stringify(strsValue)); 
+							return null;
+					}											
 			}
 			return strsValue;
 		}catch(err){
@@ -397,10 +382,16 @@ function CDO() {
 		try{
 			this.checkField(strFieldId);
 			var objType=$.type(strValue);
-			if(objType!="string")
-				throw "Invalid FieldId " + strFieldId+",value is not String";
-			var value=this.decodeHtml(strValue);
-			this.put(strFieldId,value)
+			switch(objType){
+				case "boolean":
+				case "number":
+				case "string":
+				var value=this.decodeHtml(strValue+"");
+			    this.put(strFieldId,value)
+				break;
+			  default:	
+				throw "Invalid FieldId " + strFieldId+",value cant't cast to String";				
+			}				
 		}catch(err){
 			console.warn("setStringValue occur error,"+err);
 		}
@@ -673,16 +664,16 @@ function CDO() {
 		}	
 	};
 	this.checkField=function(strFieldId){	
-		var objType=$.type(strFieldId);
-		if(objType!="string"){
-			throw "Invalid FieldId " + strFieldId+",strFieldId is not String";
+		//var rules="^((?!\\.).)*$";
+		var rules="^[a-zA-Z][0-9A-Za-z\\-_]{0,15}$"
+		var exp = new RegExp(rules);
+		var bFlag=exp.test(strFieldId);
+		if(!bFlag){
+				throw "Invalid FieldId " + strFieldId+",strFieldId rule is "+rules;
 		}
-		if(strFieldId.indexOf(".")>=0){
-			throw "Invalid FieldId " + strFieldId+",strFieldId can't contains symbol[.]";
-		}	
 	};		
 	this.setByteArrayValue = function (strFieldId, bysValue) {
-		try{
+		try{		
 			var value=this.regByteVal(strFieldId,bysValue);
 			this.put(strFieldId,value);
 		 }catch(err){
@@ -743,10 +734,15 @@ function CDO() {
 		this.checkArrVal(strFieldId,strsValue);
 		for(var i=0;i<strsValue.length;i++){
 			var objType=$.type(strsValue[i]);
-			if(objType!="string"){
-				throw "setStringArrayValue occur error,Invalid FieldId "+ strFieldId+",value is not StringArray,value="+JSON.stringify(strsValue);
-			}
-			strsValue[i]=this.decodeHtml(strsValue[i]);			
+			switch(objType){
+				case "boolean":
+				case "number":
+				case "string":
+				strsValue[i]=this.decodeHtml(strsValue[i]+"");					
+				break;
+			  default:	
+				throw "Invalid FieldId " + strFieldId+",value is not String";				
+			}						
 		}
 		this.put(strFieldId,strsValue);
 	};
@@ -791,12 +787,15 @@ function CDO() {
 	this.getItem=function(){
 		return this.hmItem;
 	};
-	
-	this.toString = function()
-	{
+	 
+	this.toJSON=function(){
 		var JSONObject={};
 		this.stringifyJSON(JSONObject,this.getItem());
-		return JSON.stringify(JSONObject);
+		return JSONObject;
+	} 
+	this.toString = function()
+	{
+		return JSON.stringify(this.toJSON());
 	};
 	this.stringifyJSON=function(_JSONObject,_hmItem){
 		for(var key in _hmItem){
@@ -838,23 +837,5 @@ function CDO() {
 			}
 		}
 	};
+	
 };
-CDO.prototype.CDOArray2String=function(cdosValue){
-		var objType=$.type(cdosValue);
-		if(objType!="array"){
-			throw "Invalid FieldId " + strFieldId+",value is not CDOArray,value="+cdosValue;
-		}	
-		var strJSON="[";
-		for(var i=0;i<cdosValue.length;i++){
-			if(cdosValue[i] instanceof CDO){
-				if(i>0){
-					strJSON=strJSON+",";
-				}
-				strJSON=strJSON+cdosValue[i].toString();
-				continue;
-			}
-			throw "Invalid FieldId " + strFieldId+",value is not CDOArray,value="+JSON.stringify(cdosValue);
-		}
-		strJSON=strJSON+"]"
-	 return strJSON;
-}
