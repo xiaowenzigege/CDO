@@ -1,3 +1,40 @@
+function Field(){
+	this.hmItem ={};	
+	this.exists=function(strFieldId) {
+		if(this.hmItem.hasOwnProperty(strFieldId)){
+			return true;
+		}
+		return false;
+	};	
+	this.getType=function (strFieldId) {
+		if(this.exists(strFieldId)){
+			return this.hmItem[strFieldId];			
+		}
+		return null;
+	};	
+	this.setType=function(strFieldId,strType) {
+		var rules="^[a-zA-Z][0-9A-Za-z\\-_]{0,15}$"
+		var exp = new RegExp(rules);
+		var bFlag=exp.test(strFieldId);
+		if(!bFlag){
+			console.warn("Invalid FieldId " + strFieldId+",strFieldId rule is "+rules);
+			return;
+		}
+		var fieldTypes=["string","byte","short","int","integer","long","float","double","date","datetime","time","boolean","cdo"];	
+		var objType=$.type(strType);
+		if(objType!="string"){
+			console.error("setType occur error, Invalid FieldId " + strFieldId+",value  must  be one of them "+JSON.stringify(fieldTypes));
+			return;
+		}				
+		for(var i=0;i<fieldTypes.length;i++){
+			if(strType.toLowerCase()==fieldTypes[i]){
+				this.hmItem[strFieldId]=fieldTypes[i];
+				return;
+			}
+		}
+		console.error("setType occur error, Invalid FieldId " + strFieldId+",value  must  be one of them "+JSON.stringify(fieldTypes));
+	};			
+}
 var CDOUtil={
 	//yyyy-MM-dd 或 yyyy-MM-dd hh:mm:ss
 	dateFormat:function(date,fmt){
@@ -36,44 +73,48 @@ var CDOUtil={
 		strJSON=strJSON+"]"
 	   return strJSON;		
 	},
-	str2CDO:function(_strJSON,CDOFieldType,defaultFieldType){
+	str2CDO:function(_strJSON,_clsField,_defaultType){
 		 var JSONObject=JSON.parse(_strJSON);	
-		 return CDOUtil.json2CDO(JSONObject,CDOFieldType,defaultFieldType);
+		 return CDOUtil.json2CDO(JSONObject,_clsField,_defaultType);
 	},
-	json2CDO:function(JSONObject,CDOFieldType,defaultFieldType){
+	json2CDO:function(JSONObject,_clsField,_defaultType){
 		 if(JSONObject==null)
 			 return null;    
-		 if(CDOFieldType==null || CDOFieldType==undefined)
-			 CDOFieldType=new CDO();
-		 if(defaultFieldType==null || defaultFieldType==undefined)
-			 defaultFieldType="string";	
+		 if(_clsField==null || _clsField==undefined)
+			 _clsField=new Field();
+		 if(_defaultType==null || _defaultType==undefined)
+			 _defaultType="string";	
+		 if(!(_clsField instanceof Field)){
+			 console.error("json2CDO occur error,param[_clsField] is not Field class");
+			 return null;
+		 }
 		 var cdo=new  CDO();
-		 CDOUtil.parse(cdo,JSONObject,CDOFieldType,defaultFieldType)	
+		 CDOUtil.parse(cdo,JSONObject,_clsField,_defaultType)	
 		 return cdo;
 	},
-	parse:function(cdo,JSONObject,CDOFieldType,defaultFieldType){
+	parse:function(cdo,JSONObject,clsField,defaultType){
 			for(var key in JSONObject){
 				var value=JSONObject[key];
 				var objType=$.type(value);			
 				if(objType=="object"){
 						var subCDO=new CDO();
-						CDOUtil.parse(subCDO,value,CDOFieldType,defaultFieldType);
+						CDOUtil.parse(subCDO,value,clsField,defaultType);
 						cdo.setCDOValue(key,subCDO);
 				}else if(objType=="array"){				
-					CDOUtil.parseArray(cdo,CDOFieldType,defaultFieldType,key,value);
+					CDOUtil.parseArray(cdo,clsField,defaultType,key,value);
 				}else{				
-					var fieldType=defaultFieldType.toLowerCase();
-					if(CDOFieldType.exists(key)){
-						fieldType=CDOFieldType.get(key).toLowerCase();
+					var fieldType=defaultType.toLowerCase();
+					if(clsField.exists(key)){
+						fieldType=clsField.getType(key).toLowerCase();
 					}			
 				  CDOUtil.setFieldValue(cdo,fieldType,key,value);
 				}			
 			}			
 	},
-  parseArray:function(cdo,CDOFieldType,defaultFieldType,_key,_array){
-		 var fieldType=defaultFieldType.toLowerCase();
-		 if(CDOFieldType.exists(_key)){
-			 fieldType=CDOFieldType.get(_key).toLowerCase();
+  parseArray:function(cdo,clsField,defaultType,_key,_array){
+		 var fieldType=defaultType.toLowerCase();
+		 if(clsField.exists(_key)){
+			 fieldType=clsField.getType(_key).toLowerCase();
 		  }			
 		if(_array.length==0){
 			CDOUtil.setFieldValue(cdo,fieldType,_key,_array);
@@ -84,7 +125,7 @@ var CDOUtil={
 				var subArr=new Array();
 				for(var i=0;i<_array.length;i++){
 					var subCDO=new CDO();					
-					CDOUtil.parse(subCDO,_array[i],CDOFieldType,defaultFieldType)
+					CDOUtil.parse(subCDO,_array[i],clsField,defaultType)
 					subArr.push(subCDO);
 				}								
 				cdo.setCDOArrayValue(_key,subArr);
