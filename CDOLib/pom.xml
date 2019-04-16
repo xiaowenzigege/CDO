@@ -4,11 +4,11 @@
 	<parent>
 		<groupId>cdo</groupId>
 		<artifactId>cdo-parent</artifactId>
-		<version>1.2.5</version>
+		<version>1.2.7</version>
 	</parent>
 		
 	<artifactId>cdolib</artifactId>
-	<version>1.2.5</version>
+	<version>1.2.7</version>
 	<packaging>jar</packaging>
 
 	<name>cdolib</name>

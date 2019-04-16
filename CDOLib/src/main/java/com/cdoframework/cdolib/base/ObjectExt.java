@@ -509,7 +509,7 @@ public class ObjectExt implements DataType
 		}
 		switch(this.nType)
 		{
-			case ObjectExt.DATE_TYPE:
+			case ObjectExt.TIME_TYPE:
 			{
 				return objValue.toString();
 			}

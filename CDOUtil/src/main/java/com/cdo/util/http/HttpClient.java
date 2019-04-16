@@ -43,8 +43,8 @@ import org.apache.log4j.Logger;
 
 import com.cdo.util.bean.CDOHTTPResponse;
 import com.cdo.util.bean.OutStreamCDO;
-import com.cdo.util.bean.Response;
 import com.cdo.util.constants.Constants;
+import com.cdo.util.exception.HttpException;
 import com.cdo.util.resource.GlobalResource;
 import com.cdoframework.cdolib.data.cdo.CDO;
 
@@ -83,7 +83,7 @@ public class HttpClient {
 	
 	
 	public HttpClient() {
-		this(null);
+		this(null,METHOD_POST);
 	}
 
 	public HttpClient(String url) {
@@ -152,9 +152,8 @@ public class HttpClient {
 				handler.setOutputStream(streamCDO.getOutputStream());
 				handler.setAutoCloseStream(streamCDO.isAutoCloseStream());
 			}			
-		}
-		CDOHTTPResponse httpResponse=handleResponse(handler);
-		return httpResponse;
+		}		
+		return handleResponse(handler);
 	}
 	/**
 	 * 执行Http Request,并得到响应
@@ -165,7 +164,8 @@ public class HttpClient {
 	private  <T>T handleResponse(ResponseHandler<T> handler) {
 		Object response = null;
 		try {
-			setRequestParam();			
+			setRequestParam();		
+			this.httpClient = HttpUtil.getHttpClient();	
 			if (this.httpHost != null)
 				response = this.httpClient.execute(this.httpHost,this.httpRequest, handler);
 			else 
@@ -173,20 +173,23 @@ public class HttpClient {
 			
 			return (T)response;
 		} catch (Exception e) {
-			this.log.error(e.getMessage(), e);
-			throw new RuntimeException("httpClient send request error:"+ e.getMessage());
+			if(httpRequest!=null){try{httpRequest.abort();}catch(Exception em){}}
+			log.error(e.getMessage(), e);
+			throw new HttpException("httpClient send request error:"+ e.getMessage());
+		}finally{
+			if(httpRequest!=null){try{httpRequest.releaseConnection();}catch(Exception ex){}};		
 		}
 	}
 	/**
 	 * 设置请求参数
 	 */
 	private void setRequestParam() {
-		if ((this.url == null) || (this.url.trim().equals(""))) {
-			throw new RuntimeException("url is null");
-		}
-		this.httpClient = HttpUtil.getHttpClient();		
 		HttpEntity  entity = null;		
 		try {
+			if (this.url == null || this.url.trim().length()==0) {
+				throw new HttpException("http url is null");
+			}	
+			
 			if (this.transMode ==TRANSMODE_BODY) {
 				//作为body传输
 				if (this.body!= null) {
@@ -214,34 +217,33 @@ public class HttpClient {
 					entity = new UrlEncodedFormEntity(this.paramsList, Constants.Encoding.CHARSET_UTF8);
 				}				
 			}
-		} catch (UnsupportedEncodingException e) {
-			this.log.error(e.getMessage(), e);
-			throw new RuntimeException("param UnsupportedEncodingException");
-		}
-		//设置默认方法
-		if (this.method == null) {			
-			this.method =METHOD_POST;
-		}		
-		if (this.method.equals(METHOD_PUT)) {
-			this.httpRequest = new HttpPut(this.url);
-			((HttpEntityEnclosingRequestBase) this.httpRequest).setEntity(entity);
-		} else if (this.method.equals(METHOD_GET)) {
-			this.httpRequest = new HttpGet(this.url);
-		} else if (this.method.equals(METHOD_DELETE)) {
-			this.httpRequest = new HttpDelete(this.url);
-		} else {
-			this.httpRequest = new HttpPost(this.url);
-			((HttpPost)this.httpRequest).setEntity(entity);
+				
+			if (this.method.equals(METHOD_PUT)) {
+				this.httpRequest = new HttpPut(this.url);
+				((HttpEntityEnclosingRequestBase) this.httpRequest).setEntity(entity);
+			} else if (this.method.equals(METHOD_GET)) {
+				this.httpRequest = new HttpGet(this.url);
+			} else if (this.method.equals(METHOD_DELETE)) {
+				this.httpRequest = new HttpDelete(this.url);
+			} else {
+				this.httpRequest = new HttpPost(this.url);
+				((HttpPost)this.httpRequest).setEntity(entity);
+				
+			}
+			if (this.headers != null) {
+				for (Map.Entry<String,String> entry : this.headers.entrySet()) {			
+					if ((entry.getKey()  == null) || (entry.getKey().trim().equals("")))
+						continue;
+					this.httpRequest.setHeader(entry.getKey().trim(), entry.getValue());
+				}			
+			}
+			this.httpRequest.setHeader("Connection", "close");
 			
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new HttpException("http 参数发生异常:"+e.getMessage(),e);
 		}
-
-		if (this.headers != null) {
-			for (Map.Entry<String,String> entry : this.headers.entrySet()) {			
-				if ((entry.getKey()  == null) || (entry.getKey().trim().equals("")))
-					continue;
-				this.httpRequest.setHeader(entry.getKey().trim(), entry.getValue());
-			}			
-		}
+		
 	}
 
 
@@ -467,25 +469,29 @@ public class HttpClient {
 	   				 cdoResponse.addFile(entry.getKey(), tmpFile);
 	   		 }		
 		}
+		
 		//----------------------输出文件指定的长度 ----------------------//
 		private void outFile(InputStream inStream,long fileLen,OutputStream outputStream) throws IOException{            
-            try{
-	            byte[] tmp =null;
-				long len=fileLen;		
+            try{		
 				int maxSize=Constants.Byte.maxSize*2;		
 				int l;
-				while(len>0){					
-				    int length=len>maxSize?maxSize:(int)len;
+				long total=0;
+				byte[] tmp =null;
+				while(fileLen>total){	
+					long remainLen=fileLen-total;
+				    int length=remainLen>maxSize?maxSize:(int)remainLen;
 				    tmp= new byte[length];
-				    l=inStream.read(tmp);
-				    outputStream.write(tmp, 0, l);				   
-					len=len-maxSize;			
+			        if((l = inStream.read(tmp)) != -1) {			        	
+			        	outputStream.write(tmp,0, l);			            
+			        }
+			        total=total+l;		
 				}  
-				outputStream.flush();
+				outputStream.flush();		       
             }catch(Exception ex){            	
             	throw new IOException(ex.getMessage(),ex);
             }
 		}
+
 		
 		class FileInfo {
 			String fileName;

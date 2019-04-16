@@ -213,7 +213,7 @@ public abstract class CDOServlet extends HttpServlet
 		InputStream inStream=null;
 		try {		
 			out=response.getOutputStream();			
-			byte[] cdoResXml=strOutput.getBytes();
+			byte[] cdoResXml=strOutput.getBytes("UTF-8");
 			//输出cdo xml
 			out.write(cdoResXml);	
 			//输出文件
@@ -249,6 +249,7 @@ public abstract class CDOServlet extends HttpServlet
 		StringBuilder sbFieldName=new StringBuilder(15);
 		StringBuilder sbLength=new StringBuilder();
 		StringBuilder sbFileName=new StringBuilder(15);
+		
 		sbFieldName.append(Constants.CDO.HTTP_CDO_RESPONSE);
 		sbLength.append(cdoXmlLen);	
 		sbFileName.append("xml");

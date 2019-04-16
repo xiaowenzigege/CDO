@@ -29,7 +29,8 @@ import com.cdoframework.cdolib.base.Utility;
 
 /**
  * @author Frank
- * modify by @author KenelLiu 
+ * modify by @author KenelLiu
+ * delete list 
  */
 public class CDO implements Serializable
 {
@@ -600,7 +601,7 @@ public class CDO implements Serializable
 	private void appendFieldXML(StringBuilder strbXML){
 		Entry<String, ObjectExt> entry=null;
 		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
-			entry=it.next();
+			entry=it.next();			
 			Field fieldItem=this.createField(entry.getKey(),entry.getValue());			
 			fieldItem.toXML(strbXML);
 		}
@@ -613,7 +614,7 @@ public class CDO implements Serializable
 		strbXML.append("<CDO>");
 		Entry<String, ObjectExt> entry=null;
 		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
-			entry=it.next();
+			entry=it.next();			
 			Field fieldItem=this.createField(entry.getKey(),entry.getValue());
 			fieldItem.toXMLLog(strbXML);
 		}				
@@ -629,7 +630,7 @@ public class CDO implements Serializable
 		strbXML.append("<CDO>\r\n");
 		Entry<String, ObjectExt> entry=null;
 		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
-			entry=it.next();
+			entry=it.next();			
 			Field fieldItem=this.createField(entry.getKey(),entry.getValue());
 			fieldItem.toXMLWithIndent(1,strbXML);
 		}			
@@ -642,7 +643,7 @@ public class CDO implements Serializable
 		strbXML.append(strIndent).append("<CDO>\r\n");		
 		Entry<String, ObjectExt> entry=null;
 		for(Iterator<Map.Entry<String, ObjectExt>> it=this.entrySet().iterator();it.hasNext();){
-			entry=it.next();
+			entry=it.next();			
 			Field fieldItem=this.createField(entry.getKey(),entry.getValue());
 			fieldItem.toXMLWithIndent(1+strIndent.length(),strbXML);
 		}			
