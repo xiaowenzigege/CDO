@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -16,186 +16,456 @@ package com.cdoframework.cdolib.servicebus.xsd;
 public class ConnectionPool implements java.io.Serializable {
 
     /**
-     * Field initialConnectionCount.
+     * Field initialSize.
      */
-    private int initialConnectionCount = 1;
+    private int initialSize = 1;
 
     /**
-     * Keeps track of whether primitive field
-     * initialConnectionCount has been set already.
-     */
-    private boolean _hasinitialConnectionCount;
-
-    /**
-     * Field maxActiveConnectionCount.
-     */
-    private int maxActiveConnectionCount = 5;
-
-    /**
-     * Keeps track of whether primitive field
-     * maxActiveConnectionCount has been set already.
-     */
-    private boolean _hasmaxActiveConnectionCount;
-
-    /**
-     * Field minIdleConnectionCount.
-     */
-    private int minIdleConnectionCount = 1;
-
-    /**
-     * Keeps track of whether primitive field
-     * minIdleConnectionCount has been set already.
-     */
-    private boolean _hasminIdleConnectionCount;
-
-    /**
-     * Field maxIdleConnectionCount.
-     */
-    private int maxIdleConnectionCount = 5;
-
-    /**
-     * Keeps track of whether primitive field
-     * maxIdleConnectionCount has been set already.
-     */
-    private boolean _hasmaxIdleConnectionCount;
-
-    /**
-     * Field maxWaitTime.
-     */
-    private long maxWaitTime = 10000;
-
-    /**
-     * Keeps track of whether primitive field maxWaitTime has been
+     * Keeps track of whether primitive field initialSize has been
      * set already.
      */
-    private boolean _hasmaxWaitTime;
+    private boolean _hasinitialSize;
+
+    /**
+     * Field maxTotal.
+     */
+    private int maxTotal = 5;
+
+    /**
+     * Keeps track of whether primitive field maxTotal has been set
+     * already.
+     */
+    private boolean _hasmaxTotal;
+
+    /**
+     * Field minIdle.
+     */
+    private int minIdle = 1;
+
+    /**
+     * Keeps track of whether primitive field minIdle has been set
+     * already.
+     */
+    private boolean _hasminIdle;
+
+    /**
+     * Field maxIdle.
+     */
+    private int maxIdle = 5;
+
+    /**
+     * Keeps track of whether primitive field maxIdle has been set
+     * already.
+     */
+    private boolean _hasmaxIdle;
+
+    /**
+     * Field maxConnLifetimeMillis.
+     */
+    private long maxConnLifetimeMillis = 30000;
+
+    /**
+     * Keeps track of whether primitive field maxConnLifetimeMillis
+     * has been set already.
+     */
+    private boolean _hasmaxConnLifetimeMillis;
+
+    /**
+     * Field removeAbandonedTimeout.
+     */
+    private int removeAbandonedTimeout = 90;
+
+    /**
+     * Keeps track of whether primitive field
+     * removeAbandonedTimeout has been set already.
+     */
+    private boolean _hasremoveAbandonedTimeout;
+
+    /**
+     * Field testWhileIdle.
+     */
+    private boolean testWhileIdle = true;
+
+    /**
+     * Keeps track of whether primitive field testWhileIdle has
+     * been set already.
+     */
+    private boolean _hastestWhileIdle;
+
+    /**
+     * Field testOnBorrow.
+     */
+    private boolean testOnBorrow = true;
+
+    /**
+     * Keeps track of whether primitive field testOnBorrow has been
+     * set already.
+     */
+    private boolean _hastestOnBorrow;
+
+    /**
+     * Field validationQuery.
+     */
+    private java.lang.String validationQuery = "SELECT 1";
+
+    /**
+     * Field poolPreparedStatements.
+     */
+    private boolean poolPreparedStatements = true;
+
+    /**
+     * Keeps track of whether primitive field
+     * poolPreparedStatements has been set already.
+     */
+    private boolean _haspoolPreparedStatements;
+
+    /**
+     * Field removeAbandonedOnMaintenance.
+     */
+    private boolean removeAbandonedOnMaintenance = true;
+
+    /**
+     * Keeps track of whether primitive field
+     * removeAbandonedOnMaintenance has been set already.
+     */
+    private boolean _hasremoveAbandonedOnMaintenance;
+
+    /**
+     * Field logAbandoned.
+     */
+    private boolean logAbandoned = true;
+
+    /**
+     * Keeps track of whether primitive field logAbandoned has been
+     * set already.
+     */
+    private boolean _haslogAbandoned;
 
     public ConnectionPool() {
         super();
+        setValidationQuery("SELECT 1");
     }
 
     /**
      */
-    public void deleteInitialConnectionCount() {
-        this._hasinitialConnectionCount= false;
+    public void deleteInitialSize() {
+        this._hasinitialSize= false;
     }
 
     /**
      */
-    public void deleteMaxActiveConnectionCount() {
-        this._hasmaxActiveConnectionCount= false;
+    public void deleteLogAbandoned() {
+        this._haslogAbandoned= false;
     }
 
     /**
      */
-    public void deleteMaxIdleConnectionCount() {
-        this._hasmaxIdleConnectionCount= false;
+    public void deleteMaxConnLifetimeMillis() {
+        this._hasmaxConnLifetimeMillis= false;
     }
 
     /**
      */
-    public void deleteMaxWaitTime() {
-        this._hasmaxWaitTime= false;
+    public void deleteMaxIdle() {
+        this._hasmaxIdle= false;
     }
 
     /**
      */
-    public void deleteMinIdleConnectionCount() {
-        this._hasminIdleConnectionCount= false;
+    public void deleteMaxTotal() {
+        this._hasmaxTotal= false;
     }
 
     /**
-     * Returns the value of field 'initialConnectionCount'.
+     */
+    public void deleteMinIdle() {
+        this._hasminIdle= false;
+    }
+
+    /**
+     */
+    public void deletePoolPreparedStatements() {
+        this._haspoolPreparedStatements= false;
+    }
+
+    /**
+     */
+    public void deleteRemoveAbandonedOnMaintenance() {
+        this._hasremoveAbandonedOnMaintenance= false;
+    }
+
+    /**
+     */
+    public void deleteRemoveAbandonedTimeout() {
+        this._hasremoveAbandonedTimeout= false;
+    }
+
+    /**
+     */
+    public void deleteTestOnBorrow() {
+        this._hastestOnBorrow= false;
+    }
+
+    /**
+     */
+    public void deleteTestWhileIdle() {
+        this._hastestWhileIdle= false;
+    }
+
+    /**
+     * Returns the value of field 'initialSize'.
      * 
-     * @return the value of field 'InitialConnectionCount'.
+     * @return the value of field 'InitialSize'.
      */
-    public int getInitialConnectionCount() {
-        return this.initialConnectionCount;
+    public int getInitialSize() {
+        return this.initialSize;
     }
 
     /**
-     * Returns the value of field 'maxActiveConnectionCount'.
+     * Returns the value of field 'logAbandoned'.
      * 
-     * @return the value of field 'MaxActiveConnectionCount'.
+     * @return the value of field 'LogAbandoned'.
      */
-    public int getMaxActiveConnectionCount() {
-        return this.maxActiveConnectionCount;
+    public boolean getLogAbandoned() {
+        return this.logAbandoned;
     }
 
     /**
-     * Returns the value of field 'maxIdleConnectionCount'.
+     * Returns the value of field 'maxConnLifetimeMillis'.
      * 
-     * @return the value of field 'MaxIdleConnectionCount'.
+     * @return the value of field 'MaxConnLifetimeMillis'.
      */
-    public int getMaxIdleConnectionCount() {
-        return this.maxIdleConnectionCount;
+    public long getMaxConnLifetimeMillis() {
+        return this.maxConnLifetimeMillis;
     }
 
     /**
-     * Returns the value of field 'maxWaitTime'.
+     * Returns the value of field 'maxIdle'.
      * 
-     * @return the value of field 'MaxWaitTime'.
+     * @return the value of field 'MaxIdle'.
      */
-    public long getMaxWaitTime() {
-        return this.maxWaitTime;
+    public int getMaxIdle() {
+        return this.maxIdle;
     }
 
     /**
-     * Returns the value of field 'minIdleConnectionCount'.
+     * Returns the value of field 'maxTotal'.
      * 
-     * @return the value of field 'MinIdleConnectionCount'.
+     * @return the value of field 'MaxTotal'.
      */
-    public int getMinIdleConnectionCount() {
-        return this.minIdleConnectionCount;
+    public int getMaxTotal() {
+        return this.maxTotal;
     }
 
     /**
-     * Method hasInitialConnectionCount.
+     * Returns the value of field 'minIdle'.
      * 
-     * @return true if at least one InitialConnectionCount has been
+     * @return the value of field 'MinIdle'.
+     */
+    public int getMinIdle() {
+        return this.minIdle;
+    }
+
+    /**
+     * Returns the value of field 'poolPreparedStatements'.
+     * 
+     * @return the value of field 'PoolPreparedStatements'.
+     */
+    public boolean getPoolPreparedStatements() {
+        return this.poolPreparedStatements;
+    }
+
+    /**
+     * Returns the value of field 'removeAbandonedOnMaintenance'.
+     * 
+     * @return the value of field 'RemoveAbandonedOnMaintenance'.
+     */
+    public boolean getRemoveAbandonedOnMaintenance() {
+        return this.removeAbandonedOnMaintenance;
+    }
+
+    /**
+     * Returns the value of field 'removeAbandonedTimeout'.
+     * 
+     * @return the value of field 'RemoveAbandonedTimeout'.
+     */
+    public int getRemoveAbandonedTimeout() {
+        return this.removeAbandonedTimeout;
+    }
+
+    /**
+     * Returns the value of field 'testOnBorrow'.
+     * 
+     * @return the value of field 'TestOnBorrow'.
+     */
+    public boolean getTestOnBorrow() {
+        return this.testOnBorrow;
+    }
+
+    /**
+     * Returns the value of field 'testWhileIdle'.
+     * 
+     * @return the value of field 'TestWhileIdle'.
+     */
+    public boolean getTestWhileIdle() {
+        return this.testWhileIdle;
+    }
+
+    /**
+     * Returns the value of field 'validationQuery'.
+     * 
+     * @return the value of field 'ValidationQuery'.
+     */
+    public java.lang.String getValidationQuery() {
+        return this.validationQuery;
+    }
+
+    /**
+     * Method hasInitialSize.
+     * 
+     * @return true if at least one InitialSize has been added
+     */
+    public boolean hasInitialSize() {
+        return this._hasinitialSize;
+    }
+
+    /**
+     * Method hasLogAbandoned.
+     * 
+     * @return true if at least one LogAbandoned has been added
+     */
+    public boolean hasLogAbandoned() {
+        return this._haslogAbandoned;
+    }
+
+    /**
+     * Method hasMaxConnLifetimeMillis.
+     * 
+     * @return true if at least one MaxConnLifetimeMillis has been
      * added
      */
-    public boolean hasInitialConnectionCount() {
-        return this._hasinitialConnectionCount;
+    public boolean hasMaxConnLifetimeMillis() {
+        return this._hasmaxConnLifetimeMillis;
     }
 
     /**
-     * Method hasMaxActiveConnectionCount.
+     * Method hasMaxIdle.
      * 
-     * @return true if at least one MaxActiveConnectionCount has
-     * been added
+     * @return true if at least one MaxIdle has been added
      */
-    public boolean hasMaxActiveConnectionCount() {
-        return this._hasmaxActiveConnectionCount;
+    public boolean hasMaxIdle() {
+        return this._hasmaxIdle;
     }
 
     /**
-     * Method hasMaxIdleConnectionCount.
+     * Method hasMaxTotal.
      * 
-     * @return true if at least one MaxIdleConnectionCount has been
+     * @return true if at least one MaxTotal has been added
+     */
+    public boolean hasMaxTotal() {
+        return this._hasmaxTotal;
+    }
+
+    /**
+     * Method hasMinIdle.
+     * 
+     * @return true if at least one MinIdle has been added
+     */
+    public boolean hasMinIdle() {
+        return this._hasminIdle;
+    }
+
+    /**
+     * Method hasPoolPreparedStatements.
+     * 
+     * @return true if at least one PoolPreparedStatements has been
      * added
      */
-    public boolean hasMaxIdleConnectionCount() {
-        return this._hasmaxIdleConnectionCount;
+    public boolean hasPoolPreparedStatements() {
+        return this._haspoolPreparedStatements;
     }
 
     /**
-     * Method hasMaxWaitTime.
+     * Method hasRemoveAbandonedOnMaintenance.
      * 
-     * @return true if at least one MaxWaitTime has been added
+     * @return true if at least one RemoveAbandonedOnMaintenance
+     * has been added
      */
-    public boolean hasMaxWaitTime() {
-        return this._hasmaxWaitTime;
+    public boolean hasRemoveAbandonedOnMaintenance() {
+        return this._hasremoveAbandonedOnMaintenance;
     }
 
     /**
-     * Method hasMinIdleConnectionCount.
+     * Method hasRemoveAbandonedTimeout.
      * 
-     * @return true if at least one MinIdleConnectionCount has been
+     * @return true if at least one RemoveAbandonedTimeout has been
      * added
      */
-    public boolean hasMinIdleConnectionCount() {
-        return this._hasminIdleConnectionCount;
+    public boolean hasRemoveAbandonedTimeout() {
+        return this._hasremoveAbandonedTimeout;
+    }
+
+    /**
+     * Method hasTestOnBorrow.
+     * 
+     * @return true if at least one TestOnBorrow has been added
+     */
+    public boolean hasTestOnBorrow() {
+        return this._hastestOnBorrow;
+    }
+
+    /**
+     * Method hasTestWhileIdle.
+     * 
+     * @return true if at least one TestWhileIdle has been added
+     */
+    public boolean hasTestWhileIdle() {
+        return this._hastestWhileIdle;
+    }
+
+    /**
+     * Returns the value of field 'logAbandoned'.
+     * 
+     * @return the value of field 'LogAbandoned'.
+     */
+    public boolean isLogAbandoned() {
+        return this.logAbandoned;
+    }
+
+    /**
+     * Returns the value of field 'poolPreparedStatements'.
+     * 
+     * @return the value of field 'PoolPreparedStatements'.
+     */
+    public boolean isPoolPreparedStatements() {
+        return this.poolPreparedStatements;
+    }
+
+    /**
+     * Returns the value of field 'removeAbandonedOnMaintenance'.
+     * 
+     * @return the value of field 'RemoveAbandonedOnMaintenance'.
+     */
+    public boolean isRemoveAbandonedOnMaintenance() {
+        return this.removeAbandonedOnMaintenance;
+    }
+
+    /**
+     * Returns the value of field 'testOnBorrow'.
+     * 
+     * @return the value of field 'TestOnBorrow'.
+     */
+    public boolean isTestOnBorrow() {
+        return this.testOnBorrow;
+    }
+
+    /**
+     * Returns the value of field 'testWhileIdle'.
+     * 
+     * @return the value of field 'TestWhileIdle'.
+     */
+    public boolean isTestWhileIdle() {
+        return this.testWhileIdle;
     }
 
     /**
@@ -241,57 +511,126 @@ public class ConnectionPool implements java.io.Serializable {
     }
 
     /**
-     * Sets the value of field 'initialConnectionCount'.
+     * Sets the value of field 'initialSize'.
      * 
-     * @param initialConnectionCount the value of field
-     * 'initialConnectionCount'.
+     * @param initialSize the value of field 'initialSize'.
      */
-    public void setInitialConnectionCount(final int initialConnectionCount) {
-        this.initialConnectionCount = initialConnectionCount;
-        this._hasinitialConnectionCount = true;
+    public void setInitialSize(final int initialSize) {
+        this.initialSize = initialSize;
+        this._hasinitialSize = true;
     }
 
     /**
-     * Sets the value of field 'maxActiveConnectionCount'.
+     * Sets the value of field 'logAbandoned'.
      * 
-     * @param maxActiveConnectionCount the value of field
-     * 'maxActiveConnectionCount'.
+     * @param logAbandoned the value of field 'logAbandoned'.
      */
-    public void setMaxActiveConnectionCount(final int maxActiveConnectionCount) {
-        this.maxActiveConnectionCount = maxActiveConnectionCount;
-        this._hasmaxActiveConnectionCount = true;
+    public void setLogAbandoned(final boolean logAbandoned) {
+        this.logAbandoned = logAbandoned;
+        this._haslogAbandoned = true;
     }
 
     /**
-     * Sets the value of field 'maxIdleConnectionCount'.
+     * Sets the value of field 'maxConnLifetimeMillis'.
      * 
-     * @param maxIdleConnectionCount the value of field
-     * 'maxIdleConnectionCount'.
+     * @param maxConnLifetimeMillis the value of field
+     * 'maxConnLifetimeMillis'.
      */
-    public void setMaxIdleConnectionCount(final int maxIdleConnectionCount) {
-        this.maxIdleConnectionCount = maxIdleConnectionCount;
-        this._hasmaxIdleConnectionCount = true;
+    public void setMaxConnLifetimeMillis(final long maxConnLifetimeMillis) {
+        this.maxConnLifetimeMillis = maxConnLifetimeMillis;
+        this._hasmaxConnLifetimeMillis = true;
     }
 
     /**
-     * Sets the value of field 'maxWaitTime'.
+     * Sets the value of field 'maxIdle'.
      * 
-     * @param maxWaitTime the value of field 'maxWaitTime'.
+     * @param maxIdle the value of field 'maxIdle'.
      */
-    public void setMaxWaitTime(final long maxWaitTime) {
-        this.maxWaitTime = maxWaitTime;
-        this._hasmaxWaitTime = true;
+    public void setMaxIdle(final int maxIdle) {
+        this.maxIdle = maxIdle;
+        this._hasmaxIdle = true;
     }
 
     /**
-     * Sets the value of field 'minIdleConnectionCount'.
+     * Sets the value of field 'maxTotal'.
      * 
-     * @param minIdleConnectionCount the value of field
-     * 'minIdleConnectionCount'.
+     * @param maxTotal the value of field 'maxTotal'.
      */
-    public void setMinIdleConnectionCount(final int minIdleConnectionCount) {
-        this.minIdleConnectionCount = minIdleConnectionCount;
-        this._hasminIdleConnectionCount = true;
+    public void setMaxTotal(final int maxTotal) {
+        this.maxTotal = maxTotal;
+        this._hasmaxTotal = true;
+    }
+
+    /**
+     * Sets the value of field 'minIdle'.
+     * 
+     * @param minIdle the value of field 'minIdle'.
+     */
+    public void setMinIdle(final int minIdle) {
+        this.minIdle = minIdle;
+        this._hasminIdle = true;
+    }
+
+    /**
+     * Sets the value of field 'poolPreparedStatements'.
+     * 
+     * @param poolPreparedStatements the value of field
+     * 'poolPreparedStatements'.
+     */
+    public void setPoolPreparedStatements(final boolean poolPreparedStatements) {
+        this.poolPreparedStatements = poolPreparedStatements;
+        this._haspoolPreparedStatements = true;
+    }
+
+    /**
+     * Sets the value of field 'removeAbandonedOnMaintenance'.
+     * 
+     * @param removeAbandonedOnMaintenance the value of field
+     * 'removeAbandonedOnMaintenance'.
+     */
+    public void setRemoveAbandonedOnMaintenance(final boolean removeAbandonedOnMaintenance) {
+        this.removeAbandonedOnMaintenance = removeAbandonedOnMaintenance;
+        this._hasremoveAbandonedOnMaintenance = true;
+    }
+
+    /**
+     * Sets the value of field 'removeAbandonedTimeout'.
+     * 
+     * @param removeAbandonedTimeout the value of field
+     * 'removeAbandonedTimeout'.
+     */
+    public void setRemoveAbandonedTimeout(final int removeAbandonedTimeout) {
+        this.removeAbandonedTimeout = removeAbandonedTimeout;
+        this._hasremoveAbandonedTimeout = true;
+    }
+
+    /**
+     * Sets the value of field 'testOnBorrow'.
+     * 
+     * @param testOnBorrow the value of field 'testOnBorrow'.
+     */
+    public void setTestOnBorrow(final boolean testOnBorrow) {
+        this.testOnBorrow = testOnBorrow;
+        this._hastestOnBorrow = true;
+    }
+
+    /**
+     * Sets the value of field 'testWhileIdle'.
+     * 
+     * @param testWhileIdle the value of field 'testWhileIdle'.
+     */
+    public void setTestWhileIdle(final boolean testWhileIdle) {
+        this.testWhileIdle = testWhileIdle;
+        this._hastestWhileIdle = true;
+    }
+
+    /**
+     * Sets the value of field 'validationQuery'.
+     * 
+     * @param validationQuery the value of field 'validationQuery'.
+     */
+    public void setValidationQuery(final java.lang.String validationQuery) {
+        this.validationQuery = validationQuery;
     }
 
     /**

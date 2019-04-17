@@ -49,54 +49,49 @@ public interface IDataEngine
 {
 	// 属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 	public void setDriver(String strDriver);
-
 	public String getDriver();
 
 	public void setURI(String strURI);
-
 	public String getURI();
 
 	public String getCharset();
-
 	public void setCharset(String strCharset);
 
 	public Properties getProperties();
-
 	public void setProperties(Properties properties);
 
 	public String getUserName();
-
 	public void setUserName(String strUserName);
 
 	public String getPassword();
-
 	public void setPassword(String strPassword);
 	
 	public void setInitialSize(int nInitalSize);
-	
 	public int getInitialSize();
-	
-	public void setMaxActive(int nMaxActive);
-	
-	public int getMaxActive();
-	
-	public void setMinIdle(int nMinIdle);
-	
+
+	public void setMinIdle(int nMinIdle);	
 	public int getMinIdle();
 	
 	public void setMaxIdle(int nMaxIdle);
-	
 	public int getMaxIdle();	    
+	
+	public long getnMaxConnLifetimeMillis();
+	public void setnMaxConnLifetimeMillis(long nMaxConnLifetimeMillis);
+	
+	public int getnMaxTotal();
+	public void setnMaxTotal(int nMaxTotal);
 
-	public void setMaxWait(long nMaxWaitTime);
+	public void setRemoveAbandonedTimeout(int nRemoveAbandonedTimeout);		//removeAbandonedTimeout
+	public void setTestWhileIdle(boolean bTestWhileIdle);
+	public void setTestOnBorrow(boolean bTestOnBorrow);
+	public void setValidationQuery(String strSql);
+	public void setPoolPreparedStatements(boolean bPoolPreparedStatements);
+	public void setRemoveAbandonedOnMaintenance(boolean bRemoveAbandonedOnMaintenance);
+	public void setLogAbandoned(boolean bLogAbandoned);
 
-	public long getMaxWait();
-
+	
 	public boolean isOpened();
 	
-	public int getLoadLevel();
-	
-	public void setLoadLevel(int nLoadlevel);
 
 	// 公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 	/**

@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -23,7 +23,7 @@ public class Database implements java.io.Serializable {
     /**
      * Field loadLevel.
      */
-    private int loadLevel;
+    private int loadLevel = 100;
 
     /**
      * Keeps track of whether primitive field loadLevel has been

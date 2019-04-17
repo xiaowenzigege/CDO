@@ -69,26 +69,33 @@ public class BusinessService
 			if(ret.getCode()!=0)
 				return ret;
 		}
-
-		String strBusResource=GlobalResource.cdoConfig.getString("servicebusResource.path");	
-		String strFrameworkResource=GlobalResource.cdoConfig.getString("frameworkResource.path");	
-		if(strBusResource==null){
+		String strBusResourceXmlFile=GlobalResource.cdoConfig.getString("servicebusResource.path");			
+		if(strBusResourceXmlFile==null){
 			 String confPath=GlobalResource.getCDOEnvConfigPath();
 			 String parent=new File(confPath).getParent();
-			 strBusResource=parent+"/servicebusResource.xml";
-			 log.info("使用配置文件:strBusResource="+strBusResource);
-			 File file=new File(strBusResource);
+			 strBusResourceXmlFile=parent+"/servicebusResource.xml";
+			 log.info("使用配置文件:strBusResource="+strBusResourceXmlFile);
+			 File file=new File(strBusResourceXmlFile);
 			 if(!file.exists()||!file.isFile())
-				 strBusResource=null;			 
+				 strBusResourceXmlFile=null;			 
 		}
-		if(strBusResource==null || strBusResource.equals("")){
+		if(strBusResourceXmlFile==null || strBusResourceXmlFile.equals("")){
 			return Return.valueOf(-1, "init Environment failed! parameter[servicebusResource.path,frameworkResource.path] is not found");
-		}		
-		
-		return start(strBusResource,"pluginsConfig.xml","bigTableConfig.xml",strFrameworkResource,"UTF-8");
+		}				
+		return start(strBusResourceXmlFile);
 	}
 	
-	public Return start(String strServiceBusResouceXMLFile,String strPluginsConfigXMLFile,String strBigTableConfigXMLFile,String strFrameworkResourcePath,String encoding)
+	public Return start(String strBusResourceXmlFile){			
+		return start(strBusResourceXmlFile,"pluginsConfig.xml");
+	}
+	
+	public Return start(String strBusResourceXmlFile,String pluginsConfigXmlFile)
+	{
+			
+		return start(strBusResourceXmlFile,pluginsConfigXmlFile,"UTF-8");
+	}
+	
+	public Return start(String strServiceBusResouceXMLFile,String strPluginsConfigXMLFile,String encoding)
 	{
 		if(this.bIsRunning==true)
 		{
@@ -110,9 +117,8 @@ public class BusinessService
 		}
 		strServiceBusResouceXML=strServiceBusResouceXML.replaceAll("ServiceBusResource", "ServiceBus");
 		strBusinessServiceBusXML.append(strServiceBusResouceXML.replaceAll("</ServiceBus>", "")).append(strPluginsConfigXML).append("</ServiceBus>");
-		
-		String strBigTableConfigXML = Utility.readTextResource(strBigTableConfigXMLFile,encoding,true);
-		Return ret=serviceBus.init(strBusinessServiceBusXML.toString(),strBigTableConfigXML,strFrameworkResourcePath);
+				
+		Return ret=serviceBus.init(strBusinessServiceBusXML.toString());
 		
 		if(ret.getCode()!=0)
 		{
@@ -131,32 +137,6 @@ public class BusinessService
 		return Return.OK;
 	}
 	
-	public Return start(String strServiceBusXMLFile,String encoding)
-	{
-		if(this.bIsRunning==true)
-		{
-			return Return.OK;
-		}
-
-		//ServiceBus
-		String strBusinessServiceBusXML=Utility.readTextResource(strServiceBusXMLFile,encoding);
-		Return ret=serviceBus.init(strBusinessServiceBusXML);
-		if(ret.getCode()!=0)
-		{
-			return ret;
-		}
-		
-		ret=serviceBus.start();
-		if(ret.getCode()!=0)
-		{
-			serviceBus.destroy();
-			return ret;
-		}
-		
-		this.bIsRunning=true;
-
-		return Return.OK;
-	}
 	public void stop()
 	{
 		if(this.bIsRunning==false)

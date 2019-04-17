@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -413,46 +413,6 @@ public class SQLTransChoiceItemDescriptor extends org.exolab.castor.xml.util.XML
         addSequenceElement(desc);
 
         //-- validation code for: setVar
-        fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
-        { //-- local scope
-        }
-        desc.setValidator(fieldValidator);
-        //-- selectConnection
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(com.cdoframework.cdolib.database.xsd.SelectConnection.class, "selectConnection", "SelectConnection", org.exolab.castor.xml.NodeType.Element);
-        handler = new org.exolab.castor.xml.XMLFieldHandler() {
-            @Override
-            public java.lang.Object getValue( java.lang.Object object ) 
-                throws IllegalStateException
-            {
-                SQLTransChoiceItem target = (SQLTransChoiceItem) object;
-                return target.getSelectConnection();
-            }
-            @Override
-            public void setValue( java.lang.Object object, java.lang.Object value) 
-                throws IllegalStateException, IllegalArgumentException
-            {
-                try {
-                    SQLTransChoiceItem target = (SQLTransChoiceItem) object;
-                    target.setSelectConnection( (com.cdoframework.cdolib.database.xsd.SelectConnection) value);
-                } catch (java.lang.Exception ex) {
-                    throw new IllegalStateException(ex.toString());
-                }
-            }
-            @Override
-            @SuppressWarnings("unused")
-            public java.lang.Object newInstance(java.lang.Object parent) {
-                return new com.cdoframework.cdolib.database.xsd.SelectConnection();
-            }
-        };
-        desc.setSchemaType("com.cdoframework.cdolib.database.xsd.SelectConnection");
-        desc.setHandler(handler);
-        desc.setRequired(true);
-        desc.setMultivalued(false);
-        addFieldDescriptor(desc);
-        addSequenceElement(desc);
-
-        //-- validation code for: selectConnection
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope

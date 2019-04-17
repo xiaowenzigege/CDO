@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -174,54 +174,13 @@ public class SQLTransDescriptor extends org.exolab.castor.xml.util.XMLClassDescr
         };
         desc.setSchemaType("string");
         desc.setHandler(handler);
+        desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
 
         //-- validation code for: dataGroupId
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        { //-- local scope
-            org.exolab.castor.xml.validators.StringValidator typeValidator;
-            typeValidator = new org.exolab.castor.xml.validators.StringValidator();
-            fieldValidator.setValidator(typeValidator);
-            typeValidator.addPattern("(([a-z]|[A-Z])([a-z]|[A-Z]|[0-9])*)*");
-            typeValidator.setWhiteSpace("preserve");
-        }
-        desc.setValidator(fieldValidator);
-        //-- bigTableGroupId
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.String.class, "bigTableGroupId", "BigTableGroupId", org.exolab.castor.xml.NodeType.Attribute);
-        desc.setImmutable(true);
-        handler = new org.exolab.castor.xml.XMLFieldHandler() {
-            @Override
-            public java.lang.Object getValue( java.lang.Object object ) 
-                throws IllegalStateException
-            {
-                SQLTrans target = (SQLTrans) object;
-                return target.getBigTableGroupId();
-            }
-            @Override
-            public void setValue( java.lang.Object object, java.lang.Object value) 
-                throws IllegalStateException, IllegalArgumentException
-            {
-                try {
-                    SQLTrans target = (SQLTrans) object;
-                    target.setBigTableGroupId( (java.lang.String) value);
-                } catch (java.lang.Exception ex) {
-                    throw new IllegalStateException(ex.toString());
-                }
-            }
-            @Override
-            @SuppressWarnings("unused")
-            public java.lang.Object newInstance(java.lang.Object parent) {
-                return null;
-            }
-        };
-        desc.setSchemaType("string");
-        desc.setHandler(handler);
-        desc.setMultivalued(false);
-        addFieldDescriptor(desc);
-
-        //-- validation code for: bigTableGroupId
-        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        fieldValidator.setMinOccurs(1);
         { //-- local scope
             org.exolab.castor.xml.validators.StringValidator typeValidator;
             typeValidator = new org.exolab.castor.xml.validators.StringValidator();

@@ -17,13 +17,9 @@ import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.database.IDataEngine;
-import com.cdoframework.cdolib.database.INoSQLDataEngine;
-import com.cdoframework.cdolib.database.NoSQLDataEngine;
-import com.cdoframework.cdolib.database.xsd.BigTable;
 import com.cdoframework.cdolib.database.xsd.DataService;
 import com.cdoframework.cdolib.servicebus.xsd.ActiveService;
 import com.cdoframework.cdolib.servicebus.xsd.DataGroup;
-import com.cdoframework.cdolib.servicebus.xsd.NoSQLDB;
 import com.cdoframework.cdolib.servicebus.xsd.Parameter;
 import com.cdoframework.cdolib.servicebus.xsd.ServiceConfig;
 import com.cdoframework.cdolib.servicebus.xsd.TransService;
@@ -44,10 +40,8 @@ public class ServicePlugin implements IServicePlugin
 	private HashMap<String,String> hmParameterMap;//配置参数
 	private HashMap<String,CycleList<IDataEngine>> hmLocalDataGroup;//关系数据库引擎容器
 	private HashMap<String,CycleList<IDataEngine>> hmAllDataGroup;//关系数据库引擎容器
-	private HashMap<String,INoSQLDataEngine> hmLocalNoSQLDataEngine;
-	private HashMap<String,INoSQLDataEngine> hmAllNoSQLDataEngine;
 	private HashMap<String,Service> hmService;
-	private HashMap<String,BigTable[]> hmBigTableGroupConfig;//bigTable  配置文件
+
 	
 	public void setParameterMap(HashMap<String,String> hmParameterMap)
 	{
@@ -59,14 +53,6 @@ public class ServicePlugin implements IServicePlugin
 		hmAllDataGroup.putAll(hmPublicDataGroup);
 	}
 
-	public void setPublicNoSQLDataEngine(HashMap<String,NoSQLDataEngine> hmPublicNoSQLDataEngine)
-	{
-		hmAllNoSQLDataEngine.putAll(hmPublicNoSQLDataEngine);
-	}
-	public void setPublicBigTableGroupConfig(HashMap<String,BigTable[]>  hmBigTableGroupConfig)
-	{
-		this.hmBigTableGroupConfig.putAll(hmBigTableGroupConfig);
-	}
 	// 属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 
 	// 引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
@@ -103,6 +89,12 @@ public class ServicePlugin implements IServicePlugin
 	public void init(String strPluginName,ServiceBus serviceBus,com.cdoframework.cdolib.servicebus.xsd.ServicePlugin pluginDefine)
 					throws Exception
 	{
+		
+		//TODO 初始化Service
+		int nServiceCount = pluginDefine.getServiceConfigCount();
+		if(nServiceCount==0){
+			throw new Exception("no server define");
+		}		
 		this.serviceBus = serviceBus;
 		this.strPluginName = strPluginName;
 		// 初始化插件参数
@@ -123,46 +115,6 @@ public class ServicePlugin implements IServicePlugin
 			this.hmAllDataGroup.put(dgs[i].getId(),clDataGroup);
 		}
 
-	
-		//初始化NoSQL NotSQLDataEngine
-		NoSQLDB[] noSQLDBdefines = pluginDefine.getNoSQLDB();
-		//TODO
-		if(noSQLDBdefines!=null && noSQLDBdefines.length>0)
-		{
-			if(logger.isInfoEnabled()){logger.info(strPluginName+ " starting to load NoSQLTransDataEngine....................");}
-			try
-			{
-				for(NoSQLDB noSQLDBdefine:noSQLDBdefines)
-				{
-					NoSQLDataEngine noSQLDataEngine = new NoSQLDataEngine();
-					Return ret = noSQLDataEngine.initNoSQLDataEngine(noSQLDBdefine);
-					if(ret.getCode()!=0)
-					{
-						//TODO 退出or继续执行
-						logger.error("Faild to load NoSQLDB............... caught Exception: "+ret.getText());
-						throw new Exception("Init ServiceBus Failed: "+ret.getText());
-					}
-					this.hmLocalNoSQLDataEngine.put(noSQLDBdefine.getId(),noSQLDataEngine);
-					this.hmAllNoSQLDataEngine.put(noSQLDBdefine.getId(),noSQLDataEngine);
-				}
-
-			}
-			catch(Exception e1)
-			{
-				logger.error("when parse NoSQLDB ,caught Exception: ",e1);
-				throw new Exception ("Init ServiceBus Failed: "+e1.getLocalizedMessage());
-			}		
-			if(logger.isInfoEnabled()){logger.info(strPluginName+" Load NoSQLTransDataEngine successfully....................");}
-		
-		}
-		
-		//TODO 初始化Service
-		int nServiceCount = pluginDefine.getServiceConfigCount();
-		if(nServiceCount==0)
-		{
-			//TODO 清除对象
-			throw new Exception("no server define");
-		}
 		
 		ServiceConfig[] serviceConfigs = pluginDefine.getServiceConfig();
 		//保存每一个plugin.xml插件里的使用 zk 的service
@@ -227,7 +179,7 @@ public class ServicePlugin implements IServicePlugin
 				{
 					throw new Exception("init service error : can not find service id "+dataServiceDefine.getId());
 				}
-				Return ret = dataService.init(dataServiceDefine.getId(),service,this,serviceBus,hmBigTableGroupConfig);
+				Return ret = dataService.init(dataServiceDefine.getId(),service,this,serviceBus);
 				if(ret.getCode()!=0)
 				{
 					//TODO 清除对象
@@ -428,14 +380,7 @@ public class ServicePlugin implements IServicePlugin
 		return hmParameterMap.get(strName);
 	}
 
-	public INoSQLDataEngine getNoSQLDataEngine(String strNoSQLDBId)
-	{
-		if(strNoSQLDBId==null )
-		{
-			return this.serviceBus.getDefaultNoSQLDataEngine();
-		}
-		return this.hmAllNoSQLDataEngine.get(strNoSQLDBId);
-	}
+
 
 	// 事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------
 
@@ -445,12 +390,9 @@ public class ServicePlugin implements IServicePlugin
 
 	public ServicePlugin()
 	{
-		hmLocalNoSQLDataEngine	= new HashMap<String,INoSQLDataEngine>(3);
-		hmAllNoSQLDataEngine	= new HashMap<String,INoSQLDataEngine>(3);
 		hmService 			= new HashMap<String,Service>(3);
 		hmParameterMap			= new HashMap<String,String>(10);
 		hmLocalDataGroup		= new HashMap<String,CycleList<IDataEngine>>(10);
-		hmAllDataGroup			= new HashMap<String,CycleList<IDataEngine>>(10);
-		hmBigTableGroupConfig   =new HashMap<String,BigTable[]>(2);
+		hmAllDataGroup			= new HashMap<String,CycleList<IDataEngine>>(10);	
 	}
 }

@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -59,16 +59,16 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
 
         //-- initialize element descriptors
 
-        //-- initialConnectionCount
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "initialConnectionCount", "InitialConnectionCount", org.exolab.castor.xml.NodeType.Element);
+        //-- initialSize
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "initialSize", "InitialSize", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             @Override
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 ConnectionPool target = (ConnectionPool) object;
-                if (!target.hasInitialConnectionCount()) { return null; }
-                return new java.lang.Integer(target.getInitialConnectionCount());
+                if (!target.hasInitialSize()) { return null; }
+                return new java.lang.Integer(target.getInitialSize());
             }
             @Override
             public void setValue( java.lang.Object object, java.lang.Object value) 
@@ -79,7 +79,7 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
                     // ignore null values for non optional primitives
                     if (value == null) { return; }
 
-                    target.setInitialConnectionCount( ((java.lang.Integer) value).intValue());
+                    target.setInitialSize( ((java.lang.Integer) value).intValue());
                 } catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
@@ -97,7 +97,7 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
         addFieldDescriptor(desc);
         addSequenceElement(desc);
 
-        //-- validation code for: initialConnectionCount
+        //-- validation code for: initialSize
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope
@@ -108,16 +108,16 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
             typeValidator.setMaxInclusive(2147483647);
         }
         desc.setValidator(fieldValidator);
-        //-- maxActiveConnectionCount
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "maxActiveConnectionCount", "MaxActiveConnectionCount", org.exolab.castor.xml.NodeType.Element);
+        //-- maxTotal
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "maxTotal", "MaxTotal", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             @Override
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 ConnectionPool target = (ConnectionPool) object;
-                if (!target.hasMaxActiveConnectionCount()) { return null; }
-                return new java.lang.Integer(target.getMaxActiveConnectionCount());
+                if (!target.hasMaxTotal()) { return null; }
+                return new java.lang.Integer(target.getMaxTotal());
             }
             @Override
             public void setValue( java.lang.Object object, java.lang.Object value) 
@@ -128,7 +128,7 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
                     // ignore null values for non optional primitives
                     if (value == null) { return; }
 
-                    target.setMaxActiveConnectionCount( ((java.lang.Integer) value).intValue());
+                    target.setMaxTotal( ((java.lang.Integer) value).intValue());
                 } catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
@@ -146,7 +146,7 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
         addFieldDescriptor(desc);
         addSequenceElement(desc);
 
-        //-- validation code for: maxActiveConnectionCount
+        //-- validation code for: maxTotal
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope
@@ -157,16 +157,16 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
             typeValidator.setMaxInclusive(2147483647);
         }
         desc.setValidator(fieldValidator);
-        //-- minIdleConnectionCount
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "minIdleConnectionCount", "MinIdleConnectionCount", org.exolab.castor.xml.NodeType.Element);
+        //-- minIdle
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "minIdle", "MinIdle", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             @Override
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 ConnectionPool target = (ConnectionPool) object;
-                if (!target.hasMinIdleConnectionCount()) { return null; }
-                return new java.lang.Integer(target.getMinIdleConnectionCount());
+                if (!target.hasMinIdle()) { return null; }
+                return new java.lang.Integer(target.getMinIdle());
             }
             @Override
             public void setValue( java.lang.Object object, java.lang.Object value) 
@@ -176,10 +176,10 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
                     ConnectionPool target = (ConnectionPool) object;
                     // if null, use delete method for optional primitives 
                     if (value == null) {
-                        target.deleteMinIdleConnectionCount();
+                        target.deleteMinIdle();
                         return;
                     }
-                    target.setMinIdleConnectionCount( ((java.lang.Integer) value).intValue());
+                    target.setMinIdle( ((java.lang.Integer) value).intValue());
                 } catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
@@ -196,7 +196,7 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
         addFieldDescriptor(desc);
         addSequenceElement(desc);
 
-        //-- validation code for: minIdleConnectionCount
+        //-- validation code for: minIdle
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         { //-- local scope
             org.exolab.castor.xml.validators.IntValidator typeValidator;
@@ -206,16 +206,16 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
             typeValidator.setMaxInclusive(2147483647);
         }
         desc.setValidator(fieldValidator);
-        //-- maxIdleConnectionCount
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "maxIdleConnectionCount", "MaxIdleConnectionCount", org.exolab.castor.xml.NodeType.Element);
+        //-- maxIdle
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "maxIdle", "MaxIdle", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             @Override
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 ConnectionPool target = (ConnectionPool) object;
-                if (!target.hasMaxIdleConnectionCount()) { return null; }
-                return new java.lang.Integer(target.getMaxIdleConnectionCount());
+                if (!target.hasMaxIdle()) { return null; }
+                return new java.lang.Integer(target.getMaxIdle());
             }
             @Override
             public void setValue( java.lang.Object object, java.lang.Object value) 
@@ -225,10 +225,10 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
                     ConnectionPool target = (ConnectionPool) object;
                     // if null, use delete method for optional primitives 
                     if (value == null) {
-                        target.deleteMaxIdleConnectionCount();
+                        target.deleteMaxIdle();
                         return;
                     }
-                    target.setMaxIdleConnectionCount( ((java.lang.Integer) value).intValue());
+                    target.setMaxIdle( ((java.lang.Integer) value).intValue());
                 } catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
@@ -245,7 +245,7 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
         addFieldDescriptor(desc);
         addSequenceElement(desc);
 
-        //-- validation code for: maxIdleConnectionCount
+        //-- validation code for: maxIdle
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         { //-- local scope
             org.exolab.castor.xml.validators.IntValidator typeValidator;
@@ -255,16 +255,16 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
             typeValidator.setMaxInclusive(2147483647);
         }
         desc.setValidator(fieldValidator);
-        //-- maxWaitTime
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Long.TYPE, "maxWaitTime", "MaxWaitTime", org.exolab.castor.xml.NodeType.Element);
+        //-- maxConnLifetimeMillis
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Long.TYPE, "maxConnLifetimeMillis", "MaxConnLifetimeMillis", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             @Override
             public java.lang.Object getValue( java.lang.Object object ) 
                 throws IllegalStateException
             {
                 ConnectionPool target = (ConnectionPool) object;
-                if (!target.hasMaxWaitTime()) { return null; }
-                return new java.lang.Long(target.getMaxWaitTime());
+                if (!target.hasMaxConnLifetimeMillis()) { return null; }
+                return new java.lang.Long(target.getMaxConnLifetimeMillis());
             }
             @Override
             public void setValue( java.lang.Object object, java.lang.Object value) 
@@ -274,10 +274,10 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
                     ConnectionPool target = (ConnectionPool) object;
                     // if null, use delete method for optional primitives 
                     if (value == null) {
-                        target.deleteMaxWaitTime();
+                        target.deleteMaxConnLifetimeMillis();
                         return;
                     }
-                    target.setMaxWaitTime( ((java.lang.Long) value).longValue());
+                    target.setMaxConnLifetimeMillis( ((java.lang.Long) value).longValue());
                 } catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
@@ -294,7 +294,7 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
         addFieldDescriptor(desc);
         addSequenceElement(desc);
 
-        //-- validation code for: maxWaitTime
+        //-- validation code for: maxConnLifetimeMillis
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         { //-- local scope
             org.exolab.castor.xml.validators.LongValidator typeValidator;
@@ -302,6 +302,333 @@ public class ConnectionPoolDescriptor extends org.exolab.castor.xml.util.XMLClas
             fieldValidator.setValidator(typeValidator);
             typeValidator.setMinInclusive(-9223372036854775808L);
             typeValidator.setMaxInclusive(9223372036854775807L);
+        }
+        desc.setValidator(fieldValidator);
+        //-- removeAbandonedTimeout
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Integer.TYPE, "removeAbandonedTimeout", "RemoveAbandonedTimeout", org.exolab.castor.xml.NodeType.Element);
+        handler = new org.exolab.castor.xml.XMLFieldHandler() {
+            @Override
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                ConnectionPool target = (ConnectionPool) object;
+                if (!target.hasRemoveAbandonedTimeout()) { return null; }
+                return new java.lang.Integer(target.getRemoveAbandonedTimeout());
+            }
+            @Override
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    ConnectionPool target = (ConnectionPool) object;
+                    // if null, use delete method for optional primitives 
+                    if (value == null) {
+                        target.deleteRemoveAbandonedTimeout();
+                        return;
+                    }
+                    target.setRemoveAbandonedTimeout( ((java.lang.Integer) value).intValue());
+                } catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            @Override
+            @SuppressWarnings("unused")
+            public java.lang.Object newInstance(java.lang.Object parent) {
+                return null;
+            }
+        };
+        desc.setSchemaType("int");
+        desc.setHandler(handler);
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+        addSequenceElement(desc);
+
+        //-- validation code for: removeAbandonedTimeout
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        { //-- local scope
+            org.exolab.castor.xml.validators.IntValidator typeValidator;
+            typeValidator = new org.exolab.castor.xml.validators.IntValidator();
+            fieldValidator.setValidator(typeValidator);
+            typeValidator.setMinInclusive(-2147483648);
+            typeValidator.setMaxInclusive(2147483647);
+        }
+        desc.setValidator(fieldValidator);
+        //-- testWhileIdle
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Boolean.TYPE, "testWhileIdle", "TestWhileIdle", org.exolab.castor.xml.NodeType.Element);
+        handler = new org.exolab.castor.xml.XMLFieldHandler() {
+            @Override
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                ConnectionPool target = (ConnectionPool) object;
+                if (!target.hasTestWhileIdle()) { return null; }
+                return (target.getTestWhileIdle() ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE);
+            }
+            @Override
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    ConnectionPool target = (ConnectionPool) object;
+                    // if null, use delete method for optional primitives 
+                    if (value == null) {
+                        target.deleteTestWhileIdle();
+                        return;
+                    }
+                    target.setTestWhileIdle( ((java.lang.Boolean) value).booleanValue());
+                } catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            @Override
+            @SuppressWarnings("unused")
+            public java.lang.Object newInstance(java.lang.Object parent) {
+                return null;
+            }
+        };
+        desc.setSchemaType("boolean");
+        desc.setHandler(handler);
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+        addSequenceElement(desc);
+
+        //-- validation code for: testWhileIdle
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        { //-- local scope
+            org.exolab.castor.xml.validators.BooleanValidator typeValidator;
+            typeValidator = new org.exolab.castor.xml.validators.BooleanValidator();
+            fieldValidator.setValidator(typeValidator);
+        }
+        desc.setValidator(fieldValidator);
+        //-- testOnBorrow
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Boolean.TYPE, "testOnBorrow", "TestOnBorrow", org.exolab.castor.xml.NodeType.Element);
+        handler = new org.exolab.castor.xml.XMLFieldHandler() {
+            @Override
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                ConnectionPool target = (ConnectionPool) object;
+                if (!target.hasTestOnBorrow()) { return null; }
+                return (target.getTestOnBorrow() ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE);
+            }
+            @Override
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    ConnectionPool target = (ConnectionPool) object;
+                    // if null, use delete method for optional primitives 
+                    if (value == null) {
+                        target.deleteTestOnBorrow();
+                        return;
+                    }
+                    target.setTestOnBorrow( ((java.lang.Boolean) value).booleanValue());
+                } catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            @Override
+            @SuppressWarnings("unused")
+            public java.lang.Object newInstance(java.lang.Object parent) {
+                return null;
+            }
+        };
+        desc.setSchemaType("boolean");
+        desc.setHandler(handler);
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+        addSequenceElement(desc);
+
+        //-- validation code for: testOnBorrow
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        { //-- local scope
+            org.exolab.castor.xml.validators.BooleanValidator typeValidator;
+            typeValidator = new org.exolab.castor.xml.validators.BooleanValidator();
+            fieldValidator.setValidator(typeValidator);
+        }
+        desc.setValidator(fieldValidator);
+        //-- validationQuery
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.String.class, "validationQuery", "ValidationQuery", org.exolab.castor.xml.NodeType.Element);
+        desc.setImmutable(true);
+        handler = new org.exolab.castor.xml.XMLFieldHandler() {
+            @Override
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                ConnectionPool target = (ConnectionPool) object;
+                return target.getValidationQuery();
+            }
+            @Override
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    ConnectionPool target = (ConnectionPool) object;
+                    target.setValidationQuery( (java.lang.String) value);
+                } catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            @Override
+            @SuppressWarnings("unused")
+            public java.lang.Object newInstance(java.lang.Object parent) {
+                return null;
+            }
+        };
+        desc.setSchemaType("string");
+        desc.setHandler(handler);
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+        addSequenceElement(desc);
+
+        //-- validation code for: validationQuery
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        { //-- local scope
+            org.exolab.castor.xml.validators.StringValidator typeValidator;
+            typeValidator = new org.exolab.castor.xml.validators.StringValidator();
+            fieldValidator.setValidator(typeValidator);
+            typeValidator.setWhiteSpace("preserve");
+        }
+        desc.setValidator(fieldValidator);
+        //-- poolPreparedStatements
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Boolean.TYPE, "poolPreparedStatements", "PoolPreparedStatements", org.exolab.castor.xml.NodeType.Element);
+        handler = new org.exolab.castor.xml.XMLFieldHandler() {
+            @Override
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                ConnectionPool target = (ConnectionPool) object;
+                if (!target.hasPoolPreparedStatements()) { return null; }
+                return (target.getPoolPreparedStatements() ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE);
+            }
+            @Override
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    ConnectionPool target = (ConnectionPool) object;
+                    // if null, use delete method for optional primitives 
+                    if (value == null) {
+                        target.deletePoolPreparedStatements();
+                        return;
+                    }
+                    target.setPoolPreparedStatements( ((java.lang.Boolean) value).booleanValue());
+                } catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            @Override
+            @SuppressWarnings("unused")
+            public java.lang.Object newInstance(java.lang.Object parent) {
+                return null;
+            }
+        };
+        desc.setSchemaType("boolean");
+        desc.setHandler(handler);
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+        addSequenceElement(desc);
+
+        //-- validation code for: poolPreparedStatements
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        { //-- local scope
+            org.exolab.castor.xml.validators.BooleanValidator typeValidator;
+            typeValidator = new org.exolab.castor.xml.validators.BooleanValidator();
+            fieldValidator.setValidator(typeValidator);
+        }
+        desc.setValidator(fieldValidator);
+        //-- removeAbandonedOnMaintenance
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Boolean.TYPE, "removeAbandonedOnMaintenance", "RemoveAbandonedOnMaintenance", org.exolab.castor.xml.NodeType.Element);
+        handler = new org.exolab.castor.xml.XMLFieldHandler() {
+            @Override
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                ConnectionPool target = (ConnectionPool) object;
+                if (!target.hasRemoveAbandonedOnMaintenance()) { return null; }
+                return (target.getRemoveAbandonedOnMaintenance() ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE);
+            }
+            @Override
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    ConnectionPool target = (ConnectionPool) object;
+                    // if null, use delete method for optional primitives 
+                    if (value == null) {
+                        target.deleteRemoveAbandonedOnMaintenance();
+                        return;
+                    }
+                    target.setRemoveAbandonedOnMaintenance( ((java.lang.Boolean) value).booleanValue());
+                } catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            @Override
+            @SuppressWarnings("unused")
+            public java.lang.Object newInstance(java.lang.Object parent) {
+                return null;
+            }
+        };
+        desc.setSchemaType("boolean");
+        desc.setHandler(handler);
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+        addSequenceElement(desc);
+
+        //-- validation code for: removeAbandonedOnMaintenance
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        { //-- local scope
+            org.exolab.castor.xml.validators.BooleanValidator typeValidator;
+            typeValidator = new org.exolab.castor.xml.validators.BooleanValidator();
+            fieldValidator.setValidator(typeValidator);
+        }
+        desc.setValidator(fieldValidator);
+        //-- logAbandoned
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.Boolean.TYPE, "logAbandoned", "LogAbandoned", org.exolab.castor.xml.NodeType.Element);
+        handler = new org.exolab.castor.xml.XMLFieldHandler() {
+            @Override
+            public java.lang.Object getValue( java.lang.Object object ) 
+                throws IllegalStateException
+            {
+                ConnectionPool target = (ConnectionPool) object;
+                if (!target.hasLogAbandoned()) { return null; }
+                return (target.getLogAbandoned() ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE);
+            }
+            @Override
+            public void setValue( java.lang.Object object, java.lang.Object value) 
+                throws IllegalStateException, IllegalArgumentException
+            {
+                try {
+                    ConnectionPool target = (ConnectionPool) object;
+                    // if null, use delete method for optional primitives 
+                    if (value == null) {
+                        target.deleteLogAbandoned();
+                        return;
+                    }
+                    target.setLogAbandoned( ((java.lang.Boolean) value).booleanValue());
+                } catch (java.lang.Exception ex) {
+                    throw new IllegalStateException(ex.toString());
+                }
+            }
+            @Override
+            @SuppressWarnings("unused")
+            public java.lang.Object newInstance(java.lang.Object parent) {
+                return null;
+            }
+        };
+        desc.setSchemaType("boolean");
+        desc.setHandler(handler);
+        desc.setMultivalued(false);
+        addFieldDescriptor(desc);
+        addSequenceElement(desc);
+
+        //-- validation code for: logAbandoned
+        fieldValidator = new org.exolab.castor.xml.FieldValidator();
+        { //-- local scope
+            org.exolab.castor.xml.validators.BooleanValidator typeValidator;
+            typeValidator = new org.exolab.castor.xml.validators.BooleanValidator();
+            fieldValidator.setValidator(typeValidator);
         }
         desc.setValidator(fieldValidator);
     }

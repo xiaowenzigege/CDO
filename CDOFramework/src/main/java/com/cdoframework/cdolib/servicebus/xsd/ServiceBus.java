@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -19,16 +19,6 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class ServiceBus implements java.io.Serializable {
 
-    /**
-     * Field dataGroupId.
-     */
-    private java.lang.String dataGroupId;
-
-    /**
-     * Field noSQLDBId.
-     */
-    private java.lang.String noSQLDBId;
-
     private java.util.List<com.cdoframework.cdolib.servicebus.xsd.Parameter> parameterList;
 
     private java.util.List<com.cdoframework.cdolib.servicebus.xsd.DataGroup> dataGroupList;
@@ -36,8 +26,6 @@ public class ServiceBus implements java.io.Serializable {
     private java.util.List<com.cdoframework.cdolib.servicebus.xsd.ZkProducer> zkProducerList;
 
     private java.util.List<com.cdoframework.cdolib.servicebus.xsd.ZkConsumer> zkConsumerList;
-
-    private java.util.List<com.cdoframework.cdolib.servicebus.xsd.NoSQLDB> noSQLDBList;
 
     /**
      * Field clusterController.
@@ -57,7 +45,6 @@ public class ServiceBus implements java.io.Serializable {
         this.dataGroupList = new java.util.ArrayList<com.cdoframework.cdolib.servicebus.xsd.DataGroup>();
         this.zkProducerList = new java.util.ArrayList<com.cdoframework.cdolib.servicebus.xsd.ZkProducer>();
         this.zkConsumerList = new java.util.ArrayList<com.cdoframework.cdolib.servicebus.xsd.ZkConsumer>();
-        this.noSQLDBList = new java.util.ArrayList<com.cdoframework.cdolib.servicebus.xsd.NoSQLDB>();
         this.pluginXMLResourceList = new java.util.ArrayList<java.lang.String>();
     }
 
@@ -82,29 +69,6 @@ public class ServiceBus implements java.io.Serializable {
      */
     public void addDataGroup(final int index,final com.cdoframework.cdolib.servicebus.xsd.DataGroup vDataGroup) throws java.lang.IndexOutOfBoundsException {
         this.dataGroupList.add(index, vDataGroup);
-    }
-
-    /**
-     * 
-     * 
-     * @param vNoSQLDB
-     * @throws java.lang.IndexOutOfBoundsException if the index
-     * given is outside the bounds of the collection
-     */
-    public void addNoSQLDB(final com.cdoframework.cdolib.servicebus.xsd.NoSQLDB vNoSQLDB) throws java.lang.IndexOutOfBoundsException {
-        this.noSQLDBList.add(vNoSQLDB);
-    }
-
-    /**
-     * 
-     * 
-     * @param index
-     * @param vNoSQLDB
-     * @throws java.lang.IndexOutOfBoundsException if the index
-     * given is outside the bounds of the collection
-     */
-    public void addNoSQLDB(final int index,final com.cdoframework.cdolib.servicebus.xsd.NoSQLDB vNoSQLDB) throws java.lang.IndexOutOfBoundsException {
-        this.noSQLDBList.add(index, vNoSQLDB);
     }
 
     /**
@@ -210,16 +174,6 @@ public class ServiceBus implements java.io.Serializable {
     }
 
     /**
-     * Method enumerateNoSQLDB.
-     * 
-     * @return an Enumeration over all possible elements of this
-     * collection
-     */
-    public java.util.Enumeration<? extends com.cdoframework.cdolib.servicebus.xsd.NoSQLDB> enumerateNoSQLDB() {
-        return java.util.Collections.enumeration(this.noSQLDBList);
-    }
-
-    /**
      * Method enumerateParameter.
      * 
      * @return an Enumeration over all possible elements of this
@@ -311,72 +265,12 @@ public class ServiceBus implements java.io.Serializable {
     }
 
     /**
-     * Returns the value of field 'dataGroupId'.
-     * 
-     * @return the value of field 'DataGroupId'.
-     */
-    public java.lang.String getDataGroupId() {
-        return this.dataGroupId;
-    }
-
-    /**
      * Returns the value of field 'eventProcessor'.
      * 
      * @return the value of field 'EventProcessor'.
      */
     public com.cdoframework.cdolib.servicebus.xsd.EventProcessor getEventProcessor() {
         return this.eventProcessor;
-    }
-
-    /**
-     * Method getNoSQLDB.
-     * 
-     * @param index
-     * @throws java.lang.IndexOutOfBoundsException if the index
-     * given is outside the bounds of the collection
-     * @return the value of the
-     * com.cdoframework.cdolib.servicebus.xsd.NoSQLDB at the given
-     * index
-     */
-    public com.cdoframework.cdolib.servicebus.xsd.NoSQLDB getNoSQLDB(final int index) throws java.lang.IndexOutOfBoundsException {
-        // check bounds for index
-        if (index < 0 || index >= this.noSQLDBList.size()) {
-            throw new IndexOutOfBoundsException("getNoSQLDB: Index value '" + index + "' not in range [0.." + (this.noSQLDBList.size() - 1) + "]");
-        }
-
-        return noSQLDBList.get(index);
-    }
-
-    /**
-     * Method getNoSQLDB.Returns the contents of the collection in
-     * an Array.  <p>Note:  Just in case the collection contents
-     * are changing in another thread, we pass a 0-length Array of
-     * the correct type into the API call.  This way we <i>know</i>
-     * that the Array returned is of exactly the correct length.
-     * 
-     * @return this collection as an Array
-     */
-    public com.cdoframework.cdolib.servicebus.xsd.NoSQLDB[] getNoSQLDB() {
-        com.cdoframework.cdolib.servicebus.xsd.NoSQLDB[] array = new com.cdoframework.cdolib.servicebus.xsd.NoSQLDB[0];
-        return this.noSQLDBList.toArray(array);
-    }
-
-    /**
-     * Method getNoSQLDBCount.
-     * 
-     * @return the size of this collection
-     */
-    public int getNoSQLDBCount() {
-        return this.noSQLDBList.size();
-    }
-
-    /**
-     * Returns the value of field 'noSQLDBId'.
-     * 
-     * @return the value of field 'NoSQLDBId'.
-     */
-    public java.lang.String getNoSQLDBId() {
-        return this.noSQLDBId;
     }
 
     /**
@@ -571,16 +465,6 @@ public class ServiceBus implements java.io.Serializable {
     }
 
     /**
-     * Method iterateNoSQLDB.
-     * 
-     * @return an Iterator over all possible elements in this
-     * collection
-     */
-    public java.util.Iterator<? extends com.cdoframework.cdolib.servicebus.xsd.NoSQLDB> iterateNoSQLDB() {
-        return this.noSQLDBList.iterator();
-    }
-
-    /**
      * Method iterateParameter.
      * 
      * @return an Iterator over all possible elements in this
@@ -656,12 +540,6 @@ public class ServiceBus implements java.io.Serializable {
 
     /**
      */
-    public void removeAllNoSQLDB() {
-        this.noSQLDBList.clear();
-    }
-
-    /**
-     */
     public void removeAllParameter() {
         this.parameterList.clear();
     }
@@ -704,28 +582,6 @@ public class ServiceBus implements java.io.Serializable {
     public com.cdoframework.cdolib.servicebus.xsd.DataGroup removeDataGroupAt(final int index) {
         java.lang.Object obj = this.dataGroupList.remove(index);
         return (com.cdoframework.cdolib.servicebus.xsd.DataGroup) obj;
-    }
-
-    /**
-     * Method removeNoSQLDB.
-     * 
-     * @param vNoSQLDB
-     * @return true if the object was removed from the collection.
-     */
-    public boolean removeNoSQLDB(final com.cdoframework.cdolib.servicebus.xsd.NoSQLDB vNoSQLDB) {
-        boolean removed = noSQLDBList.remove(vNoSQLDB);
-        return removed;
-    }
-
-    /**
-     * Method removeNoSQLDBAt.
-     * 
-     * @param index
-     * @return the element removed from the collection
-     */
-    public com.cdoframework.cdolib.servicebus.xsd.NoSQLDB removeNoSQLDBAt(final int index) {
-        java.lang.Object obj = this.noSQLDBList.remove(index);
-        return (com.cdoframework.cdolib.servicebus.xsd.NoSQLDB) obj;
     }
 
     /**
@@ -858,61 +714,12 @@ public class ServiceBus implements java.io.Serializable {
     }
 
     /**
-     * Sets the value of field 'dataGroupId'.
-     * 
-     * @param dataGroupId the value of field 'dataGroupId'.
-     */
-    public void setDataGroupId(final java.lang.String dataGroupId) {
-        this.dataGroupId = dataGroupId;
-    }
-
-    /**
      * Sets the value of field 'eventProcessor'.
      * 
      * @param eventProcessor the value of field 'eventProcessor'.
      */
     public void setEventProcessor(final com.cdoframework.cdolib.servicebus.xsd.EventProcessor eventProcessor) {
         this.eventProcessor = eventProcessor;
-    }
-
-    /**
-     * 
-     * 
-     * @param index
-     * @param vNoSQLDB
-     * @throws java.lang.IndexOutOfBoundsException if the index
-     * given is outside the bounds of the collection
-     */
-    public void setNoSQLDB(final int index,final com.cdoframework.cdolib.servicebus.xsd.NoSQLDB vNoSQLDB) throws java.lang.IndexOutOfBoundsException {
-        // check bounds for index
-        if (index < 0 || index >= this.noSQLDBList.size()) {
-            throw new IndexOutOfBoundsException("setNoSQLDB: Index value '" + index + "' not in range [0.." + (this.noSQLDBList.size() - 1) + "]");
-        }
-
-        this.noSQLDBList.set(index, vNoSQLDB);
-    }
-
-    /**
-     * 
-     * 
-     * @param vNoSQLDBArray
-     */
-    public void setNoSQLDB(final com.cdoframework.cdolib.servicebus.xsd.NoSQLDB[] vNoSQLDBArray) {
-        //-- copy array
-        noSQLDBList.clear();
-
-        for (int i = 0; i < vNoSQLDBArray.length; i++) {
-                this.noSQLDBList.add(vNoSQLDBArray[i]);
-        }
-    }
-
-    /**
-     * Sets the value of field 'noSQLDBId'.
-     * 
-     * @param noSQLDBId the value of field 'noSQLDBId'.
-     */
-    public void setNoSQLDBId(final java.lang.String noSQLDBId) {
-        this.noSQLDBId = noSQLDBId;
     }
 
     /**
@@ -1049,7 +856,8 @@ public class ServiceBus implements java.io.Serializable {
      * object is an invalid instance according to the schema
      * @return the unmarshaled
      * com.cdoframework.cdolib.servicebus.xsd.ServiceBus
-     */    public static com.cdoframework.cdolib.servicebus.xsd.ServiceBus unmarshal(final java.io.Reader reader) throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
+     */
+    public static com.cdoframework.cdolib.servicebus.xsd.ServiceBus unmarshal(final java.io.Reader reader) throws org.exolab.castor.xml.MarshalException, org.exolab.castor.xml.ValidationException {
         return (com.cdoframework.cdolib.servicebus.xsd.ServiceBus) org.exolab.castor.xml.Unmarshaller.unmarshal(com.cdoframework.cdolib.servicebus.xsd.ServiceBus.class, reader);
     }
 
@@ -1065,11 +873,9 @@ public class ServiceBus implements java.io.Serializable {
     }
 
     /**
-     * *************************************** manual  code *************************************************
-     *
-     * @param strXML
-     * @return
-     */
+  	 * ***************************************manual  code *************************************************
+  	 * 序列化ServiceBus对象
+  	 */
     static Logger logger = Logger.getLogger(ServiceBus.class);
     
     public static ServiceBus   fromXML(java.lang.String strXML) throws Exception
@@ -1095,5 +901,5 @@ public class ServiceBus implements java.io.Serializable {
     			}
     		}
     	}
-    }
+    }    
 }

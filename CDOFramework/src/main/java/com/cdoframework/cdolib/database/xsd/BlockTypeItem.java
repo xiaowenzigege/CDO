@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -74,11 +74,6 @@ public class BlockTypeItem implements java.io.Serializable {
      * Field _break.
      */
     private java.lang.Object _break;
-
-    /**
-     * Field selectConnection.
-     */
-    private com.cdoframework.cdolib.database.xsd.SelectConnection selectConnection;
 
     /**
      * Field commit.
@@ -175,15 +170,6 @@ public class BlockTypeItem implements java.io.Serializable {
      */
     public java.lang.Object getRollback() {
         return this.rollback;
-    }
-
-    /**
-     * Returns the value of field 'selectConnection'.
-     * 
-     * @return the value of field 'SelectConnection'.
-     */
-    public com.cdoframework.cdolib.database.xsd.SelectConnection getSelectConnection() {
-        return this.selectConnection;
     }
 
     /**
@@ -313,16 +299,6 @@ public class BlockTypeItem implements java.io.Serializable {
     public void setRollback(final java.lang.Object rollback) {
         this.rollback = rollback;
         this._choiceValue = rollback;
-    }
-
-    /**
-     * Sets the value of field 'selectConnection'.
-     * 
-     * @param selectConnection the value of field 'selectConnection'
-     */
-    public void setSelectConnection(final com.cdoframework.cdolib.database.xsd.SelectConnection selectConnection) {
-        this.selectConnection = selectConnection;
-        this._choiceValue = selectConnection;
     }
 
     /**

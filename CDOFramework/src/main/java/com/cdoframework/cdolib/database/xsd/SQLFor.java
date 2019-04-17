@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -18,6 +18,11 @@ implements java.io.Serializable
 {
 
     /**
+     * Field arrKey.
+     */
+    private java.lang.String arrKey;
+
+    /**
      * Field indexId.
      */
     private java.lang.String indexId;
@@ -28,14 +33,14 @@ implements java.io.Serializable
     private java.lang.String fromIndex = "0";
 
     /**
+     * Field step.
+     */
+    private java.lang.String step;
+
+    /**
      * Field count.
      */
     private java.lang.String count;
-
-    /**
-     * Field arrKey.
-     */
-    private java.lang.String arrKey;
 
     public SQLFor() {
         super();
@@ -76,6 +81,15 @@ implements java.io.Serializable
      */
     public java.lang.String getIndexId() {
         return this.indexId;
+    }
+
+    /**
+     * Returns the value of field 'step'.
+     * 
+     * @return the value of field 'Step'.
+     */
+    public java.lang.String getStep() {
+        return this.step;
     }
 
     /**
@@ -154,6 +168,15 @@ implements java.io.Serializable
      */
     public void setIndexId(final java.lang.String indexId) {
         this.indexId = indexId;
+    }
+
+    /**
+     * Sets the value of field 'step'.
+     * 
+     * @param step the value of field 'step'.
+     */
+    public void setStep(final java.lang.String step) {
+        this.step = step;
     }
 
     /**

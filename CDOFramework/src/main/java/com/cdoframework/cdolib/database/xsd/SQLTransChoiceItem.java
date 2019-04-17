@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -59,11 +59,6 @@ public class SQLTransChoiceItem implements java.io.Serializable {
      * Field setVar.
      */
     private com.cdoframework.cdolib.database.xsd.SetVar setVar;
-
-    /**
-     * Field selectConnection.
-     */
-    private com.cdoframework.cdolib.database.xsd.SelectConnection selectConnection;
 
     /**
      * Field commit.
@@ -131,15 +126,6 @@ public class SQLTransChoiceItem implements java.io.Serializable {
      */
     public java.lang.Object getRollback() {
         return this.rollback;
-    }
-
-    /**
-     * Returns the value of field 'selectConnection'.
-     * 
-     * @return the value of field 'SelectConnection'.
-     */
-    public com.cdoframework.cdolib.database.xsd.SelectConnection getSelectConnection() {
-        return this.selectConnection;
     }
 
     /**
@@ -241,15 +227,6 @@ public class SQLTransChoiceItem implements java.io.Serializable {
      */
     public void setRollback(final java.lang.Object rollback) {
         this.rollback = rollback;
-    }
-
-    /**
-     * Sets the value of field 'selectConnection'.
-     * 
-     * @param selectConnection the value of field 'selectConnection'
-     */
-    public void setSelectConnection(final com.cdoframework.cdolib.database.xsd.SelectConnection selectConnection) {
-        this.selectConnection = selectConnection;
     }
 
     /**

@@ -24,6 +24,7 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
+import com.cdo.util.sql.SQLUtil;
 import com.cdoframework.cdolib.base.CycleList;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Return;
@@ -33,8 +34,6 @@ import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.data.cdo.CDOArrayField;
 import com.cdoframework.cdolib.data.cdo.Field;
 import com.cdoframework.cdolib.data.cdo.IntegerField;
-import com.cdoframework.cdolib.database.xsd.BigTable;
-import com.cdoframework.cdolib.database.xsd.BigTableGroup;
 import com.cdoframework.cdolib.database.xsd.BlockType;
 import com.cdoframework.cdolib.database.xsd.BlockTypeItem;
 import com.cdoframework.cdolib.database.xsd.DataService;
@@ -43,7 +42,6 @@ import com.cdoframework.cdolib.database.xsd.Else;
 import com.cdoframework.cdolib.database.xsd.For;
 import com.cdoframework.cdolib.database.xsd.If;
 import com.cdoframework.cdolib.database.xsd.Insert;
-import com.cdoframework.cdolib.database.xsd.NoSQLTrans;
 import com.cdoframework.cdolib.database.xsd.OnError;
 import com.cdoframework.cdolib.database.xsd.OnException;
 import com.cdoframework.cdolib.database.xsd.SQLBlockType;
@@ -54,7 +52,6 @@ import com.cdoframework.cdolib.database.xsd.SQLIf;
 import com.cdoframework.cdolib.database.xsd.SQLThen;
 import com.cdoframework.cdolib.database.xsd.SQLTrans;
 import com.cdoframework.cdolib.database.xsd.SQLTransChoiceItem;
-import com.cdoframework.cdolib.database.xsd.SelectConnection;
 import com.cdoframework.cdolib.database.xsd.SelectField;
 import com.cdoframework.cdolib.database.xsd.SelectRecord;
 import com.cdoframework.cdolib.database.xsd.SelectRecordSet;
@@ -63,13 +60,11 @@ import com.cdoframework.cdolib.database.xsd.Then;
 import com.cdoframework.cdolib.database.xsd.Update;
 import com.cdoframework.cdolib.database.xsd.types.IfTypeType;
 import com.cdoframework.cdolib.database.xsd.types.SQLIfTypeType;
-import com.cdoframework.cdolib.database.xsd.types.SQLTransTransFlagType;
-import com.cdoframework.cdolib.database.xsd.types.SetVarTypeType;
 
 /**
  * @author KenelLiu
  */
-public class BigTableEngine// extends ParallelTaskProcessor
+public class BigTableEngine
 {
 
 	//内部类,所有内部类在此声明----------------------------------------------------------------------------------
@@ -77,7 +72,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	//静态对象,所有static在此声明并初始化------------------------------------------------------------------------
 	Logger logger  = Logger.getLogger(BigTableEngine.class);
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
-	private Random rand=new Random();
+
 	private HashMap<String,ParsedSQL> hmParsedSQL;
 
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
@@ -99,13 +94,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		public String strBatchIds;
 	}
 	
-	class DataAccess
-	{
-		public IDataEngine dataEngine;
-		public Connection conn;
-		public int nGroupIndex=-1;
-		public int nTableIndex=-1;
-	}
+
 	
 	class MetaData
 	{
@@ -299,9 +288,12 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	{
 		// 获取循环数据
 		int nFromIndex=0;
+		int nStep=1;
 		int nCount=DataEngineHelp.getArrayLength(sqlFor.getArrKey(), cdoRequest);
 		if(sqlFor.getFromIndex()!=null)
 			nFromIndex=DataEngineHelp.getIntegerValue(sqlFor.getFromIndex(),cdoRequest);
+		if(sqlFor.getStep()!=null)
+			nStep=DataEngineHelp.getIntegerValue(sqlFor.getStep(),cdoRequest);
 		if(sqlFor.getCount()!=null)
 			nCount=DataEngineHelp.getIntegerValue(sqlFor.getCount(),cdoRequest);	
 					
@@ -309,7 +301,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		strIndexId=strIndexId.substring(1,strIndexId.length()-1);
 
 		// 执行循环
-		for(int i=nFromIndex;i<nFromIndex+nCount;i++)
+		for(int i=nFromIndex;i<nFromIndex+nCount;i=nStep+i)
 		{
 			// 设置IndexId
 			cdoRequest.setIntegerValue(strIndexId,i);
@@ -399,14 +391,14 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	 * @return 0-自然执行完毕，1-碰到Break退出，2-碰到Return退出
 	 * @throws Exception
 	 */
-	private int handleIf(HashMap<String,CycleList<IDataEngine>> hmDataGroup,DataService dataService,HashMap<String,DataAccess> hmDataAccess,SQLTrans trans,If ifItem,CDO cdoRequest,CDO cdoResponse,Return ret) throws SQLException,IOException
+	private int handleIf(IDataEngine dataEngine ,Connection connection,SQLTrans trans,If ifItem,CDO cdoRequest,CDO cdoResponse,Return ret) throws SQLException,IOException
 	{
 		// 检查执行条件
 		boolean bCondition=checkCondition(ifItem.getValue1(),ifItem.getOperator().toString(),ifItem.getValue2(),ifItem.getType(),ifItem.getType().toString(),cdoRequest);
 		if(bCondition==true)
 		{// Handle Then
 			Then thenItem=ifItem.getThen();
-			return handleBlock(hmDataGroup,dataService,hmDataAccess,trans,thenItem,cdoRequest,cdoResponse,ret);
+			return handleBlock(dataEngine,connection,trans,thenItem,cdoRequest,cdoResponse,ret);
 		}
 		else
 		{// handle Else
@@ -415,7 +407,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 			{// 没有else模块，当作自然执行完毕处理???
 				return 0;
 			}
-			return handleBlock(hmDataGroup,dataService,hmDataAccess,trans,elseItem,cdoRequest,cdoResponse,ret);
+			return handleBlock(dataEngine,connection,trans,elseItem,cdoRequest,cdoResponse,ret);
 		}
 	}
 
@@ -428,13 +420,16 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	 * @return 0-自然执行完毕，1-碰到Break退出，2-碰到Return退出
 	 * @throws Exception
 	 */
-	private int handleFor(HashMap<String,CycleList<IDataEngine>> hmDataGroup,DataService dataService,HashMap<String,DataAccess> hmDataAccess,SQLTrans trans,For forItem,CDO cdoRequest,CDO cdoResponse,Return ret) throws SQLException,IOException
+	private int handleFor(IDataEngine dataEngine ,Connection connection,SQLTrans trans,For forItem,CDO cdoRequest,CDO cdoResponse,Return ret) throws SQLException,IOException
 	{
 		// 获取循环数据
 		int nFromIndex=0;
+		int nStep=1;
 		int nCount=DataEngineHelp.getArrayLength(forItem.getArrKey(), cdoRequest);
 		if(forItem.getFromIndex()!=null)
 			nFromIndex=DataEngineHelp.getIntegerValue(forItem.getFromIndex(),cdoRequest);
+		if(forItem.getStep()!=null)
+			nStep=DataEngineHelp.getIntegerValue(forItem.getStep(),cdoRequest);
 		if(forItem.getCount()!=null)
 			nCount=DataEngineHelp.getIntegerValue(forItem.getCount(),cdoRequest);	
 		
@@ -442,13 +437,13 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		strIndexId=strIndexId.substring(1,strIndexId.length()-1);
 		
 		// 执行循环
-		for(int i=nFromIndex;i<nFromIndex+nCount;i++)
+		for(int i=nFromIndex;i<nFromIndex+nCount;i=i+nStep)
 		{
 			// 设置IndexId
 			cdoRequest.setIntegerValue(strIndexId,i);
 
 			// 执行Block
-			int nResult=handleBlock(hmDataGroup,dataService,hmDataAccess,trans,forItem,cdoRequest,cdoResponse,ret);
+			int nResult=handleBlock(dataEngine,connection,trans,forItem,cdoRequest,cdoResponse,ret);
 			if(nResult==0)
 			{// 自然执行完毕
 				continue;
@@ -466,305 +461,12 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		return 0;
 	}
 
-	private BigTable selectBigTable(BigTable[] bts,String strTableName)
-	{
-		if (bts == null)
-		{
-			return  null;
-		}
-		for(int i=0;i<bts.length;i++)
-		{
-			if(bts[i].getName().equalsIgnoreCase(strTableName)==true)
-			{
-				return bts[i];
-			}
-		}
-		return  null;
-	}
 
-	private DataAccess getDataAccess(HashMap<String,CycleList<IDataEngine>> hmDataGroup,String strDataGroupId) throws SQLException
-	{
-		//没有可重用的DataAccess
-		CycleList<IDataEngine> clDataEngine=hmDataGroup.get(strDataGroupId);
-		if(clDataEngine==null)
-		{//DataGroupId错误
-			return null;
-		}
-		//创建Connection
-		IDataEngine dataEngine=clDataEngine.get();
-		Connection conn=dataEngine.getConnection();
-		if(conn==null)
-		{
-			return null;
-		}
-		DataAccess da=new DataAccess();
-		da.dataEngine=dataEngine;
-		da.conn=conn;
-		
-		return da;
-	}
 
-	private void selectTable(DataAccess dataAccess,BigTable bigTable,long lId)
-	{
-		dataAccess.nTableIndex=(int)((lId/bigTable.getGroupTableCapacity())%bigTable.getGroupTableCount());
-	}
-
-	private void selectTable(DataAccess dataAccess,BigTable bigTable,String strIdFieldId,boolean bRandSelect,CDO cdoRequest)
-	{
-		if(strIdFieldId==null)
-		{//没有提供 IdFieldId
-			if(bRandSelect==false)
-			{//不可以随机获取
-				return;
-			}
-			
-			//可以随机，随机分配一个Table
-			dataAccess.nTableIndex=rand.nextInt(bigTable.getGroupTableCount());
-
-			return;
-		}
-
-		//提供了Id
-		long lId=cdoRequest.getLongValue(strIdFieldId);
-		dataAccess.nTableIndex=(int)((lId/bigTable.getGroupTableCapacity())%bigTable.getGroupTableCount());
-	}
 	
-	/**
-	 * 根据BigTableName和Id选择连接输出,批量操作使用
-	 */
-	private DataAccess selectConnection(HashMap<String,CycleList<IDataEngine>> hmDataGroup,DataService dataService,String strDefaultDataGroupId,String strBigTableName,long lId,HashMap<String,DataAccess> hmDataAccessUsed,SQLTrans trans) throws SQLException
-	{
-		DataAccess da=null;
-		if(strBigTableName==null || strBigTableName.length()==0)
-		{//没有BigTable
-			da=hmDataAccessUsed.get("group."+strDefaultDataGroupId);
-			if(da!=null)
-			{//有可重用的DataAccess
-				return da;
-			}
-			//没有可重用的DataAccess
-			da=this.getDataAccess(hmDataGroup,strDefaultDataGroupId);
-			if(da==null)
-			{
-				return null;
-			}
-			
-			DataAccess daOld=hmDataAccessUsed.put("group."+strDefaultDataGroupId,da);
-//			if(daOld!=null)
-//			{
-//				try
-//				{
-//					daOld.conn.close();
-//				}
-//				catch(Exception e)
-//				{
-//				}
-//			}
-			daOld=hmDataAccessUsed.put(null,da);
 
-			return da;
-		}
-		
-		//有BigTable castor 1.3.3 去掉了
-//		int nBigTableGroupCount=dataService.getBigTableGroupCount();
-//		if(nBigTableGroupCount==0)
-//		{//BigTable没有配置
-//			return null;
-//		}
-		BigTable bigTable=selectBigTable(dataService.getBigTableArray(trans.getBigTableGroupId()),strBigTableName);
-		if(bigTable==null)
-		{//该BigTable没有配置
-			return null;
-		}
-
-		//首先尝试重用已有的DataAccess
-		da=hmDataAccessUsed.get("table."+strBigTableName);
-		if(da!=null)
-		{//有可重用的DataAccess
-			long lStartId=bigTable.getGroupTableCount()*da.nGroupIndex*bigTable.getGroupTableCapacity();
-			long lEndId=lStartId+bigTable.getGroupTableCapacity()*bigTable.getGroupTableCount();
-			if(lId>=lStartId && lId<lEndId)
-			{//确实可用
-				hmDataAccessUsed.put(null,da);
-				return da;
-			}
-		}
-
-		//提供了Id
-		int nGroupIndex=(int)(lId/bigTable.getGroupTableCapacity())/bigTable.getGroupTableCount();
-
-		da=this.getDataAccess(hmDataGroup,bigTable.getGroupId()+nGroupIndex);
-		if(da==null)
-		{
-			return null;
-		}
-		da.nGroupIndex=nGroupIndex;
-		
-		hmDataAccessUsed.put("table."+strBigTableName+nGroupIndex,da);
-		DataAccess daOld=hmDataAccessUsed.put("table."+strBigTableName,da);
-//		if(daOld!=null)
-//		{
-//			try
-//			{
-//				daOld.conn.close();
-//			}
-//			catch(Exception e)
-//			{
-//			}
-//		}
-
-		hmDataAccessUsed.put(null,da);
-		return da;
-	}
-
-	/**
-	 * 根据BigTableName和Id选择连接输出
-	 */
-	private DataAccess selectConnection(HashMap<String,CycleList<IDataEngine>> hmDataGroup,DataService dataService,String strDefaultDataGroupId,String strBigTableName,String strIdFieldId,boolean bRandSelect,CDO cdoRequest,HashMap<String,DataAccess> hmDataAccessUsed,SQLTrans trans) throws SQLException
-	{
-		DataAccess da=null;
-		
-		try
-		{
-			if(strBigTableName==null || strBigTableName.length()==0)
-			{//没有BigTable
-				da=hmDataAccessUsed.get("group."+strDefaultDataGroupId);
-				if(da!=null)
-				{//有可重用的DataAccess
-					return da;
-				}
-				//没有可重用的DataAccess
-				da=this.getDataAccess(hmDataGroup,strDefaultDataGroupId);
-				if(da==null)
-				{
-					return null;
-				}
-				
-				DataAccess daOld=hmDataAccessUsed.put("group."+strDefaultDataGroupId,da);
-//				if(daOld!=null)
-//				{
-//					try
-//					{
-//						daOld.conn.close();
-//					}
-//					catch(Exception e)
-//					{
-//					}
-//				}
-				hmDataAccessUsed.put(null,da);
 	
-				return da;
-			}
-			
-
-			if(dataService.hasBigTable()==false)
-			{//BigTable没有配置
-				return null;
-			}
-			BigTable bigTable=selectBigTable(dataService.getBigTableArray(trans.getBigTableGroupId()),strBigTableName);
-			if(bigTable==null)
-			{//该BigTable没有配置
-				return null;
-			}
 	
-			//首先尝试重用已有的DataAccess
-			da=hmDataAccessUsed.get("table."+strBigTableName);
-			if(da!=null)
-			{//有可重用的DataAccess
-				if(strIdFieldId==null||strIdFieldId.length()==0)
-				{
-					hmDataAccessUsed.put(null,da);
-					return da;
-				}
-	
-				long lStartId=bigTable.getGroupTableCount()*da.nGroupIndex*bigTable.getGroupTableCapacity();
-				long lEndId=lStartId+bigTable.getGroupTableCapacity()*bigTable.getGroupTableCount();
-				long lId=cdoRequest.getLongValue(strIdFieldId);
-				if(lId>=lStartId && lId<lEndId)
-				{//确实可用
-					hmDataAccessUsed.put(null,da);
-					return da;
-				}
-			}
-			//没有可重用的DataAccess
-			if(strIdFieldId==null||strIdFieldId.length()==0)
-			{//没有提供 IdFieldId
-				if(bRandSelect==false)
-				{//不可以随机获取
-					return null;
-				}
-				
-				//可以随机，随机分配一个Table
-				int nGroupIndex=rand.nextInt(bigTable.getGroupCount());
-				
-				da=this.getDataAccess(hmDataGroup,bigTable.getGroupId()+nGroupIndex);
-				if(da==null)
-				{
-					return null;
-				}
-				da.nGroupIndex=nGroupIndex;
-
-				hmDataAccessUsed.put("table."+strBigTableName+nGroupIndex,da);
-				DataAccess daOld=hmDataAccessUsed.put("table."+strBigTableName,da);
-//				if(daOld!=null)
-//				{
-//					try
-//					{
-//						daOld.conn.close();
-//					}
-//					catch(Exception e)
-//					{
-//					}
-//				}
-
-				hmDataAccessUsed.put(null,da);
-				return da;
-			}
-	
-			//提供了Id
-			long lId=cdoRequest.getLongValue(strIdFieldId);
-			int nGroupIndex=(int)(lId/bigTable.getGroupTableCapacity())/bigTable.getGroupTableCount();
-			
-			//update by Aaron Lin 2011-03-28 原来的逻辑会重取连接，并覆盖老的已有连接，会造成连接上的事务不提交，不关闭
-			da = hmDataAccessUsed.get("table."+strBigTableName+nGroupIndex);
-			if(da==null)
-			{	
-				da=this.getDataAccess(hmDataGroup,bigTable.getGroupId()+nGroupIndex);
-				if(da==null)
-				{
-					return null;
-				}
-				da.nGroupIndex=nGroupIndex;
-				
-				hmDataAccessUsed.put("table."+strBigTableName+nGroupIndex,da);
-			}
-			DataAccess daOld=hmDataAccessUsed.put("table."+strBigTableName,da);
-//			if(daOld!=null)
-//			{
-//				try
-//				{
-//					daOld.conn.close();
-//				}
-//				catch(Exception e)
-//				{
-//				}
-//			}
-
-			hmDataAccessUsed.put(null,da);
-			return da;
-		}
-		finally
-		{
-			if(da!=null)
-			{
-				if(!trans.getTransFlag().value().equals(SQLTransTransFlagType.VALUE_0.value()))
-				{
-					da.conn.setAutoCommit(false);
-				}
-			}
-		}
-	}
-
 	/**
 	 * 分析SQL语法 {}之内的为参数名，需要替换成? {{代表{字符 }}代表}字符
 	 * strSQLType: insert,update,delete,selectfield,selectrecord,selectrecordset
@@ -951,73 +653,8 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		return parsedSQL;
 	}
 	
-	/**
-	 * 执行insert语句
-	 * 
-	 * @param hmDataGroup
-	 * @param strSQL
-	 * @param cdoRequest
-	 * @return
-	 * @throws Exception
-	 */
-	protected int executeInsert(HashMap<String,CycleList<IDataEngine>> hmDataGroup,DataService dataService,HashMap<String,DataAccess> hmDataAccessUsed,SQLTrans trans,String strSQL,CDO cdoRequest) throws SQLException,IOException
-	{
-		//分析原先的SQL语句
-		ParsedSQL parsedSQL=this.parseSourceSQL(strSQL);
-		if(parsedSQL==null)
-		{//SQL语句分析错误
-			throw new SQLException("Parse SQL failed: "+strSQL);
-		}
-		String strDefaultDataGroupId = trans.getDataGroupId();
-		DataAccess dataAccess=null;
-		if(parsedSQL.strTableName==null)
-		{//没有BigTable
-			//尝试重用已有连接
-			dataAccess=hmDataAccessUsed.get(null);
-			if(dataAccess==null)
-			{//当前没有连接
-				//获取连接
-				dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,null,null,false,cdoRequest,hmDataAccessUsed,trans);
-				if(dataAccess==null)
-				{
-					throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-				}
-			}
-			
-			//执行数据库操作
-			dataAccess.dataEngine.executeUpdate(dataAccess.conn,strSQL,cdoRequest);
-			
-			return 0;
-		}
 
-		//有BigTable，尝试定位目标表
-		BigTable bigTable=this.selectBigTable(dataService.getBigTableArray(trans.getBigTableGroupId()),parsedSQL.strTableName);
-		if(bigTable==null)
-		{
-			throw new SQLException("Dest-table not found: "+strSQL);
-		}
-		//获取连接
-		//尝试重用已有连接
-		dataAccess=hmDataAccessUsed.get(null);
-		if(dataAccess==null)
-		{//没有可重用连接，选取连接，并确定目标表，可以随机确定目标表
-			dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,parsedSQL.strTableName,parsedSQL.strIdFieldName,true,cdoRequest,hmDataAccessUsed,trans);
-		}
-		if(dataAccess==null)
-		{
-			throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-		}
-		this.selectTable(dataAccess,bigTable,parsedSQL.strIdFieldName,true,cdoRequest);
 
-		//修改SQL语句中的表名
-		strSQL=parsedSQL.strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+dataAccess.nTableIndex);
-		
-
-		//执行数据库操作
-		dataAccess.dataEngine.executeUpdate(dataAccess.conn,strSQL,cdoRequest);
-		
-		return 0;
-	}
 	
 	/**
 	 * 通过一个传入的数据库连接查询并输出第一条记录
@@ -1029,160 +666,16 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	 * @return
 	 * @throws Exception
 	 */
-	protected int executeQueryRecord(HashMap<String,CycleList<IDataEngine>> hmDataGroup,DataService dataService,HashMap<String,DataAccess> hmDataAccessUsed,SQLTrans trans,String strSQL,CDO cdoRequest,CDO cdoResponse) throws SQLException,IOException
+	protected int executeQueryRecord(IDataEngine dataEngine,Connection connection,SQLTrans trans,String strSQL,CDO cdoRequest,CDO cdoResponse) throws SQLException,IOException
 	{
 		//分析原先的SQL语句
 		ParsedSQL parsedSQL=this.parseSourceSQL(strSQL);
 		if(parsedSQL==null)
 		{//SQL语句分析错误
 			throw new SQLException("Parse SQL failed: "+strSQL);
-		}
-
-		DataAccess dataAccess=null;
-		String strDefaultDataGroupId = trans.getDataGroupId();
-		if(parsedSQL.strTableName==null)
-		{//没有BigTable
-			//尝试重用已有连接
-			dataAccess=hmDataAccessUsed.get(null);
-			if(dataAccess==null)
-			{//当前没有连接
-				//获取连接
-				dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,null,null,false,cdoRequest,hmDataAccessUsed,trans);
-				if(dataAccess==null)
-				{
-					throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-				}
-			}
-			
-			//执行数据库操作
-			return dataAccess.dataEngine.executeQueryRecord(dataAccess.conn,strSQL,cdoRequest,cdoResponse);
-		}
-
-		//有BigTable，尝试定位目标表
-		BigTable bigTable=this.selectBigTable(dataService.getBigTableArray(trans.getBigTableGroupId()),parsedSQL.strTableName);
-		if(bigTable==null)
-		{
-			throw new SQLException("Dest-table not found: "+strSQL);
-		}
-		//获取连接
-		//尝试重用已有连接
-		dataAccess=hmDataAccessUsed.get(null);
-		if(dataAccess==null)
-		{//没有可重用连接
-			dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,parsedSQL.strTableName,parsedSQL.strIdFieldName,false,cdoRequest,hmDataAccessUsed,trans);
-		}
-		if(dataAccess!=null)
-		{//拿到了连接
-			this.selectTable(dataAccess,bigTable,parsedSQL.strIdFieldName,false,cdoRequest);
-
-			//修改SQL语句中的表名
-			strSQL=parsedSQL.strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+dataAccess.nTableIndex);
-
-			//执行数据库操作
-			return dataAccess.dataEngine.executeQueryRecord(dataAccess.conn,strSQL,cdoRequest,cdoResponse);
-		}
-
-		//没有拿到连接
-		if(parsedSQL.strIdFieldName!=null)
-		{//不应该拿不到
-			throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-		}
-
-		//未提供Id，遍历数据库表读取记录
-		int nCount=0;
-		if(parsedSQL.strCountFieldName==null)
-		{//一般性记录
-			int nGroupCount=bigTable.getGroupCount();
-			for(int i=0;i<nGroupCount;i++)
-			{
-				//获取连接
-				dataAccess=this.getDataAccess(hmDataGroup,bigTable.getGroupId()+i);
-				if(dataAccess==null)
-				{
-					throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-				}
-				
-				try
-				{
-					int nTableCount=bigTable.getGroupTableCount();
-					for(int j=0;j<nTableCount;j++)
-					{
-						//修改SQL语句中的表名
-						strSQL=parsedSQL.strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+j);
-	
-						//执行数据库操作
-						int nReadCount=dataAccess.dataEngine.executeQueryRecord(dataAccess.conn,strSQL,cdoRequest,cdoResponse);
-						if(nReadCount>0)
-						{
-							nCount=nReadCount;
-							break;
-						}
-					}
-				}
-				finally
-				{
-					try
-					{
-						dataAccess.conn.close();
-					}
-					catch(Exception e)
-					{
-					}
-				}
-				if(nCount>0)
-				{
-					break;
-				}
-			}
-			
-			return nCount;
-		}
-
-		//有Count统计，需要累加
-		int nCountValue=0;
-		int nGroupCount=bigTable.getGroupCount();
-		for(int i=0;i<nGroupCount;i++)
-		{
-			//获取连接
-			dataAccess=this.getDataAccess(hmDataGroup,bigTable.getGroupId()+i);
-			if(dataAccess==null)
-			{
-				throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-			}
-			
-			try
-			{
-				int nTableCount=bigTable.getGroupTableCount();
-				for(int j=0;j<nTableCount;j++)
-				{
-					//修改SQL语句中的表名
-					strSQL=parsedSQL.strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+j);
-	
-					//执行数据库操作
-					int nReadCount=dataAccess.dataEngine.executeQueryRecord(dataAccess.conn,strSQL,cdoRequest,cdoResponse);
-					if(nReadCount==0)
-					{//未读取到数据
-						continue;
-					}
-					
-					//读取Count数据
-					nCountValue+=cdoResponse.getIntegerValue(parsedSQL.strCountFieldName);
-				}
-			}
-			finally
-			{
-				try
-				{
-					dataAccess.conn.close();
-				}
-				catch(Exception e)
-				{
-				}
-			}
-		}
-		cdoResponse.setIntegerValue(parsedSQL.strCountFieldName,nCountValue);
-		
-		return nCount;
+		}		
+		//执行数据库操作
+		return dataEngine.executeQueryRecord(connection,strSQL,cdoRequest,cdoResponse);
 	}
 
 	/**
@@ -1266,7 +759,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	 * @return
 	 * @throws Exception
 	 */
-	protected int executeQueryRecordSet(HashMap<String,CycleList<IDataEngine>> hmDataGroup,DataService dataService,HashMap<String,DataAccess> hmDataAccessUsed,SQLTrans trans,String strSQL,CDO cdoRequest,CDOArrayField cdoafOutput) throws SQLException,IOException
+	protected int executeQueryRecordSet(IDataEngine dataEngine,Connection connection,SQLTrans trans,String strSQL,CDO cdoRequest,CDOArrayField cdoafOutput) throws SQLException,IOException
 	{
 		//分析原先的SQL语句
 		ParsedSQL parsedSQL=this.parseSourceSQL(strSQL);
@@ -1274,398 +767,8 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		{//SQL语句分析错误
 			throw new SQLException("Parse SQL failed: "+strSQL);
 		}
-
-		DataAccess dataAccess=null;
-		String strDefaultDataGroupId = trans.getDataGroupId();
-		if(parsedSQL.strTableName==null)
-		{//没有BigTable
-			//尝试重用已有连接
-			dataAccess=hmDataAccessUsed.get(null);
-			if(dataAccess==null)
-			{//当前没有连接
-				//获取连接
-				dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,null,null,false,cdoRequest,hmDataAccessUsed,trans);
-				if(dataAccess==null)
-				{
-					throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-				}
-			}
-			
-			//执行数据库操作
-			return dataAccess.dataEngine.executeQueryRecordSet(dataAccess.conn,strSQL,cdoRequest,cdoafOutput);
-		}
-
-		//有BigTable，尝试定位目标表
-		BigTable bigTable=this.selectBigTable(dataService.getBigTableArray(trans.getBigTableGroupId()),parsedSQL.strTableName);
-		if(bigTable==null)
-		{
-			throw new SQLException("Dest-table not found: "+strSQL);
-		}
-		
-		//执行特定全库全表扫描任务
-		if (cdoRequest.exists("nBigTableScanType") && !(cdoRequest.getIntegerValue("nBigTableScanType")+"").equals("")) 
-		{
-//			int nCount=prepareScanTypeAndExecuteAllDBAllTableScan(hmDataGroup,
-//					hmDataAccessUsed, strSQL, cdoRequest, cdoafOutput,
-//					parsedSQL, dataAccess, bigTable, strDefaultDataGroupId, dataService, trans);
-			int nCount=prepareScanTypeAndExecuteAllDBAllTableScan(hmDataGroup,
-					hmDataAccessUsed, strSQL, cdoRequest, cdoafOutput,
-					parsedSQL, dataAccess, bigTable, strDefaultDataGroupId, dataService, trans);
-			if (nCount!=-1)
-			{
-				return nCount;
-			}
-		}
-		
-		//获取连接
-		//尝试重用已有连接
-		dataAccess=hmDataAccessUsed.get(null);
-		if(dataAccess==null)
-		{//没有可重用连接
-			dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,parsedSQL.strTableName,parsedSQL.strIdFieldName,false,cdoRequest,hmDataAccessUsed,trans);
-		}
-		if(dataAccess!=null)
-		{//拿到了连接
-			this.selectTable(dataAccess,bigTable,parsedSQL.strIdFieldName,false,cdoRequest);
-
-			//修改SQL语句中的表名
-			strSQL=parsedSQL.strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+dataAccess.nTableIndex);
-
-			strSQL=preparePaging(strSQL, parsedSQL);
-
-			//执行数据库操作
-			return dataAccess.dataEngine.executeQueryRecordSet(dataAccess.conn,strSQL,cdoRequest,cdoafOutput);
-		}
-
-		//没有拿到连接
-		if(parsedSQL.strIdFieldName!=null)
-		{//不应该拿不到
-			throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-		}
-
-		//未提供Id，遍历数据库表读取记录，获取多个ResultSet
-		//提供多个Id，获取Id对应ResultSet
-
-		String[] strsPageItem=null;
-		int nFromIndex=-1;
-		int nToIndex=-1;
-		if(parsedSQL.strPage!=null)
-		{
-			StringBuilder strbLimit=new StringBuilder("limit ");
-			strsPageItem=parsedSQL.strPage.split(" ");
-			if(Utility.isNumberText(strsPageItem[0])==true)
-			{
-				nFromIndex=Integer.parseInt(strsPageItem[0]);
-			}
-			else
-			{
-				nFromIndex=cdoRequest.getIntegerValue(strsPageItem[0]);
-			}
-			strbLimit.append("0,");
-			if(Utility.isNumberText(strsPageItem[1])==true)
-			{
-				strbLimit.append(strsPageItem[1]);
-				nToIndex=nFromIndex+Integer.parseInt(strsPageItem[1]);
-			}
-			else
-			{
-				nToIndex=nFromIndex+cdoRequest.getIntegerValue(strsPageItem[1]);
-				strbLimit.append(nToIndex);
-			}
-			strSQL=parsedSQL.strSQL.replaceAll("\\{L:"+parsedSQL.strPage+"\\}",strbLimit.toString());
-		}else{
-			strSQL=parsedSQL.strSQL.toString();
-		}
-
-
-		//组建请求
-		ArrayList<HashMap> alInputSet=new ArrayList<HashMap>();
-		ArrayList<HashMap> alOutputSet=new ArrayList<HashMap>();
-		
-		if (parsedSQL.strBatchIds!=null)
-		{
-			buildRequest4QueryRecordSet(hmDataGroup, dataService,
-					hmDataAccessUsed, trans, strSQL, cdoRequest, parsedSQL,
-					strDefaultDataGroupId, bigTable, alInputSet, alOutputSet);
-		}
-		else
-		{
-			buildRequest4QueryRecordSet(hmDataGroup, strSQL, cdoRequest, parsedSQL,
-					bigTable, alInputSet, alOutputSet, bigTable.getGroupCount(), bigTable.getGroupTableCount());
-		}
-
-		//检查执行结果
-		boolean bOK=true;
-		int nCount=alOutputSet.size();
-		for(int i=0;i<nCount;i++)
-		{
-			ResultSet rs=(ResultSet)alOutputSet.get(i).get("rs");
-			if(rs==null)
-			{
-				bOK=false;
-				break;
-			}
-		}
-
-		int nRecordCount=0;//最终输出的记录个数
-		
-		try
-		{
-			if(bOK==true)
-			{//处理查询结果
-				//获取Meta信息
-				ResultSetMetaData meta=((ResultSet)alOutputSet.get(0).get("rs")).getMetaData();
-				MetaData metaData=new MetaData();
-				metaData.strsFieldName=new String[meta.getColumnCount()];
-				metaData.nsFieldType=new int[metaData.strsFieldName.length];
-				metaData.nsPrecision=new int[metaData.strsFieldName.length];
-				metaData.nsScale=new int[metaData.strsFieldName.length];
-				for(int i=0;i<metaData.strsFieldName.length;i++)
-				{
-					metaData.strsFieldName[i]=meta.getColumnName(i+1);
-					metaData.nsFieldType[i]=meta.getColumnType(i+1);
-					metaData.nsPrecision[i]=meta.getPrecision(i+1);
-					metaData.nsScale[i]=meta.getScale(i+1);
-				}
-	
-				//开始处理
-				String strOrderFieldId=null;
-				boolean bAscending=true;
-				String strOrderBy=parsedSQL.strOrderBy;
-				if(strOrderBy!=null && strOrderBy.length()>0)
-				{//有排序要求
-					String[] strsOrderItem=strOrderBy.split(" ");
-					strOrderFieldId=strsOrderItem[0];
-					if(strsOrderItem.length==2 && strsOrderItem[1].equalsIgnoreCase("desc"))
-					{
-						bAscending=false;
-					}
-				}
-				List<CDO> alCDOList=new ArrayList<CDO>();//用于临时保存输出的记录
-				SortedSet<Long,CDO> ssCDOSet=new SortedSet<Long,CDO>();
-				if(parsedSQL.strCountFieldName!=null && parsedSQL.strGroupFieldName!=null)
-				{
-					//初始化每个ResultSet的Group字段当前值
-					long[] lsSortedFieldValue=new long[nCount];
-					for(int i=0;i<nCount;i++)
-					{
-						lsSortedFieldValue[i]=-1;
-					}
-					CDO[] cdosRecord=new CDO[nCount];
-					
-					//每个ResultSet都取出一个值
-					for(int i=0;i<nCount;i++)
-					{
-						dataAccess=(DataAccess)alInputSet.get(i).get("dataAccess");
-						ResultSet rs=(ResultSet)alOutputSet.get(i).get("rs");
-						cdosRecord[i]=dataAccess.dataEngine.readRecord(rs,metaData.strsFieldName,metaData.nsFieldType,metaData.nsPrecision,metaData.nsScale);
-						if (cdosRecord[i]!=null)
-						{
-							lsSortedFieldValue[i]=cdosRecord[i].getLongValue(parsedSQL.strGroupFieldName);
-						}
-					}
-
-					//循环输出Group字段值最小的记录
-					while(true)
-					{
-						int[] nsIndex=this.getMinMaxValueIndexList(lsSortedFieldValue,true);
-						if(nsIndex.length==0)
-						{
-							break;
-						}
-						
-						int nGroupFieldCount=cdosRecord[nsIndex[0]].getIntegerValue(parsedSQL.strCountFieldName);
-						for(int i=1;i<nsIndex.length;i++)
-						{
-							nGroupFieldCount+=cdosRecord[nsIndex[i]].getIntegerValue(parsedSQL.strCountFieldName);
-						}
-						cdosRecord[nsIndex[0]].setIntegerValue(parsedSQL.strCountFieldName,nGroupFieldCount);
-	
-						//输出记录
-						if(strOrderFieldId==null)
-						{//不需要再排序
-							alCDOList.add(cdosRecord[nsIndex[0]]);
-							if(strsPageItem!=null && alCDOList.size()>=nToIndex)
-							{//输出记录个数已经达到，停止输出
-								break;
-							}
-						}
-						else
-						{//需要再排序，加入排序集合
-							long lKey=cdosRecord[nsIndex[0]].getLongValue(strOrderFieldId);
-							ssCDOSet.add(lKey,cdosRecord[nsIndex[0]]);
-						}
-						
-						//已经输出的ResultSet，重新获取
-						for(int i=0;i<nsIndex.length;i++)
-						{
-							dataAccess=(DataAccess)alInputSet.get(nsIndex[i]).get("dataAccess");
-							ResultSet rs=(ResultSet)alOutputSet.get(nsIndex[i]).get("rs");
-							cdosRecord[nsIndex[i]]=dataAccess.dataEngine.readRecord(rs,metaData.strsFieldName,metaData.nsFieldType,metaData.nsPrecision,metaData.nsScale);
-							if(cdosRecord[nsIndex[i]]==null)
-							{
-								lsSortedFieldValue[nsIndex[i]]=-1;
-							}
-							else
-							{
-								lsSortedFieldValue[nsIndex[i]]=cdosRecord[nsIndex[i]].getLongValue(parsedSQL.strGroupFieldName);
-							}
-						}
-					}
-	
-					if(strOrderFieldId!=null)
-					{//输出结果需要排序，把ssCDOSet里面的结果加入alCDOList
-						CDO[] cdosTemp=new CDO[ssCDOSet.size()];
-						cdosTemp=ssCDOSet.toArray(bAscending,cdosTemp);
-						for(int i=0;i<cdosTemp.length;i++)
-						{
-							alCDOList.add(cdosTemp[i]);
-							if(strsPageItem!=null && alCDOList.size()>=nToIndex)
-							{//输出记录个数已经达到，停止输出
-								break;
-							}
-						}
-					}
-				}
-				else if(strOrderFieldId!=null)
-				{//需要排序
-					//初始化每个ResultSet的Group字段当前值
-					long[] lsSortedFieldValue=new long[nCount];
-					for(int i=0;i<nCount;i++)
-					{
-						lsSortedFieldValue[i]=-1;
-					}
-					CDO[] cdosRecord=new CDO[nCount];
-					
-					//每个ResultSet都取出一个值
-					for(int i=0;i<nCount;i++)
-					{
-						dataAccess=(DataAccess)alInputSet.get(i).get("dataAccess");
-						ResultSet rs=(ResultSet)alOutputSet.get(i).get("rs");
-						cdosRecord[i]=dataAccess.dataEngine.readRecord(rs,metaData.strsFieldName,metaData.nsFieldType,metaData.nsPrecision,metaData.nsScale);
-						if(cdosRecord[i]==null)
-						{
-							lsSortedFieldValue[i]=-1;
-						}
-						else
-						{
-							lsSortedFieldValue[i]=cdosRecord[i].getLongValue(strOrderFieldId);
-						}
-					}
-					
-					//循环输出OrderBy字段值最小/最大的记录
-					while(true)
-					{
-						int[] nsIndex=this.getMinMaxValueIndexList(lsSortedFieldValue,bAscending);
-						if(nsIndex.length==0)
-						{
-							break;
-						}
-						
-						//输出记录
-						for(int i=0;i<nsIndex.length;i++)
-						{
-							alCDOList.add(cdosRecord[nsIndex[i]]);
-							if(strsPageItem!=null && alCDOList.size()>=nToIndex)
-							{//输出记录个数已经达到，停止输出
-								break;
-							}
-						}
-						if(strsPageItem!=null && alCDOList.size()>=nToIndex)
-						{//输出记录个数已经达到，停止输出
-							break;
-						}
-						
-						//已经输出的ResultSet，重新获取
-						for(int i=0;i<nsIndex.length;i++)
-						{
-							dataAccess=(DataAccess)alInputSet.get(nsIndex[i]).get("dataAccess");
-							ResultSet rs=(ResultSet)alOutputSet.get(nsIndex[i]).get("rs");
-							cdosRecord[nsIndex[i]]=dataAccess.dataEngine.readRecord(rs,metaData.strsFieldName,metaData.nsFieldType,metaData.nsPrecision,metaData.nsScale);
-							if(cdosRecord[nsIndex[i]]==null)
-							{
-								lsSortedFieldValue[nsIndex[i]]=-1;
-							}
-							else
-							{
-								lsSortedFieldValue[nsIndex[i]]=cdosRecord[nsIndex[i]].getLongValue(strOrderFieldId);
-							}
-						}
-					}
-				}
-				else
-				{//普通查询输出
-					boolean bStopFlag=false;
-					for(int i=0;i<nCount;i++)
-					{
-						dataAccess=(DataAccess)alInputSet.get(i).get("dataAccess");
-						ResultSet rs=(ResultSet)alOutputSet.get(i).get("rs");
-						while(bStopFlag==false)
-						{
-							CDO cdoRecord=dataAccess.dataEngine.readRecord(rs,metaData.strsFieldName,metaData.nsFieldType,metaData.nsPrecision,metaData.nsScale);
-							if(cdoRecord==null)
-							{
-								break;
-							}
-							alCDOList.add(cdoRecord);
-							if(strsPageItem!=null && alCDOList.size()>=nToIndex)
-							{//输出记录个数已经达到，停止输出
-								bStopFlag=true;
-								break;
-							}
-						}
-					}
-				}
-
-				//输出读取的记录数据
-				if(nToIndex>alCDOList.size()){
-					nToIndex=alCDOList.size();
-				}
-				if(parsedSQL.strPage!=null)
-				{
-					alCDOList=alCDOList.subList(nFromIndex,nToIndex);
-				}
-//				CDO[] cdosOutput=new CDO[alCDOList.size()];
-//				alCDOList.toArray(cdosOutput);
-//				cdoafOutput.setValue(cdosOutput);
-				
-//				nRecordCount=cdosOutput.length;
-				
-				cdoafOutput.setValue(alCDOList);
-				nRecordCount=cdoafOutput.getLength();
-			}
-		}
-		catch(Exception e)
-		{
-			throw new SQLException(e.getMessage());
-		}
-		finally
-		{
-			//关闭ResultSet
-			for(int i=0;i<nCount;i++)
-			{
-				HashMap hmInput=alInputSet.get(i);
-				dataAccess=(DataAccess)hmInput.get("dataAccess");
-				ResultSet rs=(ResultSet)hmInput.get("rs");
-				PreparedStatement ps=(PreparedStatement)hmInput.get("ps");
-				dataAccess.dataEngine.closeResultSet(rs);
-				dataAccess.dataEngine.closeStatement(strSQL,ps);
-				try
-				{
-					dataAccess.conn.close();
-				}
-				catch(Exception e)
-				{
-				}
-			}
-		}
-		
-		if(bOK==false)
-		{
-			return 0;
-		}
-
-		return nRecordCount;
+		//执行数据库操作
+		return dataEngine.executeQueryRecordSet(connection,strSQL,cdoRequest,cdoafOutput);		
 	}
 
 	/**
@@ -1678,7 +781,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	 * @return
 	 * @throws Exception
 	 */
-	protected Field executeQueryFieldExt(HashMap<String,CycleList<IDataEngine>> hmDataGroup,DataService dataService,HashMap<String,DataAccess> hmDataAccessUsed,SQLTrans trans,String strSQL,CDO cdoRequest) throws SQLException,IOException
+	protected Field executeQueryFieldExt(IDataEngine dataEngine,Connection connection,SQLTrans trans,String strSQL,CDO cdoRequest) throws SQLException,IOException
 	{
 		//分析原先的SQL语句
 		ParsedSQL parsedSQL=this.parseSourceSQL(strSQL);
@@ -1686,214 +789,12 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		{//SQL语句分析错误
 			throw new SQLException("Parse SQL failed: "+strSQL);
 		}
-
-		DataAccess dataAccess=null;
-		String strDefaultDataGroupId = trans.getDataGroupId();
-		if(parsedSQL.strTableName==null)
-		{//没有BigTable
-			//尝试重用已有连接
-			dataAccess=hmDataAccessUsed.get(null);
-			if(dataAccess==null)
-			{//当前没有连接
-				//获取连接
-				dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,null,null,false,cdoRequest,hmDataAccessUsed,trans);
-				if(dataAccess==null)
-				{
-					throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-				}
-			}
-			
-			//执行数据库操作
-			return dataAccess.dataEngine.executeQueryFieldExt(dataAccess.conn,strSQL,cdoRequest);
-		}
-
-		//有BigTable，尝试定位目标表
-		BigTable bigTable=this.selectBigTable(dataService.getBigTableArray(trans.getBigTableGroupId()),parsedSQL.strTableName);
-		if(bigTable==null)
-		{
-			throw new SQLException("Dest-table not found: "+strSQL);
-		}
-		
-		if(parsedSQL.strCountFieldName!=null && parsedSQL.strBatchIds!=null)
-		{//有Count统计，批量执行SQL语句
-			String[] strsIds=Utility.splitString(parsedSQL.strBatchIds,',');
-			long[] lIds = getIds(parsedSQL, strsIds);
-
-			int nCount=0;
-//			ObjectExt objExt=new ObjectExt();
-			for(int i=0;i<lIds.length;i++)
-			{
-				//获取连接
-				dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,parsedSQL.strTableName,lIds[i],hmDataAccessUsed,trans);
-
-				if(dataAccess==null)
-				{//Id找不到对应的连接
-					continue;
-				}
-				
-				try
-				{
-					this.selectTable(dataAccess,bigTable,lIds[i]);
-	
-					//修改SQL语句中的表名
-					strSQL=parsedSQL.strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+dataAccess.nTableIndex);
-					cdoRequest.setLongValue(strsIds[0],lIds[i]);
-	
-					//分页处理
-					strSQL=preparePaging(strSQL, parsedSQL);
-					
-					//执行数据库操作
-					CDO cdoResponse = new CDO();
-					int count=dataAccess.dataEngine.executeQueryRecord(dataAccess.conn, strSQL, cdoRequest, cdoResponse);
-					nCount+=count;
-						
-				}
-				finally
-				{
-					
-				}
-			}
-//			objExt.setValue(new Integer(nCount));
-//			objExt.setType(DataType.INTEGER_TYPE);
-			return new IntegerField(nCount);
-		}
-		
-		//获取连接
-		//尝试重用已有连接
-		dataAccess=hmDataAccessUsed.get(null);
-		if(dataAccess==null)
-		{//没有可重用连接
-			dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,parsedSQL.strTableName,parsedSQL.strIdFieldName,false,cdoRequest,hmDataAccessUsed,trans);
-		}
-		if(dataAccess!=null)
-		{//拿到了连接
-			this.selectTable(dataAccess,bigTable,parsedSQL.strIdFieldName,false,cdoRequest);
-
-			//修改SQL语句中的表名
-			strSQL=parsedSQL.strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+dataAccess.nTableIndex);
-
-			//执行数据库操作
-			return dataAccess.dataEngine.executeQueryFieldExt(dataAccess.conn,strSQL,cdoRequest);
-		}
-
-		//没有拿到连接
-		if(parsedSQL.strIdFieldName!=null)
-		{//不应该拿不到
-			throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-		}
-
-		//未提供Id，遍历数据库表读取记录
-		Field objExt=null;
-		if(parsedSQL.strCountFieldName==null)
-		{//一般性记录
-			int nGroupCount=bigTable.getGroupCount();
-			for(int i=0;i<nGroupCount;i++)
-			{
-				//获取连接
-				dataAccess=this.getDataAccess(hmDataGroup,bigTable.getGroupId()+i);
-				if(dataAccess==null)
-				{
-					throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-				}
-				
-				try
-				{
-					int nTableCount=bigTable.getGroupTableCount();
-					for(int j=0;j<nTableCount;j++)
-					{
-						//修改SQL语句中的表名
-						strSQL=parsedSQL.strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+j);
-	
-						//执行数据库操作
-						objExt=dataAccess.dataEngine.executeQueryFieldExt(dataAccess.conn,strSQL,cdoRequest);
-						if(objExt!=null)
-						{
-							break;
-						}
-					}
-				}
-				finally
-				{
-					try
-					{
-						dataAccess.conn.close();
-					}
-					catch(Exception e)
-					{
-					}
-				}
-				if(objExt!=null)
-				{
-					break;
-				}
-			}
-			
-			return objExt;
-		}
-
-		//有Count统计，需要累加
-		int nCount=0;
-		int nGroupCount=bigTable.getGroupCount();
-		for(int i=0;i<nGroupCount;i++)
-		{
-			//获取连接
-			dataAccess=this.getDataAccess(hmDataGroup,bigTable.getGroupId()+i);
-			if(dataAccess==null)
-			{
-				throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-			}
-			
-			try
-			{
-				int nTableCount=bigTable.getGroupTableCount();
-				for(int j=0;j<nTableCount;j++)
-				{
-					//修改SQL语句中的表名
-					strSQL=parsedSQL.strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+j);
-	
-					//执行数据库操作
-					objExt=dataAccess.dataEngine.executeQueryFieldExt(dataAccess.conn,strSQL,cdoRequest);
-					if(objExt!=null)
-					{
-						switch(objExt.getType().getDataType())
-						{
-							case DataType.BYTE_TYPE:
-								nCount+=(Byte)objExt.getObjectValue();
-								break;
-							case DataType.SHORT_TYPE:
-								nCount+=(Short)objExt.getObjectValue();
-								break;
-							case DataType.INTEGER_TYPE:
-								nCount+=(Integer)objExt.getObjectValue();
-								break;
-							case DataType.LONG_TYPE:
-								nCount+=(Long)objExt.getObjectValue();
-								break;
-							default:
-								throw new SQLException("Invaid bigtable SQL: "+strSQL);
-						}
-					}
-				}
-			}
-			finally
-			{
-				try
-				{
-					dataAccess.conn.close();
-				}
-				catch(Exception e)
-				{
-				}
-			}
-		}
-//		objExt.setValue(new Integer(nCount));
-//		objExt.setType(DataType.INTEGER_TYPE);
-		
-		return new IntegerField(nCount);
+		//执行数据库操作
+		return dataEngine.executeQueryFieldExt(connection,strSQL,cdoRequest);		
 	}
 
 	/**
-	 * 更新数据库记录或删除数据库记录
+	 * 插入,更新数据库记录或删除数据库记录
 	 * 
 	 * @param conn
 	 * @param strSQL
@@ -1902,7 +803,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	 * @return
 	 * @throws Exception
 	 */
-	protected int executeUpdate(HashMap<String,CycleList<IDataEngine>> hmDataGroup,DataService dataService,HashMap<String,DataAccess> hmDataAccessUsed,SQLTrans trans,String strSQL,CDO cdoRequest) throws SQLException,IOException
+	protected int executeUpdate(IDataEngine dataEngine,Connection connection,SQLTrans trans,String strSQL,CDO cdoRequest) throws SQLException,IOException
 	{
 		//分析原先的SQL语句
 		ParsedSQL parsedSQL=this.parseSourceSQL(strSQL);
@@ -1910,129 +811,8 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		{//SQL语句分析错误
 			throw new SQLException("Parse SQL failed: "+strSQL);
 		}
-
-		DataAccess dataAccess=null;
-		String strDefaultDataGroupId = trans.getDataGroupId();
-		if(parsedSQL.strTableName==null)
-		{//没有BigTable
-			//尝试重用已有连接
-			dataAccess=hmDataAccessUsed.get(null);
-			if(dataAccess==null)
-			{//当前没有连接
-				//获取连接
-				dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,null,null,false,cdoRequest,hmDataAccessUsed,trans);
-				if(dataAccess==null)
-				{
-					throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-				}
-			}
-			
-			//执行数据库操作
-			return dataAccess.dataEngine.executeUpdate(dataAccess.conn,strSQL,cdoRequest);
-		}
-
-		//有BigTable，尝试定位目标表
-		BigTable bigTable=this.selectBigTable(dataService.getBigTableArray(trans.getBigTableGroupId()),parsedSQL.strTableName);
-		if(bigTable==null)
-		{
-			throw new SQLException("Dest-table not found: "+strSQL);
-		}
-		//获取连接
-		//尝试重用已有连接
-		dataAccess=hmDataAccessUsed.get(null);
-		if(dataAccess==null)
-		{//没有可重用连接
-			dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,parsedSQL.strTableName,parsedSQL.strIdFieldName,false,cdoRequest,hmDataAccessUsed,trans);
-		}
-		if(dataAccess!=null)
-		{//拿到了连接
-			this.selectTable(dataAccess,bigTable,parsedSQL.strIdFieldName,false,cdoRequest);
-
-			//修改SQL语句中的表名
-			strSQL=parsedSQL.strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+dataAccess.nTableIndex);
-
-			//执行数据库操作
-			return dataAccess.dataEngine.executeUpdate(dataAccess.conn,strSQL,cdoRequest);
-		}
-
-		//没有拿到连接
-		if(parsedSQL.strIdFieldName!=null)
-		{//不应该拿不到
-			throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-		}
-		
-		if(parsedSQL.strBatchIds!=null)
-		{//批量执行SQL语句
-			String[] strsIds=Utility.splitString(parsedSQL.strBatchIds,',');
-			long[] lIds = getIds(parsedSQL, strsIds);
-
-			int nCount=0;
-			for(int i=0;i<lIds.length;i++)
-			{
-				//获取连接
-				dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,parsedSQL.strTableName,lIds[i],hmDataAccessUsed,trans);
-
-				if(dataAccess==null)
-				{//Id找不到对应的连接
-					continue;
-				}
-				
-				try
-				{
-					this.selectTable(dataAccess,bigTable,lIds[i]);
-	
-					//修改SQL语句中的表名
-					strSQL=parsedSQL.strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+dataAccess.nTableIndex);
-					cdoRequest.setLongValue(strsIds[0],lIds[i]);
-	
-					//执行数据库操作
-					nCount+=dataAccess.dataEngine.executeUpdate(dataAccess.conn,strSQL,cdoRequest);
-				}
-				finally
-				{
-					
-				}
-			}
-			return nCount;
-		}
-
-		//未提供Id，遍历数据库表更新记录
-		int nCount=0;
-		int nGroupCount=bigTable.getGroupCount();
-		for(int i=0;i<nGroupCount;i++)
-		{
-			//获取连接
-			dataAccess=this.getDataAccess(hmDataGroup,bigTable.getGroupId()+i);
-			if(dataAccess==null)
-			{
-				throw new SQLException("Invalid datagroup id: "+strDefaultDataGroupId);
-			}
-			
-			try
-			{
-				int nTableCount=bigTable.getGroupTableCount();
-				for(int j=0;j<nTableCount;j++)
-				{
-					//修改SQL语句中的表名
-					strSQL=parsedSQL.strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+j);
-	
-					//执行数据库操作
-					nCount+=dataAccess.dataEngine.executeUpdate(dataAccess.conn,strSQL,cdoRequest);
-				}
-			}
-			finally
-			{
-				try
-				{
-					dataAccess.conn.close();
-				}
-				catch(Exception e)
-				{
-				}
-			}
-		}
-		
-		return nCount;
+		//执行数据库操作
+		return dataEngine.executeUpdate(connection,strSQL,cdoRequest);		
 	}
 	
 	/**
@@ -2040,17 +820,11 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	 * 
 	 * @throws Exception
 	 */
-	protected void executeCommit(HashMap<String,DataAccess> hmDataAccessUsed) throws SQLException,IOException
+	protected void executeCommit(Connection conn) throws SQLException,IOException
 	{
 		//提交事务
-		Iterator iterator=hmDataAccessUsed.values().iterator();
-		while(iterator.hasNext())
-		{
-			Connection conn=(Connection)iterator.next();
-			if(conn.getAutoCommit()==false)
-			{//尚未提交
-				conn.commit();
-			}
+		if(conn.getAutoCommit()==false){//尚未提交
+			conn.commit();
 		}
 	}
 	
@@ -2059,22 +833,11 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	 * 
 	 * @throws Exception
 	 */
-	protected void executeRollback(HashMap<String,DataAccess> hmDataAccessUsed) throws SQLException,IOException
+	protected void executeRollback(Connection conn) throws SQLException,IOException
 	{
 		//提交事务
-		Iterator<DataAccess> iterator=hmDataAccessUsed.values().iterator();
-		while(iterator.hasNext())
-		{
-			DataAccess da = iterator.next();
-			Connection conn= null;
-			if(da!=null)
-			{
-				conn=da.conn;
-			}
-			if(conn!=null && conn.getAutoCommit()==false)
-			{//尚未提交
-				conn.rollback();
-			}
+		if(conn!=null && conn.getAutoCommit()==false){//尚未提交
+			conn.rollback();
 		}
 	}
 
@@ -2083,9 +846,9 @@ public class BigTableEngine// extends ParallelTaskProcessor
 	 * 
 	 * @return 0-自然执行完毕，1-碰到Break退出，2-碰到Return退出
 	 */
-	private int handleBlock(HashMap<String,CycleList<IDataEngine>> hmDataGroup,DataService dataService,HashMap<String,DataAccess> hmDataAccessUsed,SQLTrans trans,BlockType block,CDO cdoRequest,CDO cdoResponse,Return ret) throws SQLException,IOException
+	private int handleBlock(IDataEngine dataEngine,Connection connection,SQLTrans trans,BlockType block,CDO cdoRequest,CDO cdoResponse,Return ret) throws SQLException,IOException
 	{
-		String strDefaultDataGroupId = trans.getDataGroupId();
+//		String strDefaultDataGroupId = trans.getDataGroupId();
 		int nItemCount=block.getBlockTypeItemCount();
 		for(int i=0;i<nItemCount;i++)
 		{
@@ -2098,7 +861,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				handleSQLBlock(insert,cdoRequest,strbSQL);
 				String strSQL=strbSQL.toString();
 				// 执行SQL
-				this.executeInsert(hmDataGroup,dataService,hmDataAccessUsed,trans,strSQL,cdoRequest);
+				this.executeUpdate(dataEngine,connection,trans,strSQL,cdoRequest);
 			}
 			else if(blockItem.getSelectRecord()!=null)
 			{
@@ -2115,7 +878,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				{//表示要 获取SQL查询条件中的总数量					
 					cdoRequest.setBooleanValue("$$nRecordCountId$$", true);
 				}
-				int nRecordCount=this.executeQueryRecord(hmDataGroup,dataService,hmDataAccessUsed,trans,strSQL,cdoRequest,cdoRecord);
+				int nRecordCount=this.executeQueryRecord(dataEngine,connection,trans,strSQL,cdoRequest,cdoRecord);
 				if(strRecordCountId.length()>0)
 				{// 输出受影响的记录数
 					strRecordCountId=strRecordCountId.substring(1,strRecordCountId.length()-1);
@@ -2138,7 +901,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				String strSQL=strbSQL.toString();
 
 				// 执行SQL
-				int nRecordCount=this.executeUpdate(hmDataGroup,dataService,hmDataAccessUsed,trans,strSQL,cdoRequest);
+				int nRecordCount=this.executeUpdate(dataEngine,connection,trans,strSQL,cdoRequest);
 				String strRecordCountId=update.getRecordCountId();
 				if(strRecordCountId.length()>0)
 				{// 输出受影响的记录数
@@ -2155,7 +918,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				String strSQL=strbSQL.toString();
 
 				// 执行SQL
-				int nRecordCount=this.executeUpdate(hmDataGroup,dataService,hmDataAccessUsed,trans,strSQL,cdoRequest);
+				int nRecordCount=this.executeUpdate(dataEngine,connection,trans,strSQL,cdoRequest);
 				String strRecordCountId=delete.getRecordCountId();
 				if(strRecordCountId.length()>0)
 				{// 输出受影响的记录数
@@ -2172,7 +935,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				String strSQL=strbSQL.toString();
 
 				// 执行SQL
-				Field objFieldValue=this.executeQueryFieldExt(hmDataGroup,dataService,hmDataAccessUsed,trans,strSQL,cdoRequest);
+				Field objFieldValue=this.executeQueryFieldExt(dataEngine,connection,trans,strSQL,cdoRequest);
 				if(objFieldValue==null)
 				{
 					continue;
@@ -2260,7 +1023,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				{//表示要 获取SQL查询条件中的总数量					
 					cdoRequest.setBooleanValue("$$nRecordCountId$$", true);
 				}				
-				int nRecordCount=this.executeQueryRecordSet(hmDataGroup,dataService,hmDataAccessUsed,trans,strSQL,cdoRequest,cdoArrayField);
+				int nRecordCount=this.executeQueryRecordSet(dataEngine,connection,trans,strSQL,cdoRequest,cdoArrayField);
 				
 				if(strRecordCountId.length()>0)
 				{// 输出受影响的记录数
@@ -2292,20 +1055,9 @@ public class BigTableEngine// extends ParallelTaskProcessor
 				SetVar sv=blockItem.getSetVar();				
 				DataEngineHelp.setVar(sv, cdoRequest);
 			}
-			else if(blockItem.getSelectConnection()!=null)
-			{//SelectTable选择BigTable的单个表
-				SelectConnection st=blockItem.getSelectConnection();
-				
-				String strIdFieldId=st.getIdFieldId();
-				if(strIdFieldId.length()>0)
-				{	
-					strIdFieldId=strIdFieldId.substring(1,strIdFieldId.length()-1);
-				}
-				this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,st.getBigTableName(),strIdFieldId,true,cdoRequest,hmDataAccessUsed,trans);
-			}
 			else if(blockItem.getIf()!=null)
 			{
-				int nResult=this.handleIf(hmDataGroup,dataService,hmDataAccessUsed,trans,(If)blockItem.getIf(),cdoRequest,cdoResponse,ret);
+				int nResult=this.handleIf(dataEngine,connection,trans,(If)blockItem.getIf(),cdoRequest,cdoResponse,ret);
 				if(nResult==0)
 				{// 自然执行完毕
 					continue;
@@ -2317,7 +1069,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 			}
 			else if(blockItem.getFor()!=null)
 			{
-				int nResult=this.handleFor(hmDataGroup,dataService,hmDataAccessUsed,trans,(For)blockItem.getFor(),cdoRequest,cdoResponse,ret);
+				int nResult=this.handleFor(dataEngine,connection,trans,(For)blockItem.getFor(),cdoRequest,cdoResponse,ret);
 				if(nResult==0)
 				{// 自然执行完毕
 					continue;
@@ -2340,11 +1092,11 @@ public class BigTableEngine// extends ParallelTaskProcessor
 			}
 			else if(blockItem.getCommit()!=null)
 			{
-				this.executeCommit(hmDataAccessUsed);
+				this.executeCommit(connection);
 			}
 			else if(blockItem.getRollback()!=null)
 			{
-				this.executeRollback(hmDataAccessUsed);
+				this.executeRollback(connection);
 			}
 		}
 
@@ -2371,14 +1123,31 @@ public class BigTableEngine// extends ParallelTaskProcessor
     		return null;
     	}
     	//可以处理该请求
-    	DataService dataService = trans.getDataService();
+    	//DataService dataService = trans.getDataService();
     	//处理事务
     	Return ret=new Return();
-		HashMap<String,DataAccess> hmDataAccessUsed=new HashMap<String,DataAccess>();//key格式：bigtable.<name>或者group.<id>或者当前DataAccess使用的null
-		hmDataAccessUsed.put(null,null);//设置当前使用的dataaccess
-		
+
+    	String strDataGroupId=trans.getDataGroupId();
+		CycleList<IDataEngine> clDataEngine=hmDataGroup.get(strDataGroupId);
+		Connection connection=null;
 		try
 		{
+			if(clDataEngine==null){//DataGroupId错误
+				throw new SQLException("Invalid datagroup id: "+strDataGroupId);
+			}
+			//创建Connection
+			IDataEngine dataEngine=clDataEngine.get();
+			connection=dataEngine.getConnection();
+			if(connection==null)
+			{
+				throw new SQLException("datagroup id: "+strDataGroupId+",Invalid Connection,Connection is null");
+			}
+			if(!trans.getTransFlag().value().equals(0))
+			{
+				connection.setAutoCommit(false);
+			}
+			
+			
 			// 生成Block对象
 			BlockType block=new BlockType();
 			int nTransItemCount=trans.getSQLTransChoice().getSQLTransChoiceItemCount();
@@ -2416,11 +1185,6 @@ public class BigTableEngine// extends ParallelTaskProcessor
 					blockItem=new BlockTypeItem();
 					blockItem.setSelectField(transItem.getSelectField());
 				}
-				else if(transItem.getSelectConnection()!=null)
-				{
-					blockItem=new BlockTypeItem();
-					blockItem.setSelectConnection(transItem.getSelectConnection());
-				}
 				else if(transItem.getIf()!=null)
 				{
 					blockItem=new BlockTypeItem();
@@ -2444,32 +1208,22 @@ public class BigTableEngine// extends ParallelTaskProcessor
 			}
 
 			// 处理事务
-			int nResult=handleBlock(hmDataGroup,dataService,hmDataAccessUsed,trans,block,cdoRequest,cdoResponse,ret);
+			int nResult=handleBlock(dataEngine,connection,trans,block,cdoRequest,cdoResponse,ret);
 			if(nResult!=2)
 			{// Break或自然执行完毕退出
 				com.cdoframework.cdolib.database.xsd.Return returnObject=trans.getReturn();
 				this.handleReturn(returnObject,cdoRequest,cdoResponse,ret);
 			}
 			
-			//提交事务
-			Iterator iterator=hmDataAccessUsed.values().iterator();
-			while(iterator.hasNext())
-			{
-				DataAccess dataAccess=(DataAccess)iterator.next();
-				if(dataAccess==null || dataAccess.conn.isClosed())
-				{
-					continue;
-				}
-				if(dataAccess.conn.getAutoCommit()==false)
-				{//尚未提交
-					dataAccess.conn.setAutoCommit(true);
-				}
+			if(!trans.getTransFlag().value().equals(0)){
+				connection.commit();
 			}
 		}
 		catch(SQLException e)
 		{
+			try{this.executeRollback(connection);}catch(Exception ex){};
 			callOnException("executeTrans Exception: "+strTransName,e);
-
+			
 			ret=null;
 
 			OnException onException=trans.getOnException();
@@ -2497,6 +1251,7 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		}
 		catch(IOException e)
 		{
+			try{this.executeRollback(connection);}catch(Exception ex){};
 			callOnException("executeTrans Exception: "+strTransName,e);
 
 			OnException onException=trans.getOnException();
@@ -2506,8 +1261,8 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		}
 		catch(Exception e)
 		{
+			try{this.executeRollback(connection);}catch(Exception ex){};
 			callOnException("executeTrans Exception: "+strTransName,e);
-
 			OnException onException=trans.getOnException();
 			ret=Return.valueOf(onException.getReturn().getCode(),onException.getReturn().getText(),onException.getReturn().getInfo());
 
@@ -2516,25 +1271,8 @@ public class BigTableEngine// extends ParallelTaskProcessor
 		finally
 		{
 			//关闭连接
-			Iterator<DataAccess> iterator=hmDataAccessUsed.values().iterator();
-			while(iterator.hasNext())
-			{
-				DataAccess dataAccess=iterator.next();
-				try
-				{
-					if (dataAccess!=null && !dataAccess.conn.isClosed())
-					{
-						dataAccess.conn.close();
-					}
-				}
-				catch(Exception e)
-				{
-					logger.error("Close database connection error!", e); 
-				}
-			}
-			hmDataAccessUsed.clear();
-		}
-		
+			SQLUtil.closeConnection(connection);
+		}		
 		return ret;
 	}
 
@@ -2553,774 +1291,9 @@ public class BigTableEngine// extends ParallelTaskProcessor
 
 	//接口实现,所有实现接口函数的实现在此定义--------------------------------------------------------------------
 
-	//事件处理,所有重载派生类的事件类方法(一般为on...ed)在此定义-------------------------------------------------
 
-	protected HashMap handleTask(HashMap hmInput) throws SQLException
-	{
-		//修改SQL语句中的表名
-		String strSQL=(String)hmInput.get("strSQL");
-		DataAccess dataAccess=(DataAccess)hmInput.get("dataAccess");
-		CDO cdoRequest=(CDO)hmInput.get("cdoRequest");
-
-		//获得数据库连接
-		IDataEngine dataEngine=dataAccess.dataEngine;
-		Connection conn=dataAccess.conn;
-		
-		//执行数据库操作
-		PreparedStatement ps=null;
-		ResultSet rs=null;
-		HashMap hmOutput=null;
-		try
-		{
-			ps=dataEngine.prepareStatement(conn,strSQL,cdoRequest);
-
-			// 执行查询
-			rs=ps.executeQuery();
-			
-			hmOutput=new HashMap();
-			hmOutput.put("rs",rs);
-			hmOutput.put("ps",ps);
-			
-			return hmOutput;
-		}
-		catch(SQLException e)
-		{
-			dataEngine.closeResultSet(rs);
-			dataEngine.closeStatement(strSQL,ps);
-			this.callOnException("query recordset error: "+strSQL,e);
-			throw e;
-//			throw new SQLException("ExecuteSQL failed: "+strSQL, e);
-//			return null;
-		}
-	}
 	
-	private MetaData getMetaData(ResultSet rs) throws SQLException
-	{
-		ResultSetMetaData meta=rs.getMetaData();
-		MetaData metaData=new MetaData();
-		metaData.strsFieldName=new String[meta.getColumnCount()];
-		metaData.nsFieldType=new int[metaData.strsFieldName.length];
-		metaData.nsPrecision=new int[metaData.strsFieldName.length];
-		metaData.nsScale=new int[metaData.strsFieldName.length];
-		for(int i=0;i<metaData.strsFieldName.length;i++)
-		{
-			metaData.strsFieldName[i]=meta.getColumnName(i+1);
-			metaData.nsFieldType[i]=meta.getColumnType(i+1);
-			metaData.nsPrecision[i]=meta.getPrecision(i+1);
-			metaData.nsScale[i]=meta.getScale(i+1);
-		}
-		return metaData;
-	}
-
-	private long[] getIds(ParsedSQL parsedSQL, String[] strsIds)
-			throws SQLException
-	{
-		long[] lIds = new long[strsIds.length - 1];
-		try
-		{
-			for (int i = 1; i < strsIds.length; i++)
-			{
-				lIds[i - 1] = Long.parseLong(strsIds[i]);
-			}
-		}
-		catch (Exception e)
-		{
-			throw new SQLException("Invalid data id: " + parsedSQL.strBatchIds);
-		}
-		return lIds;
-	}
 	
-	private void buildRequest4QueryRecordSet(
-			HashMap<String, CycleList<IDataEngine>> hmDataGroup,
-			DataService dataService,
-			HashMap<String, DataAccess> hmDataAccessUsed, SQLTrans trans,
-			String strSQL, CDO cdoRequest, ParsedSQL parsedSQL,
-			String strDefaultDataGroupId, BigTable bigTable,
-			ArrayList<HashMap> alInputSet, ArrayList<HashMap> alOutputSet)
-			throws SQLException
-	{
-		DataAccess dataAccess;
-		String[] strsIds=Utility.splitString(parsedSQL.strBatchIds,',');
-		long[] lIds = getIds(parsedSQL, strsIds);
-
-		for(int i=0;i<lIds.length;i++)
-		{
-			//获取连接
-			dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,parsedSQL.strTableName,lIds[i],hmDataAccessUsed,trans);
-
-			if(dataAccess==null)
-			{//Id找不到对应的连接
-				continue;
-			}
-			
-			this.selectTable(dataAccess,bigTable,lIds[i]);
-
-			//修改SQL语句中的表名
-			String strUsedSQL=strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+dataAccess.nTableIndex);
-			cdoRequest.setLongValue(strsIds[0],lIds[i]);
-
-			HashMap hmInput=new HashMap();
-			hmInput.put("strSQL",strUsedSQL);
-			hmInput.put("dataAccess",dataAccess);
-			hmInput.put("cdoRequest",cdoRequest);
-
-			alInputSet.add(hmInput);
-
-			//执行请求
-			HashMap hmOutput=this.handleTask(hmInput);
-			alOutputSet.add(hmOutput);
-		}
-	}
-
-	private void buildRequest4QueryRecordSet(
-			HashMap<String, CycleList<IDataEngine>> hmDataGroup, String strSQL,
-			CDO cdoRequest, ParsedSQL parsedSQL, BigTable bigTable,
-			ArrayList<HashMap> alInputSet, ArrayList<HashMap> alOutputSet,
-			int nGroupCount, int nTableCount) throws SQLException
-	{
-		DataAccess dataAccess;
-		for(int i=0;i<nGroupCount;i++)
-		{
-			//获取连接
-			String strTempDataGroupId = bigTable.getGroupId()+i;
-			dataAccess=this.getDataAccess(hmDataGroup,strTempDataGroupId);
-			if(dataAccess==null)
-			{
-				throw new SQLException("Invalid datagroup id: "+strTempDataGroupId);
-			}
-			
-			for(int j=0;j<nTableCount;j++)
-			{
-				//修改SQL语句中的表名
-				String strUsedSQL=strSQL.replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+j);
-
-				HashMap hmInput=new HashMap();
-				hmInput.put("strSQL",strUsedSQL);
-				hmInput.put("dataAccess",dataAccess);
-				hmInput.put("cdoRequest",cdoRequest);
-
-				alInputSet.add(hmInput);
-
-				//执行请求
-				HashMap hmOutput=this.handleTask(hmInput);
-				if(hmOutput==null)
-				{
-					throw new SQLException("ExecuteSQL failed: "+strUsedSQL);
-				}
-				alOutputSet.add(hmOutput);
-			}
-		}
-	}
-	
-	private String preparePaging(String strSQL, ParsedSQL parsedSQL)
-	{
-		String[] strsPageItem=null;
-		if(parsedSQL.strPage!=null)
-		{
-			StringBuilder strbLimit=new StringBuilder("limit ");
-			strsPageItem=parsedSQL.strPage.split(" ");
-			if(Utility.isNumberText(strsPageItem[0])==true)
-			{
-				strbLimit.append(strsPageItem[0]).append(',');
-			}
-			else
-			{
-				strbLimit.append('{').append(strsPageItem[0]).append("},");
-			}
-			if(Utility.isNumberText(strsPageItem[1])==true)
-			{
-				strbLimit.append(strsPageItem[1]);
-			}
-			else
-			{
-				strbLimit.append('{').append(strsPageItem[1]).append('}');
-			}
-			strSQL=strSQL.replaceAll("\\{L:"+parsedSQL.strPage+"\\}",strbLimit.toString());
-		}
-		return strSQL;
-	}
-	
-	private int prepareScanTypeAndExecuteAllDBAllTableScan(
-			HashMap<String, CycleList<IDataEngine>> hmDataGroup,
-			HashMap<String, DataAccess> hmDataAccessUsed, String strSQL,
-			CDO cdoRequest, CDOArrayField cdoafOutput, ParsedSQL parsedSQL,
-			DataAccess dataAccess, BigTable bigTable,
-			String strDefaultDataGroupId, DataService dataService, SQLTrans trans) throws SQLException
-	{
-		boolean bIsSequenceScan=false;
-		boolean bIsUpdate=false;
-		int nBigTableScanType=cdoRequest.getIntegerValue("nBigTableScanType");
-		
-		if (nBigTableScanType==BigTableScanType.BIGTABLE_SEQUENCE_SCAN_NOUPDATE) 
-		{
-			bIsSequenceScan=true;
-			bIsUpdate=false;
-		}
-		else if (nBigTableScanType==BigTableScanType.BIGTABLE_BALANCE_SCAN_UPDATE) 
-		{
-			bIsSequenceScan=false;
-			bIsUpdate=true;
-		}
-		else if (nBigTableScanType==BigTableScanType.BIGTABLE_SEQUENCE_SCAN_UPDATE) 
-		{
-			bIsSequenceScan=true;
-			bIsUpdate=true;
-		}
-		
-		if (!(bIsSequenceScan==false && bIsUpdate==false)) 
-		{
-			if (parsedSQL.strBatchIds == null)
-			{
-				return executeAllDBAllTableScan(hmDataGroup, hmDataAccessUsed, strSQL, cdoRequest, cdoafOutput, dataAccess, bigTable, parsedSQL, bIsSequenceScan, bIsUpdate);
-			}
-			else
-			{
-				return executeMutilTableScan(hmDataGroup, hmDataAccessUsed, strSQL, cdoRequest, cdoafOutput, dataAccess, bigTable, parsedSQL, bIsSequenceScan, bIsUpdate, strDefaultDataGroupId, dataService, trans);
-			}
-		}
-		
-		return -1;
-	}
-	
-	private int executeAllDBAllTableScan(HashMap<String,CycleList<IDataEngine>> hmDataGroup,HashMap<String,DataAccess> hmDataAccessUsed,String strSQL,CDO cdoRequest,CDOArrayField cdoafOutput, DataAccess dataAccess, BigTable bigTable, ParsedSQL parsedSQL, boolean bIsSequenceScan, boolean bIsUpdate) throws SQLException//,IOException
-	{
-		String[] strsPageItem=null;
-		int nFromIndex=-1;
-		int nToIndex=-1;
-		//当前表上次扫描到的页索引，默认为第一页
-		int nCurTableCurPageIndex=cdoRequest.exists("nCurTableCurPageIndex")?cdoRequest.getIntegerValue("nCurTableCurPageIndex"):1;
-		//当前表上次扫描到的记录索引，默认为0
-		int nCurTableStartRowIndex=cdoRequest.exists("nCurTableStartRowIndex")?cdoRequest.getIntegerValue("nCurTableStartRowIndex"):0;
-		boolean bNewTableFlag=cdoRequest.exists("bNewTableFlag")?cdoRequest.getBooleanValue("bNewTableFlag"):false;
-		
-		if(parsedSQL.strPage!=null)
-		{
-			StringBuilder strbLimit=new StringBuilder("limit ");
-			strsPageItem=parsedSQL.strPage.split(" ");
-			if(Utility.isNumberText(strsPageItem[1])==true)
-			{
-				nToIndex=Integer.parseInt(strsPageItem[1]);
-			}
-			else
-			{
-				nToIndex=cdoRequest.getIntegerValue(strsPageItem[1]);
-			}
-			if (bIsUpdate)
-			{
-				nFromIndex=0;
-			}
-			else
-			{
-				if(Utility.isNumberText(strsPageItem[0])==true)
-				{
-					nFromIndex=nCurTableCurPageIndex*nToIndex+nCurTableStartRowIndex;
-				}
-				else
-				{
-					if (bNewTableFlag)
-					{
-						nFromIndex=nCurTableStartRowIndex;
-					}
-					else
-					{
-						nFromIndex=(nCurTableCurPageIndex-1)*nToIndex+nCurTableStartRowIndex;
-					}
-				}
-			}
-			strbLimit.append(nFromIndex + ", ");
-			strbLimit.append(nToIndex);
-			strSQL=parsedSQL.strSQL.replaceAll("\\{L:"+parsedSQL.strPage+"\\}",strbLimit.toString());
-		}
-		else
-		{
-			strSQL=parsedSQL.strSQL.toString();
-		}
-		
-		ResultSet rs=null;
-		HashMap hmInput=null;
-		HashMap hmOutput=null;
-		int nRecordCount=0;
-		try
-		{
-			int nGroupCount=bigTable.getGroupCount();
-			int nTableCount=bigTable.getGroupTableCount();
-			//当前库索引，默认为0
-			int nCurDBIndex=cdoRequest.exists("nCurDBIndex")?cdoRequest.getIntegerValue("nCurDBIndex"):0;
-			String strTempDataGroupId = bigTable.getGroupId()+nCurDBIndex;
-			dataAccess=this.getDataAccess(hmDataGroup,strTempDataGroupId);
-			if(dataAccess==null)
-			{
-				throw new SQLException("Invalid datagroup id: "+strTempDataGroupId);
-			}
-			//当前表索引，默认为0
-			int nCurTableIndex=cdoRequest.exists("nCurTableIndex")?cdoRequest.getIntegerValue("nCurTableIndex"):0;
-			//当前表已经处理过的记录数量，默认为0
-			int nCurTableProcessRecordCount=cdoRequest.exists("nCurTableProcessRecordCount")?cdoRequest.getIntegerValue("nCurTableProcessRecordCount"):0;
-			String strUsedSQL=strSQL.replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+nCurTableIndex);
-			
-			hmInput=new HashMap();
-			hmInput.put("strSQL",strUsedSQL);
-			hmInput.put("dataAccess",dataAccess);
-			hmInput.put("cdoRequest",cdoRequest);
-			
-			//执行请求
-			hmOutput=this.handleTask(hmInput);
-			if(hmOutput==null)
-			{
-				throw new SQLException("ExecuteSQL failed: "+strUsedSQL);
-			}
-			
-			rs=((ResultSet)hmOutput.get("rs"));
-			MetaData metaData = getMetaData(rs);
-			
-			List<CDO> alCDOList=new ArrayList<CDO>();
-			boolean bStopFlag=false;
-			bNewTableFlag=false;
-			int nTempCurTableStartRowIndex=0;
-			//读取到一条非空记录扫描过多少张表
-			int nAScanTableCount=1;
-			//是否还有记录
-			boolean bHasRecord=true;
-			int nScanCountFlag=0;
-			rs=((ResultSet)hmOutput.get("rs"));
-			while(bStopFlag==false)
-			{
-				CDO cdoRecord=dataAccess.dataEngine.readRecord(rs,metaData.strsFieldName,metaData.nsFieldType,metaData.nsPrecision,metaData.nsScale);
-				if((cdoRecord==null || (nCurTableProcessRecordCount == nToIndex && bIsUpdate && !bIsSequenceScan)) && bHasRecord)
-				{
-					if (bIsSequenceScan || (!bIsSequenceScan && bIsUpdate))
-					{
-						nAScanTableCount++;
-						nCurTableProcessRecordCount=0;
-					}
-					bNewTableFlag=true;
-					//重置当前表页索引，处理过记录条数
-					nTempCurTableStartRowIndex=0;
-					nCurTableCurPageIndex=1;
-					//关闭ResultSet和Statement
-					PreparedStatement ps=(PreparedStatement) hmOutput.get("ps");
-					dataAccess.dataEngine.closeResultSet(rs);
-					dataAccess.dataEngine.closeStatement(strSQL,ps);
-					if (nCurTableIndex == nTableCount-1)
-					{
-						try
-						{
-							dataAccess.conn.close();
-						}
-						catch(Exception e)
-						{
-						}
-					}
-					if (nCurTableIndex < nTableCount-1) 
-					{//当前库中还有表没有被扫描过
-						nCurTableIndex++;
-						strSQL=strSQL.replaceFirst("limit "+nFromIndex,"limit 0");
-					}
-					else if (nCurDBIndex < nGroupCount-1)
-					{//还有库没被扫描过
-						nCurDBIndex++;
-						nCurTableIndex=0;
-						strSQL=strSQL.replaceFirst("limit "+nFromIndex,"limit 0");
-					}
-					else if (nCurDBIndex == nGroupCount-1 && nCurTableIndex == nTableCount-1 && !bIsSequenceScan)
-					{//完成一次全库全表扫描并且是均衡扫描
-						nCurDBIndex=0;
-						nCurTableIndex=0;
-						strSQL=strSQL.replaceFirst("limit "+nFromIndex,"limit 0");
-						if (nAScanTableCount > nGroupCount*nTableCount)
-						{
-							bHasRecord=false;
-							nCurDBIndex=nGroupCount-1;
-							nCurTableIndex=nTableCount-1;
-							nScanCountFlag=nToIndex-1;
-						}
-					}
-					else
-					{//完成一次全库全表扫描
-						if (bIsSequenceScan) 
-						{//按顺序扫描
-							nScanCountFlag=1;
-						}
-						bHasRecord=false;
-					}
-					
-					if (dataAccess.conn.isClosed())
-					{
-						strTempDataGroupId = bigTable.getGroupId()+nCurDBIndex;
-						dataAccess=this.getDataAccess(hmDataGroup,strTempDataGroupId);
-						if(dataAccess==null)
-						{
-							throw new SQLException("Invalid datagroup id: "+strTempDataGroupId);
-						}
-					}
-					strUsedSQL=strSQL.replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+nCurTableIndex);
-					
-					hmInput=new HashMap();
-					hmInput.put("strSQL",strUsedSQL);
-					hmInput.put("dataAccess",dataAccess);
-					hmInput.put("cdoRequest",cdoRequest);
-					
-					//执行请求
-					hmOutput=this.handleTask(hmInput);
-					if(hmOutput==null)
-					{
-						throw new SQLException("ExecuteSQL failed: "+strUsedSQL);
-					}
-					rs=((ResultSet)hmOutput.get("rs"));
-					cdoRequest.setIntegerValue("nCurDBIndex", nCurDBIndex);
-					cdoRequest.setIntegerValue("nCurTableIndex", nCurTableIndex);
-					continue;
-				}
-				if (nAScanTableCount > nGroupCount*nTableCount)
-				{
-					nScanCountFlag++;
-					if (nScanCountFlag==1)
-					{
-						alCDOList.clear();
-						nCurTableProcessRecordCount=0;
-					}
-				}
-				if (bIsSequenceScan)
-				{
-					nAScanTableCount=1;
-				}
-				nCurTableProcessRecordCount++;
-				if (bNewTableFlag)
-				{
-					nTempCurTableStartRowIndex++;
-				}
-				if (nScanCountFlag!=nToIndex+1 && bHasRecord)
-				{
-					alCDOList.add(cdoRecord);
-				}
-				if(strsPageItem!=null && alCDOList.size()>=nToIndex || !bHasRecord || nScanCountFlag==nToIndex)
-				{//输出记录个数已经达到，停止输出
-					bStopFlag=true;
-					if (bNewTableFlag)
-					{
-						cdoRequest.setIntegerValue("nCurTableStartRowIndex", nTempCurTableStartRowIndex);
-						if (bIsSequenceScan)
-						{
-							if (nCurTableProcessRecordCount==nToIndex)
-							{
-								nCurTableProcessRecordCount=0;
-							}
-						}
-						else if(bIsUpdate)
-						{
-							cdoRequest.setIntegerValue("nCurTableProcessRecordCount", nCurTableProcessRecordCount);
-						}
-					}
-					else
-					{
-						nCurTableCurPageIndex++;
-					}
-					cdoRequest.setIntegerValue("nCurTableProcessRecordCount", nCurTableProcessRecordCount);
-					cdoRequest.setIntegerValue("nCurTableCurPageIndex", nCurTableCurPageIndex);
-					cdoRequest.setBooleanValue("bNewTableFlag", bNewTableFlag);
-					cdoRequest.setBooleanValue("bHasRecord", bHasRecord);
-					break;
-				}
-			}
-			
-//			CDO[] cdosOutput=new CDO[alCDOList.size()];
-//			alCDOList.toArray(cdosOutput);
-//			cdoafOutput.setValue(cdosOutput);
-//			nRecordCount=cdosOutput.length;
-			cdoafOutput.setValue(alCDOList);
-			nRecordCount=cdoafOutput.getLength();
-		}
-		catch(Exception e)
-		{
-			throw new SQLException(e.getMessage());
-		}
-		finally
-		{
-		//关闭ResultSet
-			PreparedStatement ps=(PreparedStatement) hmOutput.get("ps");
-			dataAccess.dataEngine.closeResultSet(rs);
-			dataAccess.dataEngine.closeStatement(strSQL,ps);
-			try
-			{
-				dataAccess.conn.close();
-			}
-			catch(Exception e)
-			{
-			}
-		}
-		return nRecordCount;
-	}
-
-	private int executeMutilTableScan(HashMap<String,CycleList<IDataEngine>> hmDataGroup,HashMap<String,DataAccess> hmDataAccessUsed,String strSQL,CDO cdoRequest,
-			CDOArrayField cdoafOutput, DataAccess dataAccess, BigTable bigTable, ParsedSQL parsedSQL, boolean bIsSequenceScan, boolean bIsUpdate,
-			String strDefaultDataGroupId, DataService dataService, SQLTrans trans) throws SQLException//,IOException
-	{
-		String[] strsPageItem=null;
-		int nFromIndex=-1;
-		int nToIndex=-1;
-		//当前表上次扫描到的页索引，默认为第一页
-		int nCurTableCurPageIndex=cdoRequest.exists("nCurTableCurPageIndex")?cdoRequest.getIntegerValue("nCurTableCurPageIndex"):1;
-		//当前表上次扫描到的记录索引，默认为0
-		int nCurTableStartRowIndex=cdoRequest.exists("nCurTableStartRowIndex")?cdoRequest.getIntegerValue("nCurTableStartRowIndex"):0;
-		boolean bNewTableFlag=cdoRequest.exists("bNewTableFlag")?cdoRequest.getBooleanValue("bNewTableFlag"):false;
-		
-		if(parsedSQL.strPage!=null)
-		{
-			StringBuilder strbLimit=new StringBuilder("limit ");
-			strsPageItem=parsedSQL.strPage.split(" ");
-			if(Utility.isNumberText(strsPageItem[1])==true)
-			{
-				nToIndex=Integer.parseInt(strsPageItem[1]);
-			}
-			else
-			{
-				nToIndex=cdoRequest.getIntegerValue(strsPageItem[1]);
-			}
-			if (bIsUpdate)
-			{//业务改变扫描返回的记录使其不再符合查询条件
-				nFromIndex=0;
-			}
-			else
-			{
-				if(Utility.isNumberText(strsPageItem[0])==true)
-				{
-					nFromIndex=nCurTableCurPageIndex*nToIndex+nCurTableStartRowIndex;
-				}
-				else
-				{
-					if (bNewTableFlag)
-					{
-						nFromIndex=nCurTableStartRowIndex;
-					}
-					else
-					{
-						nFromIndex=(nCurTableCurPageIndex-1)*nToIndex+nCurTableStartRowIndex;
-					}
-				}
-			}
-			strbLimit.append(nFromIndex + ", ");
-			strbLimit.append(nToIndex);
-			strSQL=parsedSQL.strSQL.replaceAll("\\{L:"+parsedSQL.strPage+"\\}",strbLimit.toString());
-		}
-		else
-		{
-			strSQL=parsedSQL.strSQL.toString();
-		}
-		
-		String[] strsIds=Utility.splitString(parsedSQL.strBatchIds,',');
-		long[] lIds = getIds(parsedSQL, strsIds);
-
-		ResultSet rs=null;
-		HashMap hmInput=null;
-		HashMap hmOutput=null;
-		int nRecordCount=0;
-		
-		try
-		{
-			//当前表索引，默认为0
-			int nCurIdIndex=cdoRequest.exists("nCurIdIndex")?cdoRequest.getIntegerValue("nCurIdIndex"):0;
-			//当前表已经处理过的记录数量，默认为0
-			int nCurTableProcessRecordCount=cdoRequest.exists("nCurTableProcessRecordCount")?cdoRequest.getIntegerValue("nCurTableProcessRecordCount"):0;
-			dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,parsedSQL.strTableName,lIds[nCurIdIndex],hmDataAccessUsed,trans);
-
-			if(dataAccess==null)
-			{//Id找不到对应的连接
-				return -1;
-			}
-			
-			this.selectTable(dataAccess,bigTable,lIds[nCurIdIndex]);
-
-			//修改SQL语句中的表名
-			String strUsedSQL=strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+dataAccess.nTableIndex);
-			cdoRequest.setLongValue(strsIds[0],lIds[nCurIdIndex]);
-			
-			hmInput=new HashMap();
-			hmInput.put("strSQL",strUsedSQL);
-			hmInput.put("dataAccess",dataAccess);
-			hmInput.put("cdoRequest",cdoRequest);
-			
-			//执行请求
-			hmOutput=this.handleTask(hmInput);
-			if(hmOutput==null)
-			{
-				throw new SQLException("ExecuteSQL failed: "+strUsedSQL);
-			}
-			
-			rs=((ResultSet)hmOutput.get("rs"));
-			MetaData metaData = getMetaData(rs);
-			
-			List<CDO> alCDOList=new ArrayList<CDO>();
-			boolean bStopFlag=false;
-			bNewTableFlag=false;
-			int nTempCurTableStartRowIndex=0;
-			//读取到一条非空记录扫描过多少张表
-			int nAScanTableCount=1;
-			//是否还有记录
-			boolean bHasRecord=true;
-			int nScanCountFlag=0;
-			rs=((ResultSet)hmOutput.get("rs"));
-			while(bStopFlag==false)
-			{
-				CDO cdoRecord=dataAccess.dataEngine.readRecord(rs,metaData.strsFieldName,metaData.nsFieldType,metaData.nsPrecision,metaData.nsScale);
-				if((cdoRecord==null || (nCurTableProcessRecordCount == nToIndex && bIsUpdate && !bIsSequenceScan)) && bHasRecord)
-				{
-					if (bIsSequenceScan || (!bIsSequenceScan && bIsUpdate))
-					{
-						nAScanTableCount++;
-						nCurTableProcessRecordCount=0;
-					}
-					bNewTableFlag=true;
-					//重置当前表页索引，处理过记录条数
-					nTempCurTableStartRowIndex=0;
-					nCurTableCurPageIndex=1;
-					//关闭ResultSet和Statement
-					PreparedStatement ps=(PreparedStatement) hmOutput.get("ps");
-					dataAccess.dataEngine.closeResultSet(rs);
-					dataAccess.dataEngine.closeStatement(strSQL,ps);
-					try
-					{
-						dataAccess.conn.close();
-					}
-					catch(Exception e)
-					{
-					}
-					if (nCurIdIndex < lIds.length-1) 
-					{//当前库中还有表没有被扫描过
-						nCurIdIndex++;
-						strSQL=strSQL.replaceFirst("limit "+nFromIndex,"limit 0");
-					}
-					else if (nCurIdIndex == lIds.length-1 && !bIsSequenceScan)
-					{//完成一次全库全表扫描并且是均衡扫描
-						nCurIdIndex=0;
-						strSQL=strSQL.replaceFirst("limit "+nFromIndex,"limit 0");
-						if (nAScanTableCount > (lIds.length))
-						{
-							bHasRecord=false;
-							nCurIdIndex=lIds.length-1;
-							nScanCountFlag=nToIndex-1;
-						}
-					}
-					else
-					{//完成一次全库全表扫描
-						if (bIsSequenceScan) 
-						{//按顺序扫描
-							nScanCountFlag=1;
-						}
-						bHasRecord=false;
-					}
-					
-					if (bHasRecord)
-					{
-						hmDataAccessUsed.clear();
-						dataAccess=this.selectConnection(hmDataGroup,dataService,strDefaultDataGroupId,parsedSQL.strTableName,lIds[nCurIdIndex],hmDataAccessUsed,trans);
-						
-						if(dataAccess==null)
-						{//Id找不到对应的连接
-							return -1;
-						}
-						
-						this.selectTable(dataAccess,bigTable,lIds[nCurIdIndex]);
-						
-						//修改SQL语句中的表名
-						strUsedSQL=strSQL.toString().replaceFirst("\\{T:"+parsedSQL.strTableName+"\\}",parsedSQL.strTableName+dataAccess.nTableIndex);
-						cdoRequest.setLongValue(strsIds[0],lIds[nCurIdIndex]);
-						
-						hmInput=new HashMap();
-						hmInput.put("strSQL",strUsedSQL);
-						hmInput.put("dataAccess",dataAccess);
-						hmInput.put("cdoRequest",cdoRequest);
-						
-						//执行请求
-						hmOutput=this.handleTask(hmInput);
-						if(hmOutput==null)
-						{
-							throw new SQLException("ExecuteSQL failed: "+strUsedSQL);
-						}
-						rs=((ResultSet)hmOutput.get("rs"));
-						cdoRequest.setIntegerValue("nCurIdIndex", nCurIdIndex);
-						continue;
-					}
-				}
-				if (nAScanTableCount > (lIds.length))
-				{
-					nScanCountFlag++;
-					if (nScanCountFlag==1)
-					{
-						alCDOList.clear();
-						nCurTableProcessRecordCount=0;
-					}
-				}
-				if (bIsSequenceScan)
-				{//有序扫描，重置读取到一条非空记录扫描过多少张表
-					nAScanTableCount=1;
-				}
-				nCurTableProcessRecordCount++;
-				if (bNewTableFlag)
-				{
-					nTempCurTableStartRowIndex++;
-				}
-				if (nScanCountFlag!=nToIndex+1 && bHasRecord)
-				{
-					alCDOList.add(cdoRecord);
-				}
-				if(strsPageItem!=null && alCDOList.size()>=nToIndex || !bHasRecord || nScanCountFlag==nToIndex)
-				{//输出记录个数已经达到，停止输出
-					bStopFlag=true;
-					if (bNewTableFlag)
-					{
-						cdoRequest.setIntegerValue("nCurTableStartRowIndex", nTempCurTableStartRowIndex);
-						if (bIsSequenceScan)
-						{
-							if (nCurTableProcessRecordCount==nToIndex)
-							{
-								nCurTableProcessRecordCount=0;
-							}
-						}
-						else if(bIsUpdate)
-						{
-							cdoRequest.setIntegerValue("nCurTableProcessRecordCount", nCurTableProcessRecordCount);
-						}
-					}
-					else
-					{
-						nCurTableCurPageIndex++;
-					}
-					cdoRequest.setIntegerValue("nCurTableProcessRecordCount", nCurTableProcessRecordCount);
-					cdoRequest.setIntegerValue("nCurTableCurPageIndex", nCurTableCurPageIndex);
-					cdoRequest.setBooleanValue("bNewTableFlag", bNewTableFlag);
-					cdoRequest.setBooleanValue("bHasRecord", bHasRecord);
-					break;
-				}
-			}
-			
-//			CDO[] cdosOutput=new CDO[alCDOList.size()];
-//			alCDOList.toArray(cdosOutput);
-//			cdoafOutput.setValue(cdosOutput);
-//			nRecordCount=cdosOutput.length;
-			cdoafOutput.setValue(alCDOList);
-			nRecordCount=cdoafOutput.getLength();
-			
-		}
-		catch(Exception e)
-		{
-			throw new SQLException(e.getMessage());
-		}
-		finally
-		{
-		//关闭ResultSet
-			PreparedStatement ps=(PreparedStatement) hmOutput.get("ps");
-			dataAccess.dataEngine.closeResultSet(rs);
-			dataAccess.dataEngine.closeStatement(strSQL,ps);
-			try
-			{
-				dataAccess.conn.close();
-			}
-			catch(Exception e)
-			{
-			}
-		}
-		return nRecordCount;
-	}
 	
 	//事件定义,所有在本类中定义并调用，由派生类实现或重载的事件类方法(一般为on...ed)在此定义---------------------
 

@@ -13,11 +13,9 @@ import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.database.BigTableEngine;
 import com.cdoframework.cdolib.database.IDataEngine;
-import com.cdoframework.cdolib.database.NoSQLUtil;
 import com.cdoframework.cdolib.database.TransDefine;
-import com.cdoframework.cdolib.database.xsd.NoSQLTrans;
+
 import com.cdoframework.cdolib.database.xsd.SQLTrans;
-import com.cdoframework.cdolib.framework.FilterHandler;
 
 /**
  * @author Aaron
@@ -78,29 +76,12 @@ public class Service implements IService
 		{
 			return null;
 		}
-		/**
-		NoSQLTrans noSqlTrans = transDefine.getNoSqlTrans();
-		if(noSqlTrans!=null)
-		{
-			try
-			{
-				return NoSQLUtil.executeTrans(noSqlTrans,cdoRequest,cdoResponse);
-			}
-			catch(Exception e)
-			{
-				logger.error("executeDataServiceTrans:"+e.getMessage(),e);
-				return Return.valueOf(-1,e.getLocalizedMessage());
-			}
-		}
-		**/
 		SQLTrans sqlTrans = transDefine.getSqlTrans();
 		if(sqlTrans==null)
 		{
 			return null;
-		}
-		
-		try
-		{
+		}		
+		try{    
 			return this.btEngin.handleTrans(hmAllDataGroup,sqlTrans,cdoRequest,cdoResponse);
 		}
 		catch(Exception e)
@@ -206,114 +187,7 @@ public class Service implements IService
 		}
 		return ret;
 	}
-	/**
-	 * @see {@link com.cdoframework.cdolib.servicebus.IService#handleTrans(com.cdoframework.cdolib.data.cdo.CDO, com.cdoframework.cdolib.data.cdo.CDO)}}
-	 *
-	public Return handleTrans(CDO cdoRequest,CDO cdoResponse)
-	{
 
-		/**目前 无处理  service事前 同步任务
-		try
-		{
-			ret = FilterHandler.getInstance().handlePreEvent(strServiceName,strTransName,cdoRequest);
-		}catch(Exception e){
-			logger.error("When handle pre filer of "+strServiceName+"."+strTransName,e);
-		}
-		if(ret!=null && ret.getCode()!=0){
-			//有同步事务,执行失败
-			logger.error("有同步事务,执行失败 "+strServiceName+"."+strTransName);
-			return ret;
-		}
-			
-		//处理缓存cache
-		ret = null;
-		try{
-			ret = FilterHandler.getInstance().handlePreTransCache(strServiceName,strTransName,cdoRequest,cdoResponse);
-			if(ret!=null && ret.getCode()==0)
-			{//取得缓存值,直接返回
-				if(logger.isDebugEnabled())
-				{
-					logger.debug("取得缓存,直接返回 "+strServiceName+"."+strTransName);
-				}
-				return ret;
-			}
-		}catch(Exception e){
-			logger.error("When handle cache filer of "+strServiceName+"."+strTransName,e);
-		}
-		//缓存获取失败 执行下一步
-		boolean bCacheable = false;
-		if(ret!=null && ret.getCode()==2){
-			//需要缓存,但未从缓存中取得值,
-			bCacheable = true;
-		}	
-		**
-		未取得缓存值, 
-//		ret = null;		
-		//执行Trans
-		// 根据serviceName直接定位Service
-		long beginTime = System.currentTimeMillis();
-		String strTransName = cdoRequest.getStringValue(ITransService.TRANSNAME_KEY);		
-		Return ret = null;
-		List<ITransService> transServices = this.hmServiceMap.get(strServiceName);
-		// 处理所有的TransService 和 ActiveService调用，ts==null 直接调用DataServiceTrans
-		if(transServices != null) {
-			for(ITransService transService : transServices){
-				if(transService.containsTrans(strTransName)){
-					ret = transService.processTrans(cdoRequest, cdoResponse);
-					if(logger.isDebugEnabled()){
-						logger.debug("注解方式执行："+ transService.getServiceName()+ "."+ strTransName);
-					}
-					if(ret != null) {
-						break;
-					}
-				}
-			}
-		}				
-		long beginTimeDataTrans = System.currentTimeMillis();
-		if(ret==null){
-			try{
-				ret = this.executeDataServiceTrans(strTransName,cdoRequest,cdoResponse);
-			}catch(Exception e){
-				logger.error("When handle data service "+strServiceName+"."+strTransName,e);
-				return Return.valueOf(-1,e.getLocalizedMessage(),e);
-			}
-		}
-		long endTimeDataTrans = System.currentTimeMillis();
-		/** 目前无 事后 事件处理
-		if(ret !=null )
-		{
-			//处理缓存
-			if(ret.getCode()==0 && bCacheable)
-			{
-				try
-				{
-					FilterHandler.getInstance().handlePostTransCache(strServiceName,strTransName,cdoRequest,cdoResponse);
-				}
-				catch(Exception e)
-				{
-					logger.error("When handle post filer of "+strServiceName+"."+strTransName,e);
-				}
-			}
-
-			//处理事件
-			try
-			{
-				FilterHandler.getInstance().handlePostEvent(strServiceName,strTransName,cdoRequest,cdoResponse,ret);	
-			}
-			catch(Exception e)
-			{
-				logger.error("When handle filer of "+strServiceName+"."+strTransName,e);
-			}
-		}	
-		
-		if(loggerStatistics.isInfoEnabled()) {
-			long duration = System.currentTimeMillis() - beginTime;
-			long durationData = endTimeDataTrans- beginTimeDataTrans;
-			loggerStatistics.info(strServiceName+"."+strTransName+",process time="+duration+"ms,"+","+durationData);
-		}
-		return ret;
-	}
-**/
 	/* (non-Javadoc)
 	 * @see com.cdoframework.cdolib.servicebus.IService#handleEvent(com.cdoframework.cdolib.data.cdo.CDO)
 	 */

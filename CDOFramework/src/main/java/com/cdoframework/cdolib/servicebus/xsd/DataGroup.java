@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -41,44 +41,13 @@ public class DataGroup implements java.io.Serializable {
      */
     private java.lang.String classPath;
 
-    private java.util.List<com.cdoframework.cdolib.servicebus.xsd.Database> databaseList;
+    /**
+     * Field database.
+     */
+    private com.cdoframework.cdolib.servicebus.xsd.Database database;
 
     public DataGroup() {
         super();
-        this.databaseList = new java.util.ArrayList<com.cdoframework.cdolib.servicebus.xsd.Database>();
-    }
-
-    /**
-     * 
-     * 
-     * @param vDatabase
-     * @throws java.lang.IndexOutOfBoundsException if the index
-     * given is outside the bounds of the collection
-     */
-    public void addDatabase(final com.cdoframework.cdolib.servicebus.xsd.Database vDatabase) throws java.lang.IndexOutOfBoundsException {
-        this.databaseList.add(vDatabase);
-    }
-
-    /**
-     * 
-     * 
-     * @param index
-     * @param vDatabase
-     * @throws java.lang.IndexOutOfBoundsException if the index
-     * given is outside the bounds of the collection
-     */
-    public void addDatabase(final int index,final com.cdoframework.cdolib.servicebus.xsd.Database vDatabase) throws java.lang.IndexOutOfBoundsException {
-        this.databaseList.add(index, vDatabase);
-    }
-
-    /**
-     * Method enumerateDatabase.
-     * 
-     * @return an Enumeration over all possible elements of this
-     * collection
-     */
-    public java.util.Enumeration<? extends com.cdoframework.cdolib.servicebus.xsd.Database> enumerateDatabase() {
-        return java.util.Collections.enumeration(this.databaseList);
     }
 
     /**
@@ -100,45 +69,12 @@ public class DataGroup implements java.io.Serializable {
     }
 
     /**
-     * Method getDatabase.
+     * Returns the value of field 'database'.
      * 
-     * @param index
-     * @throws java.lang.IndexOutOfBoundsException if the index
-     * given is outside the bounds of the collection
-     * @return the value of the
-     * com.cdoframework.cdolib.servicebus.xsd.Database at the given
-     * index
+     * @return the value of field 'Database'.
      */
-    public com.cdoframework.cdolib.servicebus.xsd.Database getDatabase(final int index) throws java.lang.IndexOutOfBoundsException {
-        // check bounds for index
-        if (index < 0 || index >= this.databaseList.size()) {
-            throw new IndexOutOfBoundsException("getDatabase: Index value '" + index + "' not in range [0.." + (this.databaseList.size() - 1) + "]");
-        }
-
-        return databaseList.get(index);
-    }
-
-    /**
-     * Method getDatabase.Returns the contents of the collection in
-     * an Array.  <p>Note:  Just in case the collection contents
-     * are changing in another thread, we pass a 0-length Array of
-     * the correct type into the API call.  This way we <i>know</i>
-     * that the Array returned is of exactly the correct length.
-     * 
-     * @return this collection as an Array
-     */
-    public com.cdoframework.cdolib.servicebus.xsd.Database[] getDatabase() {
-        com.cdoframework.cdolib.servicebus.xsd.Database[] array = new com.cdoframework.cdolib.servicebus.xsd.Database[0];
-        return this.databaseList.toArray(array);
-    }
-
-    /**
-     * Method getDatabaseCount.
-     * 
-     * @return the size of this collection
-     */
-    public int getDatabaseCount() {
-        return this.databaseList.size();
+    public com.cdoframework.cdolib.servicebus.xsd.Database getDatabase() {
+        return this.database;
     }
 
     /**
@@ -174,16 +110,6 @@ public class DataGroup implements java.io.Serializable {
     }
 
     /**
-     * Method iterateDatabase.
-     * 
-     * @return an Iterator over all possible elements in this
-     * collection
-     */
-    public java.util.Iterator<? extends com.cdoframework.cdolib.servicebus.xsd.Database> iterateDatabase() {
-        return this.databaseList.iterator();
-    }
-
-    /**
      * 
      * 
      * @param out
@@ -212,34 +138,6 @@ public class DataGroup implements java.io.Serializable {
     }
 
     /**
-     */
-    public void removeAllDatabase() {
-        this.databaseList.clear();
-    }
-
-    /**
-     * Method removeDatabase.
-     * 
-     * @param vDatabase
-     * @return true if the object was removed from the collection.
-     */
-    public boolean removeDatabase(final com.cdoframework.cdolib.servicebus.xsd.Database vDatabase) {
-        boolean removed = databaseList.remove(vDatabase);
-        return removed;
-    }
-
-    /**
-     * Method removeDatabaseAt.
-     * 
-     * @param index
-     * @return the element removed from the collection
-     */
-    public com.cdoframework.cdolib.servicebus.xsd.Database removeDatabaseAt(final int index) {
-        java.lang.Object obj = this.databaseList.remove(index);
-        return (com.cdoframework.cdolib.servicebus.xsd.Database) obj;
-    }
-
-    /**
      * Sets the value of field 'charset'.
      * 
      * @param charset the value of field 'charset'.
@@ -258,34 +156,12 @@ public class DataGroup implements java.io.Serializable {
     }
 
     /**
+     * Sets the value of field 'database'.
      * 
-     * 
-     * @param index
-     * @param vDatabase
-     * @throws java.lang.IndexOutOfBoundsException if the index
-     * given is outside the bounds of the collection
+     * @param database the value of field 'database'.
      */
-    public void setDatabase(final int index,final com.cdoframework.cdolib.servicebus.xsd.Database vDatabase) throws java.lang.IndexOutOfBoundsException {
-        // check bounds for index
-        if (index < 0 || index >= this.databaseList.size()) {
-            throw new IndexOutOfBoundsException("setDatabase: Index value '" + index + "' not in range [0.." + (this.databaseList.size() - 1) + "]");
-        }
-
-        this.databaseList.set(index, vDatabase);
-    }
-
-    /**
-     * 
-     * 
-     * @param vDatabaseArray
-     */
-    public void setDatabase(final com.cdoframework.cdolib.servicebus.xsd.Database[] vDatabaseArray) {
-        //-- copy array
-        databaseList.clear();
-
-        for (int i = 0; i < vDatabaseArray.length; i++) {
-                this.databaseList.add(vDatabaseArray[i]);
-        }
+    public void setDatabase(final com.cdoframework.cdolib.servicebus.xsd.Database database) {
+        this.database = database;
     }
 
     /**
@@ -332,59 +208,56 @@ public class DataGroup implements java.io.Serializable {
         validator.validate(this);
     }
     /**
-	 * *************************************** manual  code *************************************************
-	 * 初始化DataGroup对象
-	 */
-	public CycleList<IDataEngine> init() throws Exception
-	{
-		Database[] dbs=this.getDatabase();
-		
-		CycleList<IDataEngine> clDataEngine=new CycleList<IDataEngine>();
-		for(int i=0;i<dbs.length;i++)
-		{
-			IDataEngine dataEngine=(IDataEngine)Class.forName(this.getClassPath()).newInstance();
+  	 * ***************************************manual  code *************************************************
+  	 * 序列化DataGroup对象
+  	 */
+  	public CycleList<IDataEngine> init() throws Exception
+  	{
+  		
+  		
+  		CycleList<IDataEngine> clDataEngine=new CycleList<IDataEngine>();
+  		
+  		Database dbs=this.getDatabase();
+  		IDataEngine dataEngine=(IDataEngine)Class.forName(this.getClassPath()).newInstance();			  		
+  		dataEngine.setDriver(this.getDriver());
+		dataEngine.setURI(dbs.getURI());
+		dataEngine.setCharset(this.getCharset());
 			
-			dataEngine.setDriver(this.getDriver());
-			dataEngine.setURI(dbs[i].getURI());
-			dataEngine.setCharset(this.getCharset());
-			dataEngine.setLoadLevel(dbs[i].getLoadLevel());
-			dataEngine.setUserName(dbs[i].getUser().getUserName());
-			dataEngine.setPassword(dbs[i].getUser().getPassword());
+		dataEngine.setUserName(dbs.getUser().getUserName());
+		dataEngine.setPassword(dbs.getUser().getPassword());
 
-			Properties properties=null;
-			int nPropertyCount=dbs[i].getPropertyCount();
-			if(nPropertyCount>0)
-			{
+		Properties properties=null;
+		int nPropertyCount=dbs.getPropertyCount();
+		if(nPropertyCount>0){
 				properties=new Properties();
-				for(int j=0;j<nPropertyCount;j++)
-				{
-					Property proper=dbs[i].getProperty(j);
+				for(int j=0;j<nPropertyCount;j++){
+					Property proper=dbs.getProperty(j);
 					properties.setProperty(proper.getName(),proper.getValue());
 				}
-			}
-			if(properties!=null)
-			{
 				dataEngine.setProperties(properties);
-			}
-			
-			ConnectionPool connPool=dbs[i].getConnectionPool();
-			if(connPool!=null)
-			{
-				dataEngine.setInitialSize(connPool.getInitialConnectionCount());
-				dataEngine.setMaxActive(connPool.getMaxActiveConnectionCount());				
-				dataEngine.setMinIdle(connPool.getMinIdleConnectionCount());				
-				dataEngine.setMaxIdle(connPool.getMaxIdleConnectionCount());
-				dataEngine.setMaxWait(connPool.getMaxWaitTime());				
-			}
-			Return ret = dataEngine.open();
-			if(ret.getCode()!=0)
-			{
-				throw new Exception("Could not create JDBC connection "+dataEngine.getURI());
-			}
-			
-			clDataEngine.add(dataEngine);
+			}			
+		ConnectionPool connPool=dbs.getConnectionPool();
+		if(connPool!=null){
+				dataEngine.setInitialSize(connPool.getInitialSize());
+				dataEngine.setnMaxTotal(connPool.getMaxTotal());
+				dataEngine.setMinIdle(connPool.getMinIdle());
+				dataEngine.setMaxIdle(connPool.getMaxTotal());
+				dataEngine.setnMaxConnLifetimeMillis(connPool.getMaxConnLifetimeMillis());
+				
+				dataEngine.setRemoveAbandonedTimeout(connPool.getRemoveAbandonedTimeout());
+				dataEngine.setTestWhileIdle(connPool.getTestWhileIdle());
+				dataEngine.setTestOnBorrow(connPool.getTestOnBorrow());
+				dataEngine.setValidationQuery(connPool.getValidationQuery());
+				dataEngine.setPoolPreparedStatements(connPool.getPoolPreparedStatements());
+				
+				dataEngine.setRemoveAbandonedOnMaintenance(connPool.getRemoveAbandonedOnMaintenance());
+				dataEngine.setLogAbandoned(connPool.getLogAbandoned());		
 		}
-		
-		return clDataEngine;
-	}
+		Return ret = dataEngine.open();
+		if(ret.getCode()!=0){
+				throw new Exception("Could not create JDBC connection "+dataEngine.getURI());
+			}			
+		clDataEngine.add(dataEngine);  		
+  		return clDataEngine;
+  	}
 }

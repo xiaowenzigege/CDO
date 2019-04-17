@@ -30,20 +30,15 @@ import com.cdoframework.cdolib.base.Utility;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.database.BigTableEngine;
 import com.cdoframework.cdolib.database.IDataEngine;
-import com.cdoframework.cdolib.database.INoSQLDataEngine;
-import com.cdoframework.cdolib.database.NoSQLDataEngine;
-import com.cdoframework.cdolib.database.xsd.BigTable;
-import com.cdoframework.cdolib.database.xsd.BigTableGroup;
-import com.cdoframework.cdolib.framework.CacheHandler;
 import com.cdoframework.cdolib.framework.ClusterController;
 import com.cdoframework.cdolib.servicebus.xsd.DataGroup;
-import com.cdoframework.cdolib.servicebus.xsd.NoSQLDB;
 import com.cdoframework.cdolib.servicebus.xsd.Parameter;
 import com.cdoframework.cdolib.servicebus.xsd.ZkConsumer;
 import com.cdoframework.cdolib.servicebus.xsd.ZkProducer;
 
 /**
- * @author Frank
+ * 修改
+ * @author KenelLiu
  */
 public class ServiceBus implements IServiceBus
 {
@@ -54,29 +49,16 @@ public class ServiceBus implements IServiceBus
 	private HashMap<String,com.cdoframework.cdolib.base.CycleList<IDataEngine>> hmDataGroup;
 	private ServicePlugin[] plugins;
 	private ClusterController clusterController;
-	
+	private BigTableEngine btEngine=new BigTableEngine();
 	private HashMap<String,Object> hmSharedData;
-	private ReentrantReadWriteLock lockSharedData;	
-	private HashMap<String,NoSQLDataEngine> hmNoSQLDataEngine;
+	private ReentrantReadWriteLock lockSharedData;		
 	private HashMap<String,IService> hmService;
 	//用于创建客户端
 	private ZKClientManager zkClientManager;
 	//zkId,ZkParameter<serviceName>, 一个zkId,对应的一组serviceName 服务
 	private Map<String, List<ZkParameter>> zkServiceMap=new HashMap<String, List<ZkParameter>>();
 	
-	private HashMap<String,BigTable[]> hmBigTableGroupConfig;
-	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
-	private BigTableEngine btEngine;
-	public BigTableEngine getBigTableEngine()
-	{
-		return this.btEngine;
-	}
 	
-	private INoSQLDataEngine defaultNoSQLDataEngine;
-	public INoSQLDataEngine getDefaultNoSQLDataEngine()
-	{
-		return this.defaultNoSQLDataEngine;
-	}
 
 	private HashMap<String,String> hmParameterMap;
 	public String getParameterValue(String strParameterName)
@@ -88,7 +70,10 @@ public class ServiceBus implements IServiceBus
 	{
 		return this.eventProcessor;
 	}
-	
+	public BigTableEngine getBigTableEngine()
+	{
+		return this.btEngine;
+	}
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 	private String strDefaultDataGroupId;
 
@@ -112,83 +97,14 @@ public class ServiceBus implements IServiceBus
 
 	
 	// 公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	/**
-	 * 根据strBigTableConfigXML初始化对象
-	 */
-	private Return initBigTableConfig(String strBigTableConfigXML)
-	{
-		if(strBigTableConfigXML==null || strBigTableConfigXML.equals(""))
-			return Return.OK;
-		//将XML转换成对象
-		com.cdoframework.cdolib.database.xsd.BigTableConfig bigTableConfig=null;
-		try
-		{
-			bigTableConfig=com.cdoframework.cdolib.database.xsd.BigTableConfig.fromXML(strBigTableConfigXML);
-		}
-		catch(Exception e)
-		{
-			logger.error("When parse bigTableConfig.xml , caught exception: ",e);
-			return Return.valueOf(-1,"Init bigTableConfig Failed: "+e.getLocalizedMessage());
-		}
-		BigTableGroup[] bigTableGroups = bigTableConfig.getBigTableGroup();
-		Set<String> bigTablesSet=null;
-		for(int i=0;i<bigTableGroups.length;i++)
-		{	
-			String strId=bigTableGroups[i].getId().trim();
-			BigTable[] bigTables=bigTableGroups[i].getBigTable();
-			if(this.hmBigTableGroupConfig.containsKey(strId))
-			{//BigTableGroup  Id 
-				logger.error("Init bigTableConfig Failed,duplicate BigTableGroup Id:"+strId);
-				return Return.valueOf(-1,"Init bigTableConfig Failed,duplicate BigTableGroup Id:"+strId);
-			}
-			bigTablesSet=new HashSet<String>();
-			for(int k=0;k<bigTables.length;k++)
-			{
-				if(bigTablesSet.contains(bigTables[k].getName().trim().toLowerCase()))
-				{
-					logger.error("Init bigTableConfig Failed,in BigTableGroup Id:"+strId+",duplicate BigTable Name:"+bigTables[k].getName());
-					return Return.valueOf(-1,"Init bigTableConfig Failed,in BigTableGroup Id:"+strId+",duplicate BigTable Name:"+bigTables[k].getName());					
-				}
-				bigTablesSet.add(bigTables[k].getName().trim().toLowerCase());	
-			}
-			
-			this.hmBigTableGroupConfig.put(strId,bigTables);
-			if(i==0)
-			{//设置默认 bigTable默认数组
-				this.hmBigTableGroupConfig.put("_defaultBigTableArray",bigTableGroups[i].getBigTable());
-			}
-		}
-		return Return.OK;
-	}	
-	/**
-	 * 根据strServiceBusXML初始化对象,
-	 */	
-	public Return init(String strServiceBusXML)
-	{
-		return init(strServiceBusXML,null);
-	}
 	
-	public Return init(String strServiceBusXML,String strBigTableConfigXML)
-	{
-		return init(strServiceBusXML, strBigTableConfigXML,null);
-	}
-	
-	
-	public Return init(String strServiceBusXML,String strBigTableConfigXML,String strFrameworkResourcePath)
-	{
-		return init(strServiceBusXML, strBigTableConfigXML,strFrameworkResourcePath,null);
-	}
 	/**
 	 * 	
-	 * 根据strServiceBusXML,strBigTableConfigXML初始化 ServiceBus对象,	
+	 * 根据strServiceBusXML 初始化 ServiceBus对象,	
 	 * @param strServiceBusXML  
-	 * @param strBigTableConfigXML  大表
-	 * @param strFrameworkResourcePath  frameworkResource.xml路径  可为null
-	 * @param strFlitersConfigPath      filtersConfig.xml路径  可为null
 	 * @return
 	 */
-	public Return init(String strServiceBusXML,String strBigTableConfigXML,
-			String strFrameworkResourcePath,String strFlitersConfigPath){
+	public Return init(String strServiceBusXML){
 		//将XML转换成对象
 		com.cdoframework.cdolib.servicebus.xsd.ServiceBus serviceBus=null;
 		try
@@ -200,10 +116,6 @@ public class ServiceBus implements IServiceBus
 			logger.error("When parse serviceBus.xml , caught exception: ",e);
 			return Return.valueOf(-1,"Init ServiceBus Failed: "+e.getLocalizedMessage());
 		}
-		
-		//处理默认配置
-		this.strDefaultDataGroupId = serviceBus.getDataGroupId();		
-		
 		// 初始化插件参数
 		int nParameterCount=serviceBus.getParameterCount();
 		for(int i=0;i<nParameterCount;i++)
@@ -211,10 +123,6 @@ public class ServiceBus implements IServiceBus
 			Parameter para=serviceBus.getParameter(i);
 			this.hmParameterMap.put(para.getName(),para.getValue());
 		}
-		//读取外部文件传来的  frameworkResource.xml路径,filtersConfig.xml路径  
-		this.hmParameterMap.put("frameworkResource",strFrameworkResourcePath);
-		this.hmParameterMap.put("filtersConfig",strFlitersConfigPath);
-		
 		//加载和初始化全局DataGroup
 		this.hmDataGroup=new HashMap<String,com.cdoframework.cdolib.base.CycleList<IDataEngine>>(20);
 		DataGroup[] dgs=serviceBus.getDataGroup();
@@ -232,45 +140,7 @@ public class ServiceBus implements IServiceBus
 			this.hmDataGroup=null;
 			logger.error("When parse DataGroup , caught exception: ",e);
 			return Return.valueOf(-1,"Init ServiceBus Failed: "+e.getLocalizedMessage());
-		}
-				
-		//初始化NoSQL NotSQLDataEngine
-		NoSQLDB[] noSQLDBdefines = serviceBus.getNoSQLDB();
-		//TODO
-		if(noSQLDBdefines==null || noSQLDBdefines.length==0)
-		{
-			if(logger.isInfoEnabled()){logger.info("There is no NoSQLTransDataEngine Define ,that is OK....................");}
-		}
-		else
-		{
-			if(logger.isInfoEnabled()){logger.info("starting to load NoSQLTransDataEngine....................");}
-			try
-			{
-				for(NoSQLDB noSQLDBdefine:noSQLDBdefines)
-				{
-					NoSQLDataEngine noSQLDataEngine = new NoSQLDataEngine();
-					Return ret = noSQLDataEngine.initNoSQLDataEngine(noSQLDBdefine);
-					if(ret.getCode()!=0)
-					{
-						logger.error("Faild to load NoSQLDB............... caught Exception: "+ret.getText());
-						return Return.valueOf(-1,"Init ServiceBus Failed: "+ret.getText());
-					}
-					this.hmNoSQLDataEngine.put(noSQLDBdefine.getId(),noSQLDataEngine);
-				}
-
-			}
-			catch(Exception e1)
-			{
-				this.hmDataGroup.clear();
-				this.hmDataGroup=null;
-				logger.error("when parse NoSQLDB ,caught Exception: ",e1);
-				return Return.valueOf(-1,"Init ServiceBus Failed: "+e1.getLocalizedMessage());
-			}		
-			
-			//处理默认noSQLDataEngine
-			this.defaultNoSQLDataEngine = this.hmNoSQLDataEngine.get(serviceBus.getNoSQLDBId());
-			if(logger.isInfoEnabled()){logger.info("Load NoSQLTransDataEngine successfully....................");		}
-		}
+		}						
 
 		//初始化ClusterController
 		com.cdoframework.cdolib.servicebus.xsd.ClusterController ccDefine=serviceBus.getClusterController();
@@ -299,12 +169,7 @@ public class ServiceBus implements IServiceBus
 			eventProcessor.setMaxThreadCount(eventProcessorDefine.getMaxThreadCount());
 			eventProcessor.setMinThreadCount(eventProcessorDefine.getMaxIdelTreadCount());
 			eventProcessor.setMaxWaitEventCount(eventProcessorDefine.getMaxWaitEventCount());
-		}
-		
-		//加载bigtable 配置文件
-		Return ret=initBigTableConfig(strBigTableConfigXML);
-		if(ret.getCode()!=0)
-			return ret;
+		}		
 		
 		//加载插件对象
 		if(logger.isInfoEnabled()){logger.info("Staring load  plugins ....................");}
@@ -325,10 +190,8 @@ public class ServiceBus implements IServiceBus
 				this.plugins[i]=new ServicePlugin();
 
 				//初始化插件
-				this.plugins[i].setServiceBus(this);
-				this.plugins[i].setPublicBigTableGroupConfig(hmBigTableGroupConfig);
-				this.plugins[i].setPublicDataGroup(hmDataGroup);
-				this.plugins[i].setPublicNoSQLDataEngine(this.hmNoSQLDataEngine);
+				this.plugins[i].setServiceBus(this);				
+				this.plugins[i].setPublicDataGroup(hmDataGroup);				
 				this.plugins[i].init(i+"",this,servicePluginDefine);
 			}
 		}
@@ -341,9 +204,6 @@ public class ServiceBus implements IServiceBus
 		}
 		if(logger.isDebugEnabled()){logger.debug("load  plugins successfully....................");}
 		
-		if(dgs.length==0 &&  noSQLDBdefines.length==0){		  
-			logger.warn("........Data source is not set.........");
-		}
 		
 		//将plugin.xml上服务  根据配置注册到对应的zk服务器上  
 		ZkProducer[] zkProducer=serviceBus.getZkProducer();
@@ -406,13 +266,11 @@ public class ServiceBus implements IServiceBus
 		if(clusterController!=null)
 		{
 			clusterController.stop();
-		}
-		CacheHandler.getInstance().close();
+		}		
 		//Stop Plugin
 		for(Iterator<Map.Entry<String, IService>> it=hmService.entrySet().iterator();it.hasNext();){
 			it.next().getValue().stop();
-		}
-		// add by hill 2011年8月25日 stop eventProcessor
+		}		
 		if(eventProcessor != null ) {
 			eventProcessor.stop();
 		}
@@ -570,188 +428,7 @@ public class ServiceBus implements IServiceBus
 			this.clusterController.addService(strActiveServiceId,activeService);
 		}		
 	}
-	
-	/**
-	 * 服务检测信息集合
-	 */
-	public Map<Error, String> errorMap;
-	
-	public boolean testServerState() throws RuntimeException {
-
-		errorMap = new HashMap<Error, String>();
-
-		// memcache验证
-		if (!validateMemcache())
-			return false;
-
-		// mongodb验证
-		if (!validateMongodb())
-			return false;
-
-		// 验证总线mysql
-		if (!validateMysql())
-			return false;
-
-		return true;
-	}
-
-
-	public enum Error {
-		memcache, mongodb, mysql, non;
-	}
-
-	/**
-	 * 探测服务状态
-	 * 
-	 * @return
-	 */
-	public String detectServerState() {
-
-		final StringBuffer returnStr = new StringBuffer();
-		if (errorMap != null) {
-			Set<Map.Entry<Error, String>> set = errorMap.entrySet();
-			for (Map.Entry<Error, String> entry : set) {
-				returnStr.append(entry.getKey() + ":" + entry.getValue());
-			}
-		}
-		return returnStr.toString();
-	}
-
-	/***
-	 * 验证总线mysql是否正常
-	 * 
-	 * @return
-	 */
-	private boolean validateMysql() {
-		try{
-			// 正确性验证
-			if (null != this.hmDataGroup) {
-				// 遍历hmDataGroup MAP
-				for (String key : this.hmDataGroup.keySet()) {
-					// 取得hmDataGroup value
-					com.cdoframework.cdolib.base.CycleList<IDataEngine> cycleList = this.hmDataGroup.get(key);
-					// 正确性验证，防止报空指针
-					if (null != cycleList) {
-						// 取得IDataEngine
-						IDataEngine ide = cycleList.get();
-						try {
-							// 获取数据库连接
-							Connection connection = ide.getConnection();
-							
-							// 正确性验证，防止报空指针
-							if (null != connection) {
-								// 进行最大超时时间为3秒的验证
-								if (!connection.isClosed()) {
-									PreparedStatement ps = null;
-									try {
-										ps = connection
-												.prepareStatement("select 1 from dual");
-										if (null != ps) {
-											ps.executeQuery();
-											ps.close();
-											return true;
-										} else {
-											errorMap.put(Error.mysql,
-													"preparedStatement is null");
-											return false;
-										}
-									} catch (Exception e) {
-										logger.error(e.getMessage(), e);
-										if (null != ps) {
-											ps.close();
-										}
-										errorMap.put(Error.mysql, e.getMessage());
-										return false;
-									}finally{
-										if(null!=connection){
-											connection.close();
-										}
-									}
-								}
-							}
-							// connection null
-							else {
-								errorMap.put(Error.mysql, "connection is null");
-								return false;
-							}
-						} catch (SQLException e) {
-							logger.error(e.getMessage(), e);
-							errorMap.put(Error.mysql, e.getMessage());
-							return false;
-						}
-						// cycleList null
-					} else {
-						errorMap.put(Error.mysql, "init DataGroup is fail");
-						return false;
-					}
-				}
-			}
-			// hmDataGroup null
-			else {
-				return false;
-			}
-		}catch(Exception e){
-			errorMap.put(Error.mysql, e.getMessage());
-			return false;
-		}
-		return true;
-	}
-
-
-
-	/**
-	 * 验证mongodb 是否正常
-	 * 
-	 * @return
-	 */
-	private boolean validateMongodb() {
-		try {
-			if (this.hmNoSQLDataEngine.size() > 0) {
-				Iterator<NoSQLDataEngine> iterator = this.hmNoSQLDataEngine
-						.values().iterator();
-				while (iterator.hasNext()) {
-					boolean bOK = iterator.next().testConnection();
-					if (bOK == false) {// TODO 输出日志
-						errorMap.put(Error.mongodb, "test connection is fail");
-						return false;
-					}
-				}
-			}
-		} catch (Exception e) {
-			errorMap.put(Error.mongodb, e.getMessage());
-			return false;
-		}
-		return true;
-	}
-
-	/**
-	 * 验证 memcache 是否正常
-	 */
-	private boolean validateMemcache() {
-		try {
-			final StringBuffer errorInfo = new StringBuffer();
-			List<String> list = CacheHandler.getInstance().getErrorServer();
-			if (list != null && list.size() > 0) {
-				logger.error("error cache server list: ");
-				{
-					for (String server : list) {
-						logger.error(server);
-						errorInfo.append(server);
-						errorInfo.append("|");
-					}
-					if (errorInfo.length() > 0) {
-						errorMap.put(Error.memcache, errorInfo.toString());
-						return false;
-					}
-				}
-			}
-		}catch(Exception e){
-			logger.error("testServerState:" + e.getMessage(), e);
-			errorMap.put(Error.memcache, e.getMessage());
-			return false;
-		}
-		return true;
-	}
+		
 
 	//构造函数,所有构造函数在此定义------------------------------------------------------------------------------
 
@@ -762,11 +439,10 @@ public class ServiceBus implements IServiceBus
 		clusterController		=null;
 		hmSharedData			=new HashMap<String,Object>();
 		lockSharedData			=new ReentrantReadWriteLock();
-		btEngine				=new BigTableEngine();
-		hmNoSQLDataEngine		=new HashMap<String,NoSQLDataEngine>(3);
 		hmService 				= new LinkedHashMap<String,IService>(20);
 		hmParameterMap			= new HashMap<String,String>(10);	
-		hmBigTableGroupConfig	=new HashMap<String,BigTable[]>(2);
+		btEngine				=new BigTableEngine();//去掉分库分表
+		
 	}
 	/**
 	 * 将每个插件的servie 按照zkId 进行合并

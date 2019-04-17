@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -150,54 +150,6 @@ public class ServicePluginDescriptor extends org.exolab.castor.xml.util.XMLClass
         addSequenceElement(desc);
 
         //-- validation code for: dataGroupList
-        fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(0);
-        { //-- local scope
-        }
-        desc.setValidator(fieldValidator);
-        //-- noSQLDBList
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(com.cdoframework.cdolib.servicebus.xsd.NoSQLDB.class, "noSQLDBList", "NoSQLDB", org.exolab.castor.xml.NodeType.Element);
-        handler = new org.exolab.castor.xml.XMLFieldHandler() {
-            @Override
-            public java.lang.Object getValue( java.lang.Object object ) 
-                throws IllegalStateException
-            {
-                ServicePlugin target = (ServicePlugin) object;
-                return target.getNoSQLDB();
-            }
-            @Override
-            public void setValue( java.lang.Object object, java.lang.Object value) 
-                throws IllegalStateException, IllegalArgumentException
-            {
-                try {
-                    ServicePlugin target = (ServicePlugin) object;
-                    target.addNoSQLDB( (com.cdoframework.cdolib.servicebus.xsd.NoSQLDB) value);
-                } catch (java.lang.Exception ex) {
-                    throw new IllegalStateException(ex.toString());
-                }
-            }
-            public void resetValue(Object object) throws IllegalStateException, IllegalArgumentException {
-                try {
-                    ServicePlugin target = (ServicePlugin) object;
-                    target.removeAllNoSQLDB();
-                } catch (java.lang.Exception ex) {
-                    throw new IllegalStateException(ex.toString());
-                }
-            }
-            @Override
-            @SuppressWarnings("unused")
-            public java.lang.Object newInstance(java.lang.Object parent) {
-                return new com.cdoframework.cdolib.servicebus.xsd.NoSQLDB();
-            }
-        };
-        desc.setSchemaType("list");
-        desc.setComponentType("com.cdoframework.cdolib.servicebus.xsd.NoSQLDB");
-        desc.setHandler(handler);
-        desc.setMultivalued(true);
-        addFieldDescriptor(desc);
-        addSequenceElement(desc);
-
-        //-- validation code for: noSQLDBList
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(0);
         { //-- local scope

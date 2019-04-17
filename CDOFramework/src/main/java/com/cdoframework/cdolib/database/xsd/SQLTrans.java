@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -31,11 +31,6 @@ public class SQLTrans implements java.io.Serializable {
     private java.lang.String dataGroupId;
 
     /**
-     * Field bigTableGroupId.
-     */
-    private java.lang.String bigTableGroupId;
-
-    /**
      * Field zkId.
      */
     private java.lang.String zkId;
@@ -57,15 +52,6 @@ public class SQLTrans implements java.io.Serializable {
 
     public SQLTrans() {
         super();
-    }
-
-    /**
-     * Returns the value of field 'bigTableGroupId'.
-     * 
-     * @return the value of field 'BigTableGroupId'.
-     */
-    public java.lang.String getBigTableGroupId() {
-        return this.bigTableGroupId;
     }
 
     /**
@@ -174,15 +160,6 @@ public class SQLTrans implements java.io.Serializable {
     }
 
     /**
-     * Sets the value of field 'bigTableGroupId'.
-     * 
-     * @param bigTableGroupId the value of field 'bigTableGroupId'.
-     */
-    public void setBigTableGroupId(final java.lang.String bigTableGroupId) {
-        this.bigTableGroupId = bigTableGroupId;
-    }
-
-    /**
      * Sets the value of field 'dataGroupId'.
      * 
      * @param dataGroupId the value of field 'dataGroupId'.
@@ -271,23 +248,20 @@ public class SQLTrans implements java.io.Serializable {
         org.exolab.castor.xml.Validator validator = new org.exolab.castor.xml.Validator();
         validator.validate(this);
     }
-    
     /**
-    * *********************************************************Manual code  **************************************************************
-    * ************************************************************************************************************************************
-    * ************************************************************************************************************************************
-    */    
-   private DataService dataService;
+  	 * ***************************************manual  code *************************************************
+  	 * 设置DataService对象
+  	 */
+    private DataService dataService;
+
+ 	public DataService getDataService()
+ 	{
+ 		return dataService;
+ 	}
 
 
-	public DataService getDataService()
-	{
-		return dataService;
-	}
-
-
-	public void setDataService(DataService dataService)
-	{
-		this.dataService=dataService;
-	}  
+ 	public void setDataService(DataService dataService)
+ 	{
+ 		this.dataService=dataService;
+ 	}      
 }

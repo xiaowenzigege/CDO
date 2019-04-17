@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -119,9 +119,11 @@ public class DatabaseDescriptor extends org.exolab.castor.xml.util.XMLClassDescr
             {
                 try {
                     Database target = (Database) object;
-                    // ignore null values for non optional primitives
-                    if (value == null) { return; }
-
+                    // if null, use delete method for optional primitives 
+                    if (value == null) {
+                        target.deleteLoadLevel();
+                        return;
+                    }
                     target.setLoadLevel( ((java.lang.Integer) value).intValue());
                 } catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
@@ -135,13 +137,11 @@ public class DatabaseDescriptor extends org.exolab.castor.xml.util.XMLClassDescr
         };
         desc.setSchemaType("int");
         desc.setHandler(handler);
-        desc.setRequired(true);
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
 
         //-- validation code for: loadLevel
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
         { //-- local scope
             org.exolab.castor.xml.validators.IntValidator typeValidator;
             typeValidator = new org.exolab.castor.xml.validators.IntValidator();

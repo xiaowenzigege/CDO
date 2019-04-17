@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.log4j.Logger;
 
 import com.cdoframework.cdolib.base.DataType;
@@ -156,30 +156,16 @@ public class DataEngine implements IDataEngine
 	{
 		this.strPassword=strPassword;
 	}
-	protected int nInitalSize;
-
-	public void setInitialSize(int nInitalSize)
-	{
-		this.nInitalSize=nInitalSize;
-	}
-
-	public int getInitialSize()
-	{
-		return this.nInitalSize;
-	}
-
-	protected int nMaxActive;
-
-	public void setMaxActive(int nMaxActive)
-	{
-		this.nMaxActive=nMaxActive;
-	}
-
-	public int getMaxActive()
-	{
-		return this.nMaxActive;
-	}
 	
+	protected int nInitialSize;
+	
+	public int getInitialSize() {
+		return nInitialSize;
+	}
+	public void setInitialSize(int nInitialSize) {
+		this.nInitialSize = nInitialSize;
+	}
+
 	protected int nMinIdle;
 
 	public void setMinIdle(int nMinIdle)
@@ -204,18 +190,55 @@ public class DataEngine implements IDataEngine
 		return this.nMaxIdle;
 	}
 
-	protected long maxWaitTime;
+	protected long nMaxConnLifetimeMillis=30*1000;
+	protected int nMaxTotal;
+	
 
-	public void setMaxWait(long maxWaitTime)
-	{
-		this.maxWaitTime=maxWaitTime;
+	public long getnMaxConnLifetimeMillis() {
+		return nMaxConnLifetimeMillis;
 	}
 
-	public long getMaxWait()
-	{
-		return this.maxWaitTime;
+	public void setnMaxConnLifetimeMillis(long nMaxConnLifetimeMillis) {
+		this.nMaxConnLifetimeMillis = nMaxConnLifetimeMillis;
 	}
 
+	public int getnMaxTotal() {
+		return nMaxTotal;
+	}
+
+	public void setnMaxTotal(int nMaxTotal) {
+		this.nMaxTotal = nMaxTotal;
+	}
+	
+	protected int nRemoveAbandonedTimeout=90;	
+	public void setRemoveAbandonedTimeout(int nRemoveAbandonedTimeout){
+		this.nRemoveAbandonedTimeout=nRemoveAbandonedTimeout;
+	}
+	protected boolean bTestWhileIdle=true;
+	public void setTestWhileIdle(boolean bTestWhileIdle){
+		this.bTestWhileIdle=bTestWhileIdle;
+	}
+	protected boolean bTestOnBorrow=true;
+	public void setTestOnBorrow(boolean bTestOnBorrow){
+		this.bTestOnBorrow=bTestOnBorrow;
+	}
+	protected String strValidationQuery="select 1";
+	public void setValidationQuery(String strValidationQuery){
+		this.strValidationQuery=strValidationQuery;
+	}
+	protected boolean bPoolPreparedStatements=true;
+	public void setPoolPreparedStatements(boolean bPoolPreparedStatements){
+		this.bPoolPreparedStatements=bPoolPreparedStatements;
+	}
+	protected boolean bRemoveAbandonedOnMaintenance=true;
+	public void setRemoveAbandonedOnMaintenance(boolean bRemoveAbandonedOnMaintenance){
+		this.bRemoveAbandonedOnMaintenance=bRemoveAbandonedOnMaintenance;
+	}
+	protected boolean bLogAbandoned=true;
+	public void setLogAbandoned(boolean bLogAbandoned){
+		this.bLogAbandoned=bLogAbandoned;
+	}
+	
 	public boolean isOpened()
 	{
 		if(ds==null)
@@ -227,16 +250,7 @@ public class DataEngine implements IDataEngine
 			return true;
 		}
 	}
-	
-	protected int nLoadLevel;
-	public void setLoadLevel(int nLoadlevel)
-	{
-		this.nLoadLevel=nLoadlevel;
-	}
-	public int getLoadLevel()
-	{
-		return this.nLoadLevel;
-	}
+
 
 	// 引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 
@@ -1399,7 +1413,6 @@ public class DataEngine implements IDataEngine
 				conn.rollback();
 			}
 		}
-
 		return 0;
 	}
 
@@ -1522,25 +1535,27 @@ public class DataEngine implements IDataEngine
 			return Return.OK;
 		}
 
+		
 		ds=new BasicDataSource();   
         ds.setDriverClassName(strDriver);   
         ds.setUsername(strUserName);   
         ds.setPassword(strPassword);   
         ds.setUrl(strURI);   
         
-        ds.setInitialSize(Math.max(nInitalSize,1));
-        ds.setMaxActive(Math.max(nMaxActive, 5));   
-        ds.setMinIdle(Math.max(nMinIdle,1));
-        ds.setMaxIdle(Math.max(nMaxIdle, 5));
-        ds.setMaxWait(Math.max(maxWaitTime, 10000));//最大等待空闲连接的时间
+        ds.setInitialSize(Math.max(nInitialSize,1));//initialSize
+        ds.setMinIdle(Math.max(nMinIdle,1));	//minIdle
+        ds.setMaxIdle(Math.max(nMaxIdle, 5));   // maxIdle 
+        ds.setMaxConnLifetimeMillis(nMaxConnLifetimeMillis);//maxConnLifetimeMillis
+        ds.setMaxTotal(Math.max(nMaxTotal,5));//maxTotal
         
-        ds.setTestWhileIdle(true);
-        ds.setTestOnBorrow(true);
-        ds.setValidationQuery("select 1");
-        ds.setPoolPreparedStatements(true);
-        ds.setRemoveAbandoned(true);
-        ds.setRemoveAbandonedTimeout(60);
-        ds.setLogAbandoned(true);        
+        ds.setRemoveAbandonedTimeout(nRemoveAbandonedTimeout);		//removeAbandonedTimeout
+        ds.setTestWhileIdle(bTestWhileIdle);
+        ds.setTestOnBorrow(bTestOnBorrow);
+        ds.setValidationQuery(strValidationQuery);
+        ds.setPoolPreparedStatements(bPoolPreparedStatements);       
+        ds.setRemoveAbandonedOnMaintenance(bRemoveAbandonedOnMaintenance);//removeAbandonedOnMaintenance        
+        ds.setLogAbandoned(bLogAbandoned);   
+        
 		// 打开连接
 		try
 		{

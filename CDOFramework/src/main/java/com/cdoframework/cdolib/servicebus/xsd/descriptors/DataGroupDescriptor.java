@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -238,8 +238,8 @@ public class DataGroupDescriptor extends org.exolab.castor.xml.util.XMLClassDesc
         desc.setValidator(fieldValidator);
         //-- initialize element descriptors
 
-        //-- databaseList
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(com.cdoframework.cdolib.servicebus.xsd.Database.class, "databaseList", "Database", org.exolab.castor.xml.NodeType.Element);
+        //-- database
+        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(com.cdoframework.cdolib.servicebus.xsd.Database.class, "database", "Database", org.exolab.castor.xml.NodeType.Element);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
             @Override
             public java.lang.Object getValue( java.lang.Object object ) 
@@ -254,15 +254,7 @@ public class DataGroupDescriptor extends org.exolab.castor.xml.util.XMLClassDesc
             {
                 try {
                     DataGroup target = (DataGroup) object;
-                    target.addDatabase( (com.cdoframework.cdolib.servicebus.xsd.Database) value);
-                } catch (java.lang.Exception ex) {
-                    throw new IllegalStateException(ex.toString());
-                }
-            }
-            public void resetValue(Object object) throws IllegalStateException, IllegalArgumentException {
-                try {
-                    DataGroup target = (DataGroup) object;
-                    target.removeAllDatabase();
+                    target.setDatabase( (com.cdoframework.cdolib.servicebus.xsd.Database) value);
                 } catch (java.lang.Exception ex) {
                     throw new IllegalStateException(ex.toString());
                 }
@@ -273,15 +265,14 @@ public class DataGroupDescriptor extends org.exolab.castor.xml.util.XMLClassDesc
                 return new com.cdoframework.cdolib.servicebus.xsd.Database();
             }
         };
-        desc.setSchemaType("list");
-        desc.setComponentType("com.cdoframework.cdolib.servicebus.xsd.Database");
+        desc.setSchemaType("com.cdoframework.cdolib.servicebus.xsd.Database");
         desc.setHandler(handler);
         desc.setRequired(true);
-        desc.setMultivalued(true);
+        desc.setMultivalued(false);
         addFieldDescriptor(desc);
         addSequenceElement(desc);
 
-        //-- validation code for: databaseList
+        //-- validation code for: database
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope

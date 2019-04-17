@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.collections.bag.SynchronizedBag;
+
 import org.apache.log4j.Logger;
 
 import com.cdo.business.rpc.client.proto.RPCClientHandler;

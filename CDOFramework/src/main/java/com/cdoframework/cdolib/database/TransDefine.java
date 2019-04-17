@@ -1,6 +1,5 @@
 package com.cdoframework.cdolib.database;
 
-import com.cdoframework.cdolib.database.xsd.NoSQLTrans;
 import com.cdoframework.cdolib.database.xsd.SQLTrans;
 
 /**
@@ -16,8 +15,7 @@ public class TransDefine
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
 
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
-	private SQLTrans sqlTrans;
-	private NoSQLTrans noSqlTrans;
+	private SQLTrans sqlTrans;	
 	public SQLTrans getSqlTrans()
 	{
 		return sqlTrans;
@@ -28,15 +26,6 @@ public class TransDefine
 		this.sqlTrans=sqlTrans;
 	}
 
-	public NoSQLTrans getNoSqlTrans()
-	{
-		return noSqlTrans;
-	}
-
-	public void setNoSqlTrans(NoSQLTrans noSqlTrans)
-	{
-		this.noSqlTrans=noSqlTrans;
-	}
 
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
 

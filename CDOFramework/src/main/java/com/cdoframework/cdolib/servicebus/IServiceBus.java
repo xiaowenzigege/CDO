@@ -53,9 +53,7 @@ import java.util.HashMap;
 import com.cdo.business.client.IClient;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.database.BigTableEngine;
 import com.cdoframework.cdolib.database.IDataEngine;
-import com.cdoframework.cdolib.database.INoSQLDataEngine;
 
 /**
  * @author Frank
@@ -86,37 +84,12 @@ public interface IServiceBus extends com.cdoframework.cdolib.base.IActiveObject
 	 */
 	Object getSharedData(String strId);
 	
-	/**
-	 * 
-	 * @return 
-	 */
-	BigTableEngine getBigTableEngine();
-	
-	
-	/**
-	 * 
-	 * @return
-	 */
-	INoSQLDataEngine getDefaultNoSQLDataEngine();
-	
 	
 	/**
 	 * 
 	 */
 	void addClusterActiveService(String strActiveServiceId,IActiveService activeService);
 	
-	/**
-	 * 测试服务器状态
-	 * @return 
-	 * @throws RuntimeException
-	 */
-	boolean testServerState() throws RuntimeException;
-	/**
-	 * 探测服务器状态信息  返回错误信息 正确返回空字符串
-	 * @return 
-	 * @throws RuntimeException
-	 */
-	String detectServerState();
 
 	void handleEvent(CDO cdoEvent);
 	

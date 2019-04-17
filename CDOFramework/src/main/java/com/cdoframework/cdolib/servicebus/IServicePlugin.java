@@ -47,7 +47,6 @@ package com.cdoframework.cdolib.servicebus;
 
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
-import com.cdoframework.cdolib.database.INoSQLDataEngine;
 
 /**
  * @author Frank
@@ -72,8 +71,7 @@ public interface IServicePlugin
 	 * @return
 	 */
 	String getPluginName();
-
-	INoSQLDataEngine getNoSQLDataEngine(String strNoSQLDBId);
+	
 	
 	Return handleTrans(CDO cdoRequest,CDO cdoResponse);
 	

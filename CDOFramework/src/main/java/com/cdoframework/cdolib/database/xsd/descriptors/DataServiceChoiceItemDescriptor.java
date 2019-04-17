@@ -1,6 +1,6 @@
 /*
  * This class was automatically generated with 
- * <a href="http://www.castor.org">Castor 1.3.3</a>, using an XML
+ * <a href="http://www.castor.org">Castor 1.4.1</a>, using an XML
  * Schema.
  * $Id$
  */
@@ -93,46 +93,6 @@ public class DataServiceChoiceItemDescriptor extends org.exolab.castor.xml.util.
         addSequenceElement(desc);
 
         //-- validation code for: SQLTrans
-        fieldValidator = new org.exolab.castor.xml.FieldValidator();
-        fieldValidator.setMinOccurs(1);
-        { //-- local scope
-        }
-        desc.setValidator(fieldValidator);
-        //-- noSQLTrans
-        desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(com.cdoframework.cdolib.database.xsd.NoSQLTrans.class, "noSQLTrans", "NoSQLTrans", org.exolab.castor.xml.NodeType.Element);
-        handler = new org.exolab.castor.xml.XMLFieldHandler() {
-            @Override
-            public java.lang.Object getValue( java.lang.Object object ) 
-                throws IllegalStateException
-            {
-                DataServiceChoiceItem target = (DataServiceChoiceItem) object;
-                return target.getNoSQLTrans();
-            }
-            @Override
-            public void setValue( java.lang.Object object, java.lang.Object value) 
-                throws IllegalStateException, IllegalArgumentException
-            {
-                try {
-                    DataServiceChoiceItem target = (DataServiceChoiceItem) object;
-                    target.setNoSQLTrans( (com.cdoframework.cdolib.database.xsd.NoSQLTrans) value);
-                } catch (java.lang.Exception ex) {
-                    throw new IllegalStateException(ex.toString());
-                }
-            }
-            @Override
-            @SuppressWarnings("unused")
-            public java.lang.Object newInstance(java.lang.Object parent) {
-                return new com.cdoframework.cdolib.database.xsd.NoSQLTrans();
-            }
-        };
-        desc.setSchemaType("com.cdoframework.cdolib.database.xsd.NoSQLTrans");
-        desc.setHandler(handler);
-        desc.setRequired(true);
-        desc.setMultivalued(false);
-        addFieldDescriptor(desc);
-        addSequenceElement(desc);
-
-        //-- validation code for: noSQLTrans
         fieldValidator = new org.exolab.castor.xml.FieldValidator();
         fieldValidator.setMinOccurs(1);
         { //-- local scope
