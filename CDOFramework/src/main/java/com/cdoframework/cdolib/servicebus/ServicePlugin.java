@@ -38,8 +38,8 @@ public class ServicePlugin implements IServicePlugin
 	// 内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
 
 	private HashMap<String,String> hmParameterMap;//配置参数
-	private HashMap<String,CycleList<IDataEngine>> hmLocalDataGroup;//关系数据库引擎容器
-	private HashMap<String,CycleList<IDataEngine>> hmAllDataGroup;//关系数据库引擎容器
+	private HashMap<String,IDataEngine> hmLocalDataGroup;//关系数据库引擎容器
+	private HashMap<String,IDataEngine> hmAllDataGroup;//关系数据库引擎容器
 	private HashMap<String,Service> hmService;
 
 	
@@ -48,7 +48,7 @@ public class ServicePlugin implements IServicePlugin
 		this.hmParameterMap=hmParameterMap;
 	}
 
-	public void setPublicDataGroup(HashMap<String,CycleList<IDataEngine>> hmPublicDataGroup)
+	public void setPublicDataGroup(HashMap<String,IDataEngine> hmPublicDataGroup)
 	{
 		hmAllDataGroup.putAll(hmPublicDataGroup);
 	}
@@ -109,10 +109,9 @@ public class ServicePlugin implements IServicePlugin
 		DataGroup[] dgs=pluginDefine.getDataGroup();
 		for(int i=0;i<dgs.length;i++)
 		{
-			CycleList<IDataEngine> clDataGroup=new CycleList<IDataEngine>();
-			clDataGroup=dgs[i].init();			
-			this.hmLocalDataGroup.put(dgs[i].getId(),clDataGroup);
-			this.hmAllDataGroup.put(dgs[i].getId(),clDataGroup);
+	
+			this.hmLocalDataGroup.put(dgs[i].getId(),dgs[i].init());
+			this.hmAllDataGroup.put(dgs[i].getId(),dgs[i].init());
 		}
 
 		
@@ -392,7 +391,7 @@ public class ServicePlugin implements IServicePlugin
 	{
 		hmService 			= new HashMap<String,Service>(3);
 		hmParameterMap			= new HashMap<String,String>(10);
-		hmLocalDataGroup		= new HashMap<String,CycleList<IDataEngine>>(10);
-		hmAllDataGroup			= new HashMap<String,CycleList<IDataEngine>>(10);	
+		hmLocalDataGroup		= new HashMap<String,IDataEngine>(4);
+		hmAllDataGroup			= new HashMap<String,IDataEngine>(4);	
 	}
 }

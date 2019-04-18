@@ -106,7 +106,7 @@ public interface IServiceBus extends com.cdoframework.cdolib.base.IActiveObject
 	public String getParameter(String strName);
 	
 	/**提供数据库连接给外部使用**/
-	public HashMap<String,com.cdoframework.cdolib.base.CycleList<IDataEngine>> getHMDataGroup();
+	public HashMap<String,IDataEngine> getHMDataGroup();
 	/**本机服务调用通过zk 调用其他机器上的服务**/
 	public IClient  getRPCClient(String zkId);
 	

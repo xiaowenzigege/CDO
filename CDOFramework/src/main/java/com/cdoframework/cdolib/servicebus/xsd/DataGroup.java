@@ -211,11 +211,11 @@ public class DataGroup implements java.io.Serializable {
   	 * ***************************************manual  code *************************************************
   	 * 序列化DataGroup对象
   	 */
-  	public CycleList<IDataEngine> init() throws Exception
+  	public IDataEngine init() throws Exception
   	{
   		
   		
-  		CycleList<IDataEngine> clDataEngine=new CycleList<IDataEngine>();
+//  		CycleList<IDataEngine> clDataEngine=new CycleList<IDataEngine>();
   		
   		Database dbs=this.getDatabase();
   		IDataEngine dataEngine=(IDataEngine)Class.forName(this.getClassPath()).newInstance();			  		
@@ -254,10 +254,10 @@ public class DataGroup implements java.io.Serializable {
 				dataEngine.setLogAbandoned(connPool.getLogAbandoned());		
 		}
 		Return ret = dataEngine.open();
-		if(ret.getCode()!=0){
+		if(ret.getCode()!=Return.OK.getCode()){
 				throw new Exception("Could not create JDBC connection "+dataEngine.getURI());
 			}			
-		clDataEngine.add(dataEngine);  		
-  		return clDataEngine;
+//		clDataEngine.add(dataEngine);  		
+  		return dataEngine;
   	}
 }

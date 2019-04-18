@@ -1114,7 +1114,7 @@ public class BigTableEngine
 		}
 	}
 
-	protected Return executeTrans(HashMap<String,CycleList<IDataEngine>> hmDataGroup,SQLTrans trans,CDO cdoRequest,CDO cdoResponse)
+	protected Return executeTrans(HashMap<String,IDataEngine> hmDataGroup,SQLTrans trans,CDO cdoRequest,CDO cdoResponse)
 	{
     	//检查是否能处理该请求
     	String strTransName=cdoRequest.getStringValue("strTransName");
@@ -1128,15 +1128,14 @@ public class BigTableEngine
     	Return ret=new Return();
 
     	String strDataGroupId=trans.getDataGroupId();
-		CycleList<IDataEngine> clDataEngine=hmDataGroup.get(strDataGroupId);
+    	IDataEngine dataEngine=hmDataGroup.get(strDataGroupId);
 		Connection connection=null;
 		try
 		{
-			if(clDataEngine==null){//DataGroupId错误
+			if(dataEngine==null){//DataGroupId错误
 				throw new SQLException("Invalid datagroup id: "+strDataGroupId);
 			}
-			//创建Connection
-			IDataEngine dataEngine=clDataEngine.get();
+			//创建Connection	
 			connection=dataEngine.getConnection();
 			if(connection==null)
 			{
@@ -1284,7 +1283,7 @@ public class BigTableEngine
 
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 	
-	public Return handleTrans(HashMap<String,CycleList<IDataEngine>> hmDataGroup,SQLTrans sqlTrans, CDO cdoRequest,CDO cdoResponse)
+	public Return handleTrans(HashMap<String,IDataEngine> hmDataGroup,SQLTrans sqlTrans, CDO cdoRequest,CDO cdoResponse)
 	{
 		return this.executeTrans(hmDataGroup,sqlTrans,cdoRequest,cdoResponse);
 	}

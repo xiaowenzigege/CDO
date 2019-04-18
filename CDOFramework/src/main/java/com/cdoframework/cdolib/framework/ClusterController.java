@@ -36,8 +36,8 @@ public class ClusterController extends ThreadGroup
 	public void			setPulseSecond(int nPulseSecond){this.nPulseSecond=nPulseSecond;}
 
 	//引用对象,所有在外部创建并传入使用的对象在此声明并提供set方法-----------------------------------------------
-	private CycleList<IDataEngine> clDataEngine;
-	public void setDataGroup(CycleList<IDataEngine> clDataEngine){this.clDataEngine=clDataEngine;}
+	private IDataEngine dataEngine;
+	public void setDataGroup(IDataEngine dataEngine){this.dataEngine=dataEngine;}
 
 	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
 	/**
@@ -49,11 +49,7 @@ public class ClusterController extends ThreadGroup
 	private int tryLockServiceObject(String strName)
 	{
 		//获取数据库连接
-		if(clDataEngine==null || clDataEngine.size()==0)
-		{
-			return -1;
-		}
-		IDataEngine dataEngine=clDataEngine.get();
+
 		Connection conn= null;
 		try
 		{
@@ -121,11 +117,6 @@ public class ClusterController extends ThreadGroup
 	private int updateActiveTime(String strServiceId)
 	{
 		//获取数据库连接
-		if(clDataEngine==null || clDataEngine.size()==0)
-		{
-			return -1;
-		}
-		IDataEngine dataEngine=clDataEngine.get();
 		Connection conn=null;
 		try
 		{
@@ -189,11 +180,6 @@ public class ClusterController extends ThreadGroup
 	private int initServiceRecord(String strServiceId,String strServerIP)
 	{
 		//获取数据库连接
-		if(clDataEngine==null || clDataEngine.size()==0)
-		{
-			return -1;
-		}
-		IDataEngine dataEngine=clDataEngine.get();
 		Connection conn=null;
 		try
 		{
@@ -501,9 +487,7 @@ public class ClusterController extends ThreadGroup
 		strServerIP		="";
 		alServiceObject		=new ArrayList<ClusteredService>();
 		nMaxDeadSecond	=5;
-		nPulseSecond	=2;
-		
-		clDataEngine		=null;
+		nPulseSecond	=2;			
 		nIndex			=0;
 	}
 

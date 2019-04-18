@@ -4,16 +4,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
 import com.cdoframework.cdolib.annotation.TransName;
-import com.cdoframework.cdolib.base.CycleList;
 import com.cdoframework.cdolib.base.Return;
 import com.cdoframework.cdolib.data.cdo.CDO;
 import com.cdoframework.cdolib.database.IDataEngine;
@@ -130,14 +126,12 @@ public abstract class TransService implements ITransService
 	}
 	@Override
 	public Connection getConnection(String strDataGroupId) throws SQLException{
-		CycleList<IDataEngine> clDataEngine=this.serviceBus.getHMDataGroup().get(strDataGroupId);
-		IDataEngine dataEngine=clDataEngine.get();
+		IDataEngine dataEngine=this.serviceBus.getHMDataGroup().get(strDataGroupId);
 		return dataEngine.getConnection();
 	}
 	@Override
 	public String getDBCharset(String strDataGroupId){
-		CycleList<IDataEngine> clDataEngine=this.serviceBus.getHMDataGroup().get(strDataGroupId);
-		IDataEngine dataEngine=clDataEngine.get();
+		IDataEngine dataEngine=this.serviceBus.getHMDataGroup().get(strDataGroupId);
 		return dataEngine.getCharset();
 	}
 }

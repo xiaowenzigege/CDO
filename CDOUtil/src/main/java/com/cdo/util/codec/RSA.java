@@ -237,11 +237,21 @@ public class RSA {
      * @throws Exception
      */
     public static KeyPair generateKeyPair() throws Exception {
+        return generateKeyPair(1024);       
+    } 
+    
+    /** 
+     * 初始化密钥 
+     * 
+     * @return rsa密钥信息
+     * @throws Exception
+     */
+    public static KeyPair generateKeyPair(int size) throws Exception {
         KeyPairGenerator keyPairGen = KeyPairGenerator
                 .getInstance(KEY_ALGORITHM);
-        keyPairGen.initialize(512);
-        return keyPairGen.generateKeyPair();       
-    } 
+        keyPairGen.initialize(size);
+        return keyPairGen.generateKeyPair(); 
+      } 
     
     //---------------------------RSA bouncycastle 指定长度生成公私钥对----------------------//
     

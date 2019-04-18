@@ -31,7 +31,7 @@ public class Service implements IService
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
 	private ArrayList<IActiveService> alActiveService;//动态服务对象集合
 	private Map<String,TransDefine> hmTransDefine;
-	private HashMap<String,CycleList<IDataEngine>> hmAllDataGroup;//关系数据库引擎容器
+	private HashMap<String,IDataEngine> hmAllDataGroup;//关系数据库引擎容器
 
 	//属性对象,所有在本类中创建，并允许外部访问的对象在此声明并提供get/set方法-----------------------------------
 
@@ -91,9 +91,9 @@ public class Service implements IService
 		}
 	}
 	//公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
-	public void setPublicDataGroup(HashMap<String,CycleList<IDataEngine>> hmPublicDataGroup)
+	public void setPublicDataGroup(HashMap<String,IDataEngine> hmPublicDataGroup)
 	{
-		hmAllDataGroup=new HashMap<String,CycleList<IDataEngine>>();
+		hmAllDataGroup=new HashMap<String,IDataEngine>();
 		hmAllDataGroup.putAll(hmPublicDataGroup);
 	}
 	public void addTransService(ITransService transService)
@@ -251,7 +251,7 @@ public class Service implements IService
 	{
 		alActiveService	= new ArrayList<IActiveService>(1);
 		hmTransDefine	= new HashMap<String,TransDefine>(30); 
-		hmAllDataGroup	= new HashMap<String,CycleList<IDataEngine>>(1);	
+		hmAllDataGroup	= new HashMap<String,IDataEngine>(4);	
 		hmServiceMap = new HashMap<String, List<ITransService>>();
 	}
 	public ArrayList<IActiveService> getAlActiveService() {

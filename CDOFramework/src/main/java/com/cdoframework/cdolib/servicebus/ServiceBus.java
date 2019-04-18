@@ -46,7 +46,7 @@ public class ServiceBus implements IServiceBus
 	//静态对象,所有static在此声明并初始化------------------------------------------------------------------------
 	private Logger logger = Logger.getLogger(ServiceBus.class);
 	//内部对象,所有在本类中创建并使用的对象在此声明--------------------------------------------------------------
-	private HashMap<String,com.cdoframework.cdolib.base.CycleList<IDataEngine>> hmDataGroup;
+	private HashMap<String,IDataEngine> hmDataGroup;
 	private ServicePlugin[] plugins;
 	private ClusterController clusterController;
 	private BigTableEngine btEngine=new BigTableEngine();
@@ -91,10 +91,6 @@ public class ServiceBus implements IServiceBus
 		return this.hmService;
 	} 
 	
-
-	//内部方法,所有仅在本类或派生类中使用的函数在此定义为protected方法-------------------------------------------
-	
-
 	
 	// 公共方法,所有可提供外部使用的函数在此定义为public方法------------------------------------------------------
 	
@@ -124,16 +120,12 @@ public class ServiceBus implements IServiceBus
 			this.hmParameterMap.put(para.getName(),para.getValue());
 		}
 		//加载和初始化全局DataGroup
-		this.hmDataGroup=new HashMap<String,com.cdoframework.cdolib.base.CycleList<IDataEngine>>(20);
+		this.hmDataGroup=new HashMap<String,IDataEngine>(6);
 		DataGroup[] dgs=serviceBus.getDataGroup();
 		try
 		{
-			for(int i=0;i<dgs.length;i++)
-			{
-				com.cdoframework.cdolib.base.CycleList<IDataEngine> clDataEngine=dgs[i].init();
-	
-				this.hmDataGroup.put(dgs[i].getId(),clDataEngine);
-				
+			for(int i=0;i<dgs.length;i++){				
+				this.hmDataGroup.put(dgs[i].getId(),dgs[i].init());				
 			}
 		}catch(Exception e){
 			this.hmDataGroup.clear();
@@ -148,7 +140,7 @@ public class ServiceBus implements IServiceBus
 		{
 			if(logger.isInfoEnabled()){logger.info("Staring initialize  cluster controller ....................");}
 			clusterController	=new ClusterController();
-			CycleList<IDataEngine> clDataEngine=hmDataGroup.get(ccDefine.getDataGroupId());
+			IDataEngine clDataEngine=hmDataGroup.get(ccDefine.getDataGroupId());
 			if(clDataEngine==null)
 			{
 				return Return.valueOf(-1,"Invalid DataGroupId: "+ccDefine.getDataGroupId());
@@ -524,7 +516,7 @@ public class ServiceBus implements IServiceBus
 		
 	}
 	
-	public HashMap<String,com.cdoframework.cdolib.base.CycleList<IDataEngine>> getHMDataGroup(){		
+	public HashMap<String,IDataEngine> getHMDataGroup(){		
 		return hmDataGroup;		
 	}
 	@Override
