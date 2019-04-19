@@ -1,0 +1,3 @@
+java -Djava.ext.dirs=lib  org.exolab.castor.builder.SourceGeneratorMain -types j2 -i "D:/castor-codegen/DataService3.xsd"   -package  com.cdoframework.cdolib.database.xsd  -dest   "D:/castor-codegen/src" -f
+
+java -Djava.ext.dirs=lib  org.exolab.castor.builder.SourceGeneratorMain -types j2 -i "D:/castor-codegen/ServiceBus3.xsd"   -package  com.cdoframework.cdolib.servicebus.xsd  -dest   "D:/castor-codegen/src" -f
