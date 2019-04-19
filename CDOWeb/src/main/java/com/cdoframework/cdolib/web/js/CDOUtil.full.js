@@ -1,3 +1,4 @@
+//required jquery.js 1.12+ ,json2.js,CDO.js/
 function Field(){
 	this.hmItem ={};	
 	this.exists=function(strFieldId) {
