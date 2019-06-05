@@ -128,15 +128,27 @@ public class JsonUtil {
 	 * @throws Exception
 	 */
 	public static CDO[] jsonArray2CDOArray(String strJSONArray,Class<?>  cls,String defaultType) throws JSONException {
-		if (strJSONArray == null || strJSONArray.trim().length() <= 0 || strJSONArray.equalsIgnoreCase("[]")) {
-			return new CDO[0];
-		}
-		if(!strJSONArray.startsWith("[") && !strJSONArray.startsWith("\r[") && !strJSONArray.startsWith("\r\n[")){
-			throw new JSONException(strJSONArray+" is not jsonArray");
-		} 
-		String strJSON= "{\"cdosTmp\":" + strJSONArray + "}";
-		CDO parentCDO=json2CDO(strJSON,cls,defaultType);
-		return parentCDO.getCDOArrayValue("cdosTmp");
+		if(strJSONArray==null)
+			return null;
+		//解释数组
+		JSONArray JSONArr=new JSONArray(strJSONArray);
+		CDO[] CDOArr=new CDO[JSONArr.length()];
+		//获取字段
+		Set<String> clsFieldsName=new HashSet<String>();
+		try{			
+			Field[] fields=cls.getDeclaredFields();
+			for(int i=0;i<fields.length;i++){
+				clsFieldsName.add(fields[i].getName());
+			}	
+			for(int i=0;i<JSONArr.length();i++){			
+				CDOArr[i]=new CDO();
+				setCDOFromJson(JSONArr.getJSONObject(i), CDOArr[i],cls,clsFieldsName,defaultType);
+			}						
+		}finally{
+			clsFieldsName.clear();
+			clsFieldsName=null;
+		}		
+		return CDOArr;
 	}
 	/**
 	 * CDO数组转换成json 数组

@@ -50,28 +50,101 @@ public class StringUtil{
 
   
  public static boolean isMail(String strEmail){
-//      String  check="^([a-z0-9A-Z]+[-|//._]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?//.)+[a-zA-Z]{2,}$"; 						
-//      Pattern regex=Pattern.compile(check);   
-//      Matcher matcher=regex.matcher(str);   
-//      boolean isMatched=matcher.matches();   
-//      if(isMatched){   
-//          return true;  
-//      }else{   
-//          return false;
-//      }   
-		if(!strEmail.contains("@")){			
+	 	if(strEmail.length()<=5)
+	 		return false;
+	 	String tmpEmail=strEmail.substring(1,strEmail.length()-1);	 	
+		if(!tmpEmail.contains("@")){			
 			return false;
-		}else if(strEmail.length()<=3){
+		}else if(!tmpEmail.contains(".")){
 			return false;
-		}else{
-			String tmpStrEmail=strEmail.substring(1,strEmail.length()-1);
-			if(tmpStrEmail.indexOf("@")==-1)
-				return false;
 		}
 		return true;
 	}
 
   public static String htmlEncode(String str){    
 	  return Function.FormatTextForHTML(str);
-  }    
+  } 
+  
+	/**
+	 * 当strSeq长度不够length时，前面补prefixChar字符
+	 * @param strSeq
+	 * @param length
+	 * @return
+	 */
+	public static String fillPrefixLength(String strSeq,CharSequence prefixChar,int length){
+		 int  len=length-strSeq.length();
+		 String prefix="";
+		 for(int i=0;i<len;i++){
+			 prefix+=prefixChar;
+		 }
+		 prefix+=strSeq;
+		 return prefix;		
+	}
+	/**
+	 * 当strSeq长度不够length时，后面补suffixChar字符
+	 * @param strSeq
+	 * @param suffixChar
+	 * @param length
+	 * @return
+	 */
+	public static String fillSuffixLength(String strSeq,CharSequence suffixChar,int length){
+			 int  len=length-strSeq.length();
+			 String suffix="";
+			 for(int i=0;i<len;i++){
+				 suffix+=suffixChar;
+			 }
+			 strSeq+=suffix;
+			 return strSeq;		
+	}	
+	/**
+	 *  根据ip和掩码位数   获取该网络段的第一个有效ip地址, 格式  ip/maskbit   
+	 * @param ip  10.0.207.5
+	 * @param maskBit  29
+	 * @return 10.0.207.1/29
+	 */
+	public static String getNSIDFirstIP(String ip,String maskBit){
+	       int type = Integer.parseInt(maskBit);
+	       int mask = 0xFFFFFFFF << (32 - type);      
+	       String[] cidrIps = ip.split("\\.");
+	       int cidrIpAddr = (Integer.parseInt(cidrIps[0]) << 24)
+	               | (Integer.parseInt(cidrIps[1]) << 16)
+	               | (Integer.parseInt(cidrIps[2]) << 8)
+	               | Integer.parseInt(cidrIps[3]);
+	       String  binary=fillPrefixLength(Integer.toBinaryString((cidrIpAddr & mask)+1),"0",32);
+	       
+	       String[] ipNSID=new String[4];
+	       ipNSID[3]=binary.substring(binary.length()-8);
+	       ipNSID[2]=binary.substring(binary.length()-16,binary.length()-8);
+	       ipNSID[1]=binary.substring(binary.length()-24,binary.length()-16);
+	       ipNSID[0]=binary.substring(0,binary.length()-24);
+	       String firstNSID=Integer.parseInt(ipNSID[0],2)+"."+Integer.parseInt(ipNSID[1],2)+"."+Integer.parseInt(ipNSID[2],2)+"."+Integer.parseInt(ipNSID[3],2);
+	       //00001010,00000000,11001111,00000001   
+		   return firstNSID+"/"+maskBit;
+	   }
+	/**
+	 * sourcIP 与 destIP 是否在同一网段内
+	 * @param sourcIP  10.27.122.36
+	 * @param destIP   10.27.122.34	
+	 * @param maskBit  28
+	 * @return
+	 */
+	public static boolean isSameNSID(String sourcIP, String destIP,String maskBit){
+	      int type = Integer.parseInt(maskBit);//cidr.replaceAll(".*/", "")
+	      int mask = 0xFFFFFFFF << (32 - type);
+	      
+	      String[] sourcIPS = sourcIP.split("\\.");
+	      int ipAddr1 = (Integer.parseInt(sourcIPS[0]) << 24)
+	              | (Integer.parseInt(sourcIPS[1]) << 16)
+	              | (Integer.parseInt(sourcIPS[2]) << 8) 
+	              | Integer.parseInt(sourcIPS[3]);
+	      
+	      String[] destIPS = destIP.split("\\.");
+	      int ipAddr2 = (Integer.parseInt(destIPS[0]) << 24)
+	              | (Integer.parseInt(destIPS[1]) << 16)
+	              | (Integer.parseInt(destIPS[2]) << 8)
+	              | Integer.parseInt(destIPS[3]);
+	      
+	      return (ipAddr1 & mask) == (ipAddr2 & mask);
+	}
+	
 }

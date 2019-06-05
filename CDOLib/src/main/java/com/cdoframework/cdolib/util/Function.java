@@ -152,6 +152,7 @@ public class Function
 	}	
 
 	public static String FormatTextForHTML(String strData){
+		if(strData==null)return null;
 	    int len= strData.length();
 	    StringBuilder sb= new StringBuilder(len);
 	    for (int i = 0; i < len; i++) {

@@ -1544,18 +1544,17 @@ public class DataEngine implements IDataEngine
         
         ds.setInitialSize(Math.max(nInitialSize,1));//initialSize
         ds.setMinIdle(Math.max(nMinIdle,1));	//minIdle
-        ds.setMaxIdle(Math.max(nMaxIdle, 5));   // maxIdle 
-        ds.setMaxConnLifetimeMillis(nMaxConnLifetimeMillis);//maxConnLifetimeMillis
+        ds.setMaxIdle(Math.max(nMaxIdle, 5));   // maxIdle     
         ds.setMaxTotal(Math.max(nMaxTotal,5));//maxTotal
         
+        ds.setMaxConnLifetimeMillis(nMaxConnLifetimeMillis);//maxConnLifetimeMillis
         ds.setRemoveAbandonedTimeout(nRemoveAbandonedTimeout);		//removeAbandonedTimeout
         ds.setTestWhileIdle(bTestWhileIdle);
         ds.setTestOnBorrow(bTestOnBorrow);
         ds.setValidationQuery(strValidationQuery);
         ds.setPoolPreparedStatements(bPoolPreparedStatements);       
         ds.setRemoveAbandonedOnMaintenance(bRemoveAbandonedOnMaintenance);//removeAbandonedOnMaintenance        
-        ds.setLogAbandoned(bLogAbandoned);   
-        
+        ds.setLogAbandoned(bLogAbandoned);           
 		// 打开连接
 		try
 		{

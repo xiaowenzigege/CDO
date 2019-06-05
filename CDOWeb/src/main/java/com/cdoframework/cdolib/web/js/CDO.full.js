@@ -828,7 +828,7 @@ function CDO() {
 				var subArr=new Array();
 				for(var i=0;i<_array.length;i++){
 					var subJSON={};					
-					this.stringifyJSON(subJSON,value.getItem());
+					this.stringifyJSON(subJSON,_array[i].getItem());
 					subArr.push(subJSON);
 				}				
 				_JSONObject[_key]=subArr;
