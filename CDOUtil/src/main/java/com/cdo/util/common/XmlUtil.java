@@ -5,7 +5,7 @@ package com.cdo.util.common;
  * @author KenelLiu
  *
  */
-public class Xml {
+public class XmlUtil {
 	  private static final String PRE_FIX_UTF = "&#x";
 	  private static final String POS_FIX_UTF = ";";
 	  public static String xmlFormalize(String sTemp){
