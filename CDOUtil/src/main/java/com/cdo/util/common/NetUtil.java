@@ -26,6 +26,32 @@ public class NetUtil {
 	       //00001010,00000000,11001111,00000001   
 		   return firstNSID+"/"+maskBit;
 	   }
+	
+	/**
+	 *  根据ip和掩码位数   获取该网络号, 格式  网络号/maskbit   
+	 * @param ip  10.0.207.5
+	 * @param maskBit  29
+	 * @return 10.0.207.0/29
+	 */
+	public static String getNSID(String ip,String maskBit){
+	       int type = Integer.parseInt(maskBit);
+	       int mask = 0xFFFFFFFF << (32 - type);      
+	       String[] cidrIps = ip.split("\\.");
+	       int cidrIpAddr = (Integer.parseInt(cidrIps[0]) << 24)
+	               | (Integer.parseInt(cidrIps[1]) << 16)
+	               | (Integer.parseInt(cidrIps[2]) << 8)
+	               | Integer.parseInt(cidrIps[3]);
+	       String  binary=StringUtil.fillPrefixLength(Integer.toBinaryString((cidrIpAddr & mask)),"0",32);
+	       
+	       String[] ipNSID=new String[4];
+	       ipNSID[3]=binary.substring(binary.length()-8);
+	       ipNSID[2]=binary.substring(binary.length()-16,binary.length()-8);
+	       ipNSID[1]=binary.substring(binary.length()-24,binary.length()-16);
+	       ipNSID[0]=binary.substring(0,binary.length()-24);
+	       String firstNSID=Integer.parseInt(ipNSID[0],2)+"."+Integer.parseInt(ipNSID[1],2)+"."+Integer.parseInt(ipNSID[2],2)+"."+Integer.parseInt(ipNSID[3],2);
+	       //00001010,00000000,11001111,00000001   
+		   return firstNSID+"/"+maskBit;
+	   }
 	/**
 	 * sourcIP 与 destIP 是否在同一网段内
 	 * @param sourcIP  10.27.122.36
@@ -51,4 +77,5 @@ public class NetUtil {
 	      
 	      return (ipAddr1 & mask) == (ipAddr2 & mask);
 	}
+	
 }
