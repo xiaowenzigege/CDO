@@ -18,11 +18,11 @@ public class CharsetUtil{
 	  
   private static Logger logger=Logger.getLogger(CharsetUtil.class);
 
-  public static boolean isGB2312(char c){
+  public static boolean isGBK(char c){
     Character ch = new Character(c);
     String sCh = ch.toString();
     try {
-      byte[] bb = sCh.getBytes(Constants.Encoding.CHARSET_GBK2312);
+      byte[] bb = sCh.getBytes(Constants.Encoding.CHARSET_GBK);
       if (bb.length > 1)
         return true;
     }catch (UnsupportedEncodingException ex) {
@@ -31,10 +31,10 @@ public class CharsetUtil{
     return false;
   }
   
-  public static String encodeGB2312(String str){
+  public static String encodeGBK(String str){
     try{
 	      String strEncode = getEncoding(str);
-	      return new String(str.getBytes(strEncode),Constants.Encoding.CHARSET_GBK2312); 
+	      return new String(str.getBytes(strEncode),Constants.Encoding.CHARSET_GBK); 
      } catch (IOException ex){
     	 
      }
@@ -42,8 +42,8 @@ public class CharsetUtil{
   }
 
   public static String getEncoding(String str){
-    String[] encodes = {Constants.Encoding.CHARSET_UTF8,Constants.Encoding.CHARSET_ISO8859,
-    		Constants.Encoding.CHARSET_GBK,Constants.Encoding.CHARSET_GBK2312};    
+    String[] encodes = {Constants.Encoding.CHARSET_ISO8859,
+    		Constants.Encoding.CHARSET_GBK,Constants.Encoding.CHARSET_UTF8};    
     for(int i=0;i<encodes.length;i++){
     	try{
     	    if (str.equals(new String(str.getBytes(encodes[i]), encodes[i]))) {

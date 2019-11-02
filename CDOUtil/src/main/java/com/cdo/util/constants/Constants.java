@@ -65,7 +65,7 @@ public class Constants {
 		
 		//-------- 每页显示最小 最大数量-----------------//
 		public static final int PAGE_SIZE_MIN=10;
-		public static final int PAGE_SIZE_MAX=100;
+		public static final int PAGE_SIZE_MAX=500;
 	}
 	
 	//--字符编码变量-------//
