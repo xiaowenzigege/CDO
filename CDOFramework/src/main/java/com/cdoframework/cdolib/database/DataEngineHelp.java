@@ -38,7 +38,103 @@ public class DataEngineHelp {
 	
 	static void setVar(SetVar sv,CDO cdoRequest){
 		String strVarId=sv.getVarId();
-		String strFieldId=strVarId.substring(1,strVarId.length()-1);
+		String strValue=sv.getValue();
+		
+		StringBuilder strbText1=new StringBuilder();
+		StringBuilder strbText2=new StringBuilder();
+		boolean bIsFieldId1=handleFieldIdText(strVarId,strbText1);
+		boolean bIsFieldId2=handleFieldIdText(strValue,strbText2);
+		
+		String strFieldId=strbText1.toString();
+		String strValueId=strbText2.toString();
+		if(bIsFieldId2){
+			if(!cdoRequest.exists(strValueId)){
+				logger.warn("setVal cdoRequest["+strValueId+"]不存在.");
+				return ;
+			}
+			//value 为变量形式数据
+			byte type =cdoRequest.getObject(strValueId).getType().getDataType();
+			switch(type){
+				case DataType.BOOLEAN_TYPE:
+					cdoRequest.setBooleanValue(strFieldId, cdoRequest.getBooleanValue(strValueId));
+					break;
+				case DataType.BYTE_TYPE:
+					cdoRequest.setByteValue(strFieldId, cdoRequest.getByteValue(strValueId));
+					break;
+				case DataType.CDO_TYPE:
+					cdoRequest.setCDOValue(strFieldId, cdoRequest.getCDOValue(strValueId));					
+					break;
+				case DataType.DATE_TYPE:
+					cdoRequest.setDateValue(strFieldId, cdoRequest.getDateValue(strValueId));
+					break;
+				case DataType.DATETIME_TYPE:
+					cdoRequest.setDateTimeValue(strFieldId, cdoRequest.getDateTimeValue(strValueId));
+					break;
+				case DataType.DOUBLE_TYPE:
+					cdoRequest.setDoubleValue(strFieldId, cdoRequest.getDoubleValue(strValueId));
+					break;
+				case DataType.FLOAT_TYPE:
+					cdoRequest.setFloatValue(strFieldId, cdoRequest.getFloatValue(strValueId));
+					break;
+				case DataType.INTEGER_TYPE:
+					cdoRequest.setIntegerValue(strFieldId, cdoRequest.getIntegerValue(strValueId));
+					break;
+				case DataType.LONG_TYPE:
+					cdoRequest.setLongValue(strFieldId, cdoRequest.getLongValue(strValueId));
+					break;
+				case DataType.SHORT_TYPE:
+					cdoRequest.setShortValue(strFieldId, cdoRequest.getShortValue(strValueId));
+					break;
+				case DataType.STRING_TYPE:
+					cdoRequest.setStringValue(strFieldId, cdoRequest.getStringValue(strValueId));
+					break;
+				case DataType.TIME_TYPE:
+					cdoRequest.setTimeValue(strFieldId, cdoRequest.getTimeValue(strValueId));
+					break;
+					
+				case DataType.BOOLEAN_ARRAY_TYPE:
+					cdoRequest.setBooleanArrayValue(strFieldId, cdoRequest.getBooleanArrayValue(strValueId));
+					break;
+				case DataType.BYTE_ARRAY_TYPE:
+					cdoRequest.setByteArrayValue(strFieldId, cdoRequest.getByteArrayValue(strValueId));
+					break;
+				case DataType.CDO_ARRAY_TYPE:
+					cdoRequest.setCDOArrayValue(strFieldId, cdoRequest.getCDOArrayValue(strValueId));					
+					break;
+				case DataType.DATE_ARRAY_TYPE:
+					cdoRequest.setDateArrayValue(strFieldId, cdoRequest.getDateArrayValue(strValueId));
+					break;
+				case DataType.DATETIME_ARRAY_TYPE:
+					cdoRequest.setDateTimeArrayValue(strFieldId, cdoRequest.getDateTimeArrayValue(strValueId));
+					break;
+				case DataType.DOUBLE_ARRAY_TYPE:
+					cdoRequest.setDoubleArrayValue(strFieldId, cdoRequest.getDoubleArrayValue(strValueId));
+					break;
+				case DataType.FLOAT_ARRAY_TYPE:
+					cdoRequest.setFloatArrayValue(strFieldId, cdoRequest.getFloatArrayValue(strValueId));
+					break;
+				case DataType.INTEGER_ARRAY_TYPE:
+					cdoRequest.setIntegerArrayValue(strFieldId, cdoRequest.getIntegerArrayValue(strValueId));
+					break;
+				case DataType.LONG_ARRAY_TYPE:
+					cdoRequest.setLongArrayValue(strFieldId, cdoRequest.getLongArrayValue(strValueId));
+					break;
+				case DataType.SHORT_ARRAY_TYPE:
+					cdoRequest.setShortArrayValue(strFieldId, cdoRequest.getShortArrayValue(strValueId));
+					break;
+				case DataType.STRING_ARRAY_TYPE:
+					cdoRequest.setStringArrayValue(strFieldId, cdoRequest.getStringArrayValue(strValueId));
+					break;
+				case DataType.TIME_ARRAY_TYPE:
+					cdoRequest.setTimeArrayValue(strFieldId, cdoRequest.getTimeArrayValue(strValueId));
+					break;					
+			}
+			return;
+		}
+		//sv.getValue() 为普通文本,strbText2	
+		if(sv.getType()==null){
+			throw new RuntimeException("setVal,类型为定义, 当value值是普通文本时 ,需要定义类型");
+		}
 		switch(sv.getType())
 		{
 			case BYTE:

@@ -53,7 +53,6 @@ public class SetVarDescriptor extends org.exolab.castor.xml.util.XMLClassDescrip
         org.exolab.castor.mapping.FieldHandler             handler        = null;
         org.exolab.castor.xml.FieldValidator               fieldValidator = null;
         //-- initialize attribute descriptors
-
         //-- type
         desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(com.cdoframework.cdolib.database.xsd.types.SetVarTypeType.class, "type", "Type", org.exolab.castor.xml.NodeType.Attribute);
         handler = new org.exolab.castor.xml.XMLFieldHandler() {
@@ -84,8 +83,9 @@ public class SetVarDescriptor extends org.exolab.castor.xml.util.XMLClassDescrip
         handler = new org.exolab.castor.xml.handlers.EnumFieldHandler(com.cdoframework.cdolib.database.xsd.types.SetVarTypeType.class, handler);
         desc.setImmutable(true);
         desc.setSchemaType("SetVarTypeType");
-        desc.setHandler(handler);
-        desc.setRequired(true);
+        desc.setHandler(handler);        
+//      desc.setRequired(true);  
+        
         desc.setMultivalued(false);
         addFieldDescriptor(desc);
 
@@ -95,6 +95,7 @@ public class SetVarDescriptor extends org.exolab.castor.xml.util.XMLClassDescrip
         { //-- local scope
         }
         desc.setValidator(fieldValidator);
+        
         //-- varId
         desc = new org.exolab.castor.xml.util.XMLFieldDescriptorImpl(java.lang.String.class, "varId", "VarId", org.exolab.castor.xml.NodeType.Attribute);
         desc.setImmutable(true);
@@ -136,7 +137,7 @@ public class SetVarDescriptor extends org.exolab.castor.xml.util.XMLClassDescrip
             org.exolab.castor.xml.validators.StringValidator typeValidator;
             typeValidator = new org.exolab.castor.xml.validators.StringValidator();
             fieldValidator.setValidator(typeValidator);
-            typeValidator.addPattern("\\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|\\.|\\[|\\])*\\}");
+            typeValidator.addPattern("([a-zA-Z][0-9A-Za-z]{0,20})|(\\{([a-z]|[A-Z])([a-z]|[A-Z]|[0-9]|\\.|\\[|\\])*\\})");            
             typeValidator.setWhiteSpace("preserve");
             typeValidator.setMinLength(1);
         }

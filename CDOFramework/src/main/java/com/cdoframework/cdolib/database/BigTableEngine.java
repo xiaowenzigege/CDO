@@ -1194,12 +1194,10 @@ public class BigTableEngine
 					blockItem=new BlockTypeItem();
 					blockItem.setFor(transItem.getFor());
 				}
-				else if(transItem.getDelete()!=null)
-				{
+				else if(transItem.getSetVar()!=null){
 					blockItem=new BlockTypeItem();
-					blockItem.setDelete(transItem.getDelete());
+					blockItem.setSetVar(transItem.getSetVar());
 				}
-
 				if(blockItem!=null)
 				{
 					block.addBlockTypeItem(blockItem);
