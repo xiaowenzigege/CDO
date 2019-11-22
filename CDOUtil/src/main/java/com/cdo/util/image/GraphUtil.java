@@ -19,9 +19,6 @@ import java.awt.image.CropImageFilter;
 import java.awt.image.FilteredImageSource;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-
-
 import com.cdo.util.exception.ImageException;
 
 public class GraphUtil {
@@ -187,7 +184,16 @@ public class GraphUtil {
 	public static void resizePNG(String srcImgPath, String destImgPath, int destImgW, int destImgH,boolean proportion) throws ImageException {
 		resizeImage(srcImgPath, destImgPath, destImgW, destImgH, proportion, "PNG"); 		
 	}
-	
+	/**
+	 * 
+	 * @param srcImgPath 原始图片路径
+	 * @param destImgPath 目标图片保存路径
+	 * @param destImgW 目标图片宽度
+	 * @param destImgH 目标图片高度
+	 * @param proportion 是否等比缩放
+	 * @param formatName 如:JPG,JPEG,PNG,BMP等图片格式
+	 * @throws ImageException
+	 */
 	public static void resizeImage(String srcImgPath, String destImgPath, int destImgW, int destImgH,boolean proportion,String formatName) throws ImageException {
 		try{ 
 	        File f2 = new File(srcImgPath);  
