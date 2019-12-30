@@ -21,19 +21,19 @@ import com.cdoframework.cdolib.data.cdo.CDO;
  */
 public class JsonUtil {
 	
-	final static String Class_Byte="BYTE";
-	final static String Class_Short="SHORT";
-	final static String Class_Int="INT";
-	final static String Class_Integer="INTEGER";
-	final static String Class_Long="LONG";
-	final static String Class_Float="FLOAT";
-	final static String Class_Double="DOUBLE";
+	public final static String Class_Byte="BYTE";
+	public final static String Class_Short="SHORT";
+	public final static String Class_Int="INT";
+	public final static String Class_Integer="INTEGER";
+	public final static String Class_Long="LONG";
+	public final static String Class_Float="FLOAT";
+	public final static String Class_Double="DOUBLE";
 	
-	final static String Class_Boolean="BOOLEAN";
-	final static String Class_String="STRING";
-	final static String Class_Time="TIME";
-	final static String Class_Date="DATE";
-	final static String Class_DateTime="DATETIME";
+	public final static String Class_Boolean="BOOLEAN";
+	public final static String Class_String="STRING";
+	public final static String Class_Time="TIME";
+	public final static String Class_Date="DATE";
+	public final static String Class_DateTime="DATETIME";
 	final static String Class_File="FILE";
 	final static String Class_CDO="CDO";
 	
@@ -181,8 +181,7 @@ public class JsonUtil {
 		try {
 			jsonObj = new JSONObject(strJSON); // 偶数个的这里会转换成功
 		} catch (org.json.JSONException jex) {
-			// 特殊处理,替换1个反斜杠为2个,2个以上的不匹配
-			String newStr = strJSON.replaceAll("\\\\{1}", "\\\\\\\\"); 
+			String newStr=Function.FormatTextForJson(strJSON);
 			jsonObj = new JSONObject(newStr);
 		}
 		return jsonObj;

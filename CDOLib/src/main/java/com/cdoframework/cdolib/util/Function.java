@@ -1,42 +1,9 @@
-/**
- * www.cdoforum.com 2007版权所有
- * 
- * $Header: /CVSData/Frank/CVSROOT/CDOForum/CDOWeb/Source/com/cdoframework/cdolib/web/util/Function.java,v 1.1
- * 2008/03/05 01:35:47 Frank Exp $
- * 
- * $Log: Function.java,v $ Revision 1.1 2008/03/05 01:35:47 Frank *** empty log message ***
- * 
- * Revision 1.1 2007/12/25 14:11:29 Frank *** empty log message ***
- * 
- * Revision 1.1 2007/11/13 03:22:57 Frank *** empty log message ***
- * 
- * Revision 1.1 2007/11/13 03:11:34 Frank *** empty log message ***
- * 
- * Revision 1.4 2007/09/30 00:10:22 Frank *** empty log message ***
- * 
- * Revision 1.3 2007/08/30 06:46:47 Frank *** empty log message ***
- * 
- * Revision 1.1 2007/08/29 08:49:15 Frank *** empty log message ***
- * 
- * Revision 1.1 2007/08/08 09:32:20 Frank *** empty log message ***
- * 
- * Revision 1.1 2006/08/04 14:08:07 Frank Init Project
- * 
- * Revision 1.1 2006/07/10 22:38:37 Frank Init
- * 
- * Revision 1.4 2005/09/16 03:16:18 frank *** empty log message ***
- * 
- * Revision 1.3 2005/09/16 02:32:38 frank *** empty log message ***
- * 
- * Revision 1.2 2005/09/16 02:11:14 frank *** empty log message ***
- * 
- * Revision 1.1 2005/09/16 02:05:58 frank *** empty log message ***
- * 
- * 
- */
-
 package com.cdoframework.cdolib.util;
-
+/**
+ * 处理 字符转义
+ * @author KenelLiu
+ *
+ */
 public class Function
 {	
 	/**
@@ -139,24 +106,48 @@ public class Function
 	}
 
 
-	
+	/**
+	 * 参见
+	 * http://www.json.org/
+	 * @param strTex 
+	 * @return
+	 */
 	public static String FormatTextForJson(String strText)
 	{
-		if(strText==null)
-		{
-			return null;
-		}
-		strText=strText.replace("\\","\\\\");
-		strText=strText.replaceAll("\"","\\\\\"");
-		return strText;
-	}	
-
-	public static String FormatTextForHTML(String strData){
-		if(strData==null)return null;
-	    int len= strData.length();
+		if(strText==null)return null;
+	    int len= strText.length();
 	    StringBuilder sb= new StringBuilder(len);
 	    for (int i = 0; i < len; i++) {
-	      char c = strData.charAt(i);
+	      char c = strText.charAt(i);
+	      switch (c) {
+	      case '"':
+	        sb.append("\"");	       
+	        break;
+	      case '\\':
+	      	sb.append("\\\\");
+	      	break;
+	      case '\r':
+	    	  sb.append("\\r"); 
+	    	break;
+	      case '\n':	
+	    	  sb.append("\\n");
+	    	  break;	    	  
+	      case '\t':	
+	    	  sb.append("\\t");
+	    	  break;		      	  
+	      default:
+		        sb.append(c);	    	  
+	      }
+	    }
+		return sb.toString();
+	}	
+
+	public static String FormatTextForHTML(String strText){
+		if(strText==null)return null;
+	    int len= strText.length();
+	    StringBuilder sb= new StringBuilder(len);
+	    for (int i = 0; i < len; i++) {
+	      char c = strText.charAt(i);
 	      switch (c) {
 	      case '\'':
 	        sb.append("&#039;");	       
@@ -176,6 +167,65 @@ public class Function
 	      case '\\':
 	        //sb.append("\\\\");
 	    	sb.append("&#092;");    	 
+	        break;
+	      case '/':
+	      	sb.append("&#47;");    	 
+	          break;        
+	      case '©':
+	        sb.append("&copy;");
+	        break;
+	      case '®':
+	        sb.append("&reg;");
+	        break;
+	      case '¥':
+	        sb.append("&yen;");
+	        break;
+	      case '€':
+	        sb.append("&euro;");
+	        break;
+	      case '™':
+	        sb.append("&#153;");
+	        break;
+		  case ' ':
+			 sb.append("&nbsp;");
+			 break;        
+	      case '\r':
+	        break;
+	      case '\n':
+	    	  sb.append("<br/>");
+	          break;        
+	      default:
+	        sb.append(c);
+	      }
+	    }
+	    return new String(sb.toString());		
+	}
+	 
+	public static String FormatTextForMixHTMLJSON(String strText){
+		if(strText==null)return null;
+	    int len= strText.length();
+	    StringBuilder sb= new StringBuilder(len);
+	    for (int i = 0; i < len; i++) {
+	      char c = strText.charAt(i);
+	      switch (c) {
+	      case '\'':
+	        sb.append("&#039;");	       
+	        break;
+	      case '<':
+	        sb.append("&lt;");
+	        break;
+	      case '>':
+	        sb.append("&gt;");
+	        break;
+	      case '&':
+	        sb.append("&amp;");
+	        break;
+	      case '"':
+	        sb.append("\\&quot;");
+	        break;
+	      case '\\':
+	        //sb.append("\\\\");
+	    	sb.append("\\&#092;");    	 
 	        break;
 	      case '/':
 	      	sb.append("&#47;");    	 

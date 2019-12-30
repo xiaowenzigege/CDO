@@ -122,10 +122,20 @@ public class StringField extends FieldImpl
 	{
 		String strValue=getValue();
 		StringBuffer str_JSON=new StringBuffer();
-		strValue=Function.FormatTextForHTML(Function.FormatTextForJson(strValue));
+		strValue=Function.FormatTextForHTML(strValue);
 		str_JSON.append("\"").append(this.getName()).append("\"").append(":\"").append(strValue).append("\",");
 		return str_JSON.toString();
 	}	
+	
+	public String toMixHtmlJSON(){
+		String strValue=getValue();
+		StringBuffer str_JSON=new StringBuffer();
+		strValue=Function.FormatTextForMixHTMLJSON(strValue);
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":\"").append(strValue).append("\",");
+		return str_JSON.toString();
+		
+	}
+	
 	@Override
 	public String toString()
 	{		

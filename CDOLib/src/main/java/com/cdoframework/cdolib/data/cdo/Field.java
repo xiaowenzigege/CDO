@@ -66,7 +66,7 @@ public interface Field extends DataType
 	
 	public  Object getObjectValue();
 	/**
-	 * 字段key:value内容转换成json格式
+	 * 转换成json格式
 	 * @return
 	 */
 	public  String toJSON();
@@ -78,11 +78,15 @@ public interface Field extends DataType
 	public  String toString();
 	
 	/**
-	 * 输出string,为json格式.对字符串内容转义
+	 * 转换成json格式,其中value进行html编码
 	 * @return
 	 */
-	public  String toHtmlJSON();
-	
+	public  String toHtmlJSON();	
+	/**
+	 * 转换成json格式,其中value同时进行 json转义及html编码
+	 * @return
+	 */
+	public  String toMixHtmlJSON();
 	/**
 	 * CDO里字段转换成 xml文件 格式
 	 * @param strbXML

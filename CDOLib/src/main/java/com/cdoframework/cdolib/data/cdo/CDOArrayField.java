@@ -9,6 +9,7 @@ import java.util.Map;
 import com.cdo.google.protocol.GoogleCDO;
 import com.cdoframework.cdolib.base.DataType;
 import com.cdoframework.cdolib.base.Utility;
+import com.cdoframework.cdolib.util.Function;
 import com.google.protobuf.ByteString;
 
 /**
@@ -145,6 +146,36 @@ public class CDOArrayField extends ArrayFieldImpl
 		str_JSON.append("],");
 		return str_JSON.toString();
 	}	
+	
+	@Override
+	public String toHtmlJSON()
+	{
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append("[");
+		int _length=this.cdosValue.size();
+		for(int i=0;i<_length;i=i+1)
+		{
+			String _sign=(i==_length-1)?"":",";
+			str_JSON.append("").append(this.cdosValue.get(i).toHtmlJSON()).append(_sign);
+		}
+		str_JSON.append("],");
+		return str_JSON.toString();
+	}		
+	
+	public String toMixHtmlJSON(){
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append("[");
+		int _length=this.cdosValue.size();
+		for(int i=0;i<_length;i=i+1)
+		{
+			String _sign=(i==_length-1)?"":",";
+			str_JSON.append("").append(this.cdosValue.get(i).toMixHtmlJSON()).append(_sign);
+		}
+		str_JSON.append("],");
+		return str_JSON.toString();
+		
+	}
+	
 	
 	public Object getObjectValue()
 	{

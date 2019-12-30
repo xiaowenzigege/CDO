@@ -303,10 +303,26 @@ public class CDO implements java.io.Serializable
 		return buffer2JSON(B2S_JSON);
 	}
 	
+	/**
+	 * 把CDO对象转换成JSON格式的字符串,
+	 * 其中value使用了html编码
+	 *  
+	 * @return
+	 */
 	public String toHtmlJSON()
 	{
 		return buffer2JSON(B2S_HtmlJSON);
 	}
+	/**把CDO对象转换成JSON格式的字符串,
+	 * 其中value 特殊字符,同时进行 json转义及html编码
+	 * @return
+	 */
+	public String toMixHtmlJSON(){		
+		return buffer2JSON(B2S_MixHtmlJSON);
+	}
+
+	
+	
 //-----------------------------xml2CDO 反序列化方法    avro2CDO 参看AvroCDODeserialize-----------------------------------------------//
 	
 	public static CDO fromXML(String strXML)
@@ -1567,7 +1583,8 @@ public class CDO implements java.io.Serializable
 	
 	final static byte B2S_String=1;
 	final static byte B2S_JSON=2;
-	final static byte B2S_HtmlJSON=3;
+	final static byte B2S_HtmlJSON=3;	
+	final static byte B2S_MixHtmlJSON=4;
 	
 	private String buffer2JSON(int type){
 		
@@ -1590,7 +1607,10 @@ public class CDO implements java.io.Serializable
 					break;	
 				case B2S_HtmlJSON:
 					strJSON.append(entry.getValue().toHtmlJSON());
-					break;					
+					break;						
+				case B2S_MixHtmlJSON:
+					strJSON.append(entry.getValue().toMixHtmlJSON());
+					break;
 			}			
 		}		
 		// ugly 方法去掉最后一个","

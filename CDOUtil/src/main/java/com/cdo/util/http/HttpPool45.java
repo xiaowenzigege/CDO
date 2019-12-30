@@ -17,7 +17,9 @@ import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClients;
@@ -67,6 +69,9 @@ public class HttpPool45 extends HttpPool{
 	                            X509Certificate[] certs, String authType) {
 	                    }
 	                }}, null);
+//	        SSLConnectionSocketFactory scsf = SSLConnectionSocketFactory(SSLContexts.custom().loadTrustMaterial(null, new TrustSelfSignedStrategy()).build(),NoopHostnameVerifier.INSTANCE)
+//	        	httpclient = HttpClients.custom().setSSLSocketFactory(scsf).build()
+	        	
 	        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
 	                .register("http", PlainConnectionSocketFactory.INSTANCE)
 	                .register("https", new SSLConnectionSocketFactory(sslContext))

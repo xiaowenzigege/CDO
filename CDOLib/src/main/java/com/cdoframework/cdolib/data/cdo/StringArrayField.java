@@ -219,13 +219,25 @@ public class StringArrayField extends ArrayFieldImpl
 		for(int i=0;i<this.strsValue.length;i=i+1)
 		{
 			String _sign=(i==_length-1)?"\"":"\",";
-			String strValue=Function.FormatTextForHTML(Function.FormatTextForJson(this.strsValue[i]));
+			String strValue=Function.FormatTextForHTML(this.strsValue[i]);
+			str_JSON.append("\"").append(strValue).append(_sign);
+		}
+		str_JSON.append("],");
+		return str_JSON.toString();
+	}	
+	public String toMixHtmlJSON(){
+		StringBuffer str_JSON=new StringBuffer();
+		str_JSON.append("\"").append(this.getName()).append("\"").append(":").append("[");
+		int _length=strsValue.length;
+		for(int i=0;i<this.strsValue.length;i=i+1)
+		{
+			String _sign=(i==_length-1)?"\"":"\",";
+			String strValue=Function.FormatTextForMixHTMLJSON(this.strsValue[i]);
 			str_JSON.append("\"").append(strValue).append(_sign);
 		}
 		str_JSON.append("],");
 		return str_JSON.toString();
 	}
-	
 	@Override
 	public String toString(){
 

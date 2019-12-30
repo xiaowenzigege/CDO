@@ -83,7 +83,11 @@ public abstract class FieldImpl implements Field
 	public String toString() {	
 		return toJSON();		
 	}
-	
+		
+	@Override
+	public String toMixHtmlJSON(){
+		return toJSON();
+	}		
 	@Override
 	public void toAvro(String prefixField,Map<CharSequence,ByteBuffer> fieldMap){
 		fieldMap.put(prefixField+this.getName(), buffer);		
