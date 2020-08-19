@@ -286,9 +286,13 @@ public class FileUtil {
 
 	private static void zipFile(File dirFile,InputStream fileStream, ZipOutputStream zos, String dir) throws IOException {
 		if (dirFile.isDirectory()) {
-		    File[] files = dirFile.listFiles();
-		    for (File file:files)
-		        zipFile(file,fileStream,zos, dir + File.separator + dirFile.getName());
+		    File[] files = dirFile.listFiles();		   
+		    for (File file:files){
+		    	if(!dir.equals(""))
+		    		zipFile(file,fileStream,zos, dir + File.separator + dirFile.getName());
+		    	else
+		    		zipFile(file,fileStream,zos,dirFile.getName());
+		    }		    
 		} else {
 		    String entryName = null;
 		    if (!"".equals(dir))
